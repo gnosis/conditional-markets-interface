@@ -1,0 +1,32 @@
+{
+  "name": "decentralized-oracle",
+  "version": "0.0.1",
+  "description": "A decentralized oracle for the price of Ether, Hashrate, and Block gas limit.",
+  "main": "truffle-config.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "Oracle",
+    "Ethereum"
+  ],
+  "dependencies": {
+    "@gnosis.pm/hg-contracts": "^2.0.1",
+    "erc-1155": "github:cag/erc-1155#sol-0.5",
+    "openzeppelin-solidity": "github:elopio/openzeppelin-solidity#solc-nightly-2.0-update-2",
+    "truffle-hdwallet-provider": "^1.0.2"
+  },
+  "author": "Anton Shtylman",
+  "license": "MIT",
+  "devDependencies": {
+    "@gnosis.pm/truffle-nice-tools": "^1.1.3",
+    "eslint": "^5.11.1",
+    "eslint-config-prettier": "^3.3.0",
+    "eslint-plugin-prettier": "^3.0.0",
+    "prettier": "^1.15.3",
+    "truffle": "^5.0.0"
+  }
+}
