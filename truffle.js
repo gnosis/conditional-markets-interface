@@ -1,6 +1,6 @@
 var HDWalletProvider = require("truffle-hdwallet-provider");
 
-const mnemonic = 'atom boost hazard empower canal coffee village vanish foam shy harsh banner';
+const mnemonic = 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat';
 /*
  * NB: since truffle-hdwallet-provider 0.0.5 you must wrap HDWallet providers in a 
  * function when declaring them. Failure to do so will cause commands to hang. ex:
