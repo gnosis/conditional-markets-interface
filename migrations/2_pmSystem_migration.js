@@ -2,8 +2,11 @@ const PredictionMarketSystem = artifacts.require('PredictionMarketSystem');
 const DifficultyBlockOracle = artifacts.require('DifficultyBlockOracle');
 const ETHValueBlockOracle = artifacts.require('ETHValueBlockOracle');
 const GasLimitBlockOracle = artifacts.require('GasLimitBlockOracle');
+const LMSRMarketMaker = artifacts.require('LMSRMarketMaker');
+const LMSRMarketMakerFactory = artifacts.require('LMSRMarketMakerFactory');
+const WETH9 = artifacts.require('WETH9');
 
-module.exports = (deployer, network) => {
+module.exports = (deployer, network, accounts) => {
     if (network === 'development') {
         deployer.deploy(PredictionMarketSystem).then(async (pmSystem) => {
             await deployer.deploy(DifficultyBlockOracle, pmSystem.address, 1, 1e9, "0x01");
