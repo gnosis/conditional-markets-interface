@@ -15,6 +15,7 @@
   ],
   "dependencies": {
     "@gnosis.pm/hg-contracts": "^2.0.1",
+    "@gnosis.pm/hg-market-makers": "^0.2.1",
     "erc-1155": "github:cag/erc-1155#sol-0.5",
     "openzeppelin-solidity": "github:elopio/openzeppelin-solidity#solc-nightly-2.0-update-2",
     "truffle-hdwallet-provider": "^1.0.2"
@@ -22,6 +23,7 @@
   "author": "Anton Shtylman",
   "license": "MIT",
   "devDependencies": {
+    "@gnosis.pm/mock-contract": "^3.0.6",
     "@gnosis.pm/truffle-nice-tools": "^1.1.3",
     "eslint": "^5.11.1",
     "eslint-config-prettier": "^3.3.0",

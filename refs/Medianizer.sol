@@ -9,11 +9,12 @@
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND (express or implied).
 
+/* solium-disable */
 pragma solidity ^0.4.8;
 
 contract DSAuthority {
     function canCall(
-        address src, address dst, bytes4 sig
+      address src, address dst, bytes4 sig
     ) constant returns (bool);
 }
 
