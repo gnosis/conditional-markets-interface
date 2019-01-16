@@ -7,8 +7,8 @@
     "test": "test"
   },
   "scripts": {
-    "start": "cd ./app && webpack-dev-server --config ./webpack.config.js --mode development",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "migrate": "truffle migrate --reset",
+    "test": "truffle test"
   },
   "keywords": [
     "Oracle",
@@ -16,7 +16,7 @@
   ],
   "dependencies": {
     "@gnosis.pm/hg-contracts": "^2.0.1",
-    "@gnosis.pm/hg-market-makers": "^0.2.2",
+    "@gnosis.pm/hg-market-makers": "^0.2.3",
     "erc-1155": "github:cag/erc-1155#sol-0.5",
     "openzeppelin-solidity": "github:elopio/openzeppelin-solidity#solc-nightly-2.0-update-2",
     "truffle-hdwallet-provider": "^1.0.2"
@@ -41,6 +41,7 @@
     "truffle": "^5.0.0",
     "webpack": "^4.28.4",
     "webpack-cli": "^3.2.1",
-    "webpack-dev-server": "^3.1.14"
+    "webpack-dev-server": "^3.1.14",
+    "rlp": "^2.2.1"
   }
 }
