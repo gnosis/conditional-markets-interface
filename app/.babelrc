@@ -1,16 +1,11 @@
 {
   "presets": [
     "@babel/preset-react",
-    [
-      "@babel/preset-env",
-      {
-        "forceAllTransforms": true,
-        "modules": false
-      }
-    ]
+    "@babel/preset-env"
   ],
   "plugins": [
     "react-hot-loader/babel",
-    "@babel/plugin-transform-runtime"
+    "@babel/plugin-transform-runtime",
+    "@babel/plugin-syntax-dynamic-import"
   ]
 }

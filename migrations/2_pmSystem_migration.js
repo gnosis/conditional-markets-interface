@@ -27,6 +27,8 @@ module.exports = (deployer, network, accounts) => {
             await pmSystemInstance.prepareCondition(gasLimitOracleInstance.address, "0x02", 2);
             const conditionOneId = keccak256(difficultyOracleInstance.address + ["0x0100000000000000000000000000000000000000000000000000000000000000", 2].map(v => padLeft(toHex(v), 64).slice(2)).join(""));
             const conditionTwoId = keccak256(gasLimitOracleInstance.address + ["0x0200000000000000000000000000000000000000000000000000000000000000", 2].map(v => padLeft(toHex(v), 64).slice(2)).join(""));
+
+            console.log({ conditionOneId, conditionTwoId })
             // Start the Nonce for LMSRFactory and Pre-Calculate the LMSRAMM instance address
             let factoryNonce = 0x01;
             const checksummedLMSRAddress = toChecksumAddress(keccak256(rlp.encode([LMSRMarketMakerFactoryInstance.address, factoryNonce])).substr(26));
@@ -57,6 +59,8 @@ module.exports = (deployer, network, accounts) => {
             const conditionOneId = keccak256(difficultyOracleInstance.address + ["0x0100000000000000000000000000000000000000000000000000000000000000", 2].map(v => padLeft(toHex(v), 64).slice(2)).join(""));
             const conditionTwoId = keccak256(gasLimitOracleInstance.address + ["0x0200000000000000000000000000000000000000000000000000000000000000", 2].map(v => padLeft(toHex(v), 64).slice(2)).join(""));
             const conditionThreeId = keccak256(ethValueOracleInstance.address + ["0x0300000000000000000000000000000000000000000000000000000000000000", 2].map(v => padLeft(toHex(v), 64).slice(2)).join(""));
+
+            console.log({ conditionOneId, conditionTwoId, conditionThreeId })
             // Start the Nonce for LMSRFactory and Pre-Calculate the LMSRAMM instance address
             let factoryNonce = 0x01;
             const checksummedLMSRAddress = toChecksumAddress(keccak256(rlp.encode([LMSRMarketMakerFactoryInstance.address, factoryNonce])).substr(26));

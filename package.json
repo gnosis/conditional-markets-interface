@@ -8,6 +8,7 @@
   },
   "scripts": {
     "migrate": "truffle migrate --reset",
+    "start": "cd ./app && webpack-dev-server --config ./webpack.config.js --mode development",
     "test": "truffle test"
   },
   "keywords": [
@@ -15,18 +16,22 @@
     "Ethereum"
   ],
   "dependencies": {
+    "@babel/plugin-syntax-dynamic-import": "^7.2.0",
     "@babel/runtime": "^7.2.0",
     "@gnosis.pm/hg-contracts": "^2.0.1",
     "@gnosis.pm/hg-market-makers": "^0.2.3",
     "classnames": "^2.2.6",
     "erc-1155": "github:cag/erc-1155#sol-0.5",
+    "ethers": "^4.0.21",
     "normalize.css": "^8.0.1",
     "openzeppelin-solidity": "github:elopio/openzeppelin-solidity#solc-nightly-2.0-update-2",
     "prop-types": "^15.6.2",
     "react": "^16.7.0",
     "react-dom": "^16.7.0",
     "recompose": "^0.30.0",
-    "truffle-hdwallet-provider": "^1.0.2"
+    "truffle-contract": "^4.0.2",
+    "truffle-hdwallet-provider": "^1.0.2",
+    "web3": "^1.0.0-beta.37"
   },
   "author": "Anton Shtylman",
   "license": "MIT",
@@ -37,7 +42,7 @@
     "@babel/preset-env": "^7.2.3",
     "@babel/preset-react": "^7.0.0",
     "@gnosis.pm/mock-contract": "^3.0.6",
-    "@gnosis.pm/truffle-nice-tools": "^1.1.3",
+    "@gnosis.pm/truffle-nice-tools": "^1.1.4",
     "babel-loader": "^8.0.5",
     "css-loader": "^2.1.0",
     "eslint": "^5.11.1",
@@ -47,12 +52,12 @@
     "node-sass": "^4.11.0",
     "prettier": "^1.15.3",
     "react-hot-loader": "^4.6.3",
+    "rlp": "^2.2.1",
     "sass-loader": "^7.1.0",
     "style-loader": "^0.23.1",
     "truffle": "^5.0.0",
     "webpack": "^4.28.4",
     "webpack-cli": "^3.2.1",
-    "webpack-dev-server": "^3.1.14",
-    "rlp": "^2.2.1"
+    "webpack-dev-server": "^3.1.14"
   }
 }

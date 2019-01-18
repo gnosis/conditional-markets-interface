@@ -7,6 +7,18 @@ module.exports = {
     publicPath: "/",
     filename: "bundle.js"
   },
+  resolve: {
+    symlinks: false,
+    alias: {
+      '~style': `${__dirname}/src/style`,
+      '~assets': `${__dirname}/src/assets`,
+    },
+    modules: [
+      `${__dirname}/src`,
+      `${__dirname}/../package.json`,
+      `${__dirname}/../node_modules`
+    ]
+  },
   devServer: {
     contentBase: __dirname + "/dist"
   },
