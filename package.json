@@ -7,7 +7,7 @@
     "test": "test"
   },
   "scripts": {
-    "migrate": "truffle migrate --reset",
+    "migrate": "truffle compile --all && truffle migrate --reset",
     "start": "cd ./app && webpack-dev-server --config ./webpack.config.js --mode development",
     "test": "truffle test"
   },
@@ -21,6 +21,7 @@
     "@gnosis.pm/hg-contracts": "^2.0.1",
     "@gnosis.pm/hg-market-makers": "^0.2.3",
     "classnames": "^2.2.6",
+    "env": "0.0.2",
     "erc-1155": "github:cag/erc-1155#sol-0.5",
     "ethers": "^4.0.21",
     "normalize.css": "^8.0.1",
