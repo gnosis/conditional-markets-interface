@@ -1,0 +1,19 @@
+.market {
+  margin: 48px 0;
+
+  .title {
+    font-size: 150%;
+  }
+}
+
+.outcomes {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: flex-end;
+}
+
+.outcome-stats {
+  display: flex;
+  flex-direction: row;
+}

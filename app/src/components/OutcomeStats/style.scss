@@ -1,0 +1,24 @@
+.outcome-stat {
+  width: 50%;
+
+  &.selected {
+    .name {
+      font-weight: 800;
+    }
+  }
+}
+
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+
+  dt {
+    width: 200px;
+  }
+
+  dd {
+    width: auto;
+  }
+
+
+}
