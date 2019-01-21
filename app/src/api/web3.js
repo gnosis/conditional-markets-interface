@@ -56,8 +56,10 @@ export const getDefaultAccount = async () => {
   return allAccounts[0]
 }
 
+const localhostRegex = /https?:\/\/localhost:*/g
 export const getNetwork = async () => {
   if (isLocal) return 'GANACHE'
+  if (localhostRegex.test(provider.currentProvider.host)) return 'GANACHE'
 
   const networkId = await provider.eth.net.getId()
   switch(networkId) {
@@ -75,7 +77,6 @@ export const loadConfig = async () => {
   if (loadedConfig) return loadedConfig
 
   const network = await getNetwork()
-  console.log({ network })
 
   if (config[network]) {
     console.log(`Loading configuration for network ${network}`)
