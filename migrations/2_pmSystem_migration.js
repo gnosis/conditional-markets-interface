@@ -2,16 +2,16 @@ const { toHex, padLeft, keccak256, asciiToHex, toBN, fromWei, toChecksumAddress 
 const rlp = require('rlp');
 
 const PredictionMarketSystem = artifacts.require('PredictionMarketSystem');
-const DifficultyBlockOracle = artifacts.require('DifficultyBlockOracle');
-const ETHValueBlockOracle = artifacts.require('ETHValueBlockOracle');
-const GasLimitBlockOracle = artifacts.require('GasLimitBlockOracle');
+const DifficultyOracle = artifacts.require('DifficultyOracle');
+const ETHValueOracle = artifacts.require('ETHValueOracle');
+const GasLimitOracle = artifacts.require('GasLimitOracle');
 const LMSRMarketMaker = artifacts.require('LMSRMarketMaker');
 const LMSRMarketMakerFactory = artifacts.require('LMSRMarketMakerFactory');
 const Fixed192x64Math = artifacts.require('Fixed192x64Math');
 const WETH9 = artifacts.require('WETH9');
 
 module.exports = (deployer, network, accounts) => {
-    if (network === 'development') {
+    if (network === 'development' || network === 'test') {
         deployer.deploy(PredictionMarketSystem).then(async (pmSystemInstance) => {
             // Deploy the base contracts
             await deployer.deploy(Fixed192x64Math);
@@ -20,8 +20,8 @@ module.exports = (deployer, network, accounts) => {
             const collateralToken = await deployer.deploy(WETH9);
             const LMSRMarketMakerFactoryInstance = await deployer.deploy(LMSRMarketMakerFactory);
             // Deploy the Oracle contracts
-            const difficultyOracleInstance = await deployer.deploy(DifficultyBlockOracle, pmSystemInstance.address, process.env.O1SSTARTBLOCK || 1, process.env.O1ENDBLOCK || 1e9, process.env.O1TARGET || 10, process.env.O1QUESTIONID || "0x01");
-            const gasLimitOracleInstance = await deployer.deploy(GasLimitBlockOracle, pmSystemInstance.address, process.env.O2STARTBLOCK || 1, process.env.O2ENDBLOCK || 1e9, process.env.O2TARGET || 10, process.env.O2QUESTIONID || "0x02");
+            const difficultyOracleInstance = await deployer.deploy(DifficultyOracle, pmSystemInstance.address, process.env.O1SSTARTBLOCK || 1, process.env.O1ENDBLOCK || 1e9, process.env.O1TARGET || 10, process.env.O1QUESTIONID || "0x01");
+            const gasLimitOracleInstance = await deployer.deploy(GasLimitOracle, pmSystemInstance.address, process.env.O2STARTBLOCK || 1, process.env.O2ENDBLOCK || 1e9, process.env.O2TARGET || 10, process.env.O2QUESTIONID || "0x02");
             // Prepare and identify the conditions in the pmSystem
             await pmSystemInstance.prepareCondition(difficultyOracleInstance.address, process.env.O1QUESTIONID || "0x01", 2);
             await pmSystemInstance.prepareCondition(gasLimitOracleInstance.address, process.env.O2QUESTIONID ||"0x02", 2);
@@ -34,7 +34,7 @@ module.exports = (deployer, network, accounts) => {
             await collateralToken.deposit({ from: accounts[0], value: process.env.AMMFUNDING || 1e12 });
             await collateralToken.approve(checksummedLMSRAddress, process.env.AMMFUNDING || 1e12 , { from: accounts[0]});
             // Deploy the pre-calculated LMSR instance 
-            await LMSRMarketMakerFactoryInstance.createLMSRMarketMaker(pmSystemInstance.address, collateralToken.address, [conditionOneId, conditionTwoId], 1, process.env.AMMFUNDING || 1e12 , { from: accounts[0] });
+            await LMSRMarketMakerFactoryInstance.createLMSRMarketMaker(pmSystemInstance.address, collateralToken.address, [conditionOneId, conditionTwoId], 1, process.env.AMMFUNDING || 1 , { from: accounts[0] });
             factoryNonce++;
         });
     } else if (network === 'rinkeby' || network === 'mainnet') {
@@ -52,9 +52,9 @@ module.exports = (deployer, network, accounts) => {
             const collateralToken = await deployer.deploy(WETH9);
             const LMSRMarketMakerFactoryInstance = await deployer.deploy(LMSRMarketMakerFactory);
             // Deploy the Oracle contracts
-            const difficultyOracleInstance = await deployer.deploy(DifficultyBlockOracle, pmSystemInstance.address, process.env.O1SSTARTBLOCK || 1, process.env.O1ENDBLOCK || 1e9, process.env.O1TARGET || 10, process.env.O1QUESTIONID || "0x01");
-            const gasLimitOracleInstance = await deployer.deploy(GasLimitBlockOracle, pmSystemInstance.address, process.env.O2STARTBLOCK || 1, process.env.O2ENDBLOCK || 1e9, process.env.O2TARGET || 10, process.env.O2QUESTIONID || "0x02");
-            const ethValueOracleInstance = await deployer.deploy(ETHValueBlockOracle, pmSystemInstance.address, medianizerAddr, process.env.O3STARTBLOCK || 1, process.env.O3ENDBLOCK || 1e9, process.env.O3TARGET || 10, process.env.O3QUESTIONID || "0x03");
+            const difficultyOracleInstance = await deployer.deploy(DifficultyOracle, pmSystemInstance.address, process.env.O1SSTARTBLOCK || 1, process.env.O1ENDBLOCK || 1e9, process.env.O1TARGET || 10, process.env.O1QUESTIONID || "0x01");
+            const gasLimitOracleInstance = await deployer.deploy(GasLimitOracle, pmSystemInstance.address, process.env.O2STARTBLOCK || 1, process.env.O2ENDBLOCK || 1e9, process.env.O2TARGET || 10, process.env.O2QUESTIONID || "0x02");
+            const ethValueOracleInstance = await deployer.deploy(ETHValueOracle, pmSystemInstance.address, medianizerAddr, process.env.O3STARTBLOCK || 1, process.env.O3ENDBLOCK || 1e9, process.env.O3TARGET || 10, process.env.O3QUESTIONID || "0x03");
             // Prepare and identify the conditions in the pmSystem
             await pmSystemInstance.prepareCondition(difficultyOracleInstance.address, process.env.O1QUESTIONID || "0x01", 2);
             await pmSystemInstance.prepareCondition(gasLimitOracleInstance.address, process.env.O2QUESTIONID ||"0x02", 2);
