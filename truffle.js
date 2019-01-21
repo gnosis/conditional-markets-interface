@@ -26,7 +26,7 @@ const config = {
     },
     rinkeby: {
       provider: () => {
-       return new HDWalletProvider(mnemonic, "https://rinkeby.infura.io/v3/22218302c99b4ee29f8a5876ad0b552c"); 
+       return new HDWalletProvider(seed, "https://rinkeby.infura.io/v3/22218302c99b4ee29f8a5876ad0b552c"); 
       }, 
       network_id: "4"
     }

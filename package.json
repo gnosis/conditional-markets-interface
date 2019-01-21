@@ -8,8 +8,8 @@
   },
   "scripts": {
     "migrate": "truffle compile --all && truffle migrate --reset",
-    "start": "cd ./app && webpack-dev-server --config ./webpack.config.js --mode development",
-    "test": "truffle test"
+    "test": "truffle test --network test",
+    "start": "cd ./app && webpack-dev-server --config ./webpack.config.js --mode development"
   },
   "keywords": [
     "Oracle",
@@ -45,6 +45,7 @@
     "@gnosis.pm/mock-contract": "^3.0.6",
     "@gnosis.pm/truffle-nice-tools": "^1.1.4",
     "babel-loader": "^8.0.5",
+    "chai": "^4.2.0",
     "css-loader": "^2.1.0",
     "eslint": "^5.11.1",
     "eslint-config-prettier": "^3.3.0",
@@ -57,6 +58,7 @@
     "sass-loader": "^7.1.0",
     "style-loader": "^0.23.1",
     "truffle": "^5.0.0",
+    "truffle-assertions": "^0.7.2",
     "webpack": "^4.28.4",
     "webpack-cli": "^3.2.1",
     "webpack-dev-server": "^3.1.14"
