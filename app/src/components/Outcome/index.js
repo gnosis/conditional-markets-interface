@@ -41,7 +41,6 @@ const enhancer = compose(
       const account = await getDefaultAccount()
       
       const balance = await pmSystem.balanceOf(account, positionId)
-      console.log({ balance: balance.toString() })
       setBalance(balance.toString())
     }
   })

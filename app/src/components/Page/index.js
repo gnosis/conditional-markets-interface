@@ -112,7 +112,7 @@ const enhancer = compose(
       const fee = await LMSR.calcMarketFee.call(cost)
       const profit = cost.sub(fee)
 
-      console.log({ cost: cost.toString(), fee: fee.toString(), profit: profit.toString() })
+      //console.log({ cost: cost.toString(), fee: fee.toString(), profit: profit.toString() })
 
       // get collateral
       const WETH = await loadContract('WETH9')

@@ -9,7 +9,8 @@
   "scripts": {
     "migrate": "truffle compile --all && truffle migrate --reset",
     "test": "truffle test --network test",
-    "start": "cd ./app && webpack-dev-server --config ./webpack.config.js --mode development"
+    "start": "cd ./app && webpack-dev-server --config ./webpack.config.js --mode development",
+    "build": "cd ./app && webpack -p --config ./webpack.config.js --mode production"
   },
   "keywords": [
     "Oracle",
