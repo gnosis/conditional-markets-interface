@@ -2,7 +2,7 @@ import { getDefaultAccount, loadContract } from './web3'
 
 import web3 from 'web3'
 import { generatePositionId } from './utils/positions'
-import './utils/lmsr'
+//import './utils/lmsr'
 
 const { toBN } = web3.utils
 

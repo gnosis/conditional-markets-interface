@@ -3,19 +3,18 @@ import css from './style.scss'
 import web3 from 'web3'
 import { compose, lifecycle, withState, withStateHandlers, withProps, withHandlers } from 'recompose'
 
-import { loadContract, getDefaultAccount } from '../../api/web3'
+import { loadContract, loadConfig, getDefaultAccount } from '../../api/web3'
 import transformMarketEntries from '../../api/utils/transform'
-import { generatePositionId } from '../../api/utils/positions'
 import { retrieveBalances } from '../../api/balances'
 
 import Market from '../Market'
-import MarketEntries from '../../../markets.json'
+//import MarketEntries from '../../../markets.json'
 
 import cn from 'classnames/bind'
 const cx = cn.bind(css)
 const { toBN } = web3.utils
 
-const entriesForNetwork = MarketEntries.RINKEBY
+const entriesForNetwork = [] //MarketEntries.RINKEBY
 
 function Page({
   markets,
@@ -66,7 +65,8 @@ const enhancer = compose(
   withState('loadingState', 'setLoading', 'UNKNOWN'),
   withState('markets', 'setMarkets', []),
   withState('balances', 'setBalances', {}),
-  withState('invest', 'setInvest', ""),
+  withState('invest', 'setInvest'),
+  withState('lmsr', 'setLMSR'),
   withStateHandlers({
     outcomesSelected: {}
   }, {
@@ -116,14 +116,8 @@ const enhancer = compose(
 
       // get collateral
       const WETH = await loadContract('WETH9')
-      //await WETH.deposit({ value: cost, from: defaultAccount })
-
-      //await WETH.deposit({ value: cost, from: defaultAccount })
       const pmSystem = await loadContract('PredictionMarketSystem')
       await pmSystem.setApprovalForAll(LMSR.address, true, { from: defaultAccount })
-
-      //await WETH.approve(LMSR.address, cost, { from: defaultAccount })
-      //console.log(sellList)
 
       // run trade
       const tx = await LMSR.trade(sellList, toBN(1e10), { from: defaultAccount, gas: 1e6 })
@@ -133,12 +127,11 @@ const enhancer = compose(
       const PMSystem = await loadContract('PredictionMarketSystem')
       const newMarkets = await transformMarketEntries(entriesForNetwork, PMSystem, LMSR, WETH)
       setMarkets(newMarkets)
-      //console.log({ outcomeTokenNetCost })
       
       const newBalances = await retrieveBalances(PMSystem, Object.keys(balances))
       setBalances(newBalances)
     },
-    buyOutcomes: ({ outcomesSelected, markets, setMarkets, balances, setBalances }) => async (amount) => {
+    buyOutcomes: ({ outcomesSelected, markets, setMarkets, balances, setBalances, lmsr }) => async (amount) => {
       const hasSelectedEnoughOutcomes = Object.keys(outcomesSelected).length === markets.length
 
       if (!hasSelectedEnoughOutcomes) {
@@ -179,7 +172,7 @@ const enhancer = compose(
       const defaultAccount = await getDefaultAccount()
 
       // get market maker instance
-      const LMSR = await loadContract('LMSRMarketMaker', '0x8c6aad0c92a48112aaa0e6e8f98a160120f17059')
+      const LMSR = await loadContract('LMSRMarketMaker', lmsr)
       const cost = await LMSR.calcNetCost.call(buyList)
       //console.log({ cost })
 
@@ -195,7 +188,9 @@ const enhancer = compose(
 
       // update probabilities
       const PMSystem = await loadContract('PredictionMarketSystem')
-      const newMarkets = await transformMarketEntries(entriesForNetwork, PMSystem, LMSR, WETH)
+
+      const config = await loadConfig()
+      const newMarkets = await transformMarketEntries(config.markets, PMSystem, LMSR, WETH)
       setMarkets(newMarkets)
       //console.log({ outcomeTokenNetCost })
       
@@ -249,10 +244,13 @@ const enhancer = compose(
     async componentDidMount() {
       this.props.setLoading('LOADING')
       try {
+        const config = await loadConfig()
+        this.props.setLMSR(config.lmsr)
+
         const PMSystem = await loadContract('PredictionMarketSystem')
-        const LMSR = await loadContract('LMSRMarketMaker', '0x8c6aad0c92a48112aaa0e6e8f98a160120f17059')
+        const LMSR = await loadContract('LMSRMarketMaker', this.props.lmsr)
         const WETH = await loadContract('WETH9')
-        const markets = await transformMarketEntries(entriesForNetwork, PMSystem, LMSR, WETH)
+        const markets = await transformMarketEntries(config.markets, PMSystem, LMSR, WETH)
         this.props.setLoading('SUCCESS')
         this.props.setMarkets(markets)
 

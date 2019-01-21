@@ -32,7 +32,6 @@ const lmsrCalcNetCost = (_funding, balances, outcomeTokenAmounts) => {
   })
   const costAfter = funding.log(sumAfter)
 
-
   // sum of both equals cost of trade
   return costBefore.sub(costAfter)
 }
