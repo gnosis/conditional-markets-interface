@@ -10,16 +10,16 @@ const {
 const rlp = require("rlp");
 
 const PredictionMarketSystem = artifacts.require("PredictionMarketSystem");
-const DifficultyBlockOracle = artifacts.require("DifficultyBlockOracle");
-const ETHValueBlockOracle = artifacts.require("ETHValueBlockOracle");
-const GasLimitBlockOracle = artifacts.require("GasLimitBlockOracle");
+const DifficultyOracle = artifacts.require("DifficultyOracle");
+const ETHValueOracle = artifacts.require("ETHValueOracle");
+const GasLimitOracle = artifacts.require("GasLimitOracle");
 const LMSRMarketMaker = artifacts.require("LMSRMarketMaker");
 const LMSRMarketMakerFactory = artifacts.require("LMSRMarketMakerFactory");
 const Fixed192x64Math = artifacts.require("Fixed192x64Math");
 const WETH9 = artifacts.require("WETH9");
 
 module.exports = (deployer, network, accounts) => {
-  if (network === "development") {
+  if (network === "development" || network === "test") {
     deployer.deploy(PredictionMarketSystem).then(async pmSystemInstance => {
       // Deploy the base contracts
       await deployer.deploy(Fixed192x64Math);
@@ -31,7 +31,7 @@ module.exports = (deployer, network, accounts) => {
       );
       // Deploy the Oracle contracts
       const difficultyOracleInstance = await deployer.deploy(
-        DifficultyBlockOracle,
+        DifficultyOracle,
         pmSystemInstance.address,
         process.env.O1SSTARTBLOCK || 1,
         process.env.O1ENDBLOCK || 1e9,
@@ -39,7 +39,7 @@ module.exports = (deployer, network, accounts) => {
         process.env.O1QUESTIONID || "0x01"
       );
       const gasLimitOracleInstance = await deployer.deploy(
-        GasLimitBlockOracle,
+        GasLimitOracle,
         pmSystemInstance.address,
         process.env.O2STARTBLOCK || 1,
         process.env.O2ENDBLOCK || 1e9,
@@ -100,17 +100,16 @@ module.exports = (deployer, network, accounts) => {
         collateralToken.address,
         [conditionOneId, conditionTwoId],
         1,
-        process.env.AMMFUNDING || 1e12,
+        process.env.AMMFUNDING || 1,
         { from: accounts[0] }
       );
       factoryNonce++;
     });
   } else if (network === "rinkeby" || network === "mainnet") {
-    let medianizerAddr;
     if (network === "rinkeby") {
-      medianizerAddr = "0xbfFf80B73F081Cc159534d922712551C5Ed8B3D3";
+      const medianizerAddr = "0xbfFf80B73F081Cc159534d922712551C5Ed8B3D3";
     } else if (network === "mainnet") {
-      medianizerAddr = "0x729D19f657BD0614b4985Cf1D82531c67569197B";
+      const medianizerAddr = "0x729D19f657BD0614b4985Cf1D82531c67569197B";
     }
 
     deployer.deploy(PredictionMarketSystem).then(async pmSystemInstance => {
@@ -124,7 +123,7 @@ module.exports = (deployer, network, accounts) => {
       );
       // Deploy the Oracle contracts
       const difficultyOracleInstance = await deployer.deploy(
-        DifficultyBlockOracle,
+        DifficultyOracle,
         pmSystemInstance.address,
         process.env.O1SSTARTBLOCK || 1,
         process.env.O1ENDBLOCK || 1e9,
@@ -132,7 +131,7 @@ module.exports = (deployer, network, accounts) => {
         process.env.O1QUESTIONID || "0x01"
       );
       const gasLimitOracleInstance = await deployer.deploy(
-        GasLimitBlockOracle,
+        GasLimitOracle,
         pmSystemInstance.address,
         process.env.O2STARTBLOCK || 1,
         process.env.O2ENDBLOCK || 1e9,
@@ -140,7 +139,7 @@ module.exports = (deployer, network, accounts) => {
         process.env.O2QUESTIONID || "0x02"
       );
       const ethValueOracleInstance = await deployer.deploy(
-        ETHValueBlockOracle,
+        ETHValueOracle,
         pmSystemInstance.address,
         medianizerAddr,
         process.env.O3STARTBLOCK || 1,

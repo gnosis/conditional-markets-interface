@@ -5,40 +5,41 @@ contract Medianizer {
     function read() external view returns (bytes32);
 }
 
-contract ETHValueBlockOracle {
+contract ETHValueOracle {
     PredictionMarketSystem public pmSystem;
     Medianizer public priceFeed;
-    uint public startBlock;
-    uint public endBlock;
+    uint public startTime;
+    uint public endTime;
     uint public ethTarget;
     bytes32 public questionId;
 
-    constructor (PredictionMarketSystem _pmSystem, Medianizer _priceFeed, uint _startBlock, uint _endBlock, uint _ethTarget, bytes32 _questionId) public {
+    event resolutionSuccessful(uint startTime, uint endTime, uint currentTime, uint price);
+    event resolutionFailed(uint startTime, uint endTime, uint currentTime, uint price);
+
+    constructor (PredictionMarketSystem _pmSystem, Medianizer _priceFeed, uint _startTime, uint _endTime, uint _ethTarget, bytes32 _questionId) public {
         pmSystem = PredictionMarketSystem(_pmSystem);
         priceFeed = Medianizer(_priceFeed);
-        startBlock = _startBlock;
-        endBlock = _endBlock;
+        startTime = _startTime;
+        endTime = _endTime;
         ethTarget = _ethTarget;
         questionId = _questionId;
     }
 
     function resolveETHValue() public returns(uint) {
-        uint currentBlock;
+        uint currentTime = block.timestamp;
         bytes32 price = priceFeed.read();
-        
-        assembly {
-            currentBlock := currentBlock
-        }
 
-        if (currentBlock >= startBlock && currentBlock <= endBlock) {
+        if (currentTime >= startTime && currentTime <= endTime) {
             if (uint(price) > ethTarget) {
                 pmSystem.receiveResult(questionId, abi.encodePacked(bytes32(0), bytes32(uint(1))));
+                emit resolutionSuccessful(startTime, endTime, currentTime, uint(price));
                 return uint(price);
             }
             pmSystem.receiveResult(questionId, abi.encodePacked(bytes32(uint(1)), bytes32(0)));
+            emit resolutionSuccessful(startTime, endTime, currentTime, uint(price));
             return uint(price);
         }
-
-        revert("Not the correct range of blocks.");
+        emit resolutionFailed(startTime, endTime, currentTime, uint(price));
+        revert("Please submit a resolution during the correct time interval");
     }
 }
