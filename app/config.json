@@ -23,5 +23,35 @@
     ]
   },
   "RINKEBY": {
+    "lmsr": "0x31b2cbfb8175c139cc0872b0aacbac573961b822",
+    "markets": [
+      {
+        "conditionId": "0xe4133e9d9763c7e6040d5fbb89a328fb806c862f9954dd0df27cd5320a8c31a6",
+        "title": "What will be the block difficulty for Ethereum Mainnet on 31st of January, 2019?",
+        "description": "Will the difficulty be higher than 3000 or lower?",
+        "outcomes": [
+          "Difficulty will be lower than 3000",
+          "Difficulty will be equal or higher than 3000"
+        ]
+      },
+      {
+        "conditionId": "0xa5c5df217704e6493d68a24e4f04f4969927c57e2f7e5244c92db1e5cc8431f1",
+        "title": "What will be the Ethereum Mainnet block gas limit on 31st of January, 2019?",
+        "description": "Will the block gas limit be greater than 8,000,5000 or lower?",
+        "outcomes": [
+          "Block Gas Limit will be lower than 8000500",
+          "Block Gas Limit will be higher or equal than 8000500"
+        ]
+      },
+      {
+        "conditionId": "0x6c760839e92b653b26936845d1fe2431ba9c46bf6d4f416ea905ed70cb83153c",
+        "title": "What will be the price of ETH in USD on 31st of January, 2019?",
+        "description": "Will the ETH price in USD be higher than 150 USD or lower?",
+        "outcomes": [
+          "Block Gas Limit will be lower than 150 USD",
+          "Block Gas Limit will be higher or equal than 150 USD"
+        ]
+      }
+    ]
   }
 }

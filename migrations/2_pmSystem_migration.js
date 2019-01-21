@@ -106,10 +106,11 @@ module.exports = (deployer, network, accounts) => {
       factoryNonce++;
     });
   } else if (network === "rinkeby" || network === "mainnet") {
+    let medianizerAddr;
     if (network === "rinkeby") {
-      const medianizerAddr = "0xbfFf80B73F081Cc159534d922712551C5Ed8B3D3";
+      medianizerAddr = "0xbfFf80B73F081Cc159534d922712551C5Ed8B3D3";
     } else if (network === "mainnet") {
-      const medianizerAddr = "0x729D19f657BD0614b4985Cf1D82531c67569197B";
+      medianizerAddr = "0x729D19f657BD0614b4985Cf1D82531c67569197B";
     }
 
     deployer.deploy(PredictionMarketSystem).then(async pmSystemInstance => {
@@ -163,6 +164,7 @@ module.exports = (deployer, network, accounts) => {
         process.env.O3QUESTIONID || "0x03",
         2
       );
+
       const conditionOneId = keccak256(
         difficultyOracleInstance.address +
           [
@@ -193,6 +195,14 @@ module.exports = (deployer, network, accounts) => {
             .map(v => padLeft(toHex(v), 64).slice(2))
             .join("")
       );
+
+
+      console.log({
+        difficultyMarket: conditionOneId,
+        gasLimitMarket: conditionTwoId,
+        ethValueMarket: conditionThreeId
+      });
+
       // Start the Nonce for LMSRFactory and Pre-Calculate the LMSRAMM instance address
       let factoryNonce = 0x01;
       const checksummedLMSRAddress = toChecksumAddress(
