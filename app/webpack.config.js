@@ -4,7 +4,7 @@ module.exports = {
   entry: "./src/index.js",
   output: {
     path: __dirname + "/../docs",
-    publicPath: "/",
+    publicPath: "/hg-first-decentralized-market/",
     filename: "bundle.js"
   },
   resolve: {
