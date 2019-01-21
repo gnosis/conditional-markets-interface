@@ -26,11 +26,12 @@ const Market = ({ title, description, outcomes, conditionId, outcomesSelected, s
       </div>
       <div className={cx('outcome-stats')}>
           {outcomes.map((outcome, index) => (
-            <OutcomeStats
+            (balances[outcome.positionId] && <OutcomeStats
               key={index}
+              balance={balances[outcome.positionId]}
               isSelected={outcomesSelected[conditionId] === index}
               {...outcome}
-            />
+            />)
           ))}
       </div>
     </div>

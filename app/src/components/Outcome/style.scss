@@ -1,5 +1,6 @@
 .outcome {
   min-width: 1%; // otherwise selecting is difficult
+  transition: width ease .5s;
 
   .name {
     text-align: right;

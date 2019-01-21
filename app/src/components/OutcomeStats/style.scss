@@ -1,6 +1,10 @@
 .outcome-stat {
   width: 50%;
 
+  &:not(.selected) {
+    color: rgba(0, 0, 0, 0.5);
+  }
+
   &.selected {
     .name {
       font-weight: 800;
@@ -11,14 +15,10 @@
 .stats {
   display: flex;
   flex-wrap: wrap;
+  color: inherit;
+  margin: 0;
 
   dt {
-    width: 200px;
+    width: 100px;
   }
-
-  dd {
-    width: auto;
-  }
-
-
 }
