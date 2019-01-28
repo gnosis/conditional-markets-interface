@@ -22,6 +22,7 @@ contract("Oracles", function(accounts) {
     let checksummedLMSRAddress;
     let lmsrInstance;
     let baseCollectionId1, baseCollectionId2;
+    let basePositionId1, basePositionId2;
     let collectionId1, collectionId2, collectionId3, collectionId4;
     let positionId1, positionId2, positionId3, positionId4;
 
@@ -47,6 +48,13 @@ contract("Oracles", function(accounts) {
         );
         baseCollectionId2 = keccak256(
             conditionTwoId + padLeft(toHex(0b10), 64).slice(2)
+        );
+
+        basePositionId1 = keccak256(
+            collateralToken.address + baseCollectionId1.slice(2)
+        );
+        basePositionId2 = keccak256(
+            collateralToken.address + baseCollectionId2.slice(2)
         );
 
         collectionId1 = "0x" + toHex(toBN(baseCollectionId1).add(
@@ -104,16 +112,20 @@ contract("Oracles", function(accounts) {
         // Users should buy one of the AMMs positions.
         await collateralToken.deposit({ from: accounts[9], value: toBN(1e18) });
         await collateralToken.approve(lmsrInstance.address, toBN(1e18), { from: accounts[9] });
-        await lmsrInstance.trade([1, 0, 1, 0], toBN(1e9), { from: accounts[9]});
+        await lmsrInstance.trade([1e9, 0, 1e9, 0], toBN(1e18), { from: accounts[9]});
 
         assert.equal(await pmSystem.balanceOf(accounts[9], positionId1), 0);
-        assert.equal(await pmSystem.balanceOf(accounts[9], positionId2), 1);
+        assert.equal(await pmSystem.balanceOf(accounts[9], positionId2), 1e9);
         assert.equal(await pmSystem.balanceOf(accounts[9], positionId3), 0);
-        assert.equal(await pmSystem.balanceOf(accounts[9], positionId4), 1);
+        assert.equal(await pmSystem.balanceOf(accounts[9], positionId4), 1e9);
     });
 
     it("Users should not be able to redeem a position before the oracle reports", async () => {
-        
+        await truffleAssert.fails(
+            pmSystem.redeemPositions(collateralToken.address, baseCollectionId1, conditionOneId, [0b01, 0b10]),
+            truffleAssert.ErrorType.REVERT,
+            "result for condition not received yet"
+        );
     });
 
     it("Oracles should be able to send results", async () => {
@@ -131,6 +143,38 @@ contract("Oracles", function(accounts) {
         assert.notEqual(await pmSystem.payoutDenominator(conditionOneId), 0);
         assert.notEqual(await pmSystem.payoutDenominator(conditionTwoId), 0);
     });
+
+    it("Users should be able to redeem their positions now, but not buy more", async () => {
+        const beforeRedeemBalance = await collateralToken.balanceOf(accounts[9]).then(r => r.toString());
+        // This only redeems the 2nd layer Atomic Outcome Tokens, which should now give us a certain balance at the root Condition
+        await pmSystem.redeemPositions(collateralToken.address, baseCollectionId1, conditionOneId, [0b01, 0b10], {
+            from: accounts[9]
+        });
+        await pmSystem.redeemPositions(collateralToken.address, baseCollectionId2, conditionOneId, [0b01, 0b10], {
+            from: accounts[9]
+        });
+        assert.equal(await collateralToken.balanceOf(accounts[9]).then(r => r.toString()), beforeRedeemBalance);
+
+        // const p1 = await pmSystem.balanceOf(accounts[9], basePositionId1).then(r => r.toString());
+        // const p2 = await pmSystem.balanceOf(accounts[9], basePositionId2).then(r => r.toString());
+
+        await pmSystem.redeemPositions(collateralToken.address, toHex(0), conditionTwoId, [0b01, 0b10], {
+            from: accounts[9]
+        });
+
+        assert.notEqual(await collateralToken.balanceOf(accounts[9]).then(r => r.toString()), beforeRedeemBalance);
+    });
+
+    it("Users shouldn't be able to buy more positions after event resolution", async () => {
+        // Users should buy one of the AMMs positions.
+        await collateralToken.approve(lmsrInstance.address, toBN(1e18), { from: accounts[9] });
+        await truffleAssert.fails(
+            lmsrInstance.trade([0, 1e9, 0, 1e9], toBN(1e18), { from: accounts[9]}),
+            truffleAssert.ErrorType.REVERT
+        );
+     });
+
+
 
 
 });
