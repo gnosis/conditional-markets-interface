@@ -46,7 +46,7 @@
     "@babel/preset-env": "^7.2.3",
     "@babel/preset-react": "^7.0.0",
     "@gnosis.pm/mock-contract": "^3.0.6",
-    "@gnosis.pm/truffle-nice-tools": "^1.1.4",
+    "@gnosis.pm/truffle-nice-tools": "^1.2.3",
     "babel-loader": "^8.0.5",
     "chai": "^4.2.0",
     "css-loader": "^2.1.0",
