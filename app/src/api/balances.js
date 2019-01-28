@@ -26,23 +26,6 @@ export const retrieveBalances = async (pmsystem, markets, _positionIds) => {
       })
     }))
     await outcomeCountPromise
-    
-    // old system just got all events from the past
-    /*
-    // retrieve all events
-    const buyEventsPromise = pmsystem.getPastEvents("TransferSingle", { fromBlock: 0, toBlock: 'latest', filter: { _to: owner }})
-    const sellEventsPromise = pmsystem.getPastEvents("TransferSingle", { fromBlock: 0, toBlock: 'latest', filter: { _from: owner }})
-  
-    // wait for both promises
-    const [buyEvents, sellEvents] = await Promise.all([buyEventsPromise, sellEventsPromise])
-  
-    // retrieve ids of events
-    const eventPositionIds = [...buyEvents, ...sellEvents]
-      .map((logEntry) => `0x${toBN(logEntry.args._id).toString(16)}`)
-      
-    // remove duplicates
-    positionIds = [...new Set(eventPositionIds)]  
-    */
   }
   
   // get position balances
@@ -50,6 +33,7 @@ export const retrieveBalances = async (pmsystem, markets, _positionIds) => {
 
   const balancePromises = Promise.all(positionIds.map(async (positionId) => {
     balances[positionId] = (await pmsystem.balanceOf(owner, positionId)).toString()
+    console.log(balances[positionId])
   }))
   
   await balancePromises

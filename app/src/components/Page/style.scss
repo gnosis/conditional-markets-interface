@@ -6,11 +6,40 @@
   color: black;
 }
 
-.buyOutcomes, .sellOutcomes {
-  width: 100%;
-}
-
 .invest {
   width: 100%;
   font-size: 24px;
+}
+
+.predictions {
+  position: relative;
+}
+
+.lockedOverlay {
+  display: none;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  text-align: center;
+  z-index: 100;
+  vertical-align: middle;
+  background-color: whitesmoke;
+  opacity: 0.8;
+
+  &.lockedOverlayEnabled {
+    display: inline-block;
+    font-weight: 800;
+
+
+    &::before {
+      content: '';
+      display: inline-block;
+      vertical-align: middle;
+      height: 100%;
+    }
+  }
 }

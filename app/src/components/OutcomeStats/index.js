@@ -10,9 +10,12 @@ import { formatEther } from './utils/numberFormat'
 
 const cx = cn.bind(css)
 
-const OutcomeStats = ({ name, price, balance, isSelected, lastValue, setLastValue }) => (
+const OutcomeStats = ({ name, price, balance, isCorrect, isSelected, lastValue, setLastValue }) => (
   <div className={cx('outcome-stat', { selected: isSelected })}>
-    <p className={cx('name')}>{name}</p>
+    <p className={cx('name')}>
+      {name}&nbsp;
+      {isCorrect && <strong>Winning Outcome</strong>}
+    </p>
     <dl className={cx('stats')}>
       <dt>Price</dt>
       <dd>{formatEther(price)}</dd>

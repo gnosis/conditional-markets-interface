@@ -1,0 +1,14 @@
+@import '../Market/style.scss';
+
+.assumption {
+  display: block;
+
+
+  input[type="radio"] {
+    margin-right: 5px;
+
+    &:checked + span {
+      font-weight: 800;
+    }
+  }
+}

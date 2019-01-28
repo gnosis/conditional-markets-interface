@@ -9,15 +9,18 @@ import css from './style.scss'
 const cx = cn.bind(css)
 const { BN } = web3.utils
 
-const Outcome = ({ name, probability, color, price, positionId, isSelected, onSelectOutcome, balances}) => (
-  <div className={cx('outcome')} style={{ width: `${probability * 100}%` }}>
+const disableButton = (e) => e.preventDefault()
+
+const Outcome = ({ name, probability, color, price, positionId, isDisabled, isSelected, isCorrect, onSelectOutcome, balance}) => (
+  <div className={cx('outcome', { selected: isSelected, correct: isCorrect, disabled: isDisabled })} style={{ width: `${probability * 100}%` }}>
     <button
-      className={cx('bar', { selected: isSelected })}
-      onClick={onSelectOutcome}
+      className={cx('bar')}
+      disabled={isDisabled}
+      onClick={isDisabled ? disableButton : onSelectOutcome}
       type="button"
     >
       <div
-        title={`${balances[positionId] || "0"} Tokens @ ${positionId}`}
+        title={`${balance} Tokens @ ${positionId}`}
         className={cx('inner')}
         style={{ backgroundColor: color, borderColor: color }}
       >
@@ -30,6 +33,10 @@ const Outcome = ({ name, probability, color, price, positionId, isSelected, onSe
     </button>
   </div>
 )
+
+Outcome.defaultProps = {
+  balance: '0'
+}
 
 const enhancer = compose(
   withState('balance', 'setBalance', '0'),

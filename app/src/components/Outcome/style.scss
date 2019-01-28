@@ -1,3 +1,19 @@
+@mixin highlight {
+  outline: none;
+  filter: saturate(200%);
+  font-weight: 800;
+
+  .inner::after {
+    display: none;
+    opacity: 0;
+  }
+
+  .hint {
+    opacity: 1;
+  }
+}
+
+
 .outcome {
   min-width: 1%; // otherwise selecting is difficult
   transition: width ease .5s;
@@ -14,6 +30,22 @@
       text-align: left;
     }  
   }
+
+  &.correct {
+    @include highlight;
+  }
+
+  &:not(.disabled) {
+    &:active, &:focus, &.selected {
+      @include highlight;
+    }
+  }
+
+  &.disabled {
+    .bar {
+      cursor: not-allowed;
+    }
+  }
 }
 
 .bar {
@@ -26,17 +58,6 @@
   border: 0;
   padding: 0;
 
-  &:active, &:focus, &.selected {
-    outline: none;
-
-    .inner::after {
-      opacity: 0;
-    }
-
-    .hint {
-      opacity: 1;
-    }
-  }
 
   .inner {
     position: relative;
@@ -55,7 +76,7 @@
 
       transition: opacity ease 0.2s;
 
-      opacity: 0.2;
+      opacity: 0.4;
     }
   }
 

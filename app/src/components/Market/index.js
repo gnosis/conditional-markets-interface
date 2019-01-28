@@ -8,9 +8,9 @@ import css from './style.scss'
 
 const cx = cn.bind(css)
 
-const Market = ({ title, description, outcomes, conditionId, outcomesSelected, setOutcomeForMarket, balances }) => {
+const Market = ({ title, description, outcomes, conditionId, selectedOutcomes, selectOutcomes, disabled, assumption }) => {
   return (
-    <div className={cx('market')}>
+    <div className={cx('market', { disabled })}>
       <h1 className={cx('title')}>{title}</h1>
       <p>{description}</p>
       <div className={cx('outcomes')}>
@@ -18,18 +18,19 @@ const Market = ({ title, description, outcomes, conditionId, outcomesSelected, s
           <Outcome
             key={index}
             {...outcome}
-            balances={balances}
-            isSelected={outcomesSelected[conditionId] === index}
-            onSelectOutcome={() => setOutcomeForMarket(conditionId, index)}
+            isDisabled={disabled}
+            isCorrect={assumption == index}
+            isSelected={selectedOutcomes[conditionId] === index}
+            onSelectOutcome={() => selectOutcomes(conditionId, index)}
           />
         ))}
       </div>
       <div className={cx('outcome-stats')}>
           {outcomes.map((outcome, index) => (
-            (balances[outcome.positionId] && <OutcomeStats
+            (outcome.balance && <OutcomeStats
               key={index}
-              balance={balances[outcome.positionId]}
-              isSelected={outcomesSelected[conditionId] === index}
+              isCorrect={assumption == index}
+              isSelected={selectedOutcomes[conditionId] === index}
               {...outcome}
             />)
           ))}
@@ -46,6 +47,10 @@ Market.propTypes = {
     probability: PropTypes.number,
     price: PropTypes.number,
   }))
+}
+
+Market.defaultProps = {
+  selectedOutcomes: {}
 }
 
 export default Market

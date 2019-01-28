@@ -1,66 +1,85 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import css from './style.scss'
 import web3 from 'web3'
-import { compose, lifecycle, withState, withStateHandlers, withProps, withHandlers } from 'recompose'
+//import Market from '../Market'
 
-import { loadContract, loadConfig, getDefaultAccount } from '../../api/web3'
-import transformMarketEntries from '../../api/utils/transform'
-import { retrieveBalances } from '../../api/balances'
-
-import Market from '../Market'
-//import MarketEntries from '../../../markets.json'
+import Markets from '../Markets'
+import MarketAssumptions from '../MarketAssumptions'
 
 import cn from 'classnames/bind'
 const cx = cn.bind(css)
 const { toBN } = web3.utils
 
-const entriesForNetwork = [] //MarketEntries.RINKEBY
-
 function Page({
   markets,
   invest,
-  loadingState,
-  outcomesSelected,
-  setOutcomeForMarket,
+  selectedOutcomes,
+  selectOutcomes,
+  unlockPredictions,
   buyOutcomes,
   sellOutcomes,
-  balances,
-  handleInvestUpdate, 
+  unlockedPredictions,
+  assumptions,
+  handleSelectInvest, 
+  handleSelectAssumption,
 }) {
-  if (loadingState === 'LOADING') {
-    return <p>Loading...</p>
-  }
-
-  if (loadingState === 'ERROR') {
-    return <p>We couldn't load the PM experiments at this time.</p>
-  }
-
   return (
     <div className={cx('page')}>
-      <h1 className={cx('heading')}>PM 2.0 Experiments</h1>
-      <p>Please enter the amount of tokens you wish to buy below</p>
-      <input
-        type="text"
-        className={cx('invest')}
-        placeholder="How many tokens do you wish to buy from the Market Maker?"
-        value={invest || ""}
-        onChange={handleInvestUpdate}
-      ></input>
-      {markets.map((market, index) => (
-        <Market
-          key={index}
-          outcomesSelected={outcomesSelected}
-          setOutcomeForMarket={setOutcomeForMarket}
-          balances={balances}
+      <section>
+        <h1 className={cx('heading')}>PM 2.0 Experiments</h1>
 
-          {...market} />
-      ))}
-      <button className={cx('buyOutcomes')} onClick={() => buyOutcomes(invest)} type="button">Buy Selected Outcomes</button>
-      <button className={cx('sellOutcomes')} onClick={() => sellOutcomes(1e9)} type="button">Sell Selected Outcomes</button>
+        <h2>Determine under which circumstances you want to make your predictions</h2>
+        <p>To benefit of a liquidation pool for all markets below, the following choices affect which outcome pairs you can give the most accurate prediction on.</p>
+
+        <MarketAssumptions
+          markets={markets}
+          assumptions={assumptions}
+          onSelectAssumption={handleSelectAssumption}
+        />
+        
+        {!unlockedPredictions && <button className={cx('unlockPredictions')} onClick={unlockPredictions} type="button">Continue</button>}
+      </section>
+      <section>
+        <div className={cx('lockedOverlay', { lockedOverlayEnabled: !unlockedPredictions })}>
+          <span>Please make a selection in the above section</span>
+        </div>
+
+        <h2>Choose your predictions</h2>
+        <p>Please enter the amount of tokens you wish to buy below</p>
+        <input
+          type="text"
+          className={cx('invest')}
+          placeholder="How many tokens do you wish to buy from the Market Maker?"
+          value={invest}
+          onChange={handleSelectInvest}
+        ></input>
+
+        <Markets
+          markets={markets}
+          selectOutcomes={selectOutcomes}
+          selectedOutcomes={selectedOutcomes}
+          assumptions={assumptions}
+        />
+
+        <button className={cx('buyOutcomes')} onClick={() => buyOutcomes(invest)} type="button">Buy Selected Outcomes</button>
+        <button className={cx('sellOutcomes')} onClick={() => sellOutcomes(1e9)} type="button">Sell Selected Outcomes</button>
+      </section>
     </div>
   )
 }
 
+Page.propTypes = {
+  loading: PropTypes.string.isRequired,
+  markets: PropTypes.arrayOf(PropTypes.shape)
+}
+
+Page.defaultProps = {
+  markets: {},
+  invest: '',
+}
+
+/*
 const enhancer = compose(
   withState('loadingState', 'setLoading', 'UNKNOWN'),
   withState('markets', 'setMarkets', []),
@@ -135,8 +154,8 @@ const enhancer = compose(
       const hasSelectedEnoughOutcomes = Object.keys(outcomesSelected).length === markets.length
 
       if (!hasSelectedEnoughOutcomes) {
-        alert("Please select an outcome for every market")
-        return
+        //alert("Please select an outcome for every market")
+        //return
       }
 
       if (amount == 0) {
@@ -199,45 +218,6 @@ const enhancer = compose(
     },
     handleInvestUpdate: ({ setInvest, invest, outcomesSelected, markets }) => async (e) => {
       setInvest(e.target.value)
-      // todo: calculate tokens from desired invest
-      /*
-      let tokenAmounts = []
-
-      // fill token amounts
-      const PMSystem = await loadContract('PredictionMarketSystem')
-      const LMSR = await loadContract('LMSRMarketMaker', '0x8c6aad0c92a48112aaa0e6e8f98a160120f17059')
-      let lmsrOutcomeIndex = 0
-      const marketOutcomeCountPromise = Promise.all(markets.map(async (market) => {
-        const outcomeCount = (await PMSystem.getOutcomeSlotCount(market.conditionId)).toNumber()
-        Array(outcomeCount).fill().forEach(() => {
-          tokenAmounts[lmsrOutcomeIndex++] = 0
-        })
-      }))
-      await marketOutcomeCountPromise
-      
-      let investLeft = toBN(invest)
-      const lowestAmount = 1e-5
-
-      if (!Object.keys(outcomesSelected).length) {
-        return
-      }
-
-      let i = 0
-      while(true) {
-        tokenAmounts.forEach((_, tokenAmountIndex) => {
-          tokenAmounts[tokenAmountIndex] += 1
-        })
-
-        const cost = await LMSR.calcNetCost.call(tokenAmounts)
-        console.log(cost.toNumber())
-        if (cost.gt(investLeft)) {
-          break
-        }
-
-        if (i++ > 1000) break
-      }
-      console.log(tokenAmounts)
-      */
     },
   }),
   lifecycle({
@@ -263,6 +243,6 @@ const enhancer = compose(
     }
   })
 )
+*/
 
-
-export default enhancer(Page)
+export default Page
