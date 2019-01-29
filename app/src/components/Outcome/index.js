@@ -1,5 +1,5 @@
 import React from 'react'
-import web3 from 'web3'
+
 import { loadContract, getDefaultAccount } from '../../api/web3'
 import { compose, lifecycle, withState } from 'recompose'
 import cn from 'classnames/bind'
@@ -7,7 +7,6 @@ import cn from 'classnames/bind'
 import css from './style.scss'
 
 const cx = cn.bind(css)
-const { BN } = web3.utils
 
 const disableButton = (e) => e.preventDefault()
 

@@ -1,8 +1,9 @@
 import React from 'react'
 import Page from 'components/Page'
+import { find } from 'lodash'
 import { renderComponent, compose, lifecycle, branch, withState, withStateHandlers, withHandlers } from 'recompose'
 
-import { loadMarkets } from 'api/markets'
+import { loadMarkets, buyOutcomes } from 'api/markets'
 
 export const LOADING_STATES = {
   UNKNOWN: 'UNKNOWN',
@@ -90,6 +91,23 @@ const enhancer = compose(
       if (validNum) {
         setInvest(asNum)
       }
+    },
+    handleBuyOutcomes: ({ markets, setMarkets, invest, selectedOutcomes }) => async () => {
+      const outcomeIndexes = []
+
+      Object.keys(selectedOutcomes).forEach((conditionId) => {
+        const market = find(markets, { conditionId })
+
+        if (!market) throw new Error('Market not found, wtf?')
+        const marketOutcomeIndex = selectedOutcomes[conditionId]
+
+        outcomeIndexes.push(market.outcomes[marketOutcomeIndex].lmsrOutcomeIndex)
+      })
+
+      await buyOutcomes(outcomeIndexes, invest)
+      const updatedMarkets = await loadMarkets()
+      //console.log(markets)
+      setMarkets(updatedMarkets)
     }
   }),
   loadingHandler,

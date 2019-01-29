@@ -26,17 +26,6 @@ const addWithOverflow = (a, b) => {
 }
 
 /**
- * Turns multiple outcome index positions into a bitfield including all indexes
- * @param {*} indexes 
- * @param {*} marketOutcomeCount 
- */
-const outcomeIndexesToBitField = (indexes, marketOutcomeCount) => (
-  indexes
-    .map((index) => 1 << index % marketOutcomeCount)
-    .reduce((acc, indexSet) => indexSet | acc, 0)
-    .toString(2))
-
-/**
  * Generates a positionId hash for the selected outcome index
  * 
  * @param {Array} markets 
@@ -61,14 +50,14 @@ export const generatePositionId = (markets, collateral, i) => {
   */
   let collectionId = new BN(0)
   markets.forEach((market) => {
-    const outcomeIndexes = (Array.isArray(i) ? (
-      outcomeIndexesToBitField(i, market.outcomes.length)
-    ) : (1 << (i % market.outcomes.length).toString(2)))
+    const outcomeIndex = (1 << (i % market.outcomes.length)).toString(2)
     
     const collectionIdBytes = [
       market.conditionId.slice(2),
-      padLeft(outcomeIndexes, 64).slice(2)
+      padLeft(outcomeIndex, 64).slice(2)
     ].join('')
+
+    console.log({ collectionIdBytes})
 
     const anotherCollectionId = new BN(
       soliditySha3({

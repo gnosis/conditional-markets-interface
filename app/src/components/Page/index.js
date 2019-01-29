@@ -17,7 +17,7 @@ function Page({
   selectedOutcomes,
   selectOutcomes,
   unlockPredictions,
-  buyOutcomes,
+  handleBuyOutcomes,
   sellOutcomes,
   unlockedPredictions,
   assumptions,
@@ -29,7 +29,7 @@ function Page({
       <section>
         <h1 className={cx('heading')}>PM 2.0 Experiments</h1>
 
-        <h2>Determine under which circumstances you want to make your predictions</h2>
+        <h2>1. Determine under which circumstances you want to make your predictions</h2>
         <p>To benefit of a liquidation pool for all markets below, the following choices affect which outcome pairs you can give the most accurate prediction on.</p>
 
         <MarketAssumptions
@@ -45,7 +45,7 @@ function Page({
           <span>Please make a selection in the above section</span>
         </div>
 
-        <h2>Choose your predictions</h2>
+        <h2>2. Choose your predictions</h2>
         <p>Please enter the amount of tokens you wish to buy below</p>
         <input
           type="text"
@@ -62,7 +62,7 @@ function Page({
           assumptions={assumptions}
         />
 
-        <button className={cx('buyOutcomes')} onClick={() => buyOutcomes(invest)} type="button">Buy Selected Outcomes</button>
+        <button className={cx('buyOutcomes')} onClick={handleBuyOutcomes} type="button">Buy Selected Outcomes</button>
         <button className={cx('sellOutcomes')} onClick={() => sellOutcomes(1e9)} type="button">Sell Selected Outcomes</button>
       </section>
     </div>
