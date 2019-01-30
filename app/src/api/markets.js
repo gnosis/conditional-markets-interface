@@ -1,44 +1,57 @@
-import web3 from 'web3'
+import web3 from "web3";
 
-import { getDefaultAccount, loadContract, loadConfig } from "./web3"
-import { generatePositionId } from './utils/positions'
-import { retrieveBalances } from './balances'
+import { getDefaultAccount, loadContract, loadConfig } from "./web3";
+import { generatePositionId } from "./utils/positions";
+import { retrieveBalances } from "./balances";
 
-const colors = ["#fbb4ae","#b3cde3","#ccebc5","#decbe4","#fed9a6","#ffffcc","#e5d8bd","#fddaec","#f2f2f2"]
+const colors = [
+  "#fbb4ae",
+  "#b3cde3",
+  "#ccebc5",
+  "#decbe4",
+  "#fed9a6",
+  "#ffffcc",
+  "#e5d8bd",
+  "#fddaec",
+  "#f2f2f2"
+];
 
-const { BN } = web3.utils
+const { BN } = web3.utils;
 
-const ONE_ETH = (new BN(10)).pow(new BN(18))
+const ONE_ETH = new BN(10).pow(new BN(18));
 
-let balances = {}
-let marginalPricesPerMarket = {}
-let outcomePrices = []
-let lmsrOutcomeIndex = 0
-const transformOutcome = (market) => async (title) => {
-  const WETH = await loadContract('WETH9')
-  const { markets } = await loadConfig()
+let balances = {};
+let marginalPricesPerMarket = {};
+let outcomePrices = [];
+let lmsrOutcomeIndex = 0;
 
-  const decimals = 10
-  const bnDecimalMultiplier = new BN(Math.pow(10, decimals))
-  const positionId = generatePositionId(markets, WETH, lmsrOutcomeIndex)
+const transformOutcome = market => async title => {
+  const WETH = await loadContract("WETH9");
+  const { markets } = await loadConfig();
 
-  const outcomePrice = outcomePrices[lmsrOutcomeIndex]
-  
-  const marginalPriceMarket = marginalPricesPerMarket[market.conditionId].div(bnDecimalMultiplier).toNumber()
-  const marginalPriceOutcome = outcomePrice.div(bnDecimalMultiplier).toNumber()
+  const decimals = 10;
+  const bnDecimalMultiplier = new BN(Math.pow(10, decimals));
+  const positionId = generatePositionId(markets, WETH, lmsrOutcomeIndex);
 
-  let probability = 0
+  const outcomePrice = outcomePrices[lmsrOutcomeIndex];
+
+  const marginalPriceMarket = marginalPricesPerMarket[market.conditionId]
+    .div(bnDecimalMultiplier)
+    .toNumber();
+  const marginalPriceOutcome = outcomePrice.div(bnDecimalMultiplier).toNumber();
+
+  let probability = 0;
   if (marginalPriceMarket > 0 && marginalPriceOutcome > 0) {
-    probability = marginalPriceOutcome / marginalPriceMarket
+    probability = marginalPriceOutcome / marginalPriceMarket;
   } else {
     if (marginalPriceMarket > 0) {
-      probability = 0
+      probability = 0;
     }
     if (marginalPriceOutcome > 0) {
-      probability = 1
+      probability = 1;
     }
   }
-  
+
   /*
   if (!marginalPriceOutcome.gt(bnZero)) {
     probability = 0.5
@@ -49,7 +62,6 @@ const transformOutcome = (market) => async (title) => {
     }
   }*/
 
-  
   const outcome = {
     name: title,
     positionId,
@@ -58,113 +70,121 @@ const transformOutcome = (market) => async (title) => {
     balance: balances[positionId],
     color: colors[lmsrOutcomeIndex],
     price: outcomePrice.toString()
-  }
+  };
 
-  lmsrOutcomeIndex++
+  lmsrOutcomeIndex++;
 
-  return outcome
-}
+  return outcome;
+};
 
-const transformMarket = (assumedOutcomes) => async (market) => {
-  const marketTransformed = { ...market }
-  marketTransformed.outcomes = (await Promise.all(market.outcomes.map(transformOutcome(market))))
+const transformMarket = assumedOutcomes => async market => {
+  const marketTransformed = { ...market };
+  marketTransformed.outcomes = await Promise.all(
+    market.outcomes.map(transformOutcome(market))
+  );
 
-  return marketTransformed
-}
+  return marketTransformed;
+};
 
 /**
  * Fetches markets, transforms them, adds data from smart contracts and returns them.
- * 
+ *
  * @param {*} assumedOutcomes Simulate prices, costs and probabilities with given outcomes
  */
-export const loadMarkets = async (assumedOutcomes) => {
+export const loadMarkets = async assumedOutcomes => {
   // load hardcoded market entries from config
-  const { markets, lmsr } = await loadConfig()
+  const { markets, lmsr } = await loadConfig();
 
   // load contracts
-  const PMSystem = await loadContract('PredictionMarketSystem')
-  const WETH = await loadContract('WETH9')
-  const LMSR = await loadContract('LMSRMarketMaker', lmsr)
+  const PMSystem = await loadContract("PredictionMarketSystem");
+  const WETH = await loadContract("WETH9");
+  const LMSR = await loadContract("LMSRMarketMaker", lmsr);
 
   // load all balances
-  balances = await retrieveBalances(PMSystem, markets)
+  balances = await retrieveBalances(PMSystem, markets);
 
   // load all outcome prices
-  const outcomeSlotCount = (await LMSR.atomicOutcomeSlotCount()).toNumber()
-  outcomePrices = await Promise.all(Array(outcomeSlotCount).fill().map(async (_, index) => (
-    await LMSR.calcMarginalPrice(index)
-  )))
-  console.log({ outcomePrices })
+  const outcomeSlotCount = (await LMSR.atomicOutcomeSlotCount()).toNumber();
+  outcomePrices = await Promise.all(
+    Array(outcomeSlotCount)
+      .fill()
+      .map(async (_, index) => await LMSR.calcMarginalPrice(index))
+  );
+  console.log({ outcomePrices });
 
-  marginalPricesPerMarket = {}
+  marginalPricesPerMarket = {};
 
-  let marketIndex = 0
-  let totalOutcomeIndex = 0
-  while(totalOutcomeIndex < outcomeSlotCount) {
-    console.log({marketIndex, totalOutcomeIndex, market})
-    const market = markets[marketIndex]
-    const outcomesInMarket = (await PMSystem.getOutcomeSlotCount(market.conditionId)).toNumber()
+  let marketIndex = 0;
+  let totalOutcomeIndex = 0;
+  while (totalOutcomeIndex < outcomeSlotCount) {
+    console.log({ marketIndex, totalOutcomeIndex, market });
+    const market = markets[marketIndex];
+    const outcomesInMarket = (await PMSystem.getOutcomeSlotCount(
+      market.conditionId
+    )).toNumber();
 
-    let marketOutcomeIndex = 0
-    let marketOutcomePrices = []
-    while(marketOutcomeIndex < outcomesInMarket) {
+    let marketOutcomeIndex = 0;
+    let marketOutcomePrices = [];
+    while (marketOutcomeIndex < outcomesInMarket) {
       if (!marginalPricesPerMarket[market.conditionId]) {
-        marginalPricesPerMarket[market.conditionId] = new BN(0)
+        marginalPricesPerMarket[market.conditionId] = new BN(0);
       }
 
-      const outcomePrice = outcomePrices[totalOutcomeIndex]
-      marketOutcomePrices[marketIndex] = outcomePrice
-      marginalPricesPerMarket[market.conditionId] = marginalPricesPerMarket[market.conditionId].add(outcomePrice)
+      const outcomePrice = outcomePrices[totalOutcomeIndex];
+      marketOutcomePrices[marketIndex] = outcomePrice;
+      marginalPricesPerMarket[market.conditionId] = marginalPricesPerMarket[
+        market.conditionId
+      ].add(outcomePrice);
 
-      totalOutcomeIndex++
-      marketOutcomeIndex++
+      totalOutcomeIndex++;
+      marketOutcomeIndex++;
     }
-    marketIndex++
+    marketIndex++;
   }
 
   // reset lmsr outcome index counter
-  lmsrOutcomeIndex = 0
-  const marketsTransformed = await Promise.all(markets.map(
-      transformMarket(assumedOutcomes, WETH, markets)
-    ))
+  lmsrOutcomeIndex = 0;
+  const marketsTransformed = await Promise.all(
+    markets.map(transformMarket(assumedOutcomes, WETH, markets))
+  );
 
-  return marketsTransformed
-}
+  return marketsTransformed;
+};
 
 export const buyOutcomes = async (lmsrOutcomeIndexes, amount) => {
-  const pricePerOutcome = amount / lmsrOutcomeIndexes.length
+  const howManyOutcomesOfEachToBuy = amount / lmsrOutcomeIndexes.length;
 
   // load all outcome prices
-  const { lmsr } = await loadConfig()
-  const LMSR = await loadContract('LMSRMarketMaker', lmsr)
-  const outcomeSlotCount = (await LMSR.atomicOutcomeSlotCount()).toNumber()
+  const { lmsr } = await loadConfig();
+  const LMSR = await loadContract("LMSRMarketMaker", lmsr);
+  const outcomeSlotCount = (await LMSR.atomicOutcomeSlotCount()).toNumber();
 
-  const buyList = Array(outcomeSlotCount).fill().map((_, position) => {
-    if (lmsrOutcomeIndexes.indexOf(position) > -1) {
-      return pricePerOutcome
-    }
+  const buyList = Array(outcomeSlotCount)
+    .fill()
+    .map((_, position) => {
+      if (lmsrOutcomeIndexes.indexOf(position) > -1) {
+        return howManyOutcomesOfEachToBuy;
+      }
 
-    return new BN(0)
-  })
-
+      return new BN(0);
+    });
 
   // get market maker instance
-  const cost = await LMSR.calcNetCost.call(buyList)
-  console.log({ cost })
+  const cost = await LMSR.calcNetCost.call(buyList);
+  console.log({ cost });
 
-  const defaultAccount = await getDefaultAccount()
+  const defaultAccount = await getDefaultAccount();
 
   // get collateral
-  const WETH = await loadContract('WETH9')
-  await WETH.deposit({ value: cost, from: defaultAccount })
-  await WETH.approve(LMSR.address, cost, { from: defaultAccount })
-
+  const WETH = await loadContract("WETH9");
+  await WETH.deposit({ value: cost, from: defaultAccount });
+  await WETH.approve(LMSR.address, cost, { from: defaultAccount });
 
   // run trade
-  const tx = await LMSR.trade(buyList, cost, { from: defaultAccount })
-  console.log(tx)
-}
+  const tx = await LMSR.trade(buyList, cost, { from: defaultAccount });
+  console.log(tx);
+};
 
 export const sellOutcomes = () => {
-  alert('currently not functioning... :(')
-}
+  alert("currently not functioning... :(");
+};

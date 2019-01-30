@@ -1,12 +1,12 @@
-import { render } from 'react-dom'
-import React from 'react'
+import { render } from "react-dom";
+import React from "react";
 
-import "normalize.css/normalize.css"
-import './style/index.scss'
+import "normalize.css/normalize.css";
+import "./style/index.scss";
 
-import RootComponent from './components/Root'
+import RootComponent from "./components/Root";
 
 /* global document */
-const rootElement = document.getElementById('root')
+const rootElement = document.getElementById("root");
 
-render(<RootComponent />, rootElement)
+render(<RootComponent />, rootElement);
