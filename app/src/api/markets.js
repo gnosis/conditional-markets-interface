@@ -2,6 +2,7 @@ import web3 from 'web3'
 
 import { getDefaultAccount, loadContract, loadConfig } from "./web3"
 import { generatePositionId } from './utils/positions'
+import { retrieveBalances } from './balances'
 
 const colors = ["#fbb4ae","#b3cde3","#ccebc5","#decbe4","#fed9a6","#ffffcc","#e5d8bd","#fddaec","#f2f2f2"]
 
@@ -25,7 +26,7 @@ export const loadMarkets = async () => {
 
 
   // load all balances
-  //balances = await retrieveBalances(PMSystem, markets)
+  const balances = await retrieveBalances(PMSystem, markets)
 
   // load all outcome prices
   const outcomeSlotCount = (await LMSR.atomicOutcomeSlotCount()).toNumber()
@@ -34,7 +35,7 @@ export const loadMarkets = async () => {
       async (_, index) => await LMSR.calcMarginalPrice(index)
     )
   )
-  console.log(outcomePrices.join('\n'))
+
   const marginalPricesPerMarket = {}
 
   let marketIndex = 0
@@ -68,14 +69,14 @@ export const loadMarkets = async () => {
   const marketsTransformed = await Promise.all(
     markets.map(async (market) => {
       // outcome transformation, loading contract data
-      const outcomes = await Promise.all(market.outcomes.map(async (title) => {
+      const outcomes = await Promise.all(market.outcomes.map((title) => {
         const decimals = 10
         const bnDecimalMultiplier = new BN(Math.pow(10, decimals))
+        console.log(lmsrOutcomeIndex, lmsrOutcomeIndex % 2)
         const positionId = generatePositionId(markets, WETH, lmsrOutcomeIndex)
 
-        const balance = (await PMSystem.balanceOf(owner, positionId)).toString()
-        console.log(owner, positionId)
-        
+        const balance = balances[positionId]
+
         const outcomePrice = outcomePrices[lmsrOutcomeIndex]
         
         const marginalPriceMarket = marginalPricesPerMarket[market.conditionId].div(bnDecimalMultiplier).toNumber()
@@ -93,15 +94,19 @@ export const loadMarkets = async () => {
           }
         }
         
-        return {
+        const outcome = {
           name: title,
           positionId,
           probability,
           lmsrOutcomeIndex: lmsrOutcomeIndex,
-          color: colors[lmsrOutcomeIndex++],
+          color: colors[lmsrOutcomeIndex],
           price: outcomePrice.toString(),
           balance,
         }
+        
+        lmsrOutcomeIndex++
+
+        return outcome
       }))
 
       return {

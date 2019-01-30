@@ -9,6 +9,7 @@
   "scripts": {
     "migrate": "truffle compile --all && truffle migrate --reset",
     "test": "truffle test --network test",
+    "test-app": "jest",
     "start": "cd ./app && webpack-dev-server --config ./webpack.config.js --mode development",
     "build": "cd ./app && webpack -p --config ./webpack.config.js --mode production"
   },
@@ -48,6 +49,7 @@
     "@babel/preset-react": "^7.0.0",
     "@gnosis.pm/mock-contract": "^3.0.6",
     "@gnosis.pm/truffle-nice-tools": "^1.2.3",
+    "babel-jest": "^24.0.0",
     "babel-loader": "^8.0.5",
     "chai": "^4.2.0",
     "css-loader": "^2.1.0",
@@ -55,6 +57,7 @@
     "eslint-config-prettier": "^3.3.0",
     "eslint-plugin-prettier": "^3.0.0",
     "html-webpack-plugin": "^4.0.0-beta.5",
+    "jest": "^24.0.0",
     "node-sass": "^4.11.0",
     "prettier": "^1.15.3",
     "react-hot-loader": "^4.6.3",

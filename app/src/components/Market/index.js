@@ -45,7 +45,7 @@ Market.propTypes = {
   outcomes: PropTypes.arrayOf(PropTypes.shape({
     name: PropTypes.string,
     probability: PropTypes.number,
-    price: PropTypes.number,
+    price: PropTypes.string,
   }))
 }
 
