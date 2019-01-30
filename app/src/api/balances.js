@@ -33,9 +33,7 @@ export const retrieveBalances = async (pmsystem, markets, _positionIds) => {
   const balances = {}
 
   const balancePromises = Promise.all(positionIds.map(async (positionId) => {
-    console.log({positionId})
-    balances[positionId] = (await pmsystem.balanceOf(owner, new BN(positionId))).toString()
-    console.log(balances[positionId])
+    balances[positionId] = (await pmsystem.balanceOf(owner, positionId)).toString()
   }))
   
   await balancePromises
