@@ -2,85 +2,18 @@ import web3 from 'web3'
 
 import { getDefaultAccount, loadContract, loadConfig } from "./web3"
 import { generatePositionId } from './utils/positions'
-import { retrieveBalances } from './balances'
 
 const colors = ["#fbb4ae","#b3cde3","#ccebc5","#decbe4","#fed9a6","#ffffcc","#e5d8bd","#fddaec","#f2f2f2"]
 
 const { BN } = web3.utils
 
-let balances = {}
-let marginalPricesPerMarket = {}
-let outcomePrices = []
-let lmsrOutcomeIndex = 0
-const transformOutcome = (market) => async (title) => {
-  const WETH = await loadContract('WETH9')
-  const PMSystem = await loadContract('PredictionMarketSystem')
-  const owner = await getDefaultAccount()
-  const { markets } = await loadConfig()
-
-  const decimals = 10
-  const bnDecimalMultiplier = new BN(Math.pow(10, decimals))
-  const positionId = generatePositionId(markets, WETH, lmsrOutcomeIndex)
-
-  const outcomePrice = outcomePrices[lmsrOutcomeIndex]
-  
-  const marginalPriceMarket = marginalPricesPerMarket[market.conditionId].div(bnDecimalMultiplier).toNumber()
-  const marginalPriceOutcome = outcomePrice.div(bnDecimalMultiplier).toNumber()
-  console.log(marginalPriceMarket, marginalPriceOutcome)
-  let probability = 0
-  if (marginalPriceMarket > 0 && marginalPriceOutcome > 0) {
-    probability = marginalPriceOutcome / marginalPriceMarket
-  } else {
-    if (marginalPriceMarket > 0) {
-      probability = 0
-    }
-    if (marginalPriceOutcome > 0) {
-      probability = 1
-    }
-  }
-
-  const balance = (await PMSystem.balanceOf(owner, positionId)).toString()
-  
-  /*
-  if (!marginalPriceOutcome.gt(bnZero)) {
-    probability = 0.5
-  } else {
-    if (marginalPriceMarket.gt(bnZero)) {
-      //console.log({ marginalPriceOutcome: marginalPriceOutcome.toString(), marginalPriceMarket: marginalPriceMarket.toString() })
-      probability = marginalPriceOutcome.div(marginalPriceMarket).toNumber() / 100000
-    }
-  }*/
-
-  
-  const outcome = {
-    name: title,
-    positionId,
-    probability,
-    lmsrOutcomeIndex: lmsrOutcomeIndex,
-    balance: balances[positionId],
-    color: colors[lmsrOutcomeIndex],
-    price: outcomePrice.toString(),
-    balance,
-  }
-
-  lmsrOutcomeIndex++
-
-  return outcome
-}
-
-const transformMarket = (assumedOutcomes) => async (market) => {
-  const marketTransformed = { ...market }
-  marketTransformed.outcomes = (await Promise.all(market.outcomes.map(transformOutcome(market))))
-
-  return marketTransformed
-}
 
 /**
  * Fetches markets, transforms them, adds data from smart contracts and returns them.
  * 
  * @param {*} assumedOutcomes Simulate prices, costs and probabilities with given outcomes
  */
-export const loadMarkets = async (assumedOutcomes) => {
+export const loadMarkets = async () => {
   // load hardcoded market entries from config
   const { markets, lmsr } = await loadConfig()
 
@@ -88,34 +21,36 @@ export const loadMarkets = async (assumedOutcomes) => {
   const PMSystem = await loadContract('PredictionMarketSystem')
   const WETH = await loadContract('WETH9')
   const LMSR = await loadContract('LMSRMarketMaker', lmsr)
+  const owner = await getDefaultAccount()
+
 
   // load all balances
-  balances = await retrieveBalances(PMSystem, markets)
+  //balances = await retrieveBalances(PMSystem, markets)
 
   // load all outcome prices
   const outcomeSlotCount = (await LMSR.atomicOutcomeSlotCount()).toNumber()
-  outcomePrices = await Promise.all(
+  const outcomePrices = await Promise.all(
     Array(outcomeSlotCount).fill().map(
       async (_, index) => await LMSR.calcMarginalPrice(index)
     )
   )
   console.log(outcomePrices.join('\n'))
-  marginalPricesPerMarket = {}
+  const marginalPricesPerMarket = {}
 
   let marketIndex = 0
   let totalOutcomeIndex = 0
   while(totalOutcomeIndex < outcomeSlotCount) {
-    console.log({marketIndex, totalOutcomeIndex, market})
     const market = markets[marketIndex]
     const outcomesInMarket = (await PMSystem.getOutcomeSlotCount(market.conditionId)).toNumber()
 
     let marketOutcomeIndex = 0
-    let marketOutcomePrices = []
+    
+    let marketOutcomePrices = Array(outcomesInMarket).fill(new BN(0))
     while(marketOutcomeIndex < outcomesInMarket) {
       if (!marginalPricesPerMarket[market.conditionId]) {
         marginalPricesPerMarket[market.conditionId] = new BN(0)
       }
-
+      
       const outcomePrice = outcomePrices[totalOutcomeIndex]
       marketOutcomePrices[marketIndex] = outcomePrice
       marginalPricesPerMarket[market.conditionId] = marginalPricesPerMarket[market.conditionId].add(outcomePrice)
@@ -123,14 +58,58 @@ export const loadMarkets = async (assumedOutcomes) => {
       totalOutcomeIndex++
       marketOutcomeIndex++
     }
+    
     marketIndex++
   }
 
   // reset lmsr outcome index counter
-  lmsrOutcomeIndex = 0
-  const marketsTransformed = await Promise.all(markets.map(
-      transformMarket(assumedOutcomes, WETH, markets)
-    ))
+  let lmsrOutcomeIndex = 0
+
+  const marketsTransformed = await Promise.all(
+    markets.map(async (market) => {
+      // outcome transformation, loading contract data
+      const outcomes = await Promise.all(market.outcomes.map(async (title) => {
+        const decimals = 10
+        const bnDecimalMultiplier = new BN(Math.pow(10, decimals))
+        const positionId = generatePositionId(markets, WETH, lmsrOutcomeIndex)
+
+        const balance = (await PMSystem.balanceOf(owner, positionId)).toString()
+        console.log(owner, positionId)
+        
+        const outcomePrice = outcomePrices[lmsrOutcomeIndex]
+        
+        const marginalPriceMarket = marginalPricesPerMarket[market.conditionId].div(bnDecimalMultiplier).toNumber()
+        const marginalPriceOutcome = outcomePrice.div(bnDecimalMultiplier).toNumber()
+        
+        let probability = 0
+        if (marginalPriceMarket > 0 && marginalPriceOutcome > 0) {
+          probability = marginalPriceOutcome / marginalPriceMarket
+        } else {
+          if (marginalPriceMarket > 0) {
+            probability = 0
+          }
+          if (marginalPriceOutcome > 0) {
+            probability = 1
+          }
+        }
+        
+        return {
+          name: title,
+          positionId,
+          probability,
+          lmsrOutcomeIndex: lmsrOutcomeIndex,
+          color: colors[lmsrOutcomeIndex++],
+          price: outcomePrice.toString(),
+          balance,
+        }
+      }))
+
+      return {
+        ...market,
+        outcomes,
+      }
+    })
+  )
 
   return marketsTransformed
 }
