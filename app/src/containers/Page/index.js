@@ -103,7 +103,7 @@ const enhancer = compose(
 
         outcomeIndexes.push(market.outcomes[marketOutcomeIndex].lmsrOutcomeIndex)
       })
-
+      console.log(JSON.stringify(outcomeIndexes, null, 2))
       await buyOutcomes(outcomeIndexes, invest)
       const updatedMarkets = await loadMarkets()
       //console.log(markets)

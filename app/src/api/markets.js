@@ -8,14 +8,14 @@ const colors = ["#fbb4ae","#b3cde3","#ccebc5","#decbe4","#fed9a6","#ffffcc","#e5
 
 const { BN } = web3.utils
 
-const ONE_ETH = (new BN(10)).pow(new BN(18))
-
 let balances = {}
 let marginalPricesPerMarket = {}
 let outcomePrices = []
 let lmsrOutcomeIndex = 0
 const transformOutcome = (market) => async (title) => {
   const WETH = await loadContract('WETH9')
+  const PMSystem = await loadContract('PredictionMarketSystem')
+  const owner = await getDefaultAccount()
   const { markets } = await loadConfig()
 
   const decimals = 10
@@ -26,7 +26,7 @@ const transformOutcome = (market) => async (title) => {
   
   const marginalPriceMarket = marginalPricesPerMarket[market.conditionId].div(bnDecimalMultiplier).toNumber()
   const marginalPriceOutcome = outcomePrice.div(bnDecimalMultiplier).toNumber()
-
+  console.log(marginalPriceMarket, marginalPriceOutcome)
   let probability = 0
   if (marginalPriceMarket > 0 && marginalPriceOutcome > 0) {
     probability = marginalPriceOutcome / marginalPriceMarket
@@ -38,6 +38,8 @@ const transformOutcome = (market) => async (title) => {
       probability = 1
     }
   }
+
+  const balance = (await PMSystem.balanceOf(owner, positionId)).toString()
   
   /*
   if (!marginalPriceOutcome.gt(bnZero)) {
@@ -57,7 +59,8 @@ const transformOutcome = (market) => async (title) => {
     lmsrOutcomeIndex: lmsrOutcomeIndex,
     balance: balances[positionId],
     color: colors[lmsrOutcomeIndex],
-    price: outcomePrice.toString()
+    price: outcomePrice.toString(),
+    balance,
   }
 
   lmsrOutcomeIndex++
@@ -91,11 +94,12 @@ export const loadMarkets = async (assumedOutcomes) => {
 
   // load all outcome prices
   const outcomeSlotCount = (await LMSR.atomicOutcomeSlotCount()).toNumber()
-  outcomePrices = await Promise.all(Array(outcomeSlotCount).fill().map(async (_, index) => (
-    await LMSR.calcMarginalPrice(index)
-  )))
-  console.log({ outcomePrices })
-
+  outcomePrices = await Promise.all(
+    Array(outcomeSlotCount).fill().map(
+      async (_, index) => await LMSR.calcMarginalPrice(index)
+    )
+  )
+  console.log(outcomePrices.join('\n'))
   marginalPricesPerMarket = {}
 
   let marketIndex = 0
@@ -133,6 +137,7 @@ export const loadMarkets = async (assumedOutcomes) => {
 
 export const buyOutcomes = async (lmsrOutcomeIndexes, amount) => {
   const pricePerOutcome = amount / lmsrOutcomeIndexes.length
+  console.log(lmsrOutcomeIndexes)
 
   // load all outcome prices
   const { lmsr } = await loadConfig()
@@ -146,6 +151,8 @@ export const buyOutcomes = async (lmsrOutcomeIndexes, amount) => {
 
     return new BN(0)
   })
+
+  console.log(buyList.map((n) => n.toString()))
 
 
   // get market maker instance
