@@ -18,29 +18,26 @@ const colors = [
 
 const { BN } = web3.utils;
 
-const ONE_ETH = new BN(10).pow(new BN(18));
-
-let balances = {};
-let marginalPricesPerMarket = {};
-let outcomePrices = [];
-let lmsrOutcomeIndex = 0;
+let balances = {}
+let marginalPricesPerMarket = {}
+let outcomePrices = []
+let lmsrOutcomeIndex = 0
+const transformOutcome = (market) => async (title) => {
+  const WETH = await loadContract('WETH9')
+  const PMSystem = await loadContract('PredictionMarketSystem')
+  const owner = await getDefaultAccount()
+  const { markets } = await loadConfig()
 
 const transformOutcome = market => async title => {
   const WETH = await loadContract("WETH9");
   const { markets } = await loadConfig();
 
-  const decimals = 10;
-  const bnDecimalMultiplier = new BN(Math.pow(10, decimals));
-  const positionId = generatePositionId(markets, WETH, lmsrOutcomeIndex);
-
-  const outcomePrice = outcomePrices[lmsrOutcomeIndex];
-
-  const marginalPriceMarket = marginalPricesPerMarket[market.conditionId]
-    .div(bnDecimalMultiplier)
-    .toNumber();
-  const marginalPriceOutcome = outcomePrice.div(bnDecimalMultiplier).toNumber();
-
-  let probability = 0;
+  const outcomePrice = outcomePrices[lmsrOutcomeIndex]
+  
+  const marginalPriceMarket = marginalPricesPerMarket[market.conditionId].div(bnDecimalMultiplier).toNumber()
+  const marginalPriceOutcome = outcomePrice.div(bnDecimalMultiplier).toNumber()
+  console.log(marginalPriceMarket, marginalPriceOutcome)
+  let probability = 0
   if (marginalPriceMarket > 0 && marginalPriceOutcome > 0) {
     probability = marginalPriceOutcome / marginalPriceMarket;
   } else {
@@ -52,6 +49,8 @@ const transformOutcome = market => async title => {
     }
   }
 
+  const balance = (await PMSystem.balanceOf(owner, positionId)).toString()
+  
   /*
   if (!marginalPriceOutcome.gt(bnZero)) {
     probability = 0.5
@@ -69,8 +68,9 @@ const transformOutcome = market => async title => {
     lmsrOutcomeIndex: lmsrOutcomeIndex,
     balance: balances[positionId],
     color: colors[lmsrOutcomeIndex],
-    price: outcomePrice.toString()
-  };
+    price: outcomePrice.toString(),
+    balance,
+  }
 
   lmsrOutcomeIndex++;
 
@@ -104,28 +104,25 @@ export const loadMarkets = async assumedOutcomes => {
   balances = await retrieveBalances(PMSystem, markets);
 
   // load all outcome prices
-  const outcomeSlotCount = (await LMSR.atomicOutcomeSlotCount()).toNumber();
+  const outcomeSlotCount = (await LMSR.atomicOutcomeSlotCount()).toNumber()
   outcomePrices = await Promise.all(
-    Array(outcomeSlotCount)
-      .fill()
-      .map(async (_, index) => await LMSR.calcMarginalPrice(index))
-  );
-  console.log({ outcomePrices });
+    Array(outcomeSlotCount).fill().map(
+      async (_, index) => await LMSR.calcMarginalPrice(index)
+    )
+  )
+  console.log(outcomePrices.join('\n'))
+  marginalPricesPerMarket = {}
 
-  marginalPricesPerMarket = {};
+  let marketIndex = 0
+  let totalOutcomeIndex = 0
+  while(totalOutcomeIndex < outcomeSlotCount) {
+    console.log({marketIndex, totalOutcomeIndex, market})
+    const market = markets[marketIndex]
+    const outcomesInMarket = (await PMSystem.getOutcomeSlotCount(market.conditionId)).toNumber()
 
-  let marketIndex = 0;
-  let totalOutcomeIndex = 0;
-  while (totalOutcomeIndex < outcomeSlotCount) {
-    console.log({ marketIndex, totalOutcomeIndex, market });
-    const market = markets[marketIndex];
-    const outcomesInMarket = (await PMSystem.getOutcomeSlotCount(
-      market.conditionId
-    )).toNumber();
-
-    let marketOutcomeIndex = 0;
-    let marketOutcomePrices = [];
-    while (marketOutcomeIndex < outcomesInMarket) {
+    let marketOutcomeIndex = 0
+    let marketOutcomePrices = []
+    while(marketOutcomeIndex < outcomesInMarket) {
       if (!marginalPricesPerMarket[market.conditionId]) {
         marginalPricesPerMarket[market.conditionId] = new BN(0);
       }
@@ -166,8 +163,8 @@ export const buyOutcomes = async (lmsrOutcomeIndexes, amount) => {
         return howManyOutcomesOfEachToBuy;
       }
 
-      return new BN(0);
-    });
+  console.log(buyList.map((n) => n.toString()))
+
 
   // get market maker instance
   const cost = await LMSR.calcNetCost.call(buyList);

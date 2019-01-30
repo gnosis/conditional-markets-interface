@@ -13,14 +13,9 @@ const addWithOverflow = (a, b) => {
   const aBN = isBN(a) ? a : toBN(a)
   const bBN = isBN(b) ? b : toBN(b)
 
-  const aBinary = aBN.toString(2).slice(-256)
-  const bBinary = bBN.toString(2).slice(-256)
+  const product = (aBN.add(bBN))
 
-  const product = (new BN(aBinary, 2).add(
-    new BN(bBinary, 2)
-  ))
-
-  const productTrunctated = new BN(product.toString(2), 2).toString(2).slice(-256)
+  const productTrunctated = product.toString(2).slice(-256)
 
   return new BN(productTrunctated, 2)
 }
@@ -48,26 +43,23 @@ export const generatePositionId = (markets, collateral, i) => {
         collateralToken,
         collectionId)));
   */
+  //debugger
   let collectionId = new BN(0)
   markets.forEach((market) => {
-    const outcomeIndex = (1 << (i % market.outcomes.length)).toString(2)
+    const outcomeIndex = (1 << (i % market.outcomes.length)).toString(16)
     
     const collectionIdBytes = [
       market.conditionId.slice(2),
       padLeft(outcomeIndex, 64).slice(2)
     ].join('')
 
-    console.log({ collectionIdBytes})
-
     const anotherCollectionId = new BN(
       soliditySha3({
         t: 'bytes', v: collectionIdBytes
       }).slice(2),
     16)
-
     // needed to replicate the behaviour in the smart contract
     collectionId = addWithOverflow(collectionId, anotherCollectionId)
-
     i = Math.floor(i / market.outcomes.length)
   })
 
@@ -77,6 +69,6 @@ export const generatePositionId = (markets, collateral, i) => {
   ].join('')
 
   return soliditySha3(
-    { t: 'bytes', v: positionIdBytes }
+    { t: 'string', v: positionIdBytes }
   )
 }
