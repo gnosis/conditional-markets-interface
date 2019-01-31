@@ -1,10 +1,9 @@
 const { generatePositionId } = require("./positions");
 const web3 = require("web3");
 
-const { leftPad, toHex } = web3.utils;
+const { asBytes32, asAddress } = require('../../utils/solidity')
 
-const asAddress = num => `0x${leftPad(num.toString(16), 40)}`;
-const asBytes32 = num => `0x${leftPad(num.toString(16), 64)}`;
+const { leftPad, toHex } = web3.utils;
 
 const MARKETS = [
   { title: "test", conditionId: asBytes32(0x1), outcomes: ["A", "B"] },
