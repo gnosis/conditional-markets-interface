@@ -23,7 +23,7 @@ export const retrieveBalances = async (pmsystem, markets, _positionIds) => {
         );
         Array(outcomeSlots.toNumber())
           .fill()
-          .forEach((_, i) => {
+          .forEach(() => {
             //console.log(i)
             positionIds.push(
               generatePositionId(markets, collateral, lmsrOutcomeIndex + 1)
