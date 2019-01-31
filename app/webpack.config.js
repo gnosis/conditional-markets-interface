@@ -1,9 +1,13 @@
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 
-const publicPath = process.env.NODE_ENV === "production" ? "/hg-first-decentralized-market/" : "/"
+const publicPath =
+  process.env.NODE_ENV === "production"
+    ? "/hg-first-decentralized-market/"
+    : "/";
 
 module.exports = {
   entry: "./src/index.js",
+  devtool: "eval-source-map",
   output: {
     path: __dirname + "/../docs",
     publicPath,
@@ -12,8 +16,8 @@ module.exports = {
   resolve: {
     symlinks: false,
     alias: {
-      '~style': `${__dirname}/src/style`,
-      '~assets': `${__dirname}/src/assets`,
+      "~style": `${__dirname}/src/style`,
+      "~assets": `${__dirname}/src/assets`
     },
     modules: [
       `${__dirname}/src`,

@@ -244,6 +244,40 @@ export const buyOutcomes = async (lmsrOutcomeIndexes, amount) => {
   console.log(tx);
 };
 
-export const sellOutcomes = () => {
-  alert("currently not functioning... :(");
+export const sellOutcomes = async (lmsrOutcomeIndexes, amount) => {
+  const howManyOutcomesOfEachToSell = amount / lmsrOutcomeIndexes.length;
+
+  // load all outcome prices
+  const { lmsr } = await loadConfig();
+  const LMSR = await loadContract("LMSRMarketMaker", lmsr);
+  const PMSystem = await loadContract("PredictionMarketSystem");
+
+  const outcomeSlotCount = (await LMSR.atomicOutcomeSlotCount()).toNumber();
+
+  const sellList = Array(outcomeSlotCount)
+    .fill()
+    .map((_, position) => {
+      if (lmsrOutcomeIndexes.indexOf(position) > -1) {
+        return -howManyOutcomesOfEachToSell;
+      }
+
+      return new BN(0);
+    });
+
+  console.log(sellList.map(n => n.toString()));
+
+  // get market maker instance
+  const cost = await LMSR.calcNetCost.call(sellList);
+  console.log({ cost });
+
+  const defaultAccount = await getDefaultAccount();
+
+  // set approval
+  await PMSystem.setApprovalForAll(lmsr, true, {
+    from: defaultAccount
+  });
+
+  // run trade
+  const tx = await LMSR.trade(sellList, cost, { from: defaultAccount });
+  console.log(tx);
 };

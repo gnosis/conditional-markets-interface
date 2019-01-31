@@ -11,7 +11,7 @@ import {
   withHandlers
 } from "recompose";
 
-import { loadMarkets, buyOutcomes } from "api/markets";
+import { loadMarkets, buyOutcomes, sellOutcomes } from "api/markets";
 
 export const LOADING_STATES = {
   UNKNOWN: "UNKNOWN",
@@ -128,6 +128,33 @@ const enhancer = compose(
       });
       console.log(JSON.stringify(outcomeIndexes, null, 2));
       await buyOutcomes(outcomeIndexes, invest);
+      const updatedMarkets = await loadMarkets();
+      //console.log(markets)
+      setMarkets(updatedMarkets);
+    },
+    handleSellOutcomes: ({
+      markets,
+      setMarkets,
+      invest,
+      selectedOutcomes
+    }) => async () => {
+      const outcomeIndexes = [];
+
+      Object.keys(selectedOutcomes).forEach(conditionId => {
+        const market = find(markets, { conditionId });
+
+        if (!market) throw new Error("Market not found, wtf?");
+        const marketOutcomeIndex = selectedOutcomes[conditionId];
+
+        outcomeIndexes.push(
+          market.outcomes[marketOutcomeIndex].lmsrOutcomeIndex
+        );
+      });
+      console.log(
+        "handleSellOutcomes -> outcomeIndexes: ",
+        JSON.stringify(outcomeIndexes, null, 2)
+      );
+      await sellOutcomes(outcomeIndexes, invest);
       const updatedMarkets = await loadMarkets();
       //console.log(markets)
       setMarkets(updatedMarkets);
