@@ -1,12 +1,4 @@
-const {
-  toHex,
-  padLeft,
-  keccak256,
-  asciiToHex,
-  toBN,
-  fromWei,
-  toChecksumAddress
-} = web3.utils;
+const { toHex, padLeft, keccak256, toChecksumAddress } = web3.utils;
 const rlp = require("rlp");
 
 const PredictionMarketSystem = artifacts.require("PredictionMarketSystem");
@@ -17,6 +9,8 @@ const LMSRMarketMaker = artifacts.require("LMSRMarketMaker");
 const LMSRMarketMakerFactory = artifacts.require("LMSRMarketMakerFactory");
 const Fixed192x64Math = artifacts.require("Fixed192x64Math");
 const WETH9 = artifacts.require("WETH9");
+
+const initialNonce = 0x01;
 
 module.exports = (deployer, network, accounts) => {
   if (network === "development" || network === "test") {
@@ -77,11 +71,10 @@ module.exports = (deployer, network, accounts) => {
             .map(v => padLeft(toHex(v), 64).slice(2))
             .join("")
       );
-      // Start the Nonce for LMSRFactory and Pre-Calculate the LMSRAMM instance address
-      let factoryNonce = 0x01;
+      // Pre-Calculate the LMSRAMM instance address
       const checksummedLMSRAddress = toChecksumAddress(
         keccak256(
-          rlp.encode([LMSRMarketMakerFactoryInstance.address, factoryNonce])
+          rlp.encode([LMSRMarketMakerFactoryInstance.address, initialNonce])
         ).substr(26)
       );
       // Deposit the CollateralTokens necessary and approve() the pre-deployed LMSR instance
@@ -103,7 +96,6 @@ module.exports = (deployer, network, accounts) => {
         process.env.AMMFUNDING || 1,
         { from: accounts[0] }
       );
-      factoryNonce++;
     });
   } else if (network === "rinkeby" || network === "mainnet") {
     let medianizerAddr;
@@ -196,18 +188,16 @@ module.exports = (deployer, network, accounts) => {
             .join("")
       );
 
-
       console.log({
         difficultyMarket: conditionOneId,
         gasLimitMarket: conditionTwoId,
         ethValueMarket: conditionThreeId
       });
 
-      // Start the Nonce for LMSRFactory and Pre-Calculate the LMSRAMM instance address
-      let factoryNonce = 0x01;
+      // Pre-Calculate the LMSRAMM instance address
       const checksummedLMSRAddress = toChecksumAddress(
         keccak256(
-          rlp.encode([LMSRMarketMakerFactoryInstance.address, factoryNonce])
+          rlp.encode([LMSRMarketMakerFactoryInstance.address, initialNonce])
         ).substr(26)
       );
       // Deposit the CollateralTokens necessary and approve() the pre-deployed LMSR instance
@@ -229,7 +219,6 @@ module.exports = (deployer, network, accounts) => {
         process.env.AMMFUNDING || 1e12,
         { from: accounts[0] }
       );
-      factoryNonce++;
     });
   }
 };
