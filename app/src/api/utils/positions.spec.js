@@ -3,7 +3,7 @@ const web3 = require("web3");
 
 const { asBytes32, asAddress } = require('../../utils/solidity')
 
-const { leftPad, toHex } = web3.utils;
+const { toHex } = web3.utils;
 
 const MARKETS = [
   { title: "test", conditionId: asBytes32(0x1), outcomes: ["A", "B"] },
