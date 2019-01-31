@@ -99,11 +99,16 @@ export const loadMarkets = async () => {
   const owner = await getDefaultAccount();
 
   // load all balances
+<<<<<<< HEAD
   balances = await retrieveBalances(PMSystem, markets);
+=======
+  const balances = await retrieveBalances(PMSystem, markets)
+>>>>>>> d4f0e636497b8a178956d33c780d9415f24c2368
 
   // load all outcome prices
   const outcomeSlotCount = (await LMSR.atomicOutcomeSlotCount()).toNumber();
   const outcomePrices = await Promise.all(
+<<<<<<< HEAD
     Array(outcomeSlotCount)
       .fill()
       .map(async (_, index) => await LMSR.calcMarginalPrice(index))
@@ -123,6 +128,25 @@ export const loadMarkets = async () => {
 
     let marketOutcomePrices = Array(outcomesInMarket).fill(new BN(0));
     while (marketOutcomeIndex < outcomesInMarket) {
+=======
+    Array(outcomeSlotCount).fill().map(
+      async (_, index) => await LMSR.calcMarginalPrice(index)
+    )
+  )
+
+  const marginalPricesPerMarket = {}
+
+  let marketIndex = 0
+  let totalOutcomeIndex = 0
+  while(totalOutcomeIndex < outcomeSlotCount) {
+    const market = markets[marketIndex]
+    const outcomesInMarket = (await PMSystem.getOutcomeSlotCount(market.conditionId)).toNumber()
+
+    let marketOutcomeIndex = 0
+    
+    let marketOutcomePrices = Array(outcomesInMarket).fill(new BN(0))
+    while(marketOutcomeIndex < outcomesInMarket) {
+>>>>>>> d4f0e636497b8a178956d33c780d9415f24c2368
       if (!marginalPricesPerMarket[market.conditionId]) {
         marginalPricesPerMarket[market.conditionId] = new BN(0);
       }
@@ -146,6 +170,7 @@ export const loadMarkets = async () => {
   const marketsTransformed = await Promise.all(
     markets.map(async market => {
       // outcome transformation, loading contract data
+<<<<<<< HEAD
       const outcomes = await Promise.all(
         market.outcomes.map(async title => {
           const decimals = 10;
@@ -196,6 +221,47 @@ export const loadMarkets = async () => {
           };
         })
       );
+=======
+      const outcomes = await Promise.all(market.outcomes.map((title) => {
+        const decimals = 10
+        const bnDecimalMultiplier = new BN(Math.pow(10, decimals))
+        console.log(lmsrOutcomeIndex, lmsrOutcomeIndex % 2)
+        const positionId = generatePositionId(markets, WETH, lmsrOutcomeIndex)
+
+        const balance = balances[positionId]
+
+        const outcomePrice = outcomePrices[lmsrOutcomeIndex]
+        
+        const marginalPriceMarket = marginalPricesPerMarket[market.conditionId].div(bnDecimalMultiplier).toNumber()
+        const marginalPriceOutcome = outcomePrice.div(bnDecimalMultiplier).toNumber()
+        
+        let probability = 0
+        if (marginalPriceMarket > 0 && marginalPriceOutcome > 0) {
+          probability = marginalPriceOutcome / marginalPriceMarket
+        } else {
+          if (marginalPriceMarket > 0) {
+            probability = 0
+          }
+          if (marginalPriceOutcome > 0) {
+            probability = 1
+          }
+        }
+        
+        const outcome = {
+          name: title,
+          positionId,
+          probability,
+          lmsrOutcomeIndex: lmsrOutcomeIndex,
+          color: colors[lmsrOutcomeIndex],
+          price: outcomePrice.toString(),
+          balance,
+        }
+        
+        lmsrOutcomeIndex++
+
+        return outcome
+      }))
+>>>>>>> d4f0e636497b8a178956d33c780d9415f24c2368
 
       return {
         ...market,

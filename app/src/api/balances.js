@@ -1,10 +1,5 @@
 import { getDefaultAccount, loadContract } from "./web3";
-
-import web3 from "web3";
 import { generatePositionId } from "./utils/positions";
-//import './utils/lmsr'
-
-const { toBN } = web3.utils;
 
 export const retrieveBalances = async (pmsystem, markets, _positionIds) => {
   const owner = await getDefaultAccount();
@@ -26,7 +21,7 @@ export const retrieveBalances = async (pmsystem, markets, _positionIds) => {
           .forEach(() => {
             //console.log(i)
             positionIds.push(
-              generatePositionId(markets, collateral, lmsrOutcomeIndex + 1)
+              generatePositionId(markets, collateral, lmsrOutcomeIndex)
             );
             //console.log(lmsrOutcomeIndex)
             lmsrOutcomeIndex++;
@@ -45,7 +40,6 @@ export const retrieveBalances = async (pmsystem, markets, _positionIds) => {
         owner,
         positionId
       )).toString();
-      console.log(balances[positionId]);
     })
   );
 
