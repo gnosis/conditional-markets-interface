@@ -31,3 +31,7 @@ export const generatePositionId = (markets, collateral, i) => {
     { t: 'bytes32', v: asBytes32(collectionId) }
   )
 }
+
+export const getAmountOfOutcomeCombinations = (numOutcomesPerMarket) => {
+  return numOutcomesPerMarket.reduce((acc, numOfOutcomes) => acc * numOfOutcomes.length, 1)
+}
