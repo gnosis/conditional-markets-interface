@@ -1,4 +1,4 @@
-const { generatePositionId, getAmountOfOutcomeCombinations } = require("./positions");
+const { generatePositionId  } = require("./positions");
 const web3 = require("web3");
 
 const { asBytes32, asAddress } = require("../../utils/solidity");
@@ -35,25 +35,5 @@ describe("generatePositionId", () => {
         "72187503076580482455625643550285749060418326141458064663530457461725329351050"
       )
     );
-  });
-});
-
-describe("getAmountOfOutcomeCombinations", () => {
-  it("should calculate the correct amount for 2x2 markets", () => {
-    const marketConstelations = [[0, 1], [0, 1]];
-
-    expect(getAmountOfOutcomeCombinations(marketConstelations)).toBe(4);
-  });
-
-  it("should calculate the correct amount for 3x3 markets", () => {
-    const marketConstelations = [[0, 1, 2], [0, 1, 2], [0, 1, 2]];
-
-    expect(getAmountOfOutcomeCombinations(marketConstelations)).toBe(27);
-  });
-
-  it("should calculate the correct amount for 2x3 1x2 markets", () => {
-    const marketConstelations = [[0, 1, 2], [0, 1], [0, 1, 2]];
-
-    expect(getAmountOfOutcomeCombinations(marketConstelations)).toBe(18);
   });
 });

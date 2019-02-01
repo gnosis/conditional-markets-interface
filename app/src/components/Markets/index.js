@@ -1,10 +1,15 @@
-import React from 'react'
+import React from "react";
 
-import Market from '../Market'
+import Market from "../Market";
 
-const Markets = ({ markets, assumptions, selectedOutcomes, selectOutcomes }) => (
+const Markets = ({
+  markets,
+  assumptions,
+  selectedOutcomes,
+  selectOutcomes
+}) => (
   <div>
-    {markets.map(market => 
+    {markets.map(market => (
       <Market
         key={market.conditionId}
         {...market}
@@ -13,8 +18,8 @@ const Markets = ({ markets, assumptions, selectedOutcomes, selectOutcomes }) => 
         selectedOutcomes={selectedOutcomes}
         disabled={!!assumptions[market.conditionId]}
       />
-    )}
+    ))}
   </div>
-)
+);
 
-export default Markets
+export default Markets;
