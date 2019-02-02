@@ -18,65 +18,6 @@ const colors = [
 
 const { BN } = web3.utils;
 
-let balances = {};
-let marginalPricesPerMarket = {};
-let outcomePrices = [];
-let lmsrOutcomeIndex = 0;
-
-const transformOutcome = market => async title => {
-  const WETH = await loadContract("WETH9");
-  const { markets } = await loadConfig();
-
-  const outcomePrice = outcomePrices[lmsrOutcomeIndex];
-
-  const marginalPriceMarket = marginalPricesPerMarket[market.conditionId]
-    .div(bnDecimalMultiplier)
-    .toNumber();
-  const marginalPriceOutcome = outcomePrice.div(bnDecimalMultiplier).toNumber();
-  console.log(marginalPriceMarket, marginalPriceOutcome);
-  let probability = 0;
-  if (marginalPriceMarket > 0 && marginalPriceOutcome > 0) {
-    probability = marginalPriceOutcome / marginalPriceMarket;
-  } else {
-    if (marginalPriceMarket > 0) {
-      probability = 0;
-    }
-    if (marginalPriceOutcome > 0) {
-      probability = 1;
-    }
-  }
-
-  const balance = (await PMSystem.balanceOf(owner, positionId)).toString();
-
-  /*
-  if (!marginalPriceOutcome.gt(bnZero)) {
-    probability = 0.5
-  } else {
-    if (marginalPriceMarket.gt(bnZero)) {
-      //console.log({ marginalPriceOutcome: marginalPriceOutcome.toString(), marginalPriceMarket: marginalPriceMarket.toString() })
-      probability = marginalPriceOutcome.div(marginalPriceMarket).toNumber() / 100000
-    }
-  }*/
-
-import { getDefaultAccount, loadContract, loadConfig } from "./web3"
-import { generatePositionId } from './utils/positions'
-import { resolveProbabilities } from './utils/probabilities'
-import { retrieveBalances } from './balances'
-
-  lmsrOutcomeIndex++;
-
-  return outcome;
-};
-
-const transformMarket = assumedOutcomes => async market => {
-  const marketTransformed = { ...market };
-  marketTransformed.outcomes = await Promise.all(
-    market.outcomes.map(transformOutcome(market))
-  );
-
-  return marketTransformed;
-};
-
 /**
  * Fetches markets, transforms them, adds data from smart contracts and returns them.
  *

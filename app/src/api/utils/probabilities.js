@@ -4,7 +4,7 @@ const { BN, toBN } = web3.utils;
 
 const DECIMAL_MULTIPLIER = toBN(10).pow(toBN(10));
 
-export const resolveProbabilities = (pricesPerMarket, assumptions) => {
+export const resolveProbabilities = (pricesPerMarket, assumptions = []) => {
   console.log(JSON.stringify(pricesPerMarket));
   const fundingSum = pricesPerMarket
     .flat()
