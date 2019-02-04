@@ -36,6 +36,7 @@ const enhancer = compose(
   withState("loading", "setLoading", LOADING_STATES.UNKNOWN),
   withState("markets", "setMarkets", {}),
   withState("invest", "setInvest"),
+  withState("sellAmounts", "setSellAmount", {}),
   withStateHandlers(
     {
       assumptions: {},
@@ -102,10 +103,14 @@ const enhancer = compose(
     },
     handleSelectInvest: ({ setInvest }) => e => {
       const asNum = parseInt(e.target.value, 10);
+      console.log("INVEST AMOUNT: ", e.target.value);
+      const isEmpty = e.target.value === "";
       const validNum = !isNaN(asNum) && isFinite(asNum) && asNum > 0;
 
       if (validNum) {
         setInvest(asNum);
+      } else if (isEmpty) {
+        setInvest("");
       }
     },
     handleBuyOutcomes: ({

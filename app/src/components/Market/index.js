@@ -1,19 +1,32 @@
-import React from 'react'
-import PropTypes from 'prop-types'
-import Outcome from '../Outcome'
-import OutcomeStats from '../OutcomeStats'
-import cn from 'classnames/bind'
+import React from "react";
+import PropTypes from "prop-types";
+import Collapse, { Panel } from "rc-collapse";
+import Outcome from "../Outcome";
+import OutcomeStats from "../OutcomeStats";
+import cn from "classnames/bind";
 
-import css from './style.scss'
+import css from "./style.scss";
 
-const cx = cn.bind(css)
+const cx = cn.bind(css);
 
-const Market = ({ title, description, outcomes, conditionId, selectedOutcomes, selectOutcomes, disabled, assumption }) => {
+const Market = ({
+  title,
+  description,
+  outcomes,
+  conditionId,
+  selectedOutcomes,
+  selectOutcomes,
+  disabled,
+  handleSelectSell,
+  assumption,
+  sellAmount,
+  handleSellOutcome
+}) => {
   return (
-    <div className={cx('market', { disabled })}>
-      <h1 className={cx('title')}>{title}</h1>
+    <div className={cx("market", { disabled })}>
+      <h1 className={cx("title")}>{title}</h1>
       <p>{description}</p>
-      <div className={cx('outcomes')}>
+      <div className={cx("outcomes")}>
         {outcomes.map((outcome, index) => (
           <Outcome
             key={index}
@@ -25,32 +38,64 @@ const Market = ({ title, description, outcomes, conditionId, selectedOutcomes, s
           />
         ))}
       </div>
-      <div className={cx('outcome-stats')}>
-          {outcomes.map((outcome, index) => (
-            (outcome.balance && <OutcomeStats
-              key={index}
-              isCorrect={assumption == index}
-              isSelected={selectedOutcomes[conditionId] === index}
-              {...outcome}
-            />)
-          ))}
+      <div className={cx("outcome-stats")}>
+        {outcomes.map(
+          (outcome, index) =>
+            outcome.balance && (
+              <OutcomeStats
+                key={index}
+                isCorrect={assumption == index}
+                isSelected={selectedOutcomes[conditionId] === index}
+                {...outcome}
+              />
+            )
+        )}
+      </div>
+      <div className={cx("sell-container")}>
+        {outcomes.map(
+          (outcome, index) =>
+            outcome.balance > 0 && (
+              <Collapse className={cx("sell-wrapper")}>
+                <Panel header="Click to sell outcome tokens">
+                  <div key={index} className={cx("sell-form-wrapper")}>
+                    <input
+                      type="text"
+                      className={cx("sell-input")}
+                      placeholder="Amount to sell"
+                      value={sellAmount}
+                      onChange={handleSelectSell}
+                    />
+                    <button
+                      className={cx("sell-button")}
+                      onClick={handleSellOutcome}
+                      type="button"
+                    >
+                      Sell Outcome Tokens
+                    </button>
+                  </div>
+                </Panel>
+              </Collapse>
+            )
+        )}
       </div>
     </div>
-  )
-}
+  );
+};
 
 Market.propTypes = {
   title: PropTypes.string.isRequired,
   description: PropTypes.string.isRequired,
-  outcomes: PropTypes.arrayOf(PropTypes.shape({
-    name: PropTypes.string,
-    probability: PropTypes.number,
-    price: PropTypes.string,
-  }))
-}
+  outcomes: PropTypes.arrayOf(
+    PropTypes.shape({
+      name: PropTypes.string,
+      probability: PropTypes.number,
+      price: PropTypes.string
+    })
+  )
+};
 
 Market.defaultProps = {
   selectedOutcomes: {}
-}
+};
 
-export default Market
+export default Market;

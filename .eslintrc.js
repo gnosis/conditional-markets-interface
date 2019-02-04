@@ -11,6 +11,7 @@ module.exports = {
     node: true,
     mocha: true
   },
+
   root: true,
   globals: {
     assert: true,
@@ -18,12 +19,26 @@ module.exports = {
     artifacts: true,
     web3: true
   },
-  ecmaFeatures: {
-    experimentalObjectRestSpread: true,
-    jsx: true
+  parserOptions: {
+    ecmaFeatures: {
+      experimentalObjectRestSpread: true,
+      jsx: true
+    }
   },
   rules: {
-    "no-redeclare": 0
+    "no-redeclare": 0,
+    "max-len": [
+      "error",
+      120,
+      2,
+      {
+        ignoreUrls: true,
+        ignoreComments: false,
+        ignoreRegExpLiterals: true,
+        ignoreStrings: true,
+        ignoreTemplateLiterals: true
+      }
+    ]
   },
   plugins: ["react"]
 };
