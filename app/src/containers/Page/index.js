@@ -35,8 +35,28 @@ const loadingHandler = branch(
 const enhancer = compose(
   withState("loading", "setLoading", LOADING_STATES.UNKNOWN),
   withState("markets", "setMarkets", {}),
+  withState("sellAmounts", "setSellAmounts", {}),
   withState("invest", "setInvest"),
-  withState("sellAmounts", "setSellAmount", {}),
+  lifecycle({
+    async componentDidMount() {
+      const { setLoading, setMarkets } = this.props;
+
+      setLoading(LOADING_STATES.LOADING);
+
+      try {
+        const markets = await loadMarkets();
+        //console.log(markets)
+        console.log(markets);
+        setMarkets(markets);
+
+        setLoading(LOADING_STATES.SUCCESS);
+      } catch (err) {
+        setLoading(LOADING_STATES.FAILURE);
+        console.error(err.message);
+        console.error(err.stack);
+      }
+    }
+  }),
   withStateHandlers(
     {
       assumptions: {},
@@ -76,25 +96,6 @@ const enhancer = compose(
       })
     }
   ),
-  lifecycle({
-    async componentDidMount() {
-      const { setLoading, setMarkets } = this.props;
-
-      setLoading(LOADING_STATES.LOADING);
-
-      try {
-        const markets = await loadMarkets();
-        //console.log(markets)
-        setMarkets(markets);
-
-        setLoading(LOADING_STATES.SUCCESS);
-      } catch (err) {
-        setLoading(LOADING_STATES.FAILURE);
-        console.error(err.message);
-        console.error(err.stack);
-      }
-    }
-  }),
   withHandlers({
     handleSelectAssumption: ({ selectAssumption }) => e => {
       const [i, conditionId, k] = e.target.name.split(/[\[\]]/g);
@@ -103,7 +104,7 @@ const enhancer = compose(
     },
     handleSelectInvest: ({ setInvest }) => e => {
       const asNum = parseInt(e.target.value, 10);
-      console.log("INVEST AMOUNT: ", e.target.value);
+
       const isEmpty = e.target.value === "";
       const validNum = !isNaN(asNum) && isFinite(asNum) && asNum > 0;
 
@@ -163,6 +164,36 @@ const enhancer = compose(
       const updatedMarkets = await loadMarkets();
       //console.log(markets)
       setMarkets(updatedMarkets);
+    },
+    handleSellOutcome: ({
+      setMarkets,
+      sellAmounts,
+      setSellAmounts
+    }) => async lmsrOutcomeIndex => {
+      const sellAmount = sellAmounts[lmsrOutcomeIndex];
+      await sellOutcomes([lmsrOutcomeIndex], sellAmount);
+      const updatedMarkets = await loadMarkets();
+      //console.log(markets)
+      setMarkets(updatedMarkets);
+      setSellAmounts(prev => ({
+        ...prev,
+        [lmsrOutcomeIndex]: ""
+      }));
+    },
+    handleSelectSell: ({ setSellAmounts }) => (e, outcome) => {
+      const { value } = e.target;
+
+      const asNum = parseInt(value, 10);
+      const isEmpty = value === "";
+      const validNum = !isNaN(asNum) && isFinite(asNum) && asNum > 0;
+      const valueGtCurrentBalance = asNum > outcome.balance;
+
+      if (isEmpty || (validNum && !valueGtCurrentBalance)) {
+        setSellAmounts(sellAmounts => ({
+          ...sellAmounts,
+          [outcome.lmsrOutcomeIndex]: value
+        }));
+      }
     }
   }),
   loadingHandler

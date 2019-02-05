@@ -245,6 +245,7 @@ export const buyOutcomes = async (lmsrOutcomeIndexes, amount) => {
 };
 
 export const sellOutcomes = async (lmsrOutcomeIndexes, amount) => {
+  console.log("TCL: sellOutcomes -> lmsrOutcomeIndexes", lmsrOutcomeIndexes);
   const howManyOutcomesOfEachToSell = amount / lmsrOutcomeIndexes.length;
 
   // load all outcome prices

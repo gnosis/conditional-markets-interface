@@ -21,7 +21,10 @@ function Page({
   assumptions,
   handleSelectInvest,
   handleSelectAssumption,
-  handleSellOutcomes
+  handleSellOutcomes,
+  handleSelectSell,
+  handleSellOutcome,
+  sellAmounts
 }) {
   return (
     <div className={cx("page")}>
@@ -77,6 +80,9 @@ function Page({
           selectOutcomes={selectOutcomes}
           selectedOutcomes={selectedOutcomes}
           assumptions={assumptions}
+          handleSelectSell={handleSelectSell}
+          sellAmounts={sellAmounts}
+          handleSellOutcome={handleSellOutcome}
         />
 
         <button

@@ -6,7 +6,10 @@ const Markets = ({
   markets,
   assumptions,
   selectedOutcomes,
-  selectOutcomes
+  selectOutcomes,
+  handleSelectSell,
+  handleSellOutcome,
+  sellAmounts
 }) => (
   <div>
     {markets.map(market => (
@@ -17,6 +20,9 @@ const Markets = ({
         selectOutcomes={selectOutcomes}
         selectedOutcomes={selectedOutcomes}
         disabled={!!assumptions[market.conditionId]}
+        handleSelectSell={handleSelectSell}
+        sellAmounts={sellAmounts}
+        handleSellOutcome={handleSellOutcome}
       />
     ))}
   </div>

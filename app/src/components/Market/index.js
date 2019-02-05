@@ -19,7 +19,7 @@ const Market = ({
   disabled,
   handleSelectSell,
   assumption,
-  sellAmount,
+  sellAmounts,
   handleSellOutcome
 }) => {
   return (
@@ -52,23 +52,28 @@ const Market = ({
         )}
       </div>
       <div className={cx("sell-container")}>
-        {outcomes.map(
-          (outcome, index) =>
+        {outcomes.map((outcome, index) => {
+          let sellAmount = sellAmounts[outcome.lmsrOutcomeIndex] || "";
+
+          return (
             outcome.balance > 0 && (
-              <Collapse className={cx("sell-wrapper")}>
+              <Collapse className={cx("sell-wrapper")} key={index}>
                 <Panel header="Click to sell outcome tokens">
-                  <div key={index} className={cx("sell-form-wrapper")}>
+                  <div className={cx("sell-form-wrapper")}>
                     <input
-                      type="text"
+                      type="number"
                       className={cx("sell-input")}
                       placeholder="Amount to sell"
                       value={sellAmount}
-                      onChange={handleSelectSell}
+                      onChange={e => handleSelectSell(e, outcome)}
                     />
                     <button
                       className={cx("sell-button")}
-                      onClick={handleSellOutcome}
+                      onClick={() =>
+                        handleSellOutcome(outcome.lmsrOutcomeIndex)
+                      }
                       type="button"
+                      disabled={!sellAmount}
                     >
                       Sell Outcome Tokens
                     </button>
@@ -76,7 +81,8 @@ const Market = ({
                 </Panel>
               </Collapse>
             )
-        )}
+          );
+        })}
       </div>
     </div>
   );
