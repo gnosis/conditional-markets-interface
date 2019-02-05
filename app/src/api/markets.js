@@ -3,8 +3,6 @@ import web3 from "web3";
 import { getDefaultAccount, loadContract, loadConfig } from "./web3";
 import { generatePositionId } from "./utils/positions";
 import { retrieveBalances } from "./balances";
-import { resolveProbabilities } from "./utils/probabilities";
-
 import { resolveProbabilities, resolvePartitionSets } from './utils/probabilities'
 
 const colors = [
