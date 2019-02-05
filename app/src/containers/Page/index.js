@@ -95,10 +95,19 @@ const enhancer = compose(
     }
   }),
   withHandlers({
-    handleSelectAssumption: ({ selectAssumption }) => e => {
+    handleUpdateMarkets: ({ assumptions, setMarkets }) => async () => {
+      console.log(assumptions)
+      const marketsWithAssumptions = await loadMarkets(assumptions)
+      setMarkets(marketsWithAssumptions);
+    },
+  }),
+  withHandlers({
+    handleSelectAssumption: ({ selectAssumption, handleUpdateMarkets }) => async (e) => {
       const [i, conditionId, k] = e.target.name.split(/[\[\]]/g);
       //console.log(conditionId)
-      selectAssumption(conditionId, e.target.value);
+      await selectAssumption(conditionId, e.target.value);
+
+      return handleUpdateMarkets()
     },
     handleSelectInvest: ({ setInvest }) => e => {
       const asNum = parseInt(e.target.value, 10);

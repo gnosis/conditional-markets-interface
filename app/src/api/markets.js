@@ -4,6 +4,8 @@ import { getDefaultAccount, loadContract, loadConfig } from "./web3";
 import { generatePositionId } from "./utils/positions";
 import { retrieveBalances } from "./balances";
 
+import { resolveProbabilities, resolvePartitionSets } from './utils/probabilities'
+
 const colors = [
   "#fbb4ae",
   "#b3cde3",
@@ -23,7 +25,7 @@ const { BN } = web3.utils;
  *
  * @param {*} assumedOutcomes Simulate prices, costs and probabilities with given outcomes
  */
-export const loadMarkets = async () => {
+export const loadMarkets = async (assumptions = {}) => {
   // load hardcoded market entries from config
   const { markets, lmsr } = await loadConfig();
 
@@ -77,29 +79,42 @@ export const loadMarkets = async () => {
 
   // reset lmsr outcome index counter
   let lmsrOutcomeIndex = 0;
+  const transformedAssumptions = []
 
   const marketsTransformed = await Promise.all(
-    markets.map(async market => {
+    markets.map(async (market, marketIndex) => {
       // outcome transformation, loading contract data
-      const outcomes = await Promise.all(market.outcomes.map((title) => {
-        const positionId = generatePositionId(markets, WETH, lmsrOutcomeIndex)
+      const outcomes = await Promise.all(
+        market.outcomes.map(title => {
+          const positionId = generatePositionId(
+            markets,
+            WETH,
+            lmsrOutcomeIndex
+          );
 
-        const balance = balances[positionId]
-        const outcomePrice = outcomePrices[lmsrOutcomeIndex]
-        
-        const outcome = {
-          name: title,
-          positionId,
-          lmsrOutcomeIndex: lmsrOutcomeIndex,
-          color: colors[lmsrOutcomeIndex],
-          price: outcomePrice.toString(),
-          balance,
-        }
-        
-        lmsrOutcomeIndex++
+          const balance = balances[positionId];
+          const outcomePrice = outcomePrices[lmsrOutcomeIndex];
 
-        return outcome
-      }))
+          const outcome = {
+            name: title,
+            positionId,
+            lmsrOutcomeIndex: lmsrOutcomeIndex,
+            color: colors[lmsrOutcomeIndex],
+            price: outcomePrice.toString(),
+            balance
+          };
+
+          lmsrOutcomeIndex++;
+
+          return outcome;
+        })
+      );
+
+      const originalValue = assumptions[market.conditionId]
+
+      if (typeof originalValue !== 'undefined') {
+        transformedAssumptions[marketIndex] = parseInt(originalValue, 10)
+      }
 
       return {
         ...market,
@@ -108,39 +123,87 @@ export const loadMarkets = async () => {
     })
   );
 
-  const probabilities = resolveProbabilities(
-    marketsTransformed.map((market) => market.outcomes.map((outcome) => outcome.price)),
-    [0]
-  )
+  const {
+    individual,
+    pairs,
+    assumed,
+  } = resolveProbabilities(
+    marketsTransformed.map(market =>
+      market.outcomes.map(outcome => outcome.price)
+    ),
+    transformedAssumptions
+  );
+
+  console.log(JSON.stringify({
+    individual,
+    pairs,
+    assumed
+  }, null, 2))
 
   // apply probabilities
-  probabilities.forEach((marketsProbabilities, marketIndex) => {
+  console.log(transformedAssumptions.length)
+  const usedProbabilities = (transformedAssumptions.length > 0 ? assumed : individual)
+  console.log({ usedProbabilities })
+  usedProbabilities.forEach((marketsProbabilities, marketIndex) => {
     marketsProbabilities.forEach((probability, probabilityIndex) => {
-      marketsTransformed[marketIndex].outcomes[probabilityIndex].probability = probability
-    })
-  })
+      marketsTransformed[marketIndex]
+        .outcomes[probabilityIndex]
+        .probability = probability;
+    });
+  });
 
-  return marketsTransformed
-}
+  return marketsTransformed;
+};
 
 export const buyOutcomes = async (lmsrOutcomeIndexes, amount) => {
-  const howManyOutcomesOfEachToBuy = amount / lmsrOutcomeIndexes.length;
-
   // load all outcome prices
   const { lmsr } = await loadConfig();
   const LMSR = await loadContract("LMSRMarketMaker", lmsr);
+  
+  let conditionIds = []
+  let conditionIdIndex = 0
+  while(conditionIdIndex < 256) {
+    try {
+      const conditionId = await LMSR.conditionIds(conditionIdIndex)
+      conditionIds.push(conditionId.toString())
+      conditionIdIndex++
+    } catch (err) {
+      break
+    }
+  }
+
   const outcomeSlotCount = (await LMSR.atomicOutcomeSlotCount()).toNumber();
 
-  const buyList = Array(outcomeSlotCount)
-    .fill()
-    .map((_, position) => {
-      if (lmsrOutcomeIndexes.indexOf(position) > -1) {
-        return howManyOutcomesOfEachToBuy;
+  const PMSystem = await loadContract("PredictionMarketSystem");
+
+  // as we're not buying outcome indexes but specific outcome-sets, we need to resolve the indexes to outcome sets
+  const marketStructure = await Promise.all(conditionIds.map(async (marketConditionId) => {
+    const amountOfOutcomes = (await PMSystem.getOutcomeSlotCount(marketConditionId)).toNumber()
+    return Array(amountOfOutcomes).fill(0)
+  }))
+  
+  //const marketStructure = Array(outcomeSlotCount)
+  const { outcomePairs, outcomeIds } = resolvePartitionSets(marketStructure)
+
+  const buyList = Array(outcomeSlotCount).fill().map((n) => new BN(0))
+  lmsrOutcomeIndexes.forEach((outcomeIndex) => {
+    const outcomeId = outcomeIds.flat()[outcomeIndex]
+    console.log(`wanting to buy ${outcomeId}`)
+    
+    const outcomePairIndexes = outcomePairs.flat().reduce((arr, pair, pairIndex) => {
+      if (pair.indexOf(outcomeId) > -1) {
+        arr.push(pairIndex)
       }
+      return arr
+    }, [])
+    console.log(outcomePairIndexes)
+    outcomePairIndexes.forEach((index) => {
+      console.log(`buying ${outcomePairs.flat()[index]}`)
+      buyList[index] = buyList[index].add(new BN(amount))
+    })
+  })
 
-      return new BN(0);
-    });
-
+  
   console.log(buyList.map(n => n.toString()));
 
   // get market maker instance
