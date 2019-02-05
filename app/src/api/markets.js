@@ -3,6 +3,7 @@ import web3 from "web3";
 import { getDefaultAccount, loadContract, loadConfig } from "./web3";
 import { generatePositionId } from "./utils/positions";
 import { retrieveBalances } from "./balances";
+import { resolveProbabilities } from "./utils/probabilities";
 
 const colors = [
   "#fbb4ae",
@@ -81,25 +82,31 @@ export const loadMarkets = async () => {
   const marketsTransformed = await Promise.all(
     markets.map(async market => {
       // outcome transformation, loading contract data
-      const outcomes = await Promise.all(market.outcomes.map((title) => {
-        const positionId = generatePositionId(markets, WETH, lmsrOutcomeIndex)
+      const outcomes = await Promise.all(
+        market.outcomes.map(title => {
+          const positionId = generatePositionId(
+            markets,
+            WETH,
+            lmsrOutcomeIndex
+          );
 
-        const balance = balances[positionId]
-        const outcomePrice = outcomePrices[lmsrOutcomeIndex]
-        
-        const outcome = {
-          name: title,
-          positionId,
-          lmsrOutcomeIndex: lmsrOutcomeIndex,
-          color: colors[lmsrOutcomeIndex],
-          price: outcomePrice.toString(),
-          balance,
-        }
-        
-        lmsrOutcomeIndex++
+          const balance = balances[positionId];
+          const outcomePrice = outcomePrices[lmsrOutcomeIndex];
 
-        return outcome
-      }))
+          const outcome = {
+            name: title,
+            positionId,
+            lmsrOutcomeIndex: lmsrOutcomeIndex,
+            color: colors[lmsrOutcomeIndex],
+            price: outcomePrice.toString(),
+            balance
+          };
+
+          lmsrOutcomeIndex++;
+
+          return outcome;
+        })
+      );
 
       return {
         ...market,
@@ -109,19 +116,23 @@ export const loadMarkets = async () => {
   );
 
   const probabilities = resolveProbabilities(
-    marketsTransformed.map((market) => market.outcomes.map((outcome) => outcome.price)),
+    marketsTransformed.map(market =>
+      market.outcomes.map(outcome => outcome.price)
+    ),
     [0]
-  )
+  );
 
   // apply probabilities
   probabilities.forEach((marketsProbabilities, marketIndex) => {
     marketsProbabilities.forEach((probability, probabilityIndex) => {
-      marketsTransformed[marketIndex].outcomes[probabilityIndex].probability = probability
-    })
-  })
+      marketsTransformed[marketIndex].outcomes[
+        probabilityIndex
+      ].probability = probability;
+    });
+  });
 
-  return marketsTransformed
-}
+  return marketsTransformed;
+};
 
 export const buyOutcomes = async (lmsrOutcomeIndexes, amount) => {
   const howManyOutcomesOfEachToBuy = amount / lmsrOutcomeIndexes.length;
