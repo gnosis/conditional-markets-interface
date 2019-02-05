@@ -18,71 +18,6 @@ const colors = [
 
 const { BN } = web3.utils;
 
-let balances = {};
-let marginalPricesPerMarket = {};
-let outcomePrices = [];
-let lmsrOutcomeIndex = 0;
-
-const transformOutcome = market => async title => {
-  const WETH = await loadContract("WETH9");
-  const { markets } = await loadConfig();
-
-  const outcomePrice = outcomePrices[lmsrOutcomeIndex];
-
-  const marginalPriceMarket = marginalPricesPerMarket[market.conditionId]
-    .div(bnDecimalMultiplier)
-    .toNumber();
-  const marginalPriceOutcome = outcomePrice.div(bnDecimalMultiplier).toNumber();
-  console.log(marginalPriceMarket, marginalPriceOutcome);
-  let probability = 0;
-  if (marginalPriceMarket > 0 && marginalPriceOutcome > 0) {
-    probability = marginalPriceOutcome / marginalPriceMarket;
-  } else {
-    if (marginalPriceMarket > 0) {
-      probability = 0;
-    }
-    if (marginalPriceOutcome > 0) {
-      probability = 1;
-    }
-  }
-
-  const balance = (await PMSystem.balanceOf(owner, positionId)).toString();
-
-  /*
-  if (!marginalPriceOutcome.gt(bnZero)) {
-    probability = 0.5
-  } else {
-    if (marginalPriceMarket.gt(bnZero)) {
-      //console.log({ marginalPriceOutcome: marginalPriceOutcome.toString(), marginalPriceMarket: marginalPriceMarket.toString() })
-      probability = marginalPriceOutcome.div(marginalPriceMarket).toNumber() / 100000
-    }
-  }*/
-
-  const outcome = {
-    name: title,
-    positionId,
-    probability,
-    lmsrOutcomeIndex: lmsrOutcomeIndex,
-    balance: balances[positionId],
-    color: colors[lmsrOutcomeIndex],
-    price: outcomePrice.toString(),
-    balance
-  };
-
-  lmsrOutcomeIndex++;
-
-  return outcome;
-};
-
-const transformMarket = assumedOutcomes => async market => {
-  const marketTransformed = { ...market };
-  marketTransformed.outcomes = await Promise.all(
-    market.outcomes.map(transformOutcome(market))
-  );
-
-  return marketTransformed;
-};
-
 /**
  * Fetches markets, transforms them, adds data from smart contracts and returns them.
  *
@@ -146,57 +81,25 @@ export const loadMarkets = async () => {
   const marketsTransformed = await Promise.all(
     markets.map(async market => {
       // outcome transformation, loading contract data
-      const outcomes = await Promise.all(
-        market.outcomes.map(title => {
-          const decimals = 10;
-          const bnDecimalMultiplier = new BN(Math.pow(10, decimals));
-          console.log(lmsrOutcomeIndex, lmsrOutcomeIndex % 2);
-          const positionId = generatePositionId(
-            markets,
-            WETH,
-            lmsrOutcomeIndex
-          );
+      const outcomes = await Promise.all(market.outcomes.map((title) => {
+        const positionId = generatePositionId(markets, WETH, lmsrOutcomeIndex)
 
-          const balance = balances[positionId];
+        const balance = balances[positionId]
+        const outcomePrice = outcomePrices[lmsrOutcomeIndex]
+        
+        const outcome = {
+          name: title,
+          positionId,
+          lmsrOutcomeIndex: lmsrOutcomeIndex,
+          color: colors[lmsrOutcomeIndex],
+          price: outcomePrice.toString(),
+          balance,
+        }
+        
+        lmsrOutcomeIndex++
 
-          const outcomePrice = outcomePrices[lmsrOutcomeIndex];
-
-          const marginalPriceMarket = marginalPricesPerMarket[
-            market.conditionId
-          ]
-            .div(bnDecimalMultiplier)
-            .toNumber();
-          const marginalPriceOutcome = outcomePrice
-            .div(bnDecimalMultiplier)
-            .toNumber();
-
-          let probability = 0;
-          if (marginalPriceMarket > 0 && marginalPriceOutcome > 0) {
-            probability = marginalPriceOutcome / marginalPriceMarket;
-          } else {
-            if (marginalPriceMarket > 0) {
-              probability = 0;
-            }
-            if (marginalPriceOutcome > 0) {
-              probability = 1;
-            }
-          }
-
-          const outcome = {
-            name: title,
-            positionId,
-            probability,
-            lmsrOutcomeIndex: lmsrOutcomeIndex,
-            color: colors[lmsrOutcomeIndex],
-            price: outcomePrice.toString(),
-            balance
-          };
-
-          lmsrOutcomeIndex++;
-
-          return outcome;
-        })
-      );
+        return outcome
+      }))
 
       return {
         ...market,
@@ -205,8 +108,20 @@ export const loadMarkets = async () => {
     })
   );
 
-  return marketsTransformed;
-};
+  const probabilities = resolveProbabilities(
+    marketsTransformed.map((market) => market.outcomes.map((outcome) => outcome.price)),
+    [0]
+  )
+
+  // apply probabilities
+  probabilities.forEach((marketsProbabilities, marketIndex) => {
+    marketsProbabilities.forEach((probability, probabilityIndex) => {
+      marketsTransformed[marketIndex].outcomes[probabilityIndex].probability = probability
+    })
+  })
+
+  return marketsTransformed
+}
 
 export const buyOutcomes = async (lmsrOutcomeIndexes, amount) => {
   const howManyOutcomesOfEachToBuy = amount / lmsrOutcomeIndexes.length;

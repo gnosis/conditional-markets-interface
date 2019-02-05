@@ -1,4 +1,4 @@
-const { generatePositionId } = require("./positions");
+const { generatePositionId  } = require("./positions");
 const web3 = require("web3");
 
 const { asBytes32, asAddress } = require("../../utils/solidity");
