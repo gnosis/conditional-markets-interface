@@ -56,31 +56,31 @@ const Market = ({
           let sellAmount = sellAmounts[outcome.lmsrOutcomeIndex] || "";
 
           return (
-            outcome.balance > 0 && (
-              <Collapse className={cx("sell-wrapper")} key={index}>
-                <Panel header="Click to sell outcome tokens">
-                  <div className={cx("sell-form-wrapper")}>
-                    <input
-                      type="number"
-                      className={cx("sell-input")}
-                      placeholder="Amount to sell"
-                      value={sellAmount}
-                      onChange={e => handleSelectSell(e, outcome)}
-                    />
-                    <button
-                      className={cx("sell-button")}
-                      onClick={() =>
-                        handleSellOutcome(outcome.lmsrOutcomeIndex)
-                      }
-                      type="button"
-                      disabled={!sellAmount}
-                    >
-                      Sell Outcome Tokens
-                    </button>
-                  </div>
-                </Panel>
-              </Collapse>
-            )
+            <div className={cx("sell-wrapper")} key={index}>
+              {outcome.balance > 0 && (
+                <Collapse>
+                  <Panel header="Click to sell outcome tokens">
+                    <div className={cx("sell-form-wrapper")}>
+                      <input
+                        type="number"
+                        className={cx("sell-input")}
+                        placeholder="Amount to sell"
+                        value={sellAmount}
+                        onChange={e => handleSelectSell(e, outcome)}
+                      />
+                      <button
+                        className={cx("sell-button")}
+                        onClick={() => handleSellOutcome(outcome.lmsrOutcomeIndex)}
+                        type="button"
+                        disabled={!sellAmount}
+                      >
+                        Sell Outcome Tokens
+                      </button>
+                    </div>
+                  </Panel>
+                </Collapse>
+              )}
+            </div>
           );
         })}
       </div>
