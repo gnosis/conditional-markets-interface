@@ -5,7 +5,9 @@ import { generatePositionId } from "./utils/positions";
 import { retrieveBalances } from "./balances";
 import { resolveProbabilities, resolvePartitionSets } from './utils/probabilities'
 
-const colors = [
+const { BN } = web3.utils;
+
+const OUTCOME_COLORS = [
   "#fbb4ae",
   "#b3cde3",
   "#ccebc5",
@@ -17,7 +19,7 @@ const colors = [
   "#f2f2f2"
 ];
 
-const { BN } = web3.utils;
+const SHARE_AMOUNT_NONE = new BN(0);
 
 /**
  * Fetches markets, transforms them, adds data from smart contracts and returns them.
@@ -78,7 +80,7 @@ export const loadMarkets = async (assumptions = {}) => {
 
   // reset lmsr outcome index counter
   let lmsrOutcomeIndex = 0;
-  const transformedAssumptions = []
+  const transformedAssumptions = [];
 
   const marketsTransformed = await Promise.all(
     markets.map(async (market, marketIndex) => {
@@ -98,7 +100,7 @@ export const loadMarkets = async (assumptions = {}) => {
             name: title,
             positionId,
             lmsrOutcomeIndex: lmsrOutcomeIndex,
-            color: colors[lmsrOutcomeIndex],
+            color: OUTCOME_COLORS[lmsrOutcomeIndex],
             price: outcomePrice.toString(),
             balance
           };
@@ -109,10 +111,10 @@ export const loadMarkets = async (assumptions = {}) => {
         })
       );
 
-      const originalValue = assumptions[market.conditionId]
+      const originalValue = assumptions[market.conditionId];
 
-      if (typeof originalValue !== 'undefined') {
-        transformedAssumptions[marketIndex] = parseInt(originalValue, 10)
+      if (typeof originalValue !== "undefined") {
+        transformedAssumptions[marketIndex] = parseInt(originalValue, 10);
       }
 
       return {
@@ -122,32 +124,33 @@ export const loadMarkets = async (assumptions = {}) => {
     })
   );
 
-  const {
-    individual,
-    pairs,
-    assumed,
-  } = resolveProbabilities(
+  const { individual, pairs, assumed } = resolveProbabilities(
     marketsTransformed.map(market =>
       market.outcomes.map(outcome => outcome.price)
     ),
     transformedAssumptions
   );
 
-  console.log(JSON.stringify({
-    individual,
-    pairs,
-    assumed
-  }, null, 2))
+  console.log(
+    JSON.stringify(
+      {
+        individual,
+        pairs,
+        assumed
+      },
+      null,
+      2
+    )
+  );
 
   // apply probabilities
-  console.log(transformedAssumptions.length)
-  const usedProbabilities = (transformedAssumptions.length > 0 ? assumed : individual)
-  console.log({ usedProbabilities })
+  const usedProbabilities =
+    transformedAssumptions.length > 0 ? assumed : individual;
   usedProbabilities.forEach((marketsProbabilities, marketIndex) => {
     marketsProbabilities.forEach((probability, probabilityIndex) => {
-      marketsTransformed[marketIndex]
-        .outcomes[probabilityIndex]
-        .probability = probability;
+      marketsTransformed[marketIndex].outcomes[
+        probabilityIndex
+      ].probability = probability;
     });
   });
 
@@ -158,16 +161,16 @@ export const buyOutcomes = async (lmsrOutcomeIndexes, amount) => {
   // load all outcome prices
   const { lmsr } = await loadConfig();
   const LMSR = await loadContract("LMSRMarketMaker", lmsr);
-  
-  let conditionIds = []
-  let conditionIdIndex = 0
-  while(conditionIdIndex < 256) {
+
+  let conditionIds = [];
+  let conditionIdIndex = 0;
+  while (conditionIdIndex < 256) {
     try {
-      const conditionId = await LMSR.conditionIds(conditionIdIndex)
-      conditionIds.push(conditionId.toString())
-      conditionIdIndex++
+      const conditionId = await LMSR.conditionIds(conditionIdIndex);
+      conditionIds.push(conditionId.toString());
+      conditionIdIndex++;
     } catch (err) {
-      break
+      break;
     }
   }
 
@@ -176,34 +179,40 @@ export const buyOutcomes = async (lmsrOutcomeIndexes, amount) => {
   const PMSystem = await loadContract("PredictionMarketSystem");
 
   // as we're not buying outcome indexes but specific outcome-sets, we need to resolve the indexes to outcome sets
-  const marketStructure = await Promise.all(conditionIds.map(async (marketConditionId) => {
-    const amountOfOutcomes = (await PMSystem.getOutcomeSlotCount(marketConditionId)).toNumber()
-    return Array(amountOfOutcomes).fill(0)
-  }))
-  
-  //const marketStructure = Array(outcomeSlotCount)
-  const { outcomePairs, outcomeIds } = resolvePartitionSets(marketStructure)
-
-  const buyList = Array(outcomeSlotCount).fill().map((n) => new BN(0))
-  lmsrOutcomeIndexes.forEach((outcomeIndex) => {
-    const outcomeId = outcomeIds.flat()[outcomeIndex]
-    console.log(`wanting to buy ${outcomeId}`)
-    
-    const outcomePairIndexes = outcomePairs.flat().reduce((arr, pair, pairIndex) => {
-      if (pair.indexOf(outcomeId) > -1) {
-        arr.push(pairIndex)
-      }
-      return arr
-    }, [])
-    console.log(outcomePairIndexes)
-    outcomePairIndexes.forEach((index) => {
-      console.log(`buying ${outcomePairs.flat()[index]}`)
-      buyList[index] = buyList[index].add(new BN(amount))
+  const marketStructure = await Promise.all(
+    conditionIds.map(async marketConditionId => {
+      const amountOfOutcomes = (await PMSystem.getOutcomeSlotCount(
+        marketConditionId
+      )).toNumber();
+      return Array(amountOfOutcomes).fill(0);
     })
-  })
+  );
 
-  
-  console.log(buyList.map(n => n.toString()));
+  //const marketStructure = Array(outcomeSlotCount)
+  const { outcomePairs, outcomeIds } = resolvePartitionSets(marketStructure);
+
+  // list of outcomePairIndexes we'd like to aquire
+  const wantList = lmsrOutcomeIndexes.map(
+    outcomeIndex => outcomeIds.flat()[outcomeIndex]
+  );
+
+  const shareAmountToBuy = new BN(amount);
+  const buyList = Array(outcomeSlotCount)
+    .fill()
+    .map((_, index) => {
+      const outcomePair = outcomePairs.flat()[index];
+
+      const outcomesInPair = outcomePair.split('&')
+      const pairHasAllWantedOutcomes = wantList
+        .every(id => outcomesInPair.indexOf(id) > -1);
+
+      return pairHasAllWantedOutcomes ? shareAmountToBuy.toString() : SHARE_AMOUNT_NONE.toString();
+    });
+
+  console.log(`buying "${JSON.stringify(wantList)}" with ${amount} each.`);
+  console.log(
+    `assembled "buyList": "${JSON.stringify(buyList)}"`
+  );
 
   // get market maker instance
   const cost = await LMSR.calcNetCost.call(buyList);
