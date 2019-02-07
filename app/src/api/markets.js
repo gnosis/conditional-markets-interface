@@ -41,7 +41,7 @@ export const loadMarkets = async (assumptions = {}) => {
 
   // load all balances
   const balances = await retrieveBalances(PMSystem, markets);
-  console.log(balances)
+  console.log(balances);
   // load all outcome prices
   const outcomeSlotCount = (await LMSR.atomicOutcomeSlotCount()).toNumber();
   const outcomePrices = await Promise.all(
@@ -292,8 +292,10 @@ export const sellOutcomes = async (lmsrOutcomeIndexes, amount) => {
   console.log(`selling "${JSON.stringify(wantList)}" with ${amount} each.`);
   console.log(`assembled "sellList": "${JSON.stringify(sellList)}"`);
 
+  const testSellList = [-1, "0", 0, "0"];
+
   // get market maker instance
-  const cost = await LMSR.calcNetCost.call(sellList);
+  const cost = await LMSR.calcNetCost.call(testSellList);
   console.log({ cost: cost.toString() });
 
   const defaultAccount = await getDefaultAccount();
@@ -304,7 +306,7 @@ export const sellOutcomes = async (lmsrOutcomeIndexes, amount) => {
   });
   console.log("approval set");
   // run trade
-  const tx = await LMSR.trade(sellList, cost, {
+  const tx = await LMSR.trade(testSellList, cost, {
     from: defaultAccount,
     gas: 0x6691b7
   });

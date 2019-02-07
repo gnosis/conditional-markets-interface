@@ -20,6 +20,7 @@ module.exports = {
     web3: true
   },
   parserOptions: {
+    sourceType: "module",
     ecmaFeatures: {
       experimentalObjectRestSpread: true,
       jsx: true
