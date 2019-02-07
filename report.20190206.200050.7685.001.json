@@ -1,0 +1,488 @@
+
+{
+  "header": {
+    "event": "Allocation failed - JavaScript heap out of memory",
+    "location": "OnFatalError",
+    "filename": "report.20190206.200050.7685.001.json",
+    "dumpEventTime": "2019-02-06T20:00:50Z",
+    "dumpEventTimeStamp": "1549468850200",
+    "processId": "7685",
+    "commandLine": [
+      "node",
+      "/home/mmv/.npm-packages/bin/truffle",
+      "debug",
+      "0x5491dabf190bd472e9cd0bc7b621f14aa2c3e36cafef0de47a270ef3914c9739"
+    ],
+    "nodejsVersion": "v11.8.0",
+    "glibcVersion": "2.12",
+    "wordSize": "64 bit",
+    "componentVersions": {
+      "node": "11.8.0",
+      "v8": "7.0.276.38-node.16",
+      "uv": "1.25.0",
+      "zlib": "1.2.11",
+      "brotli": "1.0.7",
+      "ares": "1.15.0",
+      "modules": "67",
+      "nghttp2": "1.34.0",
+      "napi": "4",
+      "llhttp": "1.0.1",
+      "http_parser": "2.8.0",
+      "openssl": "1.1.0j",
+      "cldr": "34.0",
+      "icu": "63.1",
+      "tz": "2018e",
+      "unicode": "11.0",
+      "arch": "x64",
+      "platform": "linux",
+      "release": "node"
+    },
+    "osVersion": "Linux 4.18.20-041820-generic #201811211035 SMP Wed Nov 21 10:37:21 UTC 2018",
+    "glibc": "2.27",
+    "machine": "Linux 4.18.20-041820-generic #201811211035 SMP Wed Nov 21 10:37:21 UTC 2018mmv-desktop x86_64"
+  },
+  "javascriptStack": {
+    "message": "No stack.",
+    "stack": [
+      "Unavailable."
+    ]
+  },
+  "nativeStack": [
+    " [pc=0xa586d8] report::TriggerNodeReport(v8::Isolate*, node::Environment*, char const*, char const*, std::string, v8::Local<v8::String>) [node]",
+    " [pc=0x9498a3] node::OnFatalError(char const*, char const*) [node]",
+    " [pc=0xb1f01e] v8::Utils::ReportOOMFailure(v8::internal::Isolate*, char const*, bool) [node]",
+    " [pc=0xb1f254] v8::internal::V8::FatalProcessOutOfMemory(v8::internal::Isolate*, char const*, bool) [node]",
+    " [pc=0xf1bfc2]  [node]",
+    " [pc=0xf1c0c8] v8::internal::Heap::CheckIneffectiveMarkCompact(unsigned long, double) [node]",
+    " [pc=0xf287e8] v8::internal::Heap::PerformGarbageCollection(v8::internal::GarbageCollector, v8::GCCallbackFlags) [node]",
+    " [pc=0xf292fb] v8::internal::Heap::CollectGarbage(v8::internal::AllocationSpace, v8::internal::GarbageCollectionReason, v8::GCCallbackFlags) [node]",
+    " [pc=0xf2c031] v8::internal::Heap::AllocateRawWithRetryOrFail(int, v8::internal::AllocationSpace, v8::internal::AllocationAlignment) [node]",
+    " [pc=0xef6264] v8::internal::Factory::NewFillerObject(int, bool, v8::internal::AllocationSpace) [node]",
+    " [pc=0x11abc1e] v8::internal::Runtime_AllocateInNewSpace(int, v8::internal::Object**, v8::internal::Isolate*) [node]",
+    " [pc=0x2b2149cfc5d] "
+  ],
+  "javascriptHeap": {
+    "totalMemory": "1503498240",
+    "totalCommittedMemory": "1496594208",
+    "usedMemory": "1451477688",
+    "availableMemory": "29780952",
+    "memoryLimit": "1526909922",
+    "heapSpaces": {
+      "read_only_space": {
+        "memorySize": "524288",
+        "committedMemory": "42224",
+        "capacity": "515584",
+        "used": "33520",
+        "available": "482064"
+      },
+      "new_space": {
+        "memorySize": "33554432",
+        "committedMemory": "28008128",
+        "capacity": "16498688",
+        "used": "11073264",
+        "available": "5425424"
+      },
+      "old_space": {
+        "memorySize": "1012076544",
+        "committedMemory": "1011699328",
+        "capacity": "988455464",
+        "used": "987801712",
+        "available": "653752"
+      },
+      "code_space": {
+        "memorySize": "4194304",
+        "committedMemory": "4153792",
+        "capacity": "3554496",
+        "used": "3554496",
+        "available": "0"
+      },
+      "map_space": {
+        "memorySize": "4206592",
+        "committedMemory": "3748656",
+        "capacity": "1739200",
+        "used": "1739200",
+        "available": "0"
+      },
+      "large_object_space": {
+        "memorySize": "448942080",
+        "committedMemory": "448942080",
+        "capacity": "470495208",
+        "used": "447275496",
+        "available": "23219712"
+      },
+      "new_large_object_space": {
+        "memorySize": "0",
+        "committedMemory": "0",
+        "capacity": "0",
+        "used": "0",
+        "available": "0"
+      }
+    }
+  },
+  "resourceUsage": {
+    "userCpuSeconds": "1514.674823",
+    "kernelCpuSeconds": "17.407342",
+    "cpuConsumptionPercent": "0.000099",
+    "maxRss": "1753542656",
+    "pageFaults": {
+      "IORequired": "0",
+      "IONotRequired": "1701685"
+    },
+    "fsActivity": {
+      "reads": "0",
+      "writes": "17752"
+    }
+  },
+  "uvthreadResourceUsage": {
+    "userCpuSeconds": "1136.843253",
+    "kernelCpuSeconds": "5.140720",
+    "cpuConsumptionPercent": "0.000074",
+    "fsActivity": {
+      "reads": "0",
+      "writes": "17752"
+    }
+  },
+  "libuv": [
+    {
+      "type": "async",
+      "is_active": "1",
+      "is_referenced": "0",
+      "address": "44235088",
+      "details": ""
+    },
+    {
+      "type": "timer",
+      "is_active": "0",
+      "is_referenced": "0",
+      "address": "140724765810144",
+      "details": "repeat: 0, timeout expired: 1959119 ms ago"
+    },
+    {
+      "type": "check",
+      "is_active": "1",
+      "is_referenced": "0",
+      "address": "140724765810296",
+      "details": ""
+    },
+    {
+      "type": "idle",
+      "is_active": "0",
+      "is_referenced": "1",
+      "address": "140724765810416",
+      "details": ""
+    },
+    {
+      "type": "prepare",
+      "is_active": "0",
+      "is_referenced": "0",
+      "address": "140724765810536",
+      "details": ""
+    },
+    {
+      "type": "check",
+      "is_active": "0",
+      "is_referenced": "0",
+      "address": "140724765810656",
+      "details": ""
+    },
+    {
+      "type": "async",
+      "is_active": "1",
+      "is_referenced": "0",
+      "address": "39995456",
+      "details": ""
+    },
+    {
+      "type": "tty",
+      "is_active": "0",
+      "is_referenced": "1",
+      "address": "45091688",
+      "details": ", file descriptor: 17, write queue size: 0, readable, writable"
+    },
+    {
+      "type": "signal",
+      "is_active": "1",
+      "is_referenced": "0",
+      "address": "44661168",
+      "details": "signum: 28 (SIGWINCH)"
+    },
+    {
+      "type": "tty",
+      "is_active": "0",
+      "is_referenced": "1",
+      "address": "108531080",
+      "details": ", file descriptor: 19, write queue size: 0, readable, writable"
+    },
+    {
+      "type": "signal",
+      "is_active": "1",
+      "is_referenced": "0",
+      "address": "92504976",
+      "details": "signum: 6 (SIGABRT)"
+    },
+    {
+      "type": "signal",
+      "is_active": "1",
+      "is_referenced": "0",
+      "address": "92505264",
+      "details": "signum: 14 (SIGALRM)"
+    },
+    {
+      "type": "signal",
+      "is_active": "1",
+      "is_referenced": "0",
+      "address": "92505552",
+      "details": "signum: 1 (SIGHUP)"
+    },
+    {
+      "type": "signal",
+      "is_active": "1",
+      "is_referenced": "0",
+      "address": "92505840",
+      "details": "signum: 2 (SIGINT)"
+    },
+    {
+      "type": "signal",
+      "is_active": "1",
+      "is_referenced": "0",
+      "address": "92506128",
+      "details": "signum: 15 (SIGTERM)"
+    },
+    {
+      "type": "signal",
+      "is_active": "1",
+      "is_referenced": "0",
+      "address": "92506416",
+      "details": "signum: 26 (SIGVTALRM)"
+    },
+    {
+      "type": "signal",
+      "is_active": "1",
+      "is_referenced": "0",
+      "address": "92513568",
+      "details": "signum: 24 (SIGXCPU)"
+    },
+    {
+      "type": "signal",
+      "is_active": "1",
+      "is_referenced": "0",
+      "address": "133684848",
+      "details": "signum: 25 (SIGXFSZ)"
+    },
+    {
+      "type": "signal",
+      "is_active": "1",
+      "is_referenced": "0",
+      "address": "92504688",
+      "details": "signum: 12 (SIGUSR2)"
+    },
+    {
+      "type": "signal",
+      "is_active": "1",
+      "is_referenced": "0",
+      "address": "124583664",
+      "details": "signum: 5 (SIGTRAP)"
+    },
+    {
+      "type": "signal",
+      "is_active": "1",
+      "is_referenced": "0",
+      "address": "124583952",
+      "details": "signum: 31 (SIGSYS)"
+    },
+    {
+      "type": "signal",
+      "is_active": "1",
+      "is_referenced": "0",
+      "address": "124584240",
+      "details": "signum: 3 (SIGQUIT)"
+    },
+    {
+      "type": "signal",
+      "is_active": "1",
+      "is_referenced": "0",
+      "address": "124584528",
+      "details": "signum: 6 (SIGABRT)"
+    },
+    {
+      "type": "signal",
+      "is_active": "1",
+      "is_referenced": "0",
+      "address": "133586000",
+      "details": "signum: 29 (SIGIO)"
+    },
+    {
+      "type": "signal",
+      "is_active": "1",
+      "is_referenced": "0",
+      "address": "133586288",
+      "details": "signum: 29 (SIGIO)"
+    },
+    {
+      "type": "signal",
+      "is_active": "1",
+      "is_referenced": "0",
+      "address": "133586576",
+      "details": "signum: 30 (SIGPWR)"
+    },
+    {
+      "type": "signal",
+      "is_active": "1",
+      "is_referenced": "0",
+      "address": "133586864",
+      "details": "signum: 16 (SIGSTKFLT)"
+    },
+    {
+      "type": "signal",
+      "is_active": "1",
+      "is_referenced": "0",
+      "address": "133587152",
+      "details": "signum: 31 (SIGSYS)"
+    },
+    {
+      "type": "tty",
+      "is_active": "1",
+      "is_referenced": "1",
+      "address": "129707912",
+      "details": ", file descriptor: 20, write queue size: 0, readable, writable"
+    },
+    {
+      "type": "async",
+      "is_active": "1",
+      "is_referenced": "0",
+      "address": "44435440",
+      "details": ""
+    }
+  ],
+  "environmentVariables": {
+    "LC_ADDRESS": "ru_RU.UTF-8",
+    "XDG_CONFIG_DIRS": "/etc/xdg/xdg-ubuntu:/etc/xdg",
+    "LC_TELEPHONE": "ru_RU.UTF-8",
+    "LANG": "en_US.UTF-8",
+    "DISPLAY": ":1",
+    "SHLVL": "1",
+    "LOGNAME": "mmv",
+    "XDG_VTNR": "2",
+    "MANDATORY_PATH": "/usr/share/gconf/ubuntu.mandatory.path",
+    "LC_NAME": "ru_RU.UTF-8",
+    "PWD": "/home/mmv/work/hg-first-decentralized-market",
+    "XDG_SEAT": "seat0",
+    "XAUTHORITY": "/run/user/1000/gdm/Xauthority",
+    "VTE_VERSION": "5202",
+    "GTK_IM_MODULE": "ibus",
+    "USER": "mmv",
+    "XDG_SESSION_ID": "3",
+    "GNOME_TERMINAL_SCREEN": "/org/gnome/Terminal/screen/d03f7acd_508a_4360_af0a_341325767881",
+    "DESKTOP_SESSION": "ubuntu",
+    "XDG_SESSION_DESKTOP": "ubuntu",
+    "GDMSESSION": "ubuntu",
+    "TEXTDOMAINDIR": "/usr/share/locale/",
+    "DEFAULTS_PATH": "/usr/share/gconf/ubuntu.default.path",
+    "GNOME_DESKTOP_SESSION_ID": "this-is-deprecated",
+    "LC_MEASUREMENT": "ru_RU.UTF-8",
+    "TEXTDOMAIN": "im-config",
+    "WINDOWPATH": "2",
+    "LC_MONETARY": "ru_RU.UTF-8",
+    "IM_CONFIG_PHASE": "2",
+    "DBUS_SESSION_BUS_ADDRESS": "unix:path=/run/user/1000/bus",
+    "QT_ACCESSIBILITY": "1",
+    "USERNAME": "mmv",
+    "CLUTTER_IM_MODULE": "xim",
+    "GNOME_TERMINAL_SERVICE": ":1.78",
+    "QT4_IM_MODULE": "xim",
+    "LC_PAPER": "ru_RU.UTF-8",
+    "XDG_MENU_PREFIX": "gnome-",
+    "LC_NUMERIC": "ru_RU.UTF-8",
+    "GNOME_SHELL_SESSION_MODE": "ubuntu",
+    "SHELL": "/usr/bin/zsh",
+    "XDG_SESSION_TYPE": "x11",
+    "XDG_DATA_DIRS": "/usr/share/ubuntu:/usr/local/share:/usr/share:/var/lib/snapd/desktop",
+    "LC_TIME": "ru_RU.UTF-8",
+    "TERM": "xterm-256color",
+    "SESSION_MANAGER": "local/mmv-desktop:@/tmp/.ICE-unix/4308,unix/mmv-desktop:/tmp/.ICE-unix/4308",
+    "GJS_DEBUG_OUTPUT": "stderr",
+    "SSH_AGENT_PID": "4404",
+    "GTK_MODULES": "gail:atk-bridge",
+    "QT_IM_MODULE": "ibus",
+    "COLORTERM": "truecolor",
+    "LC_IDENTIFICATION": "ru_RU.UTF-8",
+    "XDG_CURRENT_DESKTOP": "ubuntu:GNOME",
+    "XMODIFIERS": "@im=ibus",
+    "PATH": "/home/mmv/.local/bin:/home/mmv/.npm-packages/bin:/home/mmv/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin",
+    "XDG_RUNTIME_DIR": "/run/user/1000",
+    "SSH_AUTH_SOCK": "/run/user/1000/keyring/ssh",
+    "HOME": "/home/mmv",
+    "GJS_DEBUG_TOPICS": "JS ERROR;JS LOG",
+    "GPG_AGENT_INFO": "/run/user/1000/gnupg/S.gpg-agent:0:1",
+    "OLDPWD": "/home/mmv",
+    "ZSH": "/home/mmv/.oh-my-zsh",
+    "PAGER": "less",
+    "LESS": "-R",
+    "LC_CTYPE": "en_US.UTF-8",
+    "LSCOLORS": "Gxfxcxdxbxegedabagacad",
+    "LS_COLORS": "rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.Z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:",
+    "NPM_PACKAGES": "/home/mmv/.npm-packages",
+    "NODE_PATH": "/home/mmv/.npm-packages/lib/node_modules",
+    "MANPATH": "/home/mmv/.npm-packages/share/man:/home/mmv/.npm-packages/share/man:/usr/local/man:/usr/local/share/man:/usr/share/man",
+    "_": "/home/mmv/.npm-packages/bin/truffle"
+  },
+  "userLimits": {
+    "core_file_size_blocks": {
+      "soft": "0",
+      "hard": "unlimited"
+    },
+    "data_seg_size_kbytes": {
+      "soft": "unlimited",
+      "hard": "unlimited"
+    },
+    "file_size_blocks": {
+      "soft": "unlimited",
+      "hard": "unlimited"
+    },
+    "max_locked_memory_bytes": {
+      "soft": "16777216",
+      "hard": "16777216"
+    },
+    "max_memory_size_kbytes": {
+      "soft": "unlimited",
+      "hard": "unlimited"
+    },
+    "open_files": {
+      "soft": "4096",
+      "hard": "4096"
+    },
+    "stack_size_bytes": {
+      "soft": "8388608",
+      "hard": "unlimited"
+    },
+    "cpu_time_seconds": {
+      "soft": "unlimited",
+      "hard": "unlimited"
+    },
+    "max_user_processes": {
+      "soft": "63332",
+      "hard": "63332"
+    },
+    "virtual_memory_kbytes": {
+      "soft": "unlimited",
+      "hard": "unlimited"
+    }
+  },
+  "sharedObjects": [
+    "linux-vdso.so.1",
+    "/lib/x86_64-linux-gnu/libdl.so.2",
+    "/lib/x86_64-linux-gnu/librt.so.1",
+    "/usr/lib/x86_64-linux-gnu/libstdc++.so.6",
+    "/lib/x86_64-linux-gnu/libm.so.6",
+    "/lib/x86_64-linux-gnu/libgcc_s.so.1",
+    "/lib/x86_64-linux-gnu/libpthread.so.0",
+    "/lib/x86_64-linux-gnu/libc.so.6",
+    "/lib64/ld-linux-x86-64.so.2",
+    "/home/mmv/work/hg-first-decentralized-market/node_modules/truffle-hdwallet-provider/node_modules/websocket/build/Release/bufferutil.node",
+    "/home/mmv/work/hg-first-decentralized-market/node_modules/truffle-hdwallet-provider/node_modules/websocket/build/Release/validation.node",
+    "/lib/x86_64-linux-gnu/libnss_files.so.2",
+    "/lib/x86_64-linux-gnu/libnss_mdns4_minimal.so.2",
+    "/lib/x86_64-linux-gnu/libnss_dns.so.2",
+    "/lib/x86_64-linux-gnu/libresolv.so.2"
+  ]
+}
