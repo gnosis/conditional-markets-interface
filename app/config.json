@@ -19,6 +19,15 @@
           "Block Gas Limit will be lower than 8000500",
           "Block Gas Limit will be higher or equal than 8000500"
         ]
+      },
+      {
+        "conditionId": "0xf330e09611c7ccf014b4a516ce6a74291e17ca79dcb9d6ddf9e13935749a4a95",
+        "title": "What that other block difficulty thing (testing)?",
+        "description": "Will the block gas limit be greater than 8,000,5000 or lower?",
+        "outcomes": [
+          "Block Gas Limit will be lower than 8000500",
+          "Block Gas Limit will be higher or equal than 8000500"
+        ]
       }
     ]
   },

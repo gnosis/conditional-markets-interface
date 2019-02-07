@@ -40,7 +40,7 @@ export const loadMarkets = async (assumptions = {}) => {
   const owner = await getDefaultAccount();
 
   // load all balances
-  const balances = await retrieveBalances(PMSystem, markets);
+  const balances = await retrieveBalances(PMSystem, LMSR, markets);
   console.log(balances);
   // load all outcome prices
   const outcomeSlotCount = (await LMSR.atomicOutcomeSlotCount()).toNumber();
@@ -50,15 +50,16 @@ export const loadMarkets = async (assumptions = {}) => {
       .map(async (_, index) => await LMSR.calcMarginalPrice(index))
   );
 
+  const outcomesInMarkets = markets.map(async market =>
+    (await PMSystem.getOutcomeSlotCount(market.conditionId)).toNumber()
+  );
+
   const marginalPricesPerMarket = {};
 
-  let marketIndex = 0;
   let totalOutcomeIndex = 0;
-  while (totalOutcomeIndex < outcomeSlotCount) {
-    const market = markets[marketIndex];
-    const outcomesInMarket = (await PMSystem.getOutcomeSlotCount(
-      market.conditionId
-    )).toNumber();
+  markets.forEach((market, marketIndex) => {
+    const outcomesInMarket = outcomesInMarkets[marketIndex];
+    console.log(market);
 
     let marketOutcomeIndex = 0;
 
@@ -77,9 +78,7 @@ export const loadMarkets = async (assumptions = {}) => {
       totalOutcomeIndex++;
       marketOutcomeIndex++;
     }
-
-    marketIndex++;
-  }
+  });
 
   // reset lmsr outcome index counter
   let lmsrOutcomeIndex = 0;
