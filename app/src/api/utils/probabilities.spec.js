@@ -1,7 +1,7 @@
 const { resolvePartitionSets } = require("./probabilities");
 
 describe.only("probabilities.js", () => {
-  describe("resolvePartitionSets", () => {
+  describe("\"resolvePartitionSets\"", () => {
     it("should have the correct length", () => {
       const input = [[0, 0, 0], [0, 0, 0], [0, 0, 0]];
 

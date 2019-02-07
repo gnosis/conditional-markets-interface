@@ -1,10 +1,10 @@
 import web3 from 'web3'
 
 import { getDefaultAccount, loadContract } from "./web3";
-import { generatePositionId } from "./utils/positions";
+import { generatePositionId, generatePositionIdList } from "./utils/positions";
 import { resolvePartitionSets } from "./utils/probabilities"
 
-const { toBN, BN } = web3.utils
+const { BN } = web3.utils
 
 export const retrieveBalances = async (pmsystem, lmsr, markets, _positionIds) => {
   const owner = await getDefaultAccount();
@@ -13,23 +13,26 @@ export const retrieveBalances = async (pmsystem, lmsr, markets, _positionIds) =>
   if (!Array.isArray(positionIds)) {
     // use position id generator
     const collateral = await loadContract("WETH9");
-
-
-    let lmsrOutcomeIndex = 0;
-    positionIds = [];
-
     const outcomeSlots = (await lmsr.atomicOutcomeSlotCount()).toNumber();
     
-    Array(outcomeSlots)
+    // this generates a tree of position ids, resolving each step, to replicate the correct order
+    const positionIdsForOrder = generatePositionIdList(markets, collateral)
+
+    // this generates a list of all end-position ids
+    const positionIdsUnordered = []
+    Object.keys(
+      Array(outcomeSlots)
       .fill()
-      .forEach(() => {
-        //console.log(i)
-        positionIds.push(
-          generatePositionId(markets, collateral, lmsrOutcomeIndex)
+    ).forEach((outcomeIndex) => {
+        positionIdsUnordered.push(
+          generatePositionId(markets, collateral, outcomeIndex)
         );
-        lmsrOutcomeIndex++;
       });
-  
+
+    // filtering the ordered list, we can create an ordered list of only the end-position ids, because positionIdsUnordered is a subset of positionIdsForOrder
+    positionIds = positionIdsForOrder.filter((id) => positionIdsUnordered.indexOf(id) > -1)
+    
+    //console.log(positionIds.length === positionIdsUnordered.length)
   }
 
   // get position balances
@@ -45,7 +48,8 @@ export const retrieveBalances = async (pmsystem, lmsr, markets, _positionIds) =>
     })
   );
 
-  console.log(`position balances: ${JSON.stringify(balancesList)}`)
+  console.log(`position balances: ${JSON.stringify(balancesList)}`)  
+  
 
   // map balances to outcome positions
 

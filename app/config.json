@@ -1,9 +1,9 @@
 {
   "GANACHE": {
-    "lmsr": "0x4849038be95fe6e42da67c9edbe411709e9c6780",
+    "lmsr": "0x8c6aad0c92a48112aaa0e6e8f98a160120f17059",
     "markets": [
       {
-        "conditionId": "0xa6dfcebdcfdbc997327c773e44450967a9c49ea38f2bc67ce9128a7fbd3f5b67",
+        "conditionId": "0x5aa5951c709b312aeda63a2aa93bcc3ac99096118836536fe488c4ebc1b2e957",
         "title": "What will be the block difficulty for Ethereum Mainnet on 31st of January, 2019?",
         "description": "Will the difficulty be higher than 3000 or lower?",
         "outcomes": [
@@ -12,7 +12,7 @@
         ]
       },
       {
-        "conditionId": "0x53a4daea2ff3c240ba2ef763db464254ec28ad781139d6dac9df9ea9977d7787",
+        "conditionId": "0x2d1e921dfb5450c9a4ce6282a9331a2315665e8a0fd34736c39029d671501f24",
         "title": "What will be the Ethereum Mainnet block gas limit on 31st of January, 2019?",
         "description": "Will the block gas limit be greater than 8,000,5000 or lower?",
         "outcomes": [
@@ -21,7 +21,7 @@
         ]
       },
       {
-        "conditionId": "0x461c5a57ae3c2405c0dd84d4e2b5fb6e79cb8dc677bdfdd93472fce34c39a2d4",
+        "conditionId": "0xf330e09611c7ccf014b4a516ce6a74291e17ca79dcb9d6ddf9e13935749a4a95",
         "title": "What that other block difficulty thing (testing)?",
         "description": "Will the block gas limit be greater than 8,000,5000 or lower?",
         "outcomes": [
