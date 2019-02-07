@@ -6,7 +6,7 @@ import { resolvePartitionSets } from "./utils/probabilities"
 
 const { toBN, BN } = web3.utils
 
-export const retrieveBalances = async (pmsystem, markets, _positionIds) => {
+export const retrieveBalances = async (pmsystem, lmsr, markets, _positionIds) => {
   const owner = await getDefaultAccount();
 
   let positionIds = _positionIds;
@@ -14,37 +14,38 @@ export const retrieveBalances = async (pmsystem, markets, _positionIds) => {
     // use position id generator
     const collateral = await loadContract("WETH9");
 
+
     let lmsrOutcomeIndex = 0;
     positionIds = [];
-    const outcomeCountPromise = Promise.all(
-      markets.map(async market => {
-        const outcomeSlots = await pmsystem.getOutcomeSlotCount(
-          market.conditionId
+
+    const outcomeSlots = (await lmsr.atomicOutcomeSlotCount()).toNumber();
+    
+    Array(outcomeSlots)
+      .fill()
+      .forEach(() => {
+        //console.log(i)
+        positionIds.push(
+          generatePositionId(markets, collateral, lmsrOutcomeIndex)
         );
-        Array(outcomeSlots.toNumber())
-          .fill()
-          .forEach(() => {
-            //console.log(i)
-            positionIds.push(
-              generatePositionId(markets, collateral, lmsrOutcomeIndex)
-            );
-            lmsrOutcomeIndex++;
-          });
-      })
-    );
-    await outcomeCountPromise;
+        lmsrOutcomeIndex++;
+      });
+  
   }
 
   // get position balances
   const balances = {};
+  const balancesList = []
   await Promise.all(
     positionIds.map(async positionId => {
       balances[positionId] = (await pmsystem.balanceOf(
         owner,
         positionId
       )).toString();
+      balancesList.push(balances[positionId])
     })
   );
+
+  console.log(`position balances: ${JSON.stringify(balancesList)}`)
 
   // map balances to outcome positions
 
@@ -56,16 +57,18 @@ export const retrieveBalances = async (pmsystem, markets, _positionIds) => {
 
   // loop through positionIds, matching their corresponding outcomeIndexes to outcomePairs
   // and then suming them the corresponding outcomeIds
+  
   positionIds.forEach((positionId, outcomeIndex) => {
     const outcomePair = outcomePairs.flat()[outcomeIndex]
 
-    console.log(`finding balance for ${outcomePair}`)
+    //console.log(`finding balance for ${outcomePair}`)
 
     outcomeBalances.forEach((marketOutcomePrices, outcomeGroupIndex) => {
       marketOutcomePrices.forEach((_, priceIndex) => {
         const outcomeId = outcomeIds[outcomeGroupIndex][priceIndex]
         
         if (outcomePair.indexOf(outcomeId) > -1) {
+          //console.log(`"${outcomePair}": ${balances[positionId]} summed to "${outcomeId}"s balance`)
           const amount = new BN(balances[positionId])
           outcomeBalances[outcomeGroupIndex][priceIndex] = 
             outcomeBalances[outcomeGroupIndex][priceIndex].add(amount)
@@ -73,7 +76,7 @@ export const retrieveBalances = async (pmsystem, markets, _positionIds) => {
       })
     })
   })
-  console.log(outcomeBalances)
+  console.log("balances", JSON.stringify(outcomeBalances.map((g) => g.map(n => n.toString()))))
 
   return outcomeBalances;
 };

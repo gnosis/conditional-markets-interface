@@ -40,6 +40,14 @@ module.exports = (deployer, network, accounts) => {
         process.env.O2TARGET || 10,
         process.env.O2QUESTIONID || "0x02"
       );
+      const anotherGasLimitOracleInstance = await deployer.deploy(
+        GasLimitOracle,
+        pmSystemInstance.address,
+        process.env.O2STARTBLOCK || 1,
+        process.env.O2ENDBLOCK || 1e9,
+        process.env.O2TARGET || 10,
+        process.env.O2QUESTIONID || "0x03"
+      );
       // Prepare and identify the conditions in the pmSystem
       await pmSystemInstance.prepareCondition(
         difficultyOracleInstance.address,
@@ -49,6 +57,11 @@ module.exports = (deployer, network, accounts) => {
       await pmSystemInstance.prepareCondition(
         gasLimitOracleInstance.address,
         process.env.O2QUESTIONID || "0x02",
+        2
+      );
+      await pmSystemInstance.prepareCondition(
+        anotherGasLimitOracleInstance.address,
+        process.env.O2QUESTIONID || "0x03",
         2
       );
       const conditionOneId = keccak256(
@@ -66,6 +79,16 @@ module.exports = (deployer, network, accounts) => {
           [
             process.env.O2QUESTIONID ||
               "0x0200000000000000000000000000000000000000000000000000000000000000",
+            2
+          ]
+            .map(v => padLeft(toHex(v), 64).slice(2))
+            .join("")
+      );
+      const conditionThreeId = keccak256(
+        anotherGasLimitOracleInstance.address +
+          [
+            process.env.O3QUESTIONID ||
+              "0x0300000000000000000000000000000000000000000000000000000000000000",
             2
           ]
             .map(v => padLeft(toHex(v), 64).slice(2))
@@ -91,7 +114,7 @@ module.exports = (deployer, network, accounts) => {
       await LMSRMarketMakerFactoryInstance.createLMSRMarketMaker(
         pmSystemInstance.address,
         collateralToken.address,
-        [conditionOneId, conditionTwoId],
+        [conditionOneId, conditionTwoId, conditionThreeId],
         1,
         process.env.AMMFUNDING || 1,
         { from: accounts[0] }
