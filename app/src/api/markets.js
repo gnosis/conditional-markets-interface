@@ -41,7 +41,7 @@ export const loadMarkets = async (assumptions = {}) => {
 
   // load all balances
   const balances = await retrieveBalances(PMSystem, markets);
-
+  console.log(balances)
   // load all outcome prices
   const outcomeSlotCount = (await LMSR.atomicOutcomeSlotCount()).toNumber();
   const outcomePrices = await Promise.all(
@@ -89,14 +89,15 @@ export const loadMarkets = async (assumptions = {}) => {
     markets.map(async (market, marketIndex) => {
       // outcome transformation, loading contract data
       const outcomes = await Promise.all(
-        market.outcomes.map(title => {
+        market.outcomes.map((title, outcomeIndex) => {
           const positionId = generatePositionId(
             markets,
             WETH,
             lmsrOutcomeIndex
           );
 
-          const balance = balances[positionId];
+          const balance = balances[marketIndex][outcomeIndex];
+
           const outcomePrice = outcomePrices[lmsrOutcomeIndex];
 
           const outcome = {
