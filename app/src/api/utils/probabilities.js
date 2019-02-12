@@ -76,8 +76,82 @@ export const resolvePartitionSets = pricesPerMarket => {
   };
 };
 
+export const getIndividualProbabilities = (marketPrices) => {
+  const {outcomeIds, outcomePairs} = resolvePartitionSets(marketPrices)
+
+  // yes, we turn prices into probabilities. LMSR allows us to do this
+  const pairProbabilities = sumAndTakePercentage(marketPrices)
+
+  // detach probability groups
+  // [A&B, A&X],
+  // [B&X, B&Y]
+  console.groupCollapsed("Individual Probability")
+  const individualProbabilities = pairProbabilities.map(
+    (group, groupIndex) => (
+      group.map((probability, probabilityIndex) => {
+        const thisOutcomeId = outcomeIds[groupIndex][probabilityIndex]
+        const debugFormula = []
+
+        let probabilityOfOthers = 0
+        pairProbabilities.forEach((
+          (otherGroup, otherGroupIndex) => (
+            otherGroup.forEach((otherProbability, otherProbabilityIndex) => {
+              const outcomePairId = outcomePairs[otherGroupIndex][otherProbabilityIndex]
+
+              if (outcomePairId.indexOf(thisOutcomeId) > -1) {
+                debugFormula.push(`P(${outcomePairId})`)
+                probabilityOfOthers += otherProbability;
+              }
+            })
+          )
+        ))
+
+        console.info(`P(${thisOutcomeId}) = ${debugFormula.join(' + ')} = ${probabilityOfOthers}`)
+        return probabilityOfOthers;
+      })
+    )
+  )
+  console.groupEnd()
+
+  return individualProbabilities
+}
+
+export const getAssumedProbabilities = (marketPrices, assumptions = []) => {
+  const {outcomeIds, outcomePairs} = resolvePartitionSets(marketPrices)
+  const pairProbabilities = sumAndTakePercentage(marketPrices)
+  const individualProbabilities = getIndividualProbabilities(marketPrices)
+
+  console.group("Assumed Probabilities")
+  const assumedProbabilities = individualProbabilities.map(
+    (group, groupIndex) => (
+      group.map(
+        (probability, index) => {
+          const thisOutcomeId = outcomePairs[groupIndex][index]
+
+          if (assumptions[groupIndex] != null) {
+            const isAssumedCorrect = assumptions[groupIndex] === index
+            return isAssumedCorrect ? 1 : 0
+          }
+
+          console.log(`P(${thisOutcomeId.replace(/&/g, '|')}) = ${thisOutcomeId} / ${outcomeIds[groupIndex][index]}`)
+
+          const pairProbability = pairProbabilities[groupIndex][index]
+          const individualProbability = individualProbabilities[groupIndex][index]
+
+          return pairProbability / individualProbability
+        }
+      )
+    )
+  )
+  console.groupEnd()
+
+  return assumedProbabilities
+}
+
 export const resolveProbabilities = (pricesPerMarket, assumptions = []) => {
+  // to make this a million times easier, we quickly generate names for the different outcomes, A, B, C and X Y Z and 1 2 3, etc
   const { outcomeIds, outcomePairs } = resolvePartitionSets(pricesPerMarket);
+  
   // first, turn all prices into probabilities these represent probabilities in the form of P(A&X), P(A&Y), P(B&X), P(B&Y), etc
   // these will be referred to as "tangled" (im bad at naming and my knowledge of probability theory is limited, sorry!)
   const normProbabilitiesTangled = sumAndTakePercentage(pricesPerMarket);
@@ -126,13 +200,21 @@ export const resolveProbabilities = (pricesPerMarket, assumptions = []) => {
   // Handle assumptions. Assumptions are conditions in the calculation of probabilities
   let assumedProbabilities = probabilitiesUntangled;
   if (assumptions.length > 0) {
-    assumedProbabilities = probabilitiesUntangled.map(
-      (probabilitiesGroup, probabilitiesGroupIndex) => {
-        return probabilitiesGroup.map((probability, probabilityIndex) => {
-          return probability; // todo: finish
-        });
-      }
-    );
+    assumedProbabilities = probabilitiesUntangled.map((probabilitiesGroup, probabilitiesGroupIndex) => {
+      return probabilitiesGroup.map((probability, probabilityIndex) => {
+        if (assumptions.indexOf(probabilitiesGroupIndex) > -1) {
+          // if we're calculating the probability for the assumed positions, return either 1 or 0, no more probabilities
+          const isCorrectAssumption = probabilityIndex === assumptions[probabilitiesGroupIndex]
+          return isCorrectAssumption ? 1 : 0
+        }
+        
+        const outcomeId = outcomeIds[probabilitiesGroupIndex][probabilityIndex]
+        
+        const maxProbability = probabilitiesUntangled[probabilitiesGroupIndex].reduce((acc, n) => acc += n, 0)
+
+        console.log(`maxProbability for ${outcomeId}: ${maxProbability}`)
+      })
+    })
   }
 
   return {

@@ -4,8 +4,9 @@ import { getDefaultAccount, loadContract, loadConfig } from "./web3";
 import { generatePositionId } from "./utils/positions";
 import { retrieveBalances } from "./balances";
 import {
-  resolveProbabilities,
-  resolvePartitionSets
+  getIndividualProbabilities,
+  resolvePartitionSets,
+  getAssumedProbabilities
 } from "./utils/probabilities";
 
 const { BN } = web3.utils;
@@ -127,19 +128,17 @@ export const loadMarkets = async (assumptions = {}) => {
     })
   );
 
-  const { individual, pairs, assumed } = resolveProbabilities(
-    marketsTransformed.map(market =>
-      market.outcomes.map(outcome => outcome.price)
-    ),
-    transformedAssumptions
+  const marketPrices = marketsTransformed.map(market =>
+    market.outcomes.map(outcome => outcome.price)
   );
+  const individualProbabilities = getIndividualProbabilities(marketPrices);
+  const assumedProbabilities = getAssumedProbabilities(marketPrices, transformedAssumptions);
 
   console.log(
     JSON.stringify(
       {
-        individual,
-        pairs,
-        assumed
+        individualProbabilities,
+        assumedProbabilities
       },
       null,
       2
@@ -148,7 +147,7 @@ export const loadMarkets = async (assumptions = {}) => {
 
   // apply probabilities
   const usedProbabilities =
-    transformedAssumptions.length > 0 ? assumed : individual;
+    transformedAssumptions.length > 0 ? assumedProbabilities : individualProbabilities;
   usedProbabilities.forEach((marketsProbabilities, marketIndex) => {
     marketsProbabilities.forEach((probability, probabilityIndex) => {
       marketsTransformed[marketIndex].outcomes[
