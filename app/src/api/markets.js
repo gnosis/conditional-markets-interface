@@ -5,8 +5,9 @@ import { generatePositionId } from "./utils/positions";
 import { retrieveBalances } from "./balances";
 
 import {
-  resolveProbabilities,
-  resolvePartitionSets
+  getIndividualProbabilities,
+  resolvePartitionSets,
+  getAssumedProbabilities
 } from "./utils/probabilities";
 
 const { BN } = web3.utils;
@@ -42,7 +43,7 @@ export const loadMarkets = async (assumptions = {}) => {
 
   // load all balances
   const balances = await retrieveBalances(PMSystem, LMSR, markets);
-  console.log(balances)
+  console.log(balances);
   // load all outcome prices
   const outcomeSlotCount = (await LMSR.atomicOutcomeSlotCount()).toNumber();
   const outcomePrices = await Promise.all(
@@ -51,15 +52,16 @@ export const loadMarkets = async (assumptions = {}) => {
       .map(async (_, index) => await LMSR.calcMarginalPrice(index))
   );
 
-  const outcomesInMarkets = markets.map(async (market) => (await PMSystem.getOutcomeSlotCount(market.conditionId)).toNumber())
+  const outcomesInMarkets = markets.map(async market =>
+    (await PMSystem.getOutcomeSlotCount(market.conditionId)).toNumber()
+  );
 
   const marginalPricesPerMarket = {};
 
   let totalOutcomeIndex = 0;
   markets.forEach((market, marketIndex) => {
-    const outcomesInMarket = outcomesInMarkets[marketIndex]
-    console.log(market)
-    
+    const outcomesInMarket = outcomesInMarkets[marketIndex];
+    console.log(market);
 
     let marketOutcomeIndex = 0;
 
@@ -78,10 +80,8 @@ export const loadMarkets = async (assumptions = {}) => {
       totalOutcomeIndex++;
       marketOutcomeIndex++;
     }
+  });
 
-  })
-  
-  
   // reset lmsr outcome index counter
   let lmsrOutcomeIndex = 0;
   const transformedAssumptions = [];
@@ -129,19 +129,17 @@ export const loadMarkets = async (assumptions = {}) => {
     })
   );
 
-  const { individual, pairs, assumed } = resolveProbabilities(
-    marketsTransformed.map(market =>
-      market.outcomes.map(outcome => outcome.price)
-    ),
-    transformedAssumptions
+  const marketPrices = marketsTransformed.map(market =>
+    market.outcomes.map(outcome => outcome.price)
   );
+  const individualProbabilities = getIndividualProbabilities(marketPrices);
+  const assumedProbabilities = getAssumedProbabilities(marketPrices, transformedAssumptions);
 
   console.log(
     JSON.stringify(
       {
-        individual,
-        pairs,
-        assumed
+        individualProbabilities,
+        assumedProbabilities
       },
       null,
       2
@@ -150,7 +148,7 @@ export const loadMarkets = async (assumptions = {}) => {
 
   // apply probabilities
   const usedProbabilities =
-    transformedAssumptions.length > 0 ? assumed : individual;
+    transformedAssumptions.length > 0 ? assumedProbabilities : individualProbabilities;
   usedProbabilities.forEach((marketsProbabilities, marketIndex) => {
     marketsProbabilities.forEach((probability, probabilityIndex) => {
       marketsTransformed[marketIndex].outcomes[
@@ -207,17 +205,18 @@ export const buyOutcomes = async (lmsrOutcomeIndexes, amount) => {
     .map((_, index) => {
       const outcomePair = outcomePairs.flat()[index];
 
-      const outcomesInPair = outcomePair.split('&')
-      const pairHasAllWantedOutcomes = wantList
-        .every(id => outcomesInPair.indexOf(id) > -1);
+      const outcomesInPair = outcomePair.split("&");
+      const pairHasAllWantedOutcomes = wantList.every(
+        id => outcomesInPair.indexOf(id) > -1
+      );
 
-      return pairHasAllWantedOutcomes ? shareAmountToBuy.toString() : SHARE_AMOUNT_NONE.toString();
+      return pairHasAllWantedOutcomes
+        ? shareAmountToBuy.toString()
+        : SHARE_AMOUNT_NONE.toString();
     });
 
   console.log(`buying "${JSON.stringify(wantList)}" with ${amount} each.`);
-  console.log(
-    `assembled "buyList": "${JSON.stringify(buyList)}"`
-  );
+  console.log(`assembled "buyList": "${JSON.stringify(buyList)}"`);
 
   // get market maker instance
   const cost = await LMSR.calcNetCost.call(buyList);
