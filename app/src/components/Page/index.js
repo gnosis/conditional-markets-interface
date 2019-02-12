@@ -20,7 +20,11 @@ function Page({
   unlockedPredictions,
   assumptions,
   handleSelectInvest,
-  handleSelectAssumption
+  handleSelectAssumption,
+  handleSellOutcomes,
+  handleSelectSell,
+  handleSellOutcome,
+  sellAmounts
 }) {
   return (
     <div className={cx("page")}>
@@ -76,18 +80,22 @@ function Page({
           selectOutcomes={selectOutcomes}
           selectedOutcomes={selectedOutcomes}
           assumptions={assumptions}
+          handleSelectSell={handleSelectSell}
+          sellAmounts={sellAmounts}
+          handleSellOutcome={handleSellOutcome}
         />
 
         <button
           className={cx("buyOutcomes")}
           onClick={handleBuyOutcomes}
           type="button"
+          disabled={!invest}
         >
           Buy Selected Outcomes
         </button>
         <button
           className={cx("sellOutcomes")}
-          onClick={() => sellOutcomes(1e9)}
+          onClick={handleSellOutcomes}
           type="button"
         >
           Sell Selected Outcomes
