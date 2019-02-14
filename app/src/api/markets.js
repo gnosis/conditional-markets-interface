@@ -14,9 +14,12 @@ const { BN } = web3.utils;
 const OUTCOME_COLORS = [
   "#fbb4ae",
   "#b3cde3",
+  "#b3cde3",
   "#ccebc5",
   "#decbe4",
+  "#decbe4",
   "#fed9a6",
+  "#ffffcc",
   "#ffffcc",
   "#e5d8bd",
   "#fddaec",
@@ -89,7 +92,7 @@ export const loadMarkets = async (assumptions = {}) => {
     markets.map(async (market, marketIndex) => {
       // outcome transformation, loading contract data
       const outcomes = await Promise.all(
-        market.outcomes.map((title, outcomeIndex) => {
+        market.outcomes.map(({ title, short }, outcomeIndex) => {
           const positionId = generatePositionId(
             markets,
             WETH,
@@ -102,6 +105,7 @@ export const loadMarkets = async (assumptions = {}) => {
 
           const outcome = {
             name: title,
+            short,
             positionId,
             lmsrOutcomeIndex: lmsrOutcomeIndex,
             color: OUTCOME_COLORS[lmsrOutcomeIndex],

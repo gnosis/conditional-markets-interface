@@ -36,7 +36,6 @@ const enhancer = compose(
   withState("loading", "setLoading", LOADING_STATES.UNKNOWN),
   withState("markets", "setMarkets", {}),
   withState("sellAmounts", "setSellAmounts", {}),
-  withState("invest", "setInvest"),
   lifecycle({
     async componentDidMount() {
       const { setLoading, setMarkets } = this.props;
@@ -59,31 +58,40 @@ const enhancer = compose(
   }),
   withStateHandlers(
     {
-      assumptions: {},
+      assumptions: [],
       unlockedPredictions: false,
-      selectedOutcomes: {}
+      selectedOutcomes: {},
+      investments: {},
     },
     {
       unlockPredictions: () => () => ({
         unlockedPredictions: true
       }),
-      selectAssumption: ({ assumptions }) => (conditionId, value) => {
-        if (value === "none") {
-          const {
-            [conditionId]: removed,
-            ...filteredAssumptions
-          } = assumptions;
-          return {
-            assumptions: filteredAssumptions
-          };
+      removeAssumption: ({ assumptions }) => (conditionIdToRemove) => {
+        const conditionIndex = assumptions.indexOf(conditionIdToRemove)
+        
+        if (conditionIndex > -1) {
+          assumptions.splice(conditionIndex, 1)
         }
 
+        return { assumptions: [...assumptions] }
+      },
+      setInvest: ({ investments }) => (conditionId, amount) => {
         return {
-          assumptions: {
-            ...assumptions,
-            [conditionId]: value
+          investments: {
+            ...investments,
+            [conditionId]: amount
           }
-        };
+        }
+      },
+      addAssumption: ({ assumptions }) => (conditionId) => {
+        if (!assumptions.includes(conditionId)) {
+          return {
+            assumptions: [...assumptions, conditionId ]
+          }
+        }
+
+        return { assumptions }
       },
       selectOutcomes: ({ selectedOutcomes }) => (
         conditionId,
@@ -104,29 +112,36 @@ const enhancer = compose(
     },
   }),
   withHandlers({
-    handleSelectAssumption: ({ selectAssumption, handleUpdateMarkets }) => async (e) => {
-      const [i, conditionId, k] = e.target.name.split(/[\[\]]/g);
-      //console.log(conditionId)
-      await selectAssumption(conditionId, e.target.value);
-
-      return handleUpdateMarkets()
+    handleSelectAssumption: ({ assumptions, removeAssumption, addAssumption, handleUpdateMarkets }) => async (conditionId) => {
+      console.log(assumptions)
+      if (assumptions.includes(conditionId)) {
+        await removeAssumption(conditionId)
+      } else {
+        await addAssumption(conditionId)
+      }
+      
+      //return handleUpdateMarkets()
     },
-    handleSelectInvest: ({ setInvest }) => e => {
+    handleSelectOutcome: ({ selectOutcomes }) => async (e) => {
+      const [conditionId, outcomeIndex] = e.target.name.split(/[\-\]]/g);
+      await selectOutcomes(conditionId, outcomeIndex);
+    },
+    handleSelectInvest: ({ setInvest }) => (conditionId, e) => {
       const asNum = parseInt(e.target.value, 10);
 
       const isEmpty = e.target.value === "";
       const validNum = !isNaN(asNum) && isFinite(asNum) && asNum > 0;
 
       if (validNum) {
-        setInvest(asNum);
+        setInvest(conditionId, asNum);
       } else if (isEmpty) {
-        setInvest("");
+        setInvest(conditionId);
       }
     },
     handleBuyOutcomes: ({
       markets,
       setMarkets,
-      invest,
+      investments,
       selectedOutcomes
     }) => async () => {
       const outcomeIndexes = [];

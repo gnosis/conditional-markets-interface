@@ -1,11 +1,17 @@
 .page {
   margin: 0 auto;
   padding: 20px 45px;
-  max-width: 960px;
+  //max-width: 960px;
   background-color: whitesmoke;
   color: black;
 }
 
+.page-section {
+  padding: 28px 12px 0 12px;
+  position: relative;
+}
+
+/*
 .invest {
   width: 100%;
   font-size: 24px;
@@ -42,4 +48,4 @@
       height: 100%;
     }
   }
-}
+}*/

@@ -116,6 +116,8 @@ export const getIndividualProbabilities = (marketPrices) => {
   return individualProbabilities
 }
 
+window.getIndividualProbabilities = getIndividualProbabilities
+
 export const getAssumedProbabilities = (marketPrices, assumptions = []) => {
   const {outcomeIds, outcomePairs} = resolvePartitionSets(marketPrices)
   const pairProbabilities = sumAndTakePercentage(marketPrices)

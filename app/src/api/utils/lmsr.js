@@ -5,6 +5,13 @@ import { loadContract } from '../web3';
 
 // WIP: unused
 
+/// funding: 10000
+/// outcomes: [A, B]
+/// netOutcomeTokensSold: [10, 100]
+
+/// b = 10000 / Log(Anzahl Outcomes)
+
+
 const lmsrMarginalPrice = (funding, netOutcomeTokensSold, outcomeIndex) => {
   const b = new Decimal(funding.toString()).div(Decimal.ln(netOutcomeTokensSold.length))
   const numerator = new Decimal(netOutcomeTokensSold[outcomeIndex].toString()).div(b).exp()

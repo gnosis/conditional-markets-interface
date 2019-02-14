@@ -1,0 +1,58 @@
+.outcome-selection {
+  display: flex;
+  flex-direction: column;
+
+  min-width: 600px;
+  max-width: 920px;
+  
+  .selection {
+    max-width: 200px;
+  }
+
+  .assume {
+    font-size: 18px;
+
+    input[type="checkbox"] {
+      pointer-events: none;
+      margin-right: 5px;
+    }
+
+    label {
+      font-size: 70%;
+    }
+  }
+
+  .row-outcomes {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .row-assume {
+    width: 100%;
+
+    button {
+      width: 100%;
+    }
+  }
+
+  .row-buy {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+
+    input, button {
+      height: 34px;
+      margin: 0;
+    }
+
+    input {
+      width: 80%;
+    }
+
+    button {
+      width: 20%;
+      height: auto;
+    }
+
+  }
+}

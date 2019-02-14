@@ -1,7 +1,8 @@
 import React from "react";
 import PropTypes from "prop-types";
 import Collapse, { Panel } from "rc-collapse";
-import Outcome from "../Outcome";
+import OutcomesBinary from "../OutcomesBinary";
+import OutcomeSelection from "../OutcomeSelection";
 import OutcomeStats from "../OutcomeStats";
 import cn from "classnames/bind";
 
@@ -11,86 +12,60 @@ const cx = cn.bind(css);
 
 const Market = ({
   title,
-  description,
+  resolutionDate,
   outcomes,
   conditionId,
-  selectedOutcomes,
-  selectOutcomes,
+  selectedOutcome,
+  handleSelectOutcome,
+  handleSelectInvest,
+  handleBuyOutcomes,
   disabled,
   handleSelectSell,
-  assumption,
+  assumed,
+  invest,
   sellAmounts,
-  handleSellOutcome
+  handleSellOutcome,
+  handleSelectAssumption,
 }) => {
   return (
-    <div className={cx("market", { disabled })}>
-      <h1 className={cx("title")}>{title}</h1>
-      <p>{description}</p>
-      <div className={cx("outcomes")}>
-        {outcomes.map((outcome, index) => (
-          <Outcome
-            key={index}
-            {...outcome}
-            isDisabled={disabled}
-            isCorrect={assumption == index}
-            isSelected={selectedOutcomes[conditionId] === index}
-            onSelectOutcome={() => selectOutcomes(conditionId, index)}
-          />
-        ))}
-      </div>
-      <div className={cx("outcome-stats")}>
-        {outcomes.map(
-          (outcome, index) =>
-            outcome.balance && (
-              <OutcomeStats
-                key={index}
-                isCorrect={assumption == index}
-                isSelected={selectedOutcomes[conditionId] === index}
-                {...outcome}
-              />
-            )
-        )}
-      </div>
-      <div className={cx("sell-container")}>
-        {outcomes.map((outcome, index) => {
-          let sellAmount = sellAmounts[outcome.lmsrOutcomeIndex] || "";
-
-          return (
-            <div className={cx("sell-wrapper")} key={index}>
-              {outcome.balance > 0 && (
-                <Collapse>
-                  <Panel header="Click to sell outcome tokens">
-                    <div className={cx("sell-form-wrapper")}>
-                      <input
-                        type="number"
-                        className={cx("sell-input")}
-                        placeholder="Amount to sell"
-                        value={sellAmount}
-                        onChange={e => handleSelectSell(e, outcome)}
-                      />
-                      <button
-                        className={cx("sell-button")}
-                        onClick={() => handleSellOutcome(outcome.lmsrOutcomeIndex)}
-                        type="button"
-                        disabled={!sellAmount}
-                      >
-                        Sell Outcome Tokens
-                      </button>
-                    </div>
-                  </Panel>
-                </Collapse>
-              )}
-            </div>
-          );
-        })}
-      </div>
-    </div>
+    <article className={cx("market", { disabled })}>
+      <section className={cx("title-section")}>
+        <h1 className={cx("title")}>
+          {title}
+        </h1>
+        <div className={cx("title-infos")}>
+          <div className={cx("title-info")}>
+            <h2 className={cx("label")}>volume</h2>
+            <h2 className={cx("value")}>100k ETH</h2>
+          </div>
+          <div className={cx("title-info")}>
+            <h2 className={cx("label")}>resolves</h2>
+            <h2 className={cx("value")}>{resolutionDate}</h2>
+          </div>
+        </div>
+      </section>
+      <section className={cx("outcomes-section")}>
+        <OutcomesBinary outcomes={outcomes} />
+      </section>
+      <section className={cx("selection-section")}>
+        <OutcomeSelection
+          conditionId={conditionId}
+          outcomes={outcomes}
+          selectedOutcome={selectedOutcome}
+          handleSelectAssumption={handleSelectAssumption}
+          handleSelectOutcome={handleSelectOutcome}
+          handleBuyOutcomes={handleBuyOutcomes}
+          assumed={assumed}
+          handleSelectInvest={handleSelectInvest}
+          invest={invest}
+        />
+      </section>
+    </article>
   );
 };
 
 Market.propTypes = {
   title: PropTypes.string.isRequired,
-  description: PropTypes.string.isRequired,
   outcomes: PropTypes.arrayOf(
     PropTypes.shape({
       name: PropTypes.string,
