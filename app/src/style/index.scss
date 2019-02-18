@@ -13,7 +13,8 @@ $button-color-primary: #00a6c6;
     color: white;
     max-width: none;
 
-    &:disabled {
+    // [disabled] or disabled class
+    &:disabled, &.disabled {
       opacity: 0.6;
       cursor: not-allowed;
     } 
@@ -27,6 +28,7 @@ $button-color-primary: #00a6c6;
     border: 1px solid transparent;
     transition: all 0.2s ease-in-out;
 
+    // remove all outlines
     &:focus, &:active, &:visited, &:hover {
       outline: 0;
     }
@@ -37,7 +39,7 @@ $button-color-primary: #00a6c6;
 
     &:active, &.selected {
       background-color: lighten($button-color-primary, 7%);
-      box-shadow: 0px 2px 8px $highlight-color;
+      box-shadow: 0px 0px 8px $highlight-color;
     }
   }
 }

@@ -8,12 +8,12 @@
         "resolutionDate": "2020-01-01T09:00:00.000Z",
         "outcomes": [
           {
-            "title": "No",
-            "short": "No"
-          },
-          {
             "title": "Yes",
             "short": "Yes"
+          },
+          {
+            "title": "No",
+            "short": "No"
           }
         ]
       },
@@ -23,12 +23,12 @@
         "resolutionDate": "2020-01-05T09:00:00.000Z",
         "outcomes": [
           {
-            "title": "No",
-            "short": "No"
-          },
-          {
             "title": "Yes",
             "short": "Yes"
+          },
+          {
+            "title": "No",
+            "short": "No"
           }
         ]
       },
@@ -38,12 +38,12 @@
         "resolutionDate": "2020-05-01T09:00:00.000Z",
         "outcomes": [
           {
-            "title": "No",
-            "short": "No"
-          },
-          {
             "title": "Yes",
             "short": "Yes"
+          },
+          {
+            "title": "No",
+            "short": "No"
           }
         ]
       }

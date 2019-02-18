@@ -1,5 +1,5 @@
 import web3 from "web3";
-import { asAddress, asBytes32, normHex, addWithOverflow } from "../../utils/solidity";
+import { asAddress, asBytes32, addWithOverflow } from "../../utils/solidity";
 const { BN, soliditySha3 } = web3.utils;
 
 let indent = 0

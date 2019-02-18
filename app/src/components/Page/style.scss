@@ -1,14 +1,36 @@
+@import "~style/vars.scss";
+
 .page {
   margin: 0 auto;
   padding: 20px 45px;
   //max-width: 960px;
   background-color: whitesmoke;
   color: black;
-}
+  display: flex;
 
-.page-section {
-  padding: 28px 12px 0 12px;
-  position: relative;
+  .seperator {
+    width: 1px;
+    margin-top: 100px;
+    background: rgb(100, 100, 100);
+  }
+
+  .section {
+    padding: 28px 12px 0 12px;
+    position: relative;
+  }
+
+  .market-section {
+    flex-basis: 70%;
+  }
+
+  .position-section {
+    flex-basis: 30%;
+
+    .heading {
+      margin-top: 118px;
+    }
+  }
+
 }
 
 /*

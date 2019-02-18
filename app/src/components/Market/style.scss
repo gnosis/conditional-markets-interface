@@ -1,13 +1,17 @@
-$break-large: 960px;
-$break-small: 320px;
+@import "~style/vars.scss";
 
 .market {
   margin: 48px 0;
   position: relative;
+  flex-wrap: wrap;
+  display: flex;
 
   .title-section {
     width: 100%;
     padding: 0;
+    height: 50px;
+
+    margin-bottom: 8px;
 
     display: flex;
     justify-content: space-between;
@@ -51,12 +55,21 @@ $break-small: 320px;
   }
 
   .outcomes-section {
-    padding: 0;
+    width: auto;
+    padding: 0 12px;
+
+    flex-basis: 60%;
+    flex-shrink: 1;
   }
 
   .selection-section {
-    padding: 0 48px;
-    
+    width: auto;
+    padding: 0 12px;
+    margin-top: 50px;
+
+    flex-basis: 35%;
+    flex-shrink: 1;
+
     display: flex;
     justify-content: flex-end;
   }

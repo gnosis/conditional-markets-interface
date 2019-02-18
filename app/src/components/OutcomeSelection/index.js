@@ -29,25 +29,6 @@ const OutcomeSelection = ({
         </button>
       ))}
     </div>
-    
-    <div className={cx("row-buy")}>
-      <input
-        type="text"
-        placeholder="Amount of shares to buy"
-        value={assumed ? '/' : (invest || "")}
-        disabled={assumed}
-        onChange={(e) => handleSelectInvest(conditionId, e)}
-        className={cx("invest")}
-      />
-      <button
-        type="button"
-        name={`${conditionId}-buy`}
-        disabled={assumed || selectedOutcome == null || invest === 0}
-        onClick={handleBuyOutcomes}
-      >
-      Buy
-      </button>
-    </div>
     <div className={cx("row-assume")}>
       <button
         type="button"
@@ -57,12 +38,14 @@ const OutcomeSelection = ({
         })}
         onClick={() => handleSelectAssumption(conditionId)}
       >
-        <input
-          type="checkbox"
-          readOnly
-          checked={assumed}
-        />
-        <label>{selectedOutcome == null ? "Make an Assumption" : `Assume "${outcomes[selectedOutcome].short}" occoured`}</label>
+        <div>
+          <input
+            type="checkbox"
+            readOnly
+            checked={assumed}
+          />
+          <label>{selectedOutcome == null ? "Select a Condition" : `Select "${outcomes[selectedOutcome].short}" as condition`}</label>
+        </div>
       </button>
     </div>
   </div>

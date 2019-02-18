@@ -17,26 +17,37 @@ const Market = ({
   conditionId,
   selectedOutcome,
   handleSelectOutcome,
-  handleSelectInvest,
   handleBuyOutcomes,
   disabled,
   handleSelectSell,
   assumed,
-  invest,
   sellAmounts,
   handleSellOutcome,
-  handleSelectAssumption,
+  handleSelectAssumption
 }) => {
+  let probabilities = outcomes.map(outcome => outcome.probability);
+
+  if (assumed) {
+    probabilities = outcomes.map((outcome, outcomeIndex) =>
+      parseInt(selectedOutcome, 10) === outcomeIndex ? 1 : 0
+    );
+  }
+
+  let outcomesWithAssumation = outcomes.map((outcome, index) => ({
+    ...outcome,
+    probability: probabilities[index]
+  }))
+
   return (
     <article className={cx("market", { disabled })}>
       <section className={cx("title-section")}>
-        <h1 className={cx("title")}>
-          {title}
-        </h1>
+        <h1 className={cx("title")}>{title}</h1>
         <div className={cx("title-infos")}>
           <div className={cx("title-info")}>
-            <h2 className={cx("label")}>volume</h2>
-            <h2 className={cx("value")}>100k ETH</h2>
+            <h2 className={cx("label")}>probability</h2>
+            <h2 className={cx("value")}>
+              {(probabilities[0] * 100).toFixed(2)}%
+            </h2>
           </div>
           <div className={cx("title-info")}>
             <h2 className={cx("label")}>resolves</h2>
@@ -45,19 +56,17 @@ const Market = ({
         </div>
       </section>
       <section className={cx("outcomes-section")}>
-        <OutcomesBinary outcomes={outcomes} />
+        <OutcomesBinary outcomes={outcomesWithAssumation} />
       </section>
       <section className={cx("selection-section")}>
         <OutcomeSelection
           conditionId={conditionId}
-          outcomes={outcomes}
+          outcomes={outcomesWithAssumation}
           selectedOutcome={selectedOutcome}
           handleSelectAssumption={handleSelectAssumption}
           handleSelectOutcome={handleSelectOutcome}
           handleBuyOutcomes={handleBuyOutcomes}
           assumed={assumed}
-          handleSelectInvest={handleSelectInvest}
-          invest={invest}
         />
       </section>
     </article>

@@ -1,50 +1,48 @@
 import web3 from "web3";
 
-import { getDefaultAccount, loadContract } from "./web3";
+import { getDefaultAccount, loadContract, loadConfig } from "./web3";
 import { generatePositionId, generatePositionIdList } from "./utils/positions";
-import { resolvePartitionSets } from "./utils/probabilities";
+import { nameMarketOutcomes, nameOutcomePairs } from "./utils/probabilities";
+import { lmsrNetCost } from "./utils/lmsr";
+import Decimal from "decimal.js";
 
 const { BN } = web3.utils;
 
-export const retrieveBalances = async (
-  pmsystem,
-  lmsr,
-  markets,
-  _positionIds
-) => {
-  const owner = await getDefaultAccount();
+export const loadPositions = async () => {
+  const { lmsr, markets } = await loadConfig();
+  // use position id generator
+  const collateral = await loadContract("WETH9");
+  const LMSR = await loadContract("LMSRMarketMaker", lmsr);
+  const outcomeSlots = (await LMSR.atomicOutcomeSlotCount()).toNumber();
 
-  let positionIds = _positionIds;
-  if (!Array.isArray(positionIds)) {
-    // use position id generator
-    const collateral = await loadContract("WETH9");
-    const outcomeSlots = (await lmsr.atomicOutcomeSlotCount()).toNumber();
+  // this generates a tree of position ids, resolving each step, to replicate the correct order
+  const positionIdsForOrder = generatePositionIdList(markets, collateral);
 
-    // this generates a tree of position ids, resolving each step, to replicate the correct order
-    const positionIdsForOrder = generatePositionIdList(markets, collateral);
-
-    // this generates a list of all end-position ids
-    const positionIdsUnordered = [];
-    Object.keys(Array(outcomeSlots).fill()).forEach(outcomeIndex => {
-      positionIdsUnordered.push(
-        generatePositionId(markets, collateral, outcomeIndex)
-      );
-    });
-
-    // filtering the ordered list, we can create an ordered list of only the end-position ids, because positionIdsUnordered is a subset of positionIdsForOrder
-    positionIds = positionIdsForOrder.filter(
-      id => positionIdsUnordered.indexOf(id) > -1
+  // this generates a list of all end-position ids
+  const positionIdsUnordered = [];
+  Object.keys(Array(outcomeSlots).fill()).forEach(outcomeIndex => {
+    positionIdsUnordered.push(
+      generatePositionId(markets, collateral, outcomeIndex)
     );
+  });
 
-    //console.log(positionIds.length === positionIdsUnordered.length)
-  }
+  // filtering the ordered list, we can create an ordered list of only the end-position ids, because positionIdsUnordered is a subset of positionIdsForOrder
+  return positionIdsForOrder.filter(
+    id => positionIdsUnordered.indexOf(id) > -1
+  );
+};
+
+export const loadBalances = async positions => {
+  const owner = await getDefaultAccount();
+  const { markets } = await loadConfig();
+  const PMSystem = await loadContract("PredictionMarketSystem");
 
   // get position balances
   const balances = {};
   const balancesList = [];
   await Promise.all(
-    positionIds.map(async positionId => {
-      balances[positionId] = (await pmsystem.balanceOf(
+    positions.map(async positionId => {
+      balances[positionId] = (await PMSystem.balanceOf(
         owner,
         positionId
       )).toString();
@@ -54,42 +52,42 @@ export const retrieveBalances = async (
 
   console.log(`position balances: ${JSON.stringify(balancesList)}`);
 
-  // map balances to outcome positions
+  return balancesList;
+};
 
-  // create an empty market structure like [[0, 0, 0], [0, 0, 0]] to map position combinations
-  const marketStructure = markets.map(market => market.outcomes.map(() => 0));
-  const { outcomeIds, outcomePairs } = resolvePartitionSets(marketStructure);
+let marketOutcomeCounts;
+export const generatePositionList = async (balances, marketOutcomeCounts) => {
+  const { markets, lmsr } = await loadConfig();
+  if (!marketOutcomeCounts) {
+    // load contracts
+    const PMSystem = await loadContract("PredictionMarketSystem");
 
-  const outcomeBalances = marketStructure.map(marketOutcomePrices =>
-    marketOutcomePrices.map(() => new BN(0))
-  );
+    marketOutcomeCounts = await Promise.all(
+      markets.map(async market =>
+        (await PMSystem.getOutcomeSlotCount(market.conditionId)).toNumber()
+      )
+    );
+  }
 
-  // loop through positionIds, matching their corresponding outcomeIndexes to outcomePairs
-  // and then suming them the corresponding outcomeIds
+  const outcomeIdNames = nameMarketOutcomes(marketOutcomeCounts);
+  const outcomePairNames = nameOutcomePairs(outcomeIdNames);
 
-  positionIds.forEach((positionId, outcomeIndex) => {
-    const outcomePair = outcomePairs.flat()[outcomeIndex];
+  const netCostCalculator = await lmsrNetCost(markets, lmsr);
 
-    //console.log(`finding balance for ${outcomePair}`)
-
-    outcomeBalances.forEach((marketOutcomePrices, outcomeGroupIndex) => {
-      marketOutcomePrices.forEach((_, priceIndex) => {
-        const outcomeId = outcomeIds[outcomeGroupIndex][priceIndex];
-
-        if (outcomePair.indexOf(outcomeId) > -1) {
-          //console.log(`"${outcomePair}": ${balances[positionId]} summed to "${outcomeId}"s balance`)
-          const amount = new BN(balances[positionId]);
-          outcomeBalances[outcomeGroupIndex][priceIndex] = outcomeBalances[
-            outcomeGroupIndex
-          ][priceIndex].add(amount);
-        }
-      });
-    });
-  });
   console.log(
-    "balances",
-    JSON.stringify(outcomeBalances.map(g => g.map(n => n.toString())))
+    balances.map(
+      (balance, index) => `${outcomePairNames.flat()[index]}: ${balance}`
+    )
   );
 
-  return outcomeBalances;
+  return await Promise.all(
+    balances.map(async (balance, index) => {
+      // simulate "sell"
+      const indexes = Array(balances.length).fill("0");
+      indexes[index] = -balance;
+      const cost = await netCostCalculator(indexes);
+      console.log(cost);
+      return `${outcomePairNames[index]} -> ${balance} Shares`;
+    })
+  );
 };

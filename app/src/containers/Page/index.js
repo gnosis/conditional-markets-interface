@@ -1,6 +1,6 @@
 import React from "react";
 import Page from "components/Page";
-import { find } from "lodash";
+import { findIndex } from "lodash";
 import {
   renderComponent,
   compose,
@@ -11,7 +11,8 @@ import {
   withHandlers
 } from "recompose";
 
-import { loadMarkets, buyOutcomes, sellOutcomes } from "api/markets";
+import { loadPrices, loadMarkets, buyOutcomes, sellOutcomes } from "api/markets";
+import { loadBalances, loadPositions, generatePositionList } from "api/balances";
 
 export const LOADING_STATES = {
   UNKNOWN: "UNKNOWN",
@@ -36,18 +37,29 @@ const enhancer = compose(
   withState("loading", "setLoading", LOADING_STATES.UNKNOWN),
   withState("markets", "setMarkets", {}),
   withState("sellAmounts", "setSellAmounts", {}),
+  withState("invest", "setInvest"),
+  withState("prices", "setPrices", {}),
+  withState("balances", "setBalances", {}),
+  withState("positionIds", "setPositionIds", {}),
+  withState("positions", "setPositions", {}),
   lifecycle({
     async componentDidMount() {
-      const { setLoading, setMarkets } = this.props;
-
+      const { setLoading, setMarkets, setPrices, setPositionIds, setPositions, setBalances } = this.props;
       setLoading(LOADING_STATES.LOADING);
 
       try {
-        const markets = await loadMarkets();
-        //console.log(markets)
-        console.log(markets);
-        setMarkets(markets);
+        const prices = await loadPrices();
+        await setPrices(prices);
+        const markets = await loadMarkets(prices);
+        await setMarkets(markets);
+        const positionIds = await loadPositions();
+        await setPositionIds(positionIds);
+        const balances = await loadBalances(positionIds);
+        await setBalances(balances)
+        const positions = await generatePositionList(balances)
+        await setPositions(positions)
 
+        
         setLoading(LOADING_STATES.SUCCESS);
       } catch (err) {
         setLoading(LOADING_STATES.FAILURE);
@@ -60,38 +72,29 @@ const enhancer = compose(
     {
       assumptions: [],
       unlockedPredictions: false,
-      selectedOutcomes: {},
-      investments: {},
+      selectedOutcomes: {}
     },
     {
       unlockPredictions: () => () => ({
         unlockedPredictions: true
       }),
-      removeAssumption: ({ assumptions }) => (conditionIdToRemove) => {
-        const conditionIndex = assumptions.indexOf(conditionIdToRemove)
-        
+      removeAssumption: ({ assumptions }) => conditionIdToRemove => {
+        const conditionIndex = assumptions.indexOf(conditionIdToRemove);
+
         if (conditionIndex > -1) {
-          assumptions.splice(conditionIndex, 1)
+          assumptions.splice(conditionIndex, 1);
         }
 
-        return { assumptions: [...assumptions] }
+        return { assumptions: [...assumptions] };
       },
-      setInvest: ({ investments }) => (conditionId, amount) => {
-        return {
-          investments: {
-            ...investments,
-            [conditionId]: amount
-          }
-        }
-      },
-      addAssumption: ({ assumptions }) => (conditionId) => {
+      addAssumption: ({ assumptions }) => conditionId => {
         if (!assumptions.includes(conditionId)) {
           return {
-            assumptions: [...assumptions, conditionId ]
-          }
+            assumptions: [...assumptions, conditionId]
+          };
         }
 
-        return { assumptions }
+        return { assumptions };
       },
       selectOutcomes: ({ selectedOutcomes }) => (
         conditionId,
@@ -105,62 +108,102 @@ const enhancer = compose(
     }
   ),
   withHandlers({
-    handleUpdateMarkets: ({ assumptions, setMarkets }) => async () => {
-      console.log(assumptions)
-      const marketsWithAssumptions = await loadMarkets(assumptions)
+    handleUpdateMarkets: ({ prices, assumptions, markets, selectedOutcomes, setMarkets }) => async () => {
+      const assumedOutcomeIndexes = []
+
+      Object.keys(selectedOutcomes).forEach((targetConditionId) => {
+        if (assumptions.includes(targetConditionId)) {
+          const marketIndex = findIndex(markets, ({ conditionId }) => conditionId == targetConditionId)
+          let lmsrOutcomeIndex = 0
+          for (let i = 0; i < marketIndex; i++) lmsrOutcomeIndex += markets[marketIndex].outcomes.length
+  
+          const selectedOutcome = parseInt(selectedOutcomes[targetConditionId], 10)
+          console.log(`${selectedOutcome} selected, lmsr index ${lmsrOutcomeIndex + selectedOutcome}`)
+          assumedOutcomeIndexes.push(lmsrOutcomeIndex + selectedOutcome)
+        }
+      })
+      const marketsWithAssumptions = await loadMarkets(prices, assumedOutcomeIndexes);
       setMarkets(marketsWithAssumptions);
-    },
+    }
   }),
   withHandlers({
-    handleSelectAssumption: ({ assumptions, removeAssumption, addAssumption, handleUpdateMarkets }) => async (conditionId) => {
-      console.log(assumptions)
+    handleSelectAssumption: ({
+      markets,
+      assumptions,
+      removeAssumption,
+      addAssumption,
+      handleUpdateMarkets
+    }) => async conditionId => {
       if (assumptions.includes(conditionId)) {
-        await removeAssumption(conditionId)
+        await removeAssumption(conditionId);
       } else {
-        await addAssumption(conditionId)
+        if (assumptions.length < markets.length - 1) {
+          await addAssumption(conditionId);
+        } else {
+          alert(
+            "You can't make assumptions on all markets at once. You need to make atleast one prediction."
+          );
+        }
       }
-      
-      //return handleUpdateMarkets()
+
+      return handleUpdateMarkets()
     },
-    handleSelectOutcome: ({ selectOutcomes }) => async (e) => {
+    handleSelectOutcome: ({ selectOutcomes, handleUpdateMarkets }) => async e => {
       const [conditionId, outcomeIndex] = e.target.name.split(/[\-\]]/g);
       await selectOutcomes(conditionId, outcomeIndex);
+      await handleUpdateMarkets();
     },
-    handleSelectInvest: ({ setInvest }) => (conditionId, e) => {
+    handleSelectInvest: ({ setInvest }) => e => {
       const asNum = parseInt(e.target.value, 10);
 
       const isEmpty = e.target.value === "";
       const validNum = !isNaN(asNum) && isFinite(asNum) && asNum > 0;
 
       if (validNum) {
-        setInvest(conditionId, asNum);
+        setInvest(asNum);
       } else if (isEmpty) {
-        setInvest(conditionId);
+        setInvest();
       }
     },
     handleBuyOutcomes: ({
       markets,
       setMarkets,
-      investments,
+      setPrices,
+      setPositionIds,
+      setBalances,
+      invest,
+      assumptions,
       selectedOutcomes
     }) => async () => {
-      const outcomeIndexes = [];
+      const outcomeIndexes = []
+      
+      // transform selectedOutcomes into outcomeIndex array, filtering all assumptions
+      let totalOutcomeIndex = 0;
+      markets.forEach(market => {
+        if (
+          selectedOutcomes[market.conditionId] != null &&
+          !assumptions.includes(market.conditionId)
+        ) {
+          const selectedOutcome = parseInt(selectedOutcomes[market.conditionId], 10);
+          outcomeIndexes.push(totalOutcomeIndex + selectedOutcome);
+        }
 
-      Object.keys(selectedOutcomes).forEach(conditionId => {
-        const market = find(markets, { conditionId });
-
-        if (!market) throw new Error("Market not found, wtf?");
-        const marketOutcomeIndex = selectedOutcomes[conditionId];
-
-        outcomeIndexes.push(
-          market.outcomes[marketOutcomeIndex].lmsrOutcomeIndex
-        );
+        totalOutcomeIndex += market.outcomes.length;
       });
-      console.log(JSON.stringify(outcomeIndexes, null, 2));
+      
       await buyOutcomes(outcomeIndexes, invest);
-      const updatedMarkets = await loadMarkets();
-      //console.log(markets)
-      setMarkets(updatedMarkets);
+
+      const newPrices = await loadPrices();
+      await setPrices(newPrices);
+      const positionIds = await loadPositions();
+      await setPositionIds(positionIds);
+      const balances = await loadBalances(positionIds);
+      console.log(balances)
+      await setBalances(balances)
+      const newMarkets = await loadMarkets(newPrices);
+      await setMarkets(newMarkets);
+      const positions = await generatePositionList(balances)
+      await setPositions(positions)
     },
     handleSellOutcomes: ({
       markets,

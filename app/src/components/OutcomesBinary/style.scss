@@ -1,4 +1,4 @@
-$highlight-color: rgb(77, 144, 254);
+@import "~style/vars.scss";
 
 .binary-outcome {
   position: relative;
@@ -6,6 +6,7 @@ $highlight-color: rgb(77, 144, 254);
   .summary {
     text-transform: uppercase;
     text-align: center;
+    padding: 0 12px;
   }
 
 
@@ -13,7 +14,7 @@ $highlight-color: rgb(77, 144, 254);
     outline: none;
     margin-top: 50px;
     width: 100%;
-    height: 48px;
+    height: 36px;
     position: relative;
     display: block;
     appearance: none;
@@ -21,7 +22,6 @@ $highlight-color: rgb(77, 144, 254);
     padding: 0;
     box-sizing: border-box;
     border: 1px solid transparent;
-    transition: all 0.2s ease-in-out;
 
     /*
     &:active, &:focus {
@@ -40,7 +40,7 @@ $highlight-color: rgb(77, 144, 254);
       position: relative;
       height: 100%;
       border-color: transparent;
-      transition: opacity ease 0.2s;
+      transition: all 1s ease-in-out;
 
       &::after {
         content: '';
@@ -60,9 +60,9 @@ $highlight-color: rgb(77, 144, 254);
 
     .hint {
       right: 50%;
-      transform: translate(50%, 0);
+      transform: translate(50%, -100%);
+      top: -(8px + 2px); // 8px = arrow height, 2px = spacing
       position: absolute;
-      top: -60px;
       color: #000;
 
       text-align: center;

@@ -47,8 +47,8 @@ const lmsrCalcNetCost = (_funding, balances, outcomeTokenAmounts) => {
 
 window.lmsrCalcNetCost = lmsrCalcNetCost
 
-const lmsrNetCost = async (markets) => {
-  const LMSR = await loadContract('LMSRMarketMaker', '0x8c6aad0c92a48112aaa0e6e8f98a160120f17059')
+export const lmsrNetCost = async (markets, lmsr) => {
+  const LMSR = await loadContract('LMSRMarketMaker', lmsr)
   const WETH9 = await loadContract('WETH9')
   const PMSystem = await loadContract('PredictionMarketSystem')
 
@@ -58,19 +58,21 @@ const lmsrNetCost = async (markets) => {
     const outcomeCount = (await PMSystem.getOutcomeSlotCount(market.conditionId)).toNumber()
     return Promise.all(Array(outcomeCount).fill().map(async () => {
       const positionId = generatePositionId(markets, WETH9, lmsrOutcomeIndex++)
-      const lmsrBalance = await LMSR.balanceOf(LMSR.address, positionId)
-
+      const lmsrBalance = (await PMSystem.balanceOf(lmsr, positionId)).toString()
+      console.log({lmsrBalance})
       lmsrBalances[lmsrOutcomeIndex] = {
-        balance: lmsrBalance,
+        balance: lmsrBalance.toString(),
         positionId,
       }
     }))
   }))
 
+  console.log(lmsrBalances)
+
   await loadBalancePromise
 
   // return generator
   return (tokenAmounts) => {
-
+    console.log(tokenAmounts)
   }
 }
