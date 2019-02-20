@@ -53,7 +53,6 @@ export const loadContract = async (contractName, address) => {
 
 export const getDefaultAccount = async () => {
   const allAccounts = await provider.eth.getAccounts();
-  console.log(`using account ${allAccounts[0]}`);
   return allAccounts[0];
 };
 
