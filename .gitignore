@@ -3,4 +3,3 @@ build
 .history
 app/dist
 .env
-docs
