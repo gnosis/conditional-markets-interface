@@ -5,6 +5,8 @@
       {
         "conditionId": "0x5aa5951c709b312aeda63a2aa93bcc3ac99096118836536fe488c4ebc1b2e957",
         "title": "Will be the block difficulty for Ethereum Mainnet be higher than 3000?",
+        "when": "The block difficulty is higher than 3000",
+        "whenNot": "The block difficulty is lower than 3000",
         "resolutionDate": "2020-01-01T09:00:00.000Z",
         "outcomes": [
           {
@@ -20,6 +22,8 @@
       {
         "conditionId": "0x2d1e921dfb5450c9a4ce6282a9331a2315665e8a0fd34736c39029d671501f24",
         "title": "Will be the Ethereum Mainnet block gas limit be greater than 8.000.500?",
+        "when": "The block gas limit is higher than 8.000.500",
+        "whenNot": "The block gas limit is lower than 8.000.500",
         "resolutionDate": "2020-01-05T09:00:00.000Z",
         "outcomes": [
           {
@@ -35,6 +39,8 @@
       {
         "conditionId": "0xf330e09611c7ccf014b4a516ce6a74291e17ca79dcb9d6ddf9e13935749a4a95",
         "title": "What that other block difficulty thing (testing)?",
+        "when": "That other thing is higher than 2000",
+        "whenNot": "That other thing is lower than 2000",
         "resolutionDate": "2020-05-01T09:00:00.000Z",
         "outcomes": [
           {

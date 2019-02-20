@@ -51,7 +51,7 @@ const Market = ({
           </div>
           <div className={cx("title-info")}>
             <h2 className={cx("label")}>resolves</h2>
-            <h2 className={cx("value")}>{resolutionDate}</h2>
+            <h2 className={cx("value")}>{(new Date(resolutionDate)).toLocaleString()}</h2>
           </div>
         </div>
       </section>

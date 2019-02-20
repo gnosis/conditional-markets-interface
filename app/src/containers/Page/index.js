@@ -118,7 +118,6 @@ const enhancer = compose(
           for (let i = 0; i < marketIndex; i++) lmsrOutcomeIndex += markets[marketIndex].outcomes.length
   
           const selectedOutcome = parseInt(selectedOutcomes[targetConditionId], 10)
-          console.log(`${selectedOutcome} selected, lmsr index ${lmsrOutcomeIndex + selectedOutcome}`)
           assumedOutcomeIndexes.push(lmsrOutcomeIndex + selectedOutcome)
         }
       })
@@ -170,6 +169,7 @@ const enhancer = compose(
       setMarkets,
       setPrices,
       setPositionIds,
+      setPositions,
       setBalances,
       invest,
       assumptions,
@@ -198,7 +198,6 @@ const enhancer = compose(
       const positionIds = await loadPositions();
       await setPositionIds(positionIds);
       const balances = await loadBalances(positionIds);
-      console.log(balances)
       await setBalances(balances)
       const newMarkets = await loadMarkets(newPrices);
       await setMarkets(newMarkets);

@@ -2,11 +2,12 @@ import web3 from "web3";
 
 import { getDefaultAccount, loadContract, loadConfig } from "./web3";
 import { generatePositionId, generatePositionIdList } from "./utils/positions";
-import { nameMarketOutcomes, nameOutcomePairs } from "./utils/probabilities";
+import { nameMarketOutcomes, nameOutcomePairs, listAffectedMarketsForOutcomeIds } from "./utils/probabilities";
 import { lmsrNetCost } from "./utils/lmsr";
+import { resolvePositionGrouping } from "./utils/positionGrouping";
 import Decimal from "decimal.js";
 
-const { BN } = web3.utils;
+const { toBN, BN } = web3.utils;
 
 export const loadPositions = async () => {
   const { lmsr, markets } = await loadConfig();
@@ -34,7 +35,6 @@ export const loadPositions = async () => {
 
 export const loadBalances = async positions => {
   const owner = await getDefaultAccount();
-  const { markets } = await loadConfig();
   const PMSystem = await loadContract("PredictionMarketSystem");
 
   // get position balances
@@ -53,6 +53,19 @@ export const loadBalances = async positions => {
   console.log(`position balances: ${JSON.stringify(balancesList)}`);
 
   return balancesList;
+};
+
+export const lmsrTokenBalances = async lmsr => {
+  const PMSystem = await loadContract("PredictionMarketSystem");
+  const positions = await loadPositions();
+
+  return Promise.all(
+    positions.map(async position => {
+      const balance = (await PMSystem.balanceOf(lmsr, position)).abs.toString();
+
+      return balance;
+    })
+  );
 };
 
 let marketOutcomeCounts;
@@ -74,20 +87,37 @@ export const generatePositionList = async (balances, marketOutcomeCounts) => {
 
   const netCostCalculator = await lmsrNetCost(markets, lmsr);
 
-  console.log(
-    balances.map(
-      (balance, index) => `${outcomePairNames.flat()[index]}: ${balance}`
-    )
-  );
-
-  return await Promise.all(
+  const outcomePrices = await Promise.all(
     balances.map(async (balance, index) => {
-      // simulate "sell"
       const indexes = Array(balances.length).fill("0");
       indexes[index] = -balance;
-      const cost = await netCostCalculator(indexes);
-      console.log(cost);
-      return `${outcomePairNames[index]} -> ${balance} Shares`;
+      const value = (await netCostCalculator(indexes)).abs().toString();
+
+      return value;
+    })
+  );
+
+  // extrapolate individual positions out of this information
+  // e.g. Ay independent of all other outcomes is lowest amount in Ay****
+  // AyBy independent of C* is lowest amount in AyBy**
+
+  let positionGroupings = resolvePositionGrouping(outcomePrices.map((price, index) => [outcomePairNames[index], price])).sort((a, b) => {
+    const outcomeCountA = a[0].split(/&/g).length
+    const outcomeCountB = b[0].split(/&/g).length
+
+    if (outcomeCountA === outcomeCountB) return 0
+    return outcomeCountA > outcomeCountB ? 1 : -1
+  })
+  
+  return await Promise.all(
+    positionGroupings.map(async ([outcomeIds, value]) => {
+      const affectedMarkets = listAffectedMarketsForOutcomeIds(markets, outcomeIds)
+
+      return {
+        outcomeIds,
+        value,
+        markets: affectedMarkets
+      };
     })
   );
 };

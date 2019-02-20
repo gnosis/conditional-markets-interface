@@ -45,12 +45,27 @@ export const nameMarketOutcomes = marketOutcomeCounts => {
  */
 export const nameOutcomePairs = marketOutcomeNames => {
   //const atomicOutcomeCount = marketOutcomeNames.reduce((acc, outcomeNames) => acc *= outcomeNames.length, 1)
-  let sets = [...cartesian(...marketOutcomeNames)].map(set => set.join("&"));
-
-  console.log(sets);
-
-  return sets;
+  return [...cartesian(...marketOutcomeNames)].map(set => set.join("&"));
 };
+
+export const listAffectedMarketsForOutcomeIds = (markets, outcomeIds) => {
+  const targetIds = outcomeIds.split(/&/g)
+  
+  return markets.filter((m, index) => {
+    const letter = MARKET_IDS[index]
+
+    return targetIds.map(c => c[0]).includes(letter)
+  }).map((market, index) => {
+    const letter = MARKET_IDS[index]
+    const outcomeIdIndex = outcomeIds.indexOf(letter)
+    const outcomeIndex = ["y", "n"].indexOf(outcomeIds[outcomeIdIndex+1])
+
+    return {
+      ...market,
+      selectedOutcome: outcomeIndex
+    }
+  }) 
+}
 
 /**
  * Calculates all individiual outcome probabilities, based on the marginal prices of all outcome combinations and optional assumptions.
@@ -77,7 +92,6 @@ export const getIndividualProbabilities = (
           idsInOutcomePair.includes(outcomeIdNames.flat()[outcomeIndex])
       );
       if (hasAllAssumedOutcomesInPair) {
-        console.log(outcomePair)
         return acc.add(new Decimal(price));
       }
       return acc;
@@ -85,8 +99,8 @@ export const getIndividualProbabilities = (
     new Decimal(0)
   );
 
-  const individualProbabilities = outcomeIdNames.map((marketIds, marketIndex) =>
-    marketIds.map((outcomeId, outcomeIndex) => {
+  const individualProbabilities = outcomeIdNames.map((marketIds) =>
+    marketIds.map((outcomeId) => {
       const sum = outcomePairNames.reduce((acc, outcomePair, outcomePairIndex) => {
         const idsInOutcomePair = outcomePair.split("&");
 

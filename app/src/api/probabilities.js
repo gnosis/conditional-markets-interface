@@ -47,8 +47,6 @@ export const nameOutcomePairs = marketOutcomeNames => {
   //const atomicOutcomeCount = marketOutcomeNames.reduce((acc, outcomeNames) => acc *= outcomeNames.length, 1)
   let sets = [...cartesian(...marketOutcomeNames)].map(set => set.join("&"));
 
-  console.log(sets);
-
   return sets;
 };
 
@@ -77,7 +75,6 @@ export const getIndividualProbabilities = (
           idsInOutcomePair.includes(outcomeIdNames.flat()[outcomeIndex])
       );
       if (hasAllAssumedOutcomesInPair) {
-        console.log(outcomePair)
         return acc.add(new Decimal(price));
       }
       return acc;
