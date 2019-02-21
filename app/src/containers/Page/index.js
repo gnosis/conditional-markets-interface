@@ -11,8 +11,8 @@ import {
   withHandlers
 } from "recompose";
 
-import { loadPrices, loadMarkets, buyOutcomes, sellOutcomes } from "api/markets";
-import { loadBalances, loadPositions, generatePositionList } from "api/balances";
+import { loadMarginalPrices, loadMarkets, buyOutcomes, sellOutcomes } from "api/markets";
+import { loadBalances, loadPositions, generatePositionList, listAffectedOutcomesForIds, listOutcomeIdsForIndexes } from "api/balances";
 
 export const LOADING_STATES = {
   UNKNOWN: "UNKNOWN",
@@ -42,13 +42,14 @@ const enhancer = compose(
   withState("balances", "setBalances", {}),
   withState("positionIds", "setPositionIds", {}),
   withState("positions", "setPositions", {}),
+  withState("outcomesToBuy", "setOutcomesToBuy", []),
   lifecycle({
     async componentDidMount() {
       const { setLoading, setMarkets, setPrices, setPositionIds, setPositions, setBalances } = this.props;
       setLoading(LOADING_STATES.LOADING);
 
       try {
-        const prices = await loadPrices();
+        const prices = await loadMarginalPrices();
         await setPrices(prices);
         const markets = await loadMarkets(prices);
         await setMarkets(markets);
@@ -72,7 +73,8 @@ const enhancer = compose(
     {
       assumptions: [],
       unlockedPredictions: false,
-      selectedOutcomes: {}
+      selectedOutcomes: {},
+      targetPairs: [],
     },
     {
       unlockPredictions: () => () => ({
@@ -123,6 +125,26 @@ const enhancer = compose(
       })
       const marketsWithAssumptions = await loadMarkets(prices, assumedOutcomeIndexes);
       setMarkets(marketsWithAssumptions);
+    },
+    handleUpdateAffectedOutcomes: ({ markets, setOutcomesToBuy, selectedOutcomes, assumptions }) => async () => {
+      const outcomeIndexes = []
+      
+      // transform selectedOutcomes into outcomeIndex array, filtering all assumptions
+      let totalOutcomeIndex = 0;
+      markets.forEach(market => {
+        if (
+          selectedOutcomes[market.conditionId] != null &&
+          !assumptions.includes(market.conditionId)
+        ) {
+          const selectedOutcome = parseInt(selectedOutcomes[market.conditionId], 10);
+          outcomeIndexes.push(totalOutcomeIndex + selectedOutcome);
+        }
+
+        totalOutcomeIndex += market.outcomes.length;
+      });
+      
+      const outcomePairs = await listOutcomeIdsForIndexes(outcomeIndexes)
+      await setOutcomesToBuy(outcomePairs)
     }
   }),
   withHandlers({
@@ -147,9 +169,15 @@ const enhancer = compose(
 
       return handleUpdateMarkets()
     },
-    handleSelectOutcome: ({ selectOutcomes, handleUpdateMarkets }) => async e => {
+    handleSelectOutcome: ({ assumptions, removeAssumption, selectOutcomes, handleUpdateMarkets, handleUpdateAffectedOutcomes }) => async e => {
       const [conditionId, outcomeIndex] = e.target.name.split(/[\-\]]/g);
       await selectOutcomes(conditionId, outcomeIndex);
+
+      if (outcomeIndex === undefined && assumptions.includes(conditionId)) {
+        await removeAssumption(conditionId)
+      }
+
+      await handleUpdateAffectedOutcomes();
       await handleUpdateMarkets();
     },
     handleSelectInvest: ({ setInvest }) => e => {
@@ -193,7 +221,7 @@ const enhancer = compose(
       
       await buyOutcomes(outcomeIndexes, invest);
 
-      const newPrices = await loadPrices();
+      const newPrices = await loadMarginalPrices();
       await setPrices(newPrices);
       const positionIds = await loadPositions();
       await setPositionIds(positionIds);
@@ -260,7 +288,7 @@ const enhancer = compose(
           [outcome.lmsrOutcomeIndex]: value
         }));
       }
-    }
+    },
   }),
   loadingHandler
 );

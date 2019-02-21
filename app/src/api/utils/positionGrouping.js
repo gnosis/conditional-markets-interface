@@ -1,40 +1,51 @@
-export const resolvePositionGrouping = (groups) => {
-  const sets = {}
+import { uniq } from "lodash";
 
-  groups.forEach(([id]) => {
-    let ids = id.split(/&/g)
+/**
+ * Generates a grouping of positions to state specific conditions correlation or independance of one-another
+ *
+ * @param {[[String, Number]]} groups - Balances of all atomic outcomes, in the format of ["AyByCy", 1000]
+ */
+export const resolvePositionGrouping = groups => {
+  // start by generating a permutation table of all possible "paths" a position can have, for example
+  // AyBy** to show a position that is independant of C. For this we first take all "concrete" outcomes
+  // and then slowly remove outcome positions, until we end up with a list of all possible groups, using only
+  // the unique values results in A-Outcomes + B-Outcomes / 2 + C-Outcomes / 4, etc
+  let outcomePermutations = [...groups.map(([atomicOutcome]) => atomicOutcome)];
 
-    while (ids.length > 0) {
-      const matches = groups.reduce((arr, group) => {
-        const [ otherId ] = group
-        const otherIds = otherId.split(/&/g)
-        if (ids.every((id) => otherIds.includes(id))) {
-          arr.push(group)
-        }
-        return arr
-      }, [])
-  
-      const groupName = ids.join('&')
-      
-      if (!sets[groupName]) {
-        sets[groupName] = []
-      }
-  
-      matches.forEach((match) => {
-        sets[groupName].push(match[1])
+  let shorterGroups = [...outcomePermutations];
+  while (shorterGroups[0].length > 0) {
+    shorterGroups = [
+      ...shorterGroups.map(atomicOutcome => {
+        const outcomes = atomicOutcome.split(/&/g);
+        outcomes.pop();
+
+        return outcomes.join("&");
       })
+    ];
+    outcomePermutations.push(...shorterGroups);
+  }
 
-      ids.pop()
-    }
-  })
+  const targetPermutations = uniq(outcomePermutations).map(outcomes =>
+    outcomes.split(/&/g).filter(id => id.length > 0)
+  );
 
-  const guaranteedWin = Math.min(...(Object.values(sets)).flat())
-  const minSets = [["*", guaranteedWin]]
+  // now for all "targets", we filter the list of atomic outcome balances and take the lowest value from all
+  // "groups" that include our target ids, e.g. Outcome: AyByCy Target: AyBy** will match this outcome, and compare
+  // the currently lowest value with the lowest value of AyByCy, and if it's lower, use that. This will show the "guaranteed"
+  // winnings for all possible positions a user can take.
+  return targetPermutations
+    .map(idsInTarget => {
+      const minSum = groups.reduce((minAmount, [atomicOutcome, value]) => {
+        const idsInOutcome = atomicOutcome.split(/&/g);
 
-  Object.keys(sets).forEach((setId) => {
-    const values = sets[setId]
-    minSets.push([setId, Math.min(...values)])
-  })
+        if (idsInTarget.every(id => idsInOutcome.includes(id))) {
+          return Math.min(value, minAmount);
+        }
 
-  return minSets
-}
+        return minAmount;
+      }, Infinity);
+
+      return [idsInTarget.join("&"), isFinite(minSum) ? minSum : 0];
+    })
+    .filter(([idsInTarget, amount]) => amount > 0);
+};

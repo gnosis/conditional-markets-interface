@@ -19,9 +19,7 @@ function Page({
   assumptions,
   handleSelectInvest,
   handleSelectAssumption,
-  handleSelectSell,
-  handleSellOutcome,
-  sellAmounts,
+  outcomesToBuy,
   positions,
 }) {
   return (
@@ -44,6 +42,7 @@ function Page({
           handleSelectInvest={handleSelectInvest}
           selectedOutcomes={selectedOutcomes}
           handleBuyOutcomes={handleBuyOutcomes}
+          outcomesToBuy={outcomesToBuy}
         />
         <YourPositions
           positions={positions}

@@ -18,7 +18,7 @@ export const lmsrMarginalPrice = (funding, netOutcomeTokensSold, outcomeIndex) =
   return numerator.div(denominator).toString()
 }
 
-export const lmsrCalcNetCost = (_funding, balances, outcomeTokenAmounts) => {
+export const lmsrTradeCost = (_funding, balances, outcomeTokenAmounts) => {
   // markets funding
   const funding = new Decimal(_funding)
   let sumBefore = new Decimal(0)

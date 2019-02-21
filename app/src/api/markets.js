@@ -59,7 +59,7 @@ export const loadMarkets = async (atomicOutcomePrices, assumptions = []) => {
   return marketsWithData
 };
 
-export const loadPrices = async () => {
+export const loadMarginalPrices = async () => {
   // load hardcoded market entries from config
   const { lmsr } = await loadConfig();
   const LMSR = await loadContract("LMSRMarketMaker", lmsr);

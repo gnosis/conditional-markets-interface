@@ -28,6 +28,12 @@ const OutcomeSelection = ({
           {outcome.short}
         </button>
       ))}
+      <button
+        className={cx("selection", { selected: !selectedOutcome })}
+        type="button"
+        name={`${conditionId}`}
+        onClick={handleSelectOutcome}
+      >I don't know</button>
     </div>
     <div className={cx("row-assume")}>
       <button

@@ -62,6 +62,7 @@ export const getIndividualProbabilities = (
   marketOutcomeCounts,
   assumedOutcomeIndexes,
 ) => {
+  console.log(atomicOutcomePrices)
   const outcomeIdNames = nameMarketOutcomes(marketOutcomeCounts);
   const outcomePairNames = nameOutcomePairs(outcomeIdNames);
 

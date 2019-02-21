@@ -68,20 +68,26 @@ export const lmsrTokenBalances = async lmsr => {
   );
 };
 
-let marketOutcomeCounts;
-export const generatePositionList = async (balances, marketOutcomeCounts) => {
-  const { markets, lmsr } = await loadConfig();
-  if (!marketOutcomeCounts) {
+let stored_marketOutcomeCounts;
+export const loadMarketOutcomeCounts = async () => {
+  if (!stored_marketOutcomeCounts) {
+    const { markets } = await loadConfig();
     // load contracts
     const PMSystem = await loadContract("PredictionMarketSystem");
 
-    marketOutcomeCounts = await Promise.all(
+    stored_marketOutcomeCounts = await Promise.all(
       markets.map(async market =>
         (await PMSystem.getOutcomeSlotCount(market.conditionId)).toNumber()
       )
     );
   }
 
+  return stored_marketOutcomeCounts
+}
+
+export const generatePositionList = async (balances) => {
+  const marketOutcomeCounts = await loadMarketOutcomeCounts();
+  const { markets, lmsr } = await loadConfig();
   const outcomeIdNames = nameMarketOutcomes(marketOutcomeCounts);
   const outcomePairNames = nameOutcomePairs(outcomeIdNames);
 
@@ -89,11 +95,11 @@ export const generatePositionList = async (balances, marketOutcomeCounts) => {
 
   const outcomePrices = await Promise.all(
     balances.map(async (balance, index) => {
+      if (+balance === 0) return 0
       const indexes = Array(balances.length).fill("0");
       indexes[index] = -balance;
-      const value = (await netCostCalculator(indexes)).abs().toString();
 
-      return value;
+      return (await netCostCalculator(indexes)).abs().toString();
     })
   );
 
@@ -101,14 +107,8 @@ export const generatePositionList = async (balances, marketOutcomeCounts) => {
   // e.g. Ay independent of all other outcomes is lowest amount in Ay****
   // AyBy independent of C* is lowest amount in AyBy**
 
-  let positionGroupings = resolvePositionGrouping(outcomePrices.map((price, index) => [outcomePairNames[index], price])).sort((a, b) => {
-    const outcomeCountA = a[0].split(/&/g).length
-    const outcomeCountB = b[0].split(/&/g).length
-
-    if (outcomeCountA === outcomeCountB) return 0
-    return outcomeCountA > outcomeCountB ? 1 : -1
-  })
-  
+  let positionGroupings = resolvePositionGrouping(outcomePrices.map((price, index) => [outcomePairNames[index], price]))
+  console.log(positionGroupings)
   return await Promise.all(
     positionGroupings.map(async ([outcomeIds, value]) => {
       const affectedMarkets = listAffectedMarketsForOutcomeIds(markets, outcomeIds)
@@ -121,3 +121,24 @@ export const generatePositionList = async (balances, marketOutcomeCounts) => {
     })
   );
 };
+
+export const listAffectedOutcomesForIds = async (outcomeIds) => {
+  const marketOutcomeCounts = await loadMarketOutcomeCounts();
+  const outcomeIdNames = nameMarketOutcomes(marketOutcomeCounts);
+  const outcomePairNames = nameOutcomePairs(outcomeIdNames);
+
+  let outcomeIdArray = outcomeIds
+  if (typeof outcomeIds === 'string') {
+    outcomeIdArray = outcomeIds.split(/&/g)
+  }
+
+  return outcomePairNames.filter((outcomes) => outcomeIdArray.every((id) => outcomes.split(/&/g).includes(id)))
+}
+
+export const listOutcomeIdsForIndexes = async (outcomeIndexes) => {
+  const marketOutcomeCounts = await loadMarketOutcomeCounts();
+  const outcomeIdNames = nameMarketOutcomes(marketOutcomeCounts);
+  const outcomePairNames = nameOutcomePairs(outcomeIdNames);
+
+  return outcomePairNames.filter((pair) => outcomeIndexes.every((index) => pair.split(/&/g).includes(outcomeIdNames.flat()[index])))
+}
