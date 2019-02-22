@@ -11,8 +11,19 @@ import {
   withHandlers
 } from "recompose";
 
-import { loadMarginalPrices, loadMarkets, buyOutcomes, sellOutcomes } from "api/markets";
-import { loadBalances, loadPositions, generatePositionList, listAffectedOutcomesForIds, listOutcomeIdsForIndexes } from "api/balances";
+import {
+  loadMarginalPrices,
+  loadMarkets,
+  buyOutcomes,
+  sellOutcomes
+} from "api/markets";
+import {
+  loadBalances,
+  loadPositions,
+  generatePositionList,
+  sumPricePerShare,
+  listOutcomeIdsForIndexes
+} from "api/balances";
 
 export const LOADING_STATES = {
   UNKNOWN: "UNKNOWN",
@@ -43,9 +54,18 @@ const enhancer = compose(
   withState("positionIds", "setPositionIds", {}),
   withState("positions", "setPositions", {}),
   withState("outcomesToBuy", "setOutcomesToBuy", []),
+  withState("selectionPrice", "setSelectionPrice", 0),
+  withState("validPosition", "setValidPosition", false),
   lifecycle({
     async componentDidMount() {
-      const { setLoading, setMarkets, setPrices, setPositionIds, setPositions, setBalances } = this.props;
+      const {
+        setLoading,
+        setMarkets,
+        setPrices,
+        setPositionIds,
+        setPositions,
+        setBalances
+      } = this.props;
       setLoading(LOADING_STATES.LOADING);
 
       try {
@@ -56,11 +76,10 @@ const enhancer = compose(
         const positionIds = await loadPositions();
         await setPositionIds(positionIds);
         const balances = await loadBalances(positionIds);
-        await setBalances(balances)
-        const positions = await generatePositionList(balances)
-        await setPositions(positions)
+        await setBalances(balances);
+        const positions = await generatePositionList(balances);
+        await setPositions(positions);
 
-        
         setLoading(LOADING_STATES.SUCCESS);
       } catch (err) {
         setLoading(LOADING_STATES.FAILURE);
@@ -74,7 +93,7 @@ const enhancer = compose(
       assumptions: [],
       unlockedPredictions: false,
       selectedOutcomes: {},
-      targetPairs: [],
+      targetPairs: []
     },
     {
       unlockPredictions: () => () => ({
@@ -110,25 +129,48 @@ const enhancer = compose(
     }
   ),
   withHandlers({
-    handleUpdateMarkets: ({ prices, assumptions, markets, selectedOutcomes, setMarkets }) => async () => {
-      const assumedOutcomeIndexes = []
+    handleUpdateMarkets: ({
+      prices,
+      assumptions,
+      markets,
+      selectedOutcomes,
+      setMarkets
+    }) => async () => {
+      const assumedOutcomeIndexes = [];
 
-      Object.keys(selectedOutcomes).forEach((targetConditionId) => {
+      Object.keys(selectedOutcomes).forEach(targetConditionId => {
         if (assumptions.includes(targetConditionId)) {
-          const marketIndex = findIndex(markets, ({ conditionId }) => conditionId == targetConditionId)
-          let lmsrOutcomeIndex = 0
-          for (let i = 0; i < marketIndex; i++) lmsrOutcomeIndex += markets[marketIndex].outcomes.length
-  
-          const selectedOutcome = parseInt(selectedOutcomes[targetConditionId], 10)
-          assumedOutcomeIndexes.push(lmsrOutcomeIndex + selectedOutcome)
+          const marketIndex = findIndex(
+            markets,
+            ({ conditionId }) => conditionId == targetConditionId
+          );
+          let lmsrOutcomeIndex = 0;
+          for (let i = 0; i < marketIndex; i++)
+            lmsrOutcomeIndex += markets[marketIndex].outcomes.length;
+
+          const selectedOutcome = parseInt(
+            selectedOutcomes[targetConditionId],
+            10
+          );
+          assumedOutcomeIndexes.push(lmsrOutcomeIndex + selectedOutcome);
         }
-      })
-      const marketsWithAssumptions = await loadMarkets(prices, assumedOutcomeIndexes);
+      });
+      const marketsWithAssumptions = await loadMarkets(
+        prices,
+        assumedOutcomeIndexes
+      );
       setMarkets(marketsWithAssumptions);
     },
-    handleUpdateAffectedOutcomes: ({ markets, setOutcomesToBuy, selectedOutcomes, assumptions }) => async () => {
-      const outcomeIndexes = []
-      
+    handleUpdateAffectedOutcomes: ({
+      markets,
+      setOutcomesToBuy,
+      setSelectionPrice,
+      selectedOutcomes,
+      setValidPosition,
+      assumptions
+    }) => async () => {
+      const outcomeIndexes = [];
+
       // transform selectedOutcomes into outcomeIndex array, filtering all assumptions
       let totalOutcomeIndex = 0;
       markets.forEach(market => {
@@ -136,15 +178,29 @@ const enhancer = compose(
           selectedOutcomes[market.conditionId] != null &&
           !assumptions.includes(market.conditionId)
         ) {
-          const selectedOutcome = parseInt(selectedOutcomes[market.conditionId], 10);
+          const selectedOutcome = parseInt(
+            selectedOutcomes[market.conditionId],
+            10
+          );
           outcomeIndexes.push(totalOutcomeIndex + selectedOutcome);
         }
 
         totalOutcomeIndex += market.outcomes.length;
       });
-      
-      const outcomePairs = await listOutcomeIdsForIndexes(outcomeIndexes)
-      await setOutcomesToBuy(outcomePairs)
+
+      // sets which outcome combinations will be bought
+      const outcomePairs = await listOutcomeIdsForIndexes(outcomeIndexes);
+      await setOutcomesToBuy(outcomePairs);
+
+      // sets if the selected position is valid (ie not all positions and not no positions)
+      await setValidPosition(
+        outcomePairs.length > 0 && 
+          outcomePairs.length < totalOutcomeIndex + 1
+      );
+
+      // update the price for the selected outcomes the user would buy
+      const selectionPrice = await sumPricePerShare(outcomePairs);
+      await setSelectionPrice(selectionPrice);
     }
   }),
   withHandlers({
@@ -167,14 +223,20 @@ const enhancer = compose(
         }
       }
 
-      return handleUpdateMarkets()
+      return handleUpdateMarkets();
     },
-    handleSelectOutcome: ({ assumptions, removeAssumption, selectOutcomes, handleUpdateMarkets, handleUpdateAffectedOutcomes }) => async e => {
+    handleSelectOutcome: ({
+      assumptions,
+      removeAssumption,
+      selectOutcomes,
+      handleUpdateMarkets,
+      handleUpdateAffectedOutcomes
+    }) => async e => {
       const [conditionId, outcomeIndex] = e.target.name.split(/[\-\]]/g);
       await selectOutcomes(conditionId, outcomeIndex);
 
       if (outcomeIndex === undefined && assumptions.includes(conditionId)) {
-        await removeAssumption(conditionId)
+        await removeAssumption(conditionId);
       }
 
       await handleUpdateAffectedOutcomes();
@@ -203,8 +265,8 @@ const enhancer = compose(
       assumptions,
       selectedOutcomes
     }) => async () => {
-      const outcomeIndexes = []
-      
+      const outcomeIndexes = [];
+
       // transform selectedOutcomes into outcomeIndex array, filtering all assumptions
       let totalOutcomeIndex = 0;
       markets.forEach(market => {
@@ -212,13 +274,16 @@ const enhancer = compose(
           selectedOutcomes[market.conditionId] != null &&
           !assumptions.includes(market.conditionId)
         ) {
-          const selectedOutcome = parseInt(selectedOutcomes[market.conditionId], 10);
+          const selectedOutcome = parseInt(
+            selectedOutcomes[market.conditionId],
+            10
+          );
           outcomeIndexes.push(totalOutcomeIndex + selectedOutcome);
         }
 
         totalOutcomeIndex += market.outcomes.length;
       });
-      
+
       await buyOutcomes(outcomeIndexes, invest);
 
       const newPrices = await loadMarginalPrices();
@@ -226,11 +291,11 @@ const enhancer = compose(
       const positionIds = await loadPositions();
       await setPositionIds(positionIds);
       const balances = await loadBalances(positionIds);
-      await setBalances(balances)
+      await setBalances(balances);
       const newMarkets = await loadMarkets(newPrices);
       await setMarkets(newMarkets);
-      const positions = await generatePositionList(balances)
-      await setPositions(positions)
+      const positions = await generatePositionList(balances);
+      await setPositions(positions);
     },
     handleSellOutcomes: ({
       markets,
@@ -288,7 +353,7 @@ const enhancer = compose(
           [outcome.lmsrOutcomeIndex]: value
         }));
       }
-    },
+    }
   }),
   loadingHandler
 );

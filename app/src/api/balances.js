@@ -3,7 +3,7 @@ import web3 from "web3";
 import { getDefaultAccount, loadContract, loadConfig } from "./web3";
 import { generatePositionId, generatePositionIdList } from "./utils/positions";
 import { nameMarketOutcomes, nameOutcomePairs, listAffectedMarketsForOutcomeIds } from "./utils/probabilities";
-import { lmsrNetCost } from "./utils/lmsr";
+import { lmsrNetCost, lmsrTradeCost } from "./utils/lmsr";
 import { resolvePositionGrouping } from "./utils/positionGrouping";
 import Decimal from "decimal.js";
 
@@ -61,7 +61,7 @@ export const lmsrTokenBalances = async lmsr => {
 
   return Promise.all(
     positions.map(async position => {
-      const balance = (await PMSystem.balanceOf(lmsr, position)).abs.toString();
+      const balance = (await PMSystem.balanceOf(lmsr, position)).abs().toString();
 
       return balance;
     })
@@ -141,4 +141,24 @@ export const listOutcomeIdsForIndexes = async (outcomeIndexes) => {
   const outcomePairNames = nameOutcomePairs(outcomeIdNames);
 
   return outcomePairNames.filter((pair) => outcomeIndexes.every((index) => pair.split(/&/g).includes(outcomeIdNames.flat()[index])))
+}
+
+export const sumPricePerShare = async (outcomePairs) => {
+  const { lmsr } = await loadConfig()
+
+  const marketOutcomeCounts = await loadMarketOutcomeCounts();
+  const outcomeIdNames = nameMarketOutcomes(marketOutcomeCounts);
+  const outcomePairNames = nameOutcomePairs(outcomeIdNames);
+
+  const outcomePairsAsIndexes = outcomePairs.map((outcomePair) => outcomePairNames.indexOf(outcomePair))
+  const LMSR = await loadContract("LMSRMarketMaker", lmsr)
+
+  const funding = (await LMSR.funding()).toString()
+  const balances = await lmsrTokenBalances(lmsr)
+
+  const tokenAmounts = Array(outcomePairNames.length).fill().map((_, index) => (
+    outcomePairsAsIndexes.includes(index) ? 1 : 0
+  ))
+
+  return lmsrTradeCost(funding, balances, tokenAmounts)
 }

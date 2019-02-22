@@ -25,6 +25,7 @@ export const lmsrTradeCost = (_funding, balances, outcomeTokenAmounts) => {
 
   // balance before trade
   balances.forEach((balance) => {
+    console.log(balance)
     sumBefore = sumBefore.add(Decimal(balance).div(funding).exp())
   })
   const costBefore = funding.log(sumBefore)
