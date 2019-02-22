@@ -56,10 +56,10 @@
     ]
   },
   "RINKEBY": {
-    "lmsr": "0x8c6aad0c92a48112aaa0e6e8f98a160120f17059",
+    "lmsr": "0x82bbe0f38a24329f17244ae6e7323b241c041faa",
     "markets": [
       {
-        "conditionId": "0x5aa5951c709b312aeda63a2aa93bcc3ac99096118836536fe488c4ebc1b2e957",
+        "conditionId": "0xfb27841bf424a18f5c578cb43946cc88e479365e3439370283831af65d69c05c",
         "title": "Will be the block difficulty for Ethereum Mainnet be higher than 3000?",
         "when": "The block difficulty is higher than 3000",
         "whenNot": "The block difficulty is lower (or equal) than 3000",
@@ -76,7 +76,7 @@
         ]
       },
       {
-        "conditionId": "0x2d1e921dfb5450c9a4ce6282a9331a2315665e8a0fd34736c39029d671501f24",
+        "conditionId": "0x545e1890d450b530a3bc32e74ee2b78d967615de5815f144611d21d7f30a98cd",
         "title": "Will be the Ethereum Mainnet block gas limit be greater than 8.000.500?",
         "when": "The block gas limit is higher than 8.000.500",
         "whenNot": "The block gas limit is lower (or equal) than 8.000.500",
@@ -93,7 +93,7 @@
         ]
       },
       {
-        "conditionId": "0xf330e09611c7ccf014b4a516ce6a74291e17ca79dcb9d6ddf9e13935749a4a95",
+        "conditionId": "0x3146581d0bf0a13112e8de34d368ab2ec976bdc1e9b7d6d3ad7a5f0829bc37bc",
         "title": "Will the Ethereum USD value be higher than 200?",
         "when": "Ethereum in USD higher than 200",
         "whenNot": "Ethereum in USD lower (or equal) than 200",
