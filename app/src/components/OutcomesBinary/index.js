@@ -11,7 +11,6 @@ const OutcomesBinary = ({
   <div className={cx("binary-outcome")}>
     <div className={cx("bar")} style={{ color }}>
       <div
-        title={`${balance} Tokens @ ${positionId}`}
         className={cx("inner")}
         style={{
           backgroundColor: color,

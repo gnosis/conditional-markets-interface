@@ -9,7 +9,7 @@ const YourPositions = ({ positions }) => (
     {!positions.length && <em>You don't hold any positions yet.</em>}
     {positions.map((position, index) => (
       <div key={index}>
-        {position.outcomeIds === "*" ? (
+        {position.outcomeIds === "" ? (
           position.value > 0 && (
             <span>
               <strong>{position.value} wei</strong> In any Case

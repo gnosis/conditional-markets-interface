@@ -19,6 +19,7 @@ function Page({
   assumptions,
   handleSelectInvest,
   handleSelectAssumption,
+  outcomeTokenBuyAmounts,
   outcomesToBuy,
   selectionPrice,
   validPosition,
@@ -46,6 +47,7 @@ function Page({
           handleBuyOutcomes={handleBuyOutcomes}
           outcomesToBuy={outcomesToBuy}
           selectionPrice={selectionPrice}
+          outcomeTokenBuyAmounts={outcomeTokenBuyAmounts}
           validPosition={validPosition}
         />
         <YourPositions

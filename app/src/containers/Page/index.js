@@ -22,8 +22,13 @@ import {
   loadPositions,
   generatePositionList,
   sumPricePerShare,
-  listOutcomeIdsForIndexes
+  listOutcomeIdsForIndexes,
+  calcOutcomeTokenCounts,
 } from "api/balances";
+
+import {
+  lmsrCalcOutcomeTokenCount,
+} from "api/utils/lmsr"
 
 export const LOADING_STATES = {
   UNKNOWN: "UNKNOWN",
@@ -54,6 +59,7 @@ const enhancer = compose(
   withState("positionIds", "setPositionIds", {}),
   withState("positions", "setPositions", {}),
   withState("outcomesToBuy", "setOutcomesToBuy", []),
+  withState("outcomeTokenBuyAmounts", "setOutcomeTokenBuyAmounts", []),
   withState("selectionPrice", "setSelectionPrice", 0),
   withState("validPosition", "setValidPosition", false),
   lifecycle({
@@ -201,70 +207,8 @@ const enhancer = compose(
       // update the price for the selected outcomes the user would buy
       const selectionPrice = await sumPricePerShare(outcomePairs);
       await setSelectionPrice(selectionPrice);
-    }
-  }),
-  withHandlers({
-    handleSelectAssumption: ({
-      markets,
-      assumptions,
-      removeAssumption,
-      addAssumption,
-      handleUpdateMarkets
-    }) => async conditionId => {
-      if (assumptions.includes(conditionId)) {
-        await removeAssumption(conditionId);
-      } else {
-        if (assumptions.length < markets.length - 1) {
-          await addAssumption(conditionId);
-        } else {
-          alert(
-            "You can't make assumptions on all markets at once. You need to make atleast one prediction."
-          );
-        }
-      }
-
-      return handleUpdateMarkets();
     },
-    handleSelectOutcome: ({
-      assumptions,
-      removeAssumption,
-      selectOutcomes,
-      handleUpdateMarkets,
-      handleUpdateAffectedOutcomes
-    }) => async e => {
-      const [conditionId, outcomeIndex] = e.target.name.split(/[\-\]]/g);
-      await selectOutcomes(conditionId, outcomeIndex);
-
-      if (outcomeIndex === undefined && assumptions.includes(conditionId)) {
-        await removeAssumption(conditionId);
-      }
-
-      await handleUpdateAffectedOutcomes();
-      await handleUpdateMarkets();
-    },
-    handleSelectInvest: ({ setInvest }) => e => {
-      const asNum = parseInt(e.target.value, 10);
-
-      const isEmpty = e.target.value === "";
-      const validNum = !isNaN(asNum) && isFinite(asNum) && asNum > 0;
-
-      if (validNum) {
-        setInvest(asNum);
-      } else if (isEmpty) {
-        setInvest();
-      }
-    },
-    handleBuyOutcomes: ({
-      markets,
-      setMarkets,
-      setPrices,
-      setPositionIds,
-      setPositions,
-      setBalances,
-      invest,
-      assumptions,
-      selectedOutcomes
-    }) => async () => {
+    handleUpdateOutcomeTokenCounts: ({ selectedOutcomes, assumptions, markets, setOutcomeTokenBuyAmounts }) => async (amount) => {
       const outcomeIndexes = [];
 
       // transform selectedOutcomes into outcomeIndex array, filtering all assumptions
@@ -284,7 +228,81 @@ const enhancer = compose(
         totalOutcomeIndex += market.outcomes.length;
       });
 
-      await buyOutcomes(outcomeIndexes, invest);
+      const outcomePairs = await listOutcomeIdsForIndexes(outcomeIndexes);
+      const outcomeTokenCounts = await calcOutcomeTokenCounts(outcomePairs, amount)
+      await setOutcomeTokenBuyAmounts(outcomeTokenCounts)
+      console.log(outcomeTokenCounts)
+    },
+  }),
+  withHandlers({
+    handleSelectAssumption: ({
+      markets,
+      assumptions,
+      removeAssumption,
+      addAssumption,
+      handleUpdateMarkets,
+      handleUpdateOutcomeTokenCounts,
+      invest,
+    }) => async conditionId => {
+      if (assumptions.includes(conditionId)) {
+        await removeAssumption(conditionId);
+      } else {
+        if (assumptions.length < markets.length - 1) {
+          await addAssumption(conditionId);
+        } else {
+          alert(
+            "You can't make assumptions on all markets at once. You need to make atleast one prediction."
+          );
+        }
+      }
+
+      await handleUpdateMarkets();
+      await handleUpdateOutcomeTokenCounts(invest || "0");
+    },
+    handleSelectOutcome: ({
+      assumptions,
+      removeAssumption,
+      selectOutcomes,
+      handleUpdateMarkets,
+      handleUpdateAffectedOutcomes,
+      handleUpdateOutcomeTokenCounts,
+      invest
+    }) => async e => {
+      const [conditionId, outcomeIndex] = e.target.name.split(/[\-\]]/g);
+      await selectOutcomes(conditionId, outcomeIndex);
+
+      if (outcomeIndex === undefined && assumptions.includes(conditionId)) {
+        await removeAssumption(conditionId);
+      }
+
+      await handleUpdateAffectedOutcomes();
+      await handleUpdateMarkets();
+      await handleUpdateOutcomeTokenCounts(invest) || "0";
+    },
+    handleSelectInvest: ({ setInvest, handleUpdateOutcomeTokenCounts }) => e => {
+      const asNum = parseFloat(e.target.value);
+
+      const isEmpty = e.target.value === "";
+      const validNum = !isNaN(asNum) && isFinite(asNum) && asNum > 0;
+
+      setInvest(e.target.value);
+
+      if(!isEmpty && validNum) {
+        handleUpdateOutcomeTokenCounts(asNum);
+      }
+    },
+    handleBuyOutcomes: ({
+      markets,
+      setMarkets,
+      setPrices,
+      setPositionIds,
+      setPositions,
+      setBalances,
+      outcomeTokenBuyAmounts,
+      invest,
+      handleUpdateOutcomeTokenCounts,
+    }) => async () => {
+      await buyOutcomes(outcomeTokenBuyAmounts);
 
       const newPrices = await loadMarginalPrices();
       await setPrices(newPrices);
@@ -296,6 +314,7 @@ const enhancer = compose(
       await setMarkets(newMarkets);
       const positions = await generatePositionList(balances);
       await setPositions(positions);
+      await handleUpdateOutcomeTokenCounts(invest || "0");
     },
     handleSellOutcomes: ({
       markets,

@@ -56,6 +56,23 @@ export const getDefaultAccount = async () => {
   return allAccounts[0];
 };
 
+export const getAccountBalance = async (account) => {
+  let usedAccount = account
+  if (!account) {
+    usedAccount = await getDefaultAccount()
+  }
+
+  const balance = await provider.eth.getBalance(usedAccount)
+  console.log(`Balance@${usedAccount}: ${balance.toString()}`)
+  return balance.toString()
+}
+
+export const getGasPrice = async () => {
+  const gasPrice = await provider.eth.getGasPrice()
+  console.log(gasPrice)
+  return gasPrice.toString()
+}
+
 const localhostRegex = /https?:\/\/localhost:*/g;
 export const getNetwork = async () => {
   if (isLocal) return "GANACHE";

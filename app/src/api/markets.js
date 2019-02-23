@@ -1,6 +1,7 @@
 import web3 from "web3";
+import Decimal from 'decimal.js'
 
-import { getDefaultAccount, loadContract, loadConfig } from "./web3";
+import { getDefaultAccount, loadContract, loadConfig, getAccountBalance, getGasPrice } from "./web3";
 import { nameMarketOutcomes, nameOutcomePairs, getIndividualProbabilities } from "./utils/probabilities";
 
 const { BN } = web3.utils;
@@ -75,12 +76,13 @@ export const loadMarginalPrices = async () => {
   return atomicOutcomePrices
 }
 
-export const buyOutcomes = async (outcomeIndexes, amount) => {
-  console.log(outcomeIndexes)
-
+export const buyOutcomes = async (buyList) => {
   // load all outcome prices
   const { lmsr } = await loadConfig();
   const LMSR = await loadContract("LMSRMarketMaker", lmsr);
+  /*
+  console.log(outcomeIndexes)
+
 
   let conditionIds = [];
   let conditionIdIndex = 0;
@@ -131,8 +133,9 @@ export const buyOutcomes = async (outcomeIndexes, amount) => {
     });
 
   console.log(`assembled "buyList": "${JSON.stringify(buyList)}"`);
-
+  */
   // get market maker instance
+  console.log({ buyList })
   const cost = await LMSR.calcNetCost.call(buyList);
   console.log({ cost });
 
@@ -144,7 +147,16 @@ export const buyOutcomes = async (outcomeIndexes, amount) => {
   await WETH.approve(LMSR.address, cost, { from: defaultAccount });
 
   // run trade
+  const prev = new Decimal(await getAccountBalance())
   const tx = await LMSR.trade(buyList, cost, { from: defaultAccount });
+  console.log(tx.receipt.gasUsed)
+  const gasPrice = new Decimal(await getGasPrice())
+  const gasCost = gasPrice.mul(tx.receipt.gasUsed)
+
+  const wait5Sec = await (new Promise((resolve) => setTimeout(resolve, 5000)))
+
+  const now = prev.plus(gasCost).sub(new Decimal(await getAccountBalance()))
+  console.log(`wei used for tx (excluding gas): ${now.toString()}`)
   console.log(tx);
 };
 
