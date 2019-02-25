@@ -11,7 +11,7 @@
     "test": "truffle test --network test",
     "test-app": "jest",
     "start": "cd ./app && webpack-dev-server --config ./webpack.config.js --mode development",
-    "build": "cd ./app && webpack -p --config ./webpack.config.js --mode production"
+    "build": "NODE_ENV=production cd ./app && webpack -p --config ./webpack.config.js --mode production"
   },
   "keywords": [
     "Oracle",
