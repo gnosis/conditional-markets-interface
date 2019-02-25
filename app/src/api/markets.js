@@ -73,7 +73,8 @@ export const loadMarginalPrices = async () => {
       .map(async (_, index) => (await LMSR.calcMarginalPrice(index)).toString())
   )
 
-  console.log({ marginalPrices: atomicOutcomePrices})
+
+  console.log("marginal prices:", atomicOutcomePrices)
 
   return atomicOutcomePrices
 }
@@ -82,66 +83,13 @@ export const buyOutcomes = async (buyList) => {
   // load all outcome prices
   const { lmsr } = await loadConfig();
   const LMSR = await loadContract("LMSRMarketMaker", lmsr);
-  /*
-  console.log(outcomeIndexes)
-
-
-  let conditionIds = [];
-  let conditionIdIndex = 0;
-  while (conditionIdIndex < 256) {
-    try {
-      const conditionId = await LMSR.conditionIds(conditionIdIndex);
-      conditionIds.push(conditionId.toString());
-      conditionIdIndex++;
-    } catch (err) {
-      break;
-    }
-  }
-
-  const atomicOutcomeCount = (await LMSR.atomicOutcomeSlotCount()).toNumber();
-
-  const PMSystem = await loadContract("PredictionMarketSystem");
-
-  // as we're not buying outcome indexes but specific outcome-sets, we need to resolve the indexes to outcome sets
-  const marketOutcomeCounts = await Promise.all(
-    conditionIds.map(async marketConditionId => (await PMSystem.getOutcomeSlotCount(
-        marketConditionId
-      )).toNumber()));
-
-  const outcomeIdNames = nameMarketOutcomes(marketOutcomeCounts);
-  const outcomePairNames = nameOutcomePairs(outcomeIdNames);
-
-  // list of outcome ids we'd like to aquire, preferably the most concrete position
-  const wantList = outcomeIndexes
-    .map(outcomeIndex => outcomeIdNames.flat()[outcomeIndex]);
-  console.log(JSON.stringify(wantList, outcomeIndexes))
-  // find most concrete positions we'd like to buy
-  const buyList = Array(atomicOutcomeCount)
-    .fill()
-    .map((_, index) => {
-      const outcomePair = outcomePairNames[index];
-
-      const outcomesInPair = outcomePair.split("&");
-
-      // does this outcome pair contain all ids from the wantList?
-      console.log(outcomesInPair)
-      const pairHasAllWantedOutcomes = wantList.every(
-        id => outcomesInPair.indexOf(id) > -1
-      );
-      
-      return pairHasAllWantedOutcomes
-        ? amount
-        : SHARE_AMOUNT_NONE.toString();
-    });
-
-  console.log(`assembled "buyList": "${JSON.stringify(buyList)}"`);
-  */
   // get market maker instance
-  console.log({ buyList })
+  console.log("buy: ", buyList)
   const cost = await LMSR.calcNetCost.call(buyList);
-  console.log({ cost });
-
+  console.log("cost: ", cost.toString())
+  
   const defaultAccount = await getDefaultAccount();
+  const prev = new Decimal(await getAccountBalance())
 
   // get collateral
   const WETH = await loadContract("WETH9");
@@ -149,16 +97,16 @@ export const buyOutcomes = async (buyList) => {
   await WETH.approve(LMSR.address, cost, { from: defaultAccount });
 
   // run trade
-  const prev = new Decimal(await getAccountBalance())
   const tx = await LMSR.trade(buyList, cost, { from: defaultAccount });
+
   console.log(tx.receipt.gasUsed)
   const gasPrice = new Decimal(await getGasPrice())
   const gasCost = gasPrice.mul(tx.receipt.gasUsed)
 
-  const wait = await (new Promise((resolve) => setTimeout(resolve, 500)))
+  //const wait = await (new Promise((resolve) => setTimeout(resolve, 500)))
 
   const now = prev.plus(gasCost).sub(new Decimal(await getAccountBalance()))
-  console.log(`wei used for tx (excluding gas): ${now.toString()}`)
+  console.log(`wei used for tx (excluding gas): ${(await getAccountBalance()).toString()}`)
   console.log(tx);
 };
 

@@ -8,7 +8,7 @@ import Decimal from "decimal.js";
  * @param  {...String[]} tail - All remaining groups of outcome names
  * @generator
  */
-function* cartesian(head, ...tail) {
+export function* cartesian(head = [], ...tail) {
   for (const h of head) {
     const remainder = tail.length > 0 ? cartesian(...tail) : [[]];
     for (const r of remainder) yield [h, ...r];

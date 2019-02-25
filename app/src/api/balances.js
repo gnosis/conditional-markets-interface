@@ -139,11 +139,17 @@ export const listAffectedOutcomesForIds = async (outcomeIds) => {
   return outcomePairNames.filter((outcomes) => outcomeIdArray.every((id) => outcomes.split(/&/g).includes(id)))
 }
 
-export const listOutcomeIdsForIndexes = async (outcomeIndexes) => {
+export const listOutcomeIdsForIndexes = async (outcomeIndexes, invert) => {
   const marketOutcomeCounts = await loadMarketOutcomeCounts();
   const outcomeIdNames = nameMarketOutcomes(marketOutcomeCounts);
   const outcomePairNames = nameOutcomePairs(outcomeIdNames);
 
+  if (invert) {
+    // if it doesn't include any passed outcome ids
+    return outcomePairNames.filter((pair) => outcomeIndexes.some((index) => !pair.split(/&/g).includes(outcomeIdNames.flat()[index])))
+  }
+
+  // if it includes all passed outcome ids
   return outcomePairNames.filter((pair) => outcomeIndexes.every((index) => pair.split(/&/g).includes(outcomeIdNames.flat()[index])))
 }
 
@@ -167,7 +173,7 @@ export const sumPricePerShare = async (outcomePairs) => {
   return lmsrTradeCost(funding, balances, tokenAmounts)
 }
 
-export const calcOutcomeTokenCounts = async (outcomePairs, assumedIndexes, amount) => {
+export const calcOutcomeTokenCounts = async (outcomePairs, assumedPairs, amount) => {
   console.log(outcomePairs)
   const { lmsr } = await loadConfig()
 
@@ -178,12 +184,14 @@ export const calcOutcomeTokenCounts = async (outcomePairs, assumedIndexes, amoun
   const LMSR = await loadContract("LMSRMarketMaker", lmsr)
   const funding = (await LMSR.funding()).toString()
   const lmsrTokenBalances = await loadLmsrTokenBalances(lmsr)
-  
-  const assumedIds = assumedIndexes.map((index) => outcomeIdNames.flat()[index])
-  const pairsWithAssumedIds = outcomePairs.filter((outcomePair) => assumedIds.every(id => outcomePair.split(/&/g).includes(id)))
 
-  const assumedPairIndexes = pairsWithAssumedIds.map((outcomePair) => outcomePairNames.indexOf(outcomePair))
+  console.log("selected and assumed")
+  console.log(outcomePairs, assumedPairs)
+
+  const assumedPairIndexes = assumedPairs.map((outcomePair) => outcomePairNames.indexOf(outcomePair))
   const outcomePairsAsIndexes = outcomePairs.map((outcomePair) => outcomePairNames.indexOf(outcomePair))
+
+  console.log(assumedPairIndexes, outcomePairsAsIndexes)
   const outcomeTokenCounts = await lmsrCalcOutcomeTokenCount(funding, lmsrTokenBalances, outcomePairsAsIndexes, amount, assumedPairIndexes)
   
   return outcomeTokenCounts

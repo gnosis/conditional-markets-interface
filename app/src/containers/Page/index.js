@@ -231,9 +231,11 @@ const enhancer = compose(
 
         totalOutcomeIndex += market.outcomes.length;
       });
-
-      const outcomePairs = await listOutcomeIdsForIndexes(outcomeIndexes);
-      const outcomeTokenCounts = await calcOutcomeTokenCounts(outcomePairs, assumedIndexes, amount)
+      
+      const outcomePairs = await listOutcomeIdsForIndexes([...outcomeIndexes, ...assumedIndexes]);
+      const assumedPairs = assumedIndexes.length > 0 ? (await listOutcomeIdsForIndexes(assumedIndexes, true)) : [];
+      
+      const outcomeTokenCounts = await calcOutcomeTokenCounts(outcomePairs, assumedPairs, amount)
       await setOutcomeTokenBuyAmounts(outcomeTokenCounts)
 
       console.log("tokens purchase list:")

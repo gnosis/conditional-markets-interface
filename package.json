@@ -28,6 +28,7 @@
     "erc-1155": "github:cag/erc-1155#sol-0.5",
     "ethers": "^4.0.21",
     "lodash": "^4.17.11",
+    "lodash.combinations": "^18.9.19",
     "normalize.css": "^8.0.1",
     "openzeppelin-solidity": "github:elopio/openzeppelin-solidity#solc-nightly-2.0-update-2",
     "prop-types": "^15.6.2",

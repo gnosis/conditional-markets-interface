@@ -1,4 +1,7 @@
-import { uniq, find, difference } from "lodash";
+import 'lodash.combinations';
+import { combinations } from 'lodash'
+
+import { cartesian } from './probabilities';
 import Decimal from "decimal.js";
 
 /**
@@ -6,7 +9,39 @@ import Decimal from "decimal.js";
  *
  * @param {[[String, Number]]} groups - Balances of all atomic outcomes, in the format of ["AyByCy", 1000]
  */
-export const resolvePositionGrouping = groups => {
+export const resolvePositionGrouping = outcomeHoldingPairs => {
+  console.log(outcomeHoldingPairs)
+
+  // [[["Ay", "By", "Cy"] 1337], ...]
+  const things = outcomeHoldingPairs.map(([ atomicOutcome, balance ]) => (
+    [atomicOutcome.split("&"), balance]
+  ))
+
+  const conditions = [["Ay", "An"], ["By", "Bn"], ["Cy", "Cn"]]
+  const output = []
+
+  for(let numConditions = 0; numConditions <= conditions.length; numConditions++) {
+    for (let conditionTuple of combinations(conditions, numConditions)) {      
+      (numConditions === 0 ? [[]] : [...cartesian(...conditionTuple)]).forEach((cartesianTuple) => {
+        const filteredThings = things.filter(([ atomicOutcome, balance ]) => cartesianTuple.every((condition) => atomicOutcome.includes(condition)))
+
+        const minValue = Math.min(...filteredThings.map((something) => something[1]))
+
+        if (minValue > 0) {
+          output.push([cartesianTuple.join("&"), minValue])
+
+          filteredThings.forEach((filteredthing) => {
+            filteredthing[1] -= minValue
+          })
+        }
+      })
+    }
+  }
+
+  return output
+
+
+  /*
   // start by generating a permutation table of all possible "paths" a position can have, for example
   // AyBy** to show a position that is independant of C. For this we first take all "concrete" outcomes
   // and then slowly remove outcome positions, until we end up with a list of all possible groups, using only
@@ -99,4 +134,5 @@ export const resolvePositionGrouping = groups => {
   } while (carriedGroups.length > 0)
 
   return minimumGuaranteedWinningsSimplified.map(([ids, amount]) => [ids.join('&'), amount]).filter(([_, amount]) => new Decimal(amount).gt(new Decimal(0)));
+  */
 };
