@@ -1,4 +1,5 @@
-import { uniq } from "lodash";
+import { uniq, find, difference } from "lodash";
+import Decimal from "decimal.js";
 
 /**
  * Generates a grouping of positions to state specific conditions correlation or independance of one-another
@@ -14,6 +15,8 @@ export const resolvePositionGrouping = groups => {
 
   let shorterGroups = [...outcomePermutations];
   while (shorterGroups[0].length > 0) {
+    // set as new group, checking first entry in array if the value is still long enough, this will
+    // slowly turn outcome groups such as AyByCy into AyBy and Ay, to generate all possible permutations
     shorterGroups = [
       ...shorterGroups.map(atomicOutcome => {
         const outcomes = atomicOutcome.split(/&/g);
@@ -33,19 +36,68 @@ export const resolvePositionGrouping = groups => {
   // "groups" that include our target ids, e.g. Outcome: AyByCy Target: AyBy** will match this outcome, and compare
   // the currently lowest value with the lowest value of AyByCy, and if it's lower, use that. This will show the "guaranteed"
   // winnings for all possible positions a user can take.
-  return targetPermutations
-    .map(idsInTarget => {
-      const minSum = groups.reduce((minAmount, [atomicOutcome, value]) => {
-        const idsInOutcome = atomicOutcome.split(/&/g);
+  const minimumGuaranteedWinnings = targetPermutations.map(idsInTarget => {
+    const minSum = groups.reduce((minAmount, [atomicOutcome, value]) => {
+      const idsInOutcome = atomicOutcome.split(/&/g);
 
-        if (idsInTarget.every(id => idsInOutcome.includes(id))) {
-          return Math.min(value, minAmount);
+      if (idsInTarget.every(id => idsInOutcome.includes(id))) {
+        return Math.min(value, minAmount);
+      }
+
+      return minAmount;
+    }, Infinity);
+
+    return [idsInTarget, isFinite(minSum) ? minSum : 0];
+  });
+
+  let carriedGroups = [];
+  let minimumGuaranteedWinningsSimplified = minimumGuaranteedWinnings
+  
+  // because im bad and in a hurry this just tries again until nothing changes anymore
+  do {
+    carriedGroups = []
+
+    minimumGuaranteedWinningsSimplified = minimumGuaranteedWinningsSimplified
+    .reduce((groups, group, index) => {
+      const [idsInTarget, amount] = group;
+
+      // 1. find opposite last outcome (AyByCy) => AyByCn
+      // 2. is same as current, remove and distribute amount to AyBy
+      // TODO: hardcoded for y/n
+
+      const oppositeGroup = find(
+        minimumGuaranteedWinnings,
+        ([idsInOtherTarget], otherIndex) =>
+          // check self
+          index !== otherIndex &&
+          // exactly one difference (opposite)
+          difference(idsInTarget, idsInOtherTarget).length === 1 &&
+          // same length
+          idsInTarget.length === idsInOtherTarget.length
+      );
+
+      if (oppositeGroup) {
+        const [oppositeIds, oppositeAmount] = oppositeGroup;
+
+        if (oppositeAmount === amount) {
+          let target = idsInTarget.slice(0, -1);
+          carriedGroups.push([target, group]);
+          return groups;
         }
+      }
 
-        return minAmount;
-      }, Infinity);
+      return [...groups, group];
+    }, [])
+    .map(([idsInTarget, amount]) => {
+      console.log(amount)
+      const sumToAdd = carriedGroups
+        .filter(([target]) => idsInTarget.join("&") === target.join("&"))
+        .map(([target, [ids, otherAmount]]) => otherAmount)
+        .reduce((acc, otherAmount) => acc.plus(new Decimal(otherAmount)), new Decimal(amount));
+      
+      return [idsInTarget, new Decimal(sumToAdd).toString()];
+    });
+  } while (carriedGroups.length > 0)
 
-      return [idsInTarget.join("&"), isFinite(minSum) ? minSum : 0];
-    })
-    .filter(([idsInTarget, amount]) => amount > 0);
+  return minimumGuaranteedWinningsSimplified.map(([ids, amount]) => [ids.join('&'), amount]).filter(([_, amount]) => new Decimal(amount).gt(new Decimal(0)));
 };

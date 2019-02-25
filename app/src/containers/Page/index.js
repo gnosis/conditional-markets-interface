@@ -209,6 +209,10 @@ const enhancer = compose(
       await setSelectionPrice(selectionPrice);
     },
     handleUpdateOutcomeTokenCounts: ({ selectedOutcomes, assumptions, markets, setOutcomeTokenBuyAmounts }) => async (amount) => {
+      const amountValid = !isNaN(parseFloat(amount)) && parseFloat(amount) > 0
+
+      if (!amountValid) return
+
       const outcomeIndexes = [];
 
       // transform selectedOutcomes into outcomeIndex array, filtering all assumptions

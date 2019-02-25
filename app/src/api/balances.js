@@ -1,4 +1,5 @@
 import web3 from "web3";
+import { sortBy } from "lodash"
 
 import { getDefaultAccount, loadContract, loadConfig } from "./web3";
 import { generatePositionId, generatePositionIdList } from "./utils/positions";
@@ -107,12 +108,15 @@ export const generatePositionList = async (balances) => {
   // e.g. Ay independent of all other outcomes is lowest amount in Ay****
   // AyBy independent of C* is lowest amount in AyBy**
 
-  let positionGroupings = resolvePositionGrouping(outcomePrices.map((price, index) => [outcomePairNames[index], price]))
-  console.log(positionGroupings)
-  return await Promise.all(
-    positionGroupings.map(async ([outcomeIds, value]) => {
-      const affectedMarkets = listAffectedMarketsForOutcomeIds(markets, outcomeIds)
+  const positionGroupings = resolvePositionGrouping(outcomePrices.map((price, index) => [outcomePairNames[index], price]))
 
+  const positionGroupingsSorted = sortBy(positionGroupings, [([ outcomeIds, value ]) => outcomeIds.length, ([ outcomeIds, value ]) => value ])
+
+  console.log(positionGroupingsSorted)
+  return await Promise.all(
+    positionGroupingsSorted.map(async ([outcomeIds, value]) => {
+      const affectedMarkets = listAffectedMarketsForOutcomeIds(markets, outcomeIds)
+      
       return {
         outcomeIds,
         value,

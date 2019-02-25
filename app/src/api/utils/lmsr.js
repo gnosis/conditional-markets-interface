@@ -36,7 +36,6 @@ export const lmsrTradeCost = (_funding, balances, outcomeTokenAmounts) => {
 
   // balance before trade
   balances.forEach(balance => {
-    console.log(balance);
     sumBefore = sumBefore.add(
       Decimal(balance)
         .div(funding)
@@ -97,16 +96,13 @@ export const lmsrNetCost = async (markets, lmsr) => {
     })
   );
 
-  const atomicOutcomeCount = (await LMSR.atomicOutcomeSlotCount()).toNumber();
-  const atomicOutcomeLog = new Decimal(atomicOutcomeCount).mul(1e18);
-
   await loadBalancePromise;
 
   // return generator
   return async tokenAmounts => {
     let netCost = new Decimal(0)
     try {
-      const netCost = await LMSR.calcNetCost(tokenAmounts);
+      netCost = await LMSR.calcNetCost(tokenAmounts.map((n) => new Decimal(n).abs().toString()));
     } catch (err) {
       console.error(`LMSR calcNetCost failed`, tokenAmounts)
     }
@@ -128,18 +124,25 @@ export const lmsrCalcOutcomeTokenCount = async (
   outcomenTokenIndexes,
   amount
 ) => {
-  const collateralAmount = new Decimal(amount.toString()).times(new Decimal(10).pow(18)).dividedBy(
-    outcomenTokenIndexes.length
-  );
+  const collateralAmount = new Decimal(amount.toString()).times(new Decimal(10).pow(18))
   const atomicOutcomeCount = lmsrTokenBalances.length
 
-  const baseFunding = new Decimal(funding.toString()).dividedBy(
+  const liquidityParam = new Decimal(funding.toString()).dividedBy(
     new Decimal(atomicOutcomeCount).ln()
   );
 
-  const shareAmountEach = baseFunding.times(
-    collateralAmount.dividedBy(baseFunding).exp().sub(
-      lmsrTokenBalances.reduce((acc, numShares) => acc.plus(new Decimal(numShares.toString()).neg().dividedBy(baseFunding).exp()), new Decimal(0))
+  const lmsrTokenBalancesInsideSet = lmsrTokenBalances.filter((_, index) => outcomenTokenIndexes.includes(index))
+  const lmsrTokenBalancesOutsideSet = lmsrTokenBalances.filter((_, index) => !outcomenTokenIndexes.includes(index))
+
+  const negExpSummer = (acc, numShares) => acc.plus(
+    new Decimal(numShares.toString()).neg().dividedBy(liquidityParam).exp()
+  )
+
+  const shareAmountEach = liquidityParam.times(
+    collateralAmount.dividedBy(liquidityParam).exp().sub(
+      lmsrTokenBalancesOutsideSet.reduce(negExpSummer, new Decimal(0))
+    ).dividedBy(
+      lmsrTokenBalancesInsideSet.reduce(negExpSummer, new Decimal(0))
     ).ln()
   ).floor();
 

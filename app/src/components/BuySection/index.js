@@ -15,7 +15,7 @@ const BuySection = ({ handleBuyOutcomes, handleSelectInvest, invest, selectionPr
       onChange={handleSelectInvest}
     />
     {validPosition && <p>The selected positions will cost <strong>{selectionPrice.toFixed(6)} &Xi;</strong> per share.</p>}
-    {!isNaN(parseFloat(invest)) && <p>{outcomeTokenBuyAmounts.reduce((acc, numShares) => acc.plus(new Decimal(numShares)), new Decimal(0)).toNumber()} shares can be bought with your invest</p>}
+    {!isNaN(parseFloat(invest)) && <p>{outcomeTokenBuyAmounts.reduce((acc, numShares) => acc.plus(new Decimal(numShares)), new Decimal(0)).dividedBy(new Decimal(10).pow(18)).toSD(8).toString()} shares can be bought with your invest</p>}
     <button
       type="button"
       disabled={!validPosition}
