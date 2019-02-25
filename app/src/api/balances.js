@@ -1,5 +1,5 @@
 import web3 from "web3";
-import { sortBy } from "lodash"
+import { sortBy, intersection } from "lodash"
 
 import { getDefaultAccount, loadContract, loadConfig } from "./web3";
 import { generatePositionId, generatePositionIdList } from "./utils/positions";
@@ -56,7 +56,7 @@ export const loadBalances = async positions => {
   return balancesList;
 };
 
-export const lmsrTokenBalances = async lmsr => {
+export const loadLmsrTokenBalances = async lmsr => {
   const PMSystem = await loadContract("PredictionMarketSystem");
   const positions = await loadPositions();
 
@@ -158,7 +158,7 @@ export const sumPricePerShare = async (outcomePairs) => {
   const LMSR = await loadContract("LMSRMarketMaker", lmsr)
 
   const funding = (await LMSR.funding()).toString()
-  const balances = await lmsrTokenBalances(lmsr)
+  const balances = await loadLmsrTokenBalances(lmsr)
 
   const tokenAmounts = Array(outcomePairNames.length).fill().map((_, index) => (
     outcomePairsAsIndexes.includes(index) ? 1 : 0
@@ -167,20 +167,24 @@ export const sumPricePerShare = async (outcomePairs) => {
   return lmsrTradeCost(funding, balances, tokenAmounts)
 }
 
-export const calcOutcomeTokenCounts = async (outcomePairs, amount) => {
+export const calcOutcomeTokenCounts = async (outcomePairs, assumedIndexes, amount) => {
+  console.log(outcomePairs)
   const { lmsr } = await loadConfig()
 
   const marketOutcomeCounts = await loadMarketOutcomeCounts();
   const outcomeIdNames = nameMarketOutcomes(marketOutcomeCounts);
   const outcomePairNames = nameOutcomePairs(outcomeIdNames);
 
-  const outcomePairsAsIndexes = outcomePairs.map((outcomePair) => outcomePairNames.indexOf(outcomePair))
   const LMSR = await loadContract("LMSRMarketMaker", lmsr)
-
   const funding = (await LMSR.funding()).toString()
-  const netOutcomeTokensSold = await lmsrTokenBalances(lmsr)
+  const lmsrTokenBalances = await loadLmsrTokenBalances(lmsr)
+  
+  const assumedIds = assumedIndexes.map((index) => outcomeIdNames.flat()[index])
+  const pairsWithAssumedIds = outcomePairs.filter((outcomePair) => assumedIds.every(id => outcomePair.split(/&/g).includes(id)))
 
-  const outcomeTokenCounts = lmsrCalcOutcomeTokenCount(funding, netOutcomeTokensSold, outcomePairsAsIndexes, amount)
-  console.log(outcomeTokenCounts)
+  const assumedPairIndexes = pairsWithAssumedIds.map((outcomePair) => outcomePairNames.indexOf(outcomePair))
+  const outcomePairsAsIndexes = outcomePairs.map((outcomePair) => outcomePairNames.indexOf(outcomePair))
+  const outcomeTokenCounts = await lmsrCalcOutcomeTokenCount(funding, lmsrTokenBalances, outcomePairsAsIndexes, amount, assumedPairIndexes)
+  
   return outcomeTokenCounts
 }

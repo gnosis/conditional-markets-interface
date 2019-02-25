@@ -73,6 +73,8 @@ export const loadMarginalPrices = async () => {
       .map(async (_, index) => (await LMSR.calcMarginalPrice(index)).toString())
   )
 
+  console.log({ marginalPrices: atomicOutcomePrices})
+
   return atomicOutcomePrices
 }
 
@@ -153,7 +155,7 @@ export const buyOutcomes = async (buyList) => {
   const gasPrice = new Decimal(await getGasPrice())
   const gasCost = gasPrice.mul(tx.receipt.gasUsed)
 
-  const wait5Sec = await (new Promise((resolve) => setTimeout(resolve, 5000)))
+  const wait = await (new Promise((resolve) => setTimeout(resolve, 500)))
 
   const now = prev.plus(gasCost).sub(new Decimal(await getAccountBalance()))
   console.log(`wei used for tx (excluding gas): ${now.toString()}`)

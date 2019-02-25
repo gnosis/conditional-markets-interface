@@ -122,7 +122,8 @@ export const lmsrCalcOutcomeTokenCount = async (
   funding,
   lmsrTokenBalances,
   outcomenTokenIndexes,
-  amount
+  amount,
+  assumedTokenIndexes,
 ) => {
   const collateralAmount = new Decimal(amount.toString()).times(new Decimal(10).pow(18))
   const atomicOutcomeCount = lmsrTokenBalances.length
@@ -132,7 +133,8 @@ export const lmsrCalcOutcomeTokenCount = async (
   );
 
   const lmsrTokenBalancesInsideSet = lmsrTokenBalances.filter((_, index) => outcomenTokenIndexes.includes(index))
-  const lmsrTokenBalancesOutsideSet = lmsrTokenBalances.filter((_, index) => !outcomenTokenIndexes.includes(index))
+  const lmsrTokenBalancesOutsideSetAssumed = lmsrTokenBalances.filter((_, index) => !outcomenTokenIndexes.includes(index) && assumedTokenIndexes.includes(index))
+  const lmsrTokenBalancesOutsideSetUnassumed = lmsrTokenBalances.filter((_, index) => !outcomenTokenIndexes.includes(index) && !assumedTokenIndexes.includes(index))
 
   const negExpSummer = (acc, numShares) => acc.plus(
     new Decimal(numShares.toString()).neg().dividedBy(liquidityParam).exp()
@@ -140,7 +142,9 @@ export const lmsrCalcOutcomeTokenCount = async (
 
   const shareAmountEach = liquidityParam.times(
     collateralAmount.dividedBy(liquidityParam).exp().sub(
-      lmsrTokenBalancesOutsideSet.reduce(negExpSummer, new Decimal(0))
+      lmsrTokenBalancesOutsideSetUnassumed.reduce(negExpSummer, new Decimal(0))
+    ).sub(
+      lmsrTokenBalancesOutsideSetAssumed.reduce(negExpSummer, new Decimal(0)).mul(collateralAmount.dividedBy(liquidityParam).exp())
     ).dividedBy(
       lmsrTokenBalancesInsideSet.reduce(negExpSummer, new Decimal(0))
     ).ln()
@@ -148,6 +152,7 @@ export const lmsrCalcOutcomeTokenCount = async (
 
   return lmsrTokenBalances.map((_, index) => {
     if (outcomenTokenIndexes.includes(index)) return shareAmountEach.toString()
+    if (assumedTokenIndexes.includes(index)) return collateralAmount.toString()
     return "0"
   })
 };

@@ -214,27 +214,29 @@ const enhancer = compose(
       if (!amountValid) return
 
       const outcomeIndexes = [];
+      const assumedIndexes = [];
 
       // transform selectedOutcomes into outcomeIndex array, filtering all assumptions
       let totalOutcomeIndex = 0;
       markets.forEach(market => {
-        if (
-          selectedOutcomes[market.conditionId] != null &&
-          !assumptions.includes(market.conditionId)
-        ) {
-          const selectedOutcome = parseInt(
-            selectedOutcomes[market.conditionId],
-            10
-          );
-          outcomeIndexes.push(totalOutcomeIndex + selectedOutcome);
+        if (selectedOutcomes[market.conditionId] != null) {
+          const selectedOutcome = parseInt(selectedOutcomes[market.conditionId], 10);
+
+          if (assumptions.includes(market.conditionId)) {
+            assumedIndexes.push(totalOutcomeIndex + selectedOutcome);
+          } else {
+            outcomeIndexes.push(totalOutcomeIndex + selectedOutcome);
+          }
         }
 
         totalOutcomeIndex += market.outcomes.length;
       });
 
       const outcomePairs = await listOutcomeIdsForIndexes(outcomeIndexes);
-      const outcomeTokenCounts = await calcOutcomeTokenCounts(outcomePairs, amount)
+      const outcomeTokenCounts = await calcOutcomeTokenCounts(outcomePairs, assumedIndexes, amount)
       await setOutcomeTokenBuyAmounts(outcomeTokenCounts)
+
+      console.log("tokens purchase list:")
       console.log(outcomeTokenCounts)
     },
   }),

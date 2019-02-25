@@ -50,7 +50,7 @@ const OutcomeSelection = ({
             readOnly
             checked={assumed}
           />
-          <label>{selectedOutcome == null ? "Select a Condition" : `Select "${outcomes[selectedOutcome].short}" as condition`}</label>
+          <label>{selectedOutcome == null ? "Base your prediction on assuming this occoured" : `Assuming "${outcomes[selectedOutcome].short}" occoured`}</label>
         </div>
       </button>
     </div>

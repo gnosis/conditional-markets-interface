@@ -89,7 +89,6 @@ export const resolvePositionGrouping = groups => {
       return [...groups, group];
     }, [])
     .map(([idsInTarget, amount]) => {
-      console.log(amount)
       const sumToAdd = carriedGroups
         .filter(([target]) => idsInTarget.join("&") === target.join("&"))
         .map(([target, [ids, otherAmount]]) => otherAmount)
