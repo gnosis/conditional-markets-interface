@@ -10,7 +10,7 @@ import Decimal from "decimal.js";
  * @param {[[String, Number]]} groups - Balances of all atomic outcomes, in the format of ["AyByCy", 1000]
  */
 export const resolvePositionGrouping = outcomeHoldingPairs => {
-  console.log(outcomeHoldingPairs)
+  // console.log(outcomeHoldingPairs)
 
   // [[["Ay", "By", "Cy"] 1337], ...]
   const things = outcomeHoldingPairs.map(([ atomicOutcome, balance ]) => (

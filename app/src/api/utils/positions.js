@@ -25,7 +25,7 @@ function* positionListGenerator(markets, parentCollectionId) {
 
     const collectionId = addWithOverflow(parentCollectionId, marketCollectionId);
     // used to generate a debug-tree of all position id steps
-    //console.log(`${" ".repeat((++indent) * 2)}id: ${collectionId.toString(16).slice(0, 5)}, parent: ${parentCollectionId.toString(16).slice(0, 5)}, market-index: ${newMarkets.length}, outcomeindex: ${outcomeIndex}`)
+    // console.log(`${" ".repeat((++indent) * 2)}id: ${collectionId.toString(16).slice(0, 5)}, parent: ${parentCollectionId.toString(16).slice(0, 5)}, market-index: ${newMarkets.length}, outcomeindex: ${outcomeIndex}`)
 
     yield collectionId.toString(16)
     yield *positionListGenerator(newMarkets, collectionId)
