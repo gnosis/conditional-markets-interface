@@ -108,7 +108,7 @@ export const generatePositionList = async (balances) => {
   // e.g. Ay independent of all other outcomes is lowest amount in Ay****
   // AyBy independent of C* is lowest amount in AyBy**
 
-  const positionGroupings = resolvePositionGrouping(outcomePrices.map((price, index) => [outcomePairNames[index], price]))
+  const positionGroupings = resolvePositionGrouping(balances.map((balance, index) => [outcomePairNames[index], balance]))
 
   const positionGroupingsSorted = sortBy(positionGroupings, [([ outcomeIds, value ]) => outcomeIds.length, ([ outcomeIds, value ]) => value ])
 
