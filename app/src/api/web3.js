@@ -6,7 +6,7 @@ import config from "../../config.json";
 let provider;
 let isLocal;
 if (process.env.NODE_ENV === "development") {
-  console.log('Using ganache because "NODE_ENV" is in development mode.');
+  // console.log('Using ganache because "NODE_ENV" is in development mode.');
   provider = new Web3("http://localhost:8545");
   isLocal = true;
   
@@ -37,12 +37,12 @@ export const loadContract = async (contractName, address) => {
     let instance;
     if (address) {
       instance = await contract.at(address);
-      console.log(`Loading ${contractName}@${address}`);
-      console.log(instance);
+      // console.log(`Loading ${contractName}@${address}`);
+      // console.log(instance);
     } else {
       instance = await contract.deployed();
-      console.log(`Loading ${contractName}@deployed`);
-      console.log(instance);
+      // console.log(`Loading ${contractName}@deployed`);
+      // console.log(instance);
     }
 
     contracts[path] = instance;
@@ -63,13 +63,13 @@ export const getAccountBalance = async (account) => {
   }
 
   const balance = await provider.eth.getBalance(usedAccount)
-  console.log(`Balance@${usedAccount}: ${balance.toString()}`)
+  // console.log(`Balance@${usedAccount}: ${balance.toString()}`)
   return balance.toString()
 }
 
 export const getGasPrice = async () => {
   const gasPrice = await provider.eth.getGasPrice()
-  console.log(gasPrice)
+  // console.log(gasPrice)
   return gasPrice.toString()
 }
 
@@ -108,7 +108,7 @@ export const loadConfig = async () => {
   const network = await getNetwork();
 
   if (config[network]) {
-    console.log(`Loading configuration for network ${network}`);
+    // console.log(`Loading configuration for network ${network}`);
     loadedConfig = config[network];
     return loadedConfig;
   }

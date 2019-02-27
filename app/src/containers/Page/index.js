@@ -238,8 +238,8 @@ const enhancer = compose(
       const outcomeTokenCounts = await calcOutcomeTokenCounts(outcomePairs, assumedPairs, amount)
       await setOutcomeTokenBuyAmounts(outcomeTokenCounts)
 
-      console.log("tokens purchase list:")
-      console.log(outcomeTokenCounts)
+      // console.log("tokens purchase list:")
+      // console.log(outcomeTokenCounts)
     },
   }),
   withHandlers({
@@ -342,13 +342,13 @@ const enhancer = compose(
           market.outcomes[marketOutcomeIndex].lmsrOutcomeIndex
         );
       });
-      console.log(
-        "handleSellOutcomes -> outcomeIndexes: ",
-        JSON.stringify(outcomeIndexes, null, 2)
-      );
+      // console.log(
+      //   "handleSellOutcomes -> outcomeIndexes: ",
+      //   JSON.stringify(outcomeIndexes, null, 2)
+      // );
       await sellOutcomes(outcomeIndexes, invest);
       const updatedMarkets = await loadMarkets();
-      //console.log(markets)
+      // console.log(markets)
       setMarkets(updatedMarkets);
     },
     handleSellOutcome: ({
@@ -359,7 +359,7 @@ const enhancer = compose(
       const sellAmount = sellAmounts[lmsrOutcomeIndex];
       await sellOutcomes([lmsrOutcomeIndex], sellAmount);
       const updatedMarkets = await loadMarkets();
-      //console.log(markets)
+      // console.log(markets)
       setMarkets(updatedMarkets);
       setSellAmounts(prev => ({
         ...prev,

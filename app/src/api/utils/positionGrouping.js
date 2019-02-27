@@ -2,7 +2,9 @@ import 'lodash.combinations';
 import { combinations } from 'lodash'
 
 import { cartesian } from './probabilities';
-import Decimal from "decimal.js";
+import Web3 from "web3";
+
+const { toBN } = Web3.utils
 
 /**
  * Generates a grouping of positions to state specific conditions correlation or independance of one-another
@@ -10,7 +12,7 @@ import Decimal from "decimal.js";
  * @param {[[String, Number]]} groups - Balances of all atomic outcomes, in the format of ["AyByCy", 1000]
  */
 export const resolvePositionGrouping = outcomeHoldingPairs => {
-  console.log(outcomeHoldingPairs)
+  // console.log(outcomeHoldingPairs)
 
   // [[["Ay", "By", "Cy"] 1337], ...]
   const things = outcomeHoldingPairs.map(([ atomicOutcome, balance ]) => (
@@ -25,13 +27,18 @@ export const resolvePositionGrouping = outcomeHoldingPairs => {
       (numConditions === 0 ? [[]] : [...cartesian(...conditionTuple)]).forEach((cartesianTuple) => {
         const filteredThings = things.filter(([ atomicOutcome, balance ]) => cartesianTuple.every((condition) => atomicOutcome.includes(condition)))
 
-        const minValue = Math.min(...filteredThings.map((something) => something[1]))
+        const minValue = filteredThings.reduce((minSoFar, [, valStr]) => {
+          const nextVal = toBN(valStr)
+          if(minSoFar == null || nextVal.lt(minSoFar))
+            return nextVal
+          return minSoFar
+        }, null)
 
         if (minValue > 0) {
-          output.push([cartesianTuple.join("&"), minValue])
+          output.push([cartesianTuple.join("&"), minValue.toString()])
 
           filteredThings.forEach((filteredthing) => {
-            filteredthing[1] -= minValue
+            filteredthing[1] = toBN(filteredthing[1]).sub(minValue).toString()
           })
         }
       })

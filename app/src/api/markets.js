@@ -74,7 +74,7 @@ export const loadMarginalPrices = async () => {
   )
 
 
-  console.log("marginal prices:", atomicOutcomePrices)
+  // console.log("marginal prices:", atomicOutcomePrices)
 
   return atomicOutcomePrices
 }
@@ -84,9 +84,9 @@ export const buyOutcomes = async (buyList) => {
   const { lmsr } = await loadConfig();
   const LMSR = await loadContract("LMSRMarketMaker", lmsr);
   // get market maker instance
-  console.log("buy: ", buyList)
+  // console.log("buy: ", buyList)
   const cost = await LMSR.calcNetCost.call(buyList);
-  console.log("cost: ", cost.toString())
+  // console.log("cost: ", cost.toString())
   
   const defaultAccount = await getDefaultAccount();
   const prev = new Decimal(await getAccountBalance())
@@ -99,19 +99,19 @@ export const buyOutcomes = async (buyList) => {
   // run trade
   const tx = await LMSR.trade(buyList, cost, { from: defaultAccount });
 
-  console.log(tx.receipt.gasUsed)
+  // console.log(tx.receipt.gasUsed)
   const gasPrice = new Decimal(await getGasPrice())
   const gasCost = gasPrice.mul(tx.receipt.gasUsed)
 
   //const wait = await (new Promise((resolve) => setTimeout(resolve, 500)))
 
   const now = prev.plus(gasCost).sub(new Decimal(await getAccountBalance()))
-  console.log(`wei used for tx (excluding gas): ${(await getAccountBalance()).toString()}`)
-  console.log(tx);
+  // console.log(`wei used for tx (excluding gas): ${(await getAccountBalance()).toString()}`)
+  // console.log(tx);
 };
 
 export const sellOutcomes = async (lmsrOutcomeIndexes, amount) => {
-  console.log("TCL: sellOutcomes -> lmsrOutcomeIndexes", lmsrOutcomeIndexes);
+  // console.log("TCL: sellOutcomes -> lmsrOutcomeIndexes", lmsrOutcomeIndexes);
 
   // load all outcome prices
   const { lmsr } = await loadConfig();
@@ -144,7 +144,7 @@ export const sellOutcomes = async (lmsrOutcomeIndexes, amount) => {
 
   //const marketStructure = Array(outcomeSlotCount)
   const { outcomePairs, outcomeIds } = resolvePartitionSets(marketStructure);
-  console.log("TCL: sellOutcomes -> outcomePairs", outcomePairs);
+  // console.log("TCL: sellOutcomes -> outcomePairs", outcomePairs);
 
   // list of outcomePairIndexes we'd like to sell
   const wantList = lmsrOutcomeIndexes.map(
@@ -164,14 +164,14 @@ export const sellOutcomes = async (lmsrOutcomeIndexes, amount) => {
       return pairHasAllWantedOutcomes ? -amount : SHARE_AMOUNT_NONE.toString();
     });
 
-  console.log(`selling "${JSON.stringify(wantList)}" with ${amount} each.`);
-  console.log(`assembled "sellList": "${JSON.stringify(sellList)}"`);
+  // console.log(`selling "${JSON.stringify(wantList)}" with ${amount} each.`);
+  // console.log(`assembled "sellList": "${JSON.stringify(sellList)}"`);
 
   const testSellList = [-1, "0", 0, "0"];
 
   // get market maker instance
   const cost = await LMSR.calcNetCost.call(testSellList);
-  console.log({ cost: cost.toString() });
+  // console.log({ cost: cost.toString() });
 
   const defaultAccount = await getDefaultAccount();
 
@@ -179,11 +179,11 @@ export const sellOutcomes = async (lmsrOutcomeIndexes, amount) => {
   await PMSystem.setApprovalForAll(lmsr, true, {
     from: defaultAccount
   });
-  console.log("approval set");
+  // console.log("approval set");
   // run trade
   const tx = await LMSR.trade(testSellList, cost, {
     from: defaultAccount,
     gas: 0x6691b7
   });
-  console.log(tx);
+  // console.log(tx);
 };

@@ -51,7 +51,7 @@ export const loadBalances = async positions => {
     })
   );
 
-  console.log(`position balances: ${JSON.stringify(balancesList)}`);
+  // console.log(`position balances: ${JSON.stringify(balancesList)}`);
 
   return balancesList;
 };
@@ -108,11 +108,11 @@ export const generatePositionList = async (balances) => {
   // e.g. Ay independent of all other outcomes is lowest amount in Ay****
   // AyBy independent of C* is lowest amount in AyBy**
 
-  const positionGroupings = resolvePositionGrouping(outcomePrices.map((price, index) => [outcomePairNames[index], price]))
+  const positionGroupings = resolvePositionGrouping(balances.map((balance, index) => [outcomePairNames[index], balance]))
 
   const positionGroupingsSorted = sortBy(positionGroupings, [([ outcomeIds, value ]) => outcomeIds.length, ([ outcomeIds, value ]) => value ])
 
-  console.log(positionGroupingsSorted)
+  // console.log(positionGroupingsSorted)
   return await Promise.all(
     positionGroupingsSorted.map(async ([outcomeIds, value]) => {
       const affectedMarkets = listAffectedMarketsForOutcomeIds(markets, outcomeIds)
@@ -174,7 +174,7 @@ export const sumPricePerShare = async (outcomePairs) => {
 }
 
 export const calcOutcomeTokenCounts = async (outcomePairs, assumedPairs, amount) => {
-  console.log(outcomePairs)
+  // console.log(outcomePairs)
   const { lmsr } = await loadConfig()
 
   const marketOutcomeCounts = await loadMarketOutcomeCounts();
@@ -185,13 +185,13 @@ export const calcOutcomeTokenCounts = async (outcomePairs, assumedPairs, amount)
   const funding = (await LMSR.funding()).toString()
   const lmsrTokenBalances = await loadLmsrTokenBalances(lmsr)
 
-  console.log("selected and assumed")
-  console.log(outcomePairs, assumedPairs)
+  // console.log("selected and assumed")
+  // console.log(outcomePairs, assumedPairs)
 
   const assumedPairIndexes = assumedPairs.map((outcomePair) => outcomePairNames.indexOf(outcomePair))
   const outcomePairsAsIndexes = outcomePairs.map((outcomePair) => outcomePairNames.indexOf(outcomePair))
 
-  console.log(assumedPairIndexes, outcomePairsAsIndexes)
+  // console.log(assumedPairIndexes, outcomePairsAsIndexes)
   const outcomeTokenCounts = await lmsrCalcOutcomeTokenCount(funding, lmsrTokenBalances, outcomePairsAsIndexes, amount, assumedPairIndexes)
   
   return outcomeTokenCounts
