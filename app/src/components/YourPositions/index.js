@@ -22,13 +22,13 @@ const YourPositions = ({ positions }) => (
             </span>
           )
         ) : (
-          <>
+          <span>
             <strong>{formatFromWei(position.value)}</strong>{" "}
             when{" "}
             {arrayToHumanReadableList(
               position.markets.map(market => market.selectedOutcome === 0 ? pseudoMarkdown(market.when) : pseudoMarkdown(market.whenNot))
             )}
-          </>
+          </span>
         )}
       </div>
     ))}
