@@ -116,7 +116,7 @@ module.exports = (deployer, network, accounts) => {
         pmSystemInstance.address,
         collateralToken.address,
         [conditionOneId, conditionTwoId, conditionThreeId],
-        1,
+        0,
         process.env.AMMFUNDING || defaultAMMFunding,
         { from: accounts[0] }
       );
