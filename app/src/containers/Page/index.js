@@ -22,7 +22,7 @@ import {
   loadPositions,
   generatePositionList,
   sumPricePerShare,
-  listOutcomeIdsForIndexes,
+  listOutcomePairsMatchingOutcomeId,
   calcOutcomeTokenCounts,
 } from "api/balances";
 
@@ -195,7 +195,7 @@ const enhancer = compose(
       });
 
       // sets which outcome combinations will be bought
-      const outcomePairs = await listOutcomeIdsForIndexes(outcomeIndexes);
+      const outcomePairs = await listOutcomePairsMatchingOutcomeId(outcomeIndexes);
       await setOutcomesToBuy(outcomePairs);
 
       // sets if the selected position is valid (ie not all positions and not no positions)
@@ -231,9 +231,12 @@ const enhancer = compose(
 
         totalOutcomeIndex += market.outcomes.length;
       });
+
+      // outcome ids:   Ay, .... By, ... Bn
+      // atomic outcomes: AyByCn "outcomePairs"
       
-      const outcomePairs = await listOutcomeIdsForIndexes([...outcomeIndexes, ...assumedIndexes]);
-      const assumedPairs = assumedIndexes.length > 0 ? (await listOutcomeIdsForIndexes(assumedIndexes, true)) : [];
+      const outcomePairs = await listOutcomePairsMatchingOutcomeId([...outcomeIndexes, ...assumedIndexes]);
+      const assumedPairs = assumedIndexes.length > 0 ? (await listOutcomePairsMatchingOutcomeId(assumedIndexes, true)) : [];
       
       const outcomeTokenCounts = await calcOutcomeTokenCounts(outcomePairs, assumedPairs, amount)
       await setOutcomeTokenBuyAmounts(outcomeTokenCounts)
@@ -351,36 +354,14 @@ const enhancer = compose(
       // console.log(markets)
       setMarkets(updatedMarkets);
     },
-    handleSellOutcome: ({
+    handleSellPositions: ({
       setMarkets,
-      sellAmounts,
-      setSellAmounts
-    }) => async lmsrOutcomeIndex => {
-      const sellAmount = sellAmounts[lmsrOutcomeIndex];
-      await sellOutcomes([lmsrOutcomeIndex], sellAmount);
+    }) => async (atomicOutcomes, amount) => {
+      await sellOutcomes(atomicOutcomes, amount);
       const updatedMarkets = await loadMarkets();
       // console.log(markets)
       setMarkets(updatedMarkets);
-      setSellAmounts(prev => ({
-        ...prev,
-        [lmsrOutcomeIndex]: ""
-      }));
     },
-    handleSelectSell: ({ setSellAmounts }) => (e, outcome) => {
-      const { value } = e.target;
-
-      const asNum = parseInt(value, 10);
-      const isEmpty = value === "";
-      const validNum = !isNaN(asNum) && isFinite(asNum) && asNum > 0;
-      const valueGtCurrentBalance = asNum > outcome.balance;
-
-      if (isEmpty || (validNum && !valueGtCurrentBalance)) {
-        setSellAmounts(sellAmounts => ({
-          ...sellAmounts,
-          [outcome.lmsrOutcomeIndex]: value
-        }));
-      }
-    }
   }),
   loadingHandler
 );

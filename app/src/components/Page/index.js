@@ -14,6 +14,7 @@ function Page({
   markets,
   invest,
   selectedOutcomes,
+  handleSellPositions,
   handleSelectOutcome,
   handleBuyOutcomes,
   assumptions,
@@ -52,6 +53,7 @@ function Page({
         />
         <YourPositions
           positions={positions}
+          handleSellPosition={handleSellPositions}
         />
       </section>
     </div>

@@ -27,6 +27,7 @@ export const resolvePositionGrouping = outcomeHoldingPairs => {
       (numConditions === 0 ? [[]] : [...cartesian(...conditionTuple)]).forEach((cartesianTuple) => {
         const filteredThings = things.filter(([ atomicOutcome, balance ]) => cartesianTuple.every((condition) => atomicOutcome.includes(condition)))
 
+        const affectedAtomicOutcomes = filteredThings.map(([ atomicOutcome ]) => atomicOutcome)
         const minValue = filteredThings.reduce((minSoFar, [, valStr]) => {
           const nextVal = toBN(valStr)
           if(minSoFar == null || nextVal.lt(minSoFar))
@@ -35,7 +36,7 @@ export const resolvePositionGrouping = outcomeHoldingPairs => {
         }, null)
 
         if (minValue > 0) {
-          output.push([cartesianTuple.join("&"), minValue.toString()])
+          output.push([cartesianTuple.join("&"), minValue.toString(), affectedAtomicOutcomes.map((ids) => ids.join('&'))])
 
           filteredThings.forEach((filteredthing) => {
             filteredthing[1] = toBN(filteredthing[1]).sub(minValue).toString()

@@ -1,5 +1,23 @@
 .your-positions {
   .position {
     margin-bottom: 5px;
+
+    display: flex;
+
+    .value {
+      white-space: nowrap;
+    }
+
+    .description {
+      padding: 0 4px;
+    }
+
+    .controls {
+      flex-basis: 10%;
+
+      button {
+        margin: 0;
+      }
+    }
   }
 }

@@ -1,8 +1,19 @@
 import web3 from "web3";
-import Decimal from 'decimal.js'
+import Decimal from "decimal.js";
 
-import { getDefaultAccount, loadContract, loadConfig, getAccountBalance, getGasPrice } from "./web3";
-import { nameMarketOutcomes, nameOutcomePairs, getIndividualProbabilities } from "./utils/probabilities";
+import {
+  getDefaultAccount,
+  loadContract,
+  loadConfig,
+  getAccountBalance,
+  getGasPrice
+} from "./web3";
+import {
+  nameMarketOutcomes,
+  nameOutcomePairs,
+  getIndividualProbabilities
+} from "./utils/probabilities";
+import { loadMarketOutcomeCounts } from "./balances";
 
 const { BN } = web3.utils;
 
@@ -28,7 +39,7 @@ const SHARE_AMOUNT_NONE = new BN(0);
  *
  * @param {*} assumedOutcomes Simulate prices, costs and probabilities with given outcomes
  */
-let marketOutcomeCounts
+let marketOutcomeCounts;
 export const loadMarkets = async (atomicOutcomePrices, assumptions = []) => {
   // load hardcoded market entries from config
   const { markets } = await loadConfig();
@@ -36,15 +47,19 @@ export const loadMarkets = async (atomicOutcomePrices, assumptions = []) => {
   if (!marketOutcomeCounts) {
     // load contracts
     const PMSystem = await loadContract("PredictionMarketSystem");
-  
+
     marketOutcomeCounts = await Promise.all(
-      markets.map(async market => 
+      markets.map(async market =>
         (await PMSystem.getOutcomeSlotCount(market.conditionId)).toNumber()
       )
-    )
+    );
   }
 
-  const individualProbabilities = getIndividualProbabilities(atomicOutcomePrices, marketOutcomeCounts, assumptions)
+  const individualProbabilities = getIndividualProbabilities(
+    atomicOutcomePrices,
+    marketOutcomeCounts,
+    assumptions
+  );
 
   const marketsWithData = markets.map((market, marketIndex) => {
     return {
@@ -52,12 +67,12 @@ export const loadMarkets = async (atomicOutcomePrices, assumptions = []) => {
       outcomes: market.outcomes.map((outcome, outcomeIndex) => ({
         ...outcome,
         color: OUTCOME_COLORS[marketIndex * markets.length + outcomeIndex],
-        probability: individualProbabilities[marketIndex][outcomeIndex],
+        probability: individualProbabilities[marketIndex][outcomeIndex]
       }))
-    }
-  })
+    };
+  });
 
-  return marketsWithData
+  return marketsWithData;
 };
 
 export const loadMarginalPrices = async () => {
@@ -71,15 +86,14 @@ export const loadMarginalPrices = async () => {
     Array(atomicOutcomeCount)
       .fill()
       .map(async (_, index) => (await LMSR.calcMarginalPrice(index)).toString())
-  )
-
+  );
 
   // console.log("marginal prices:", atomicOutcomePrices)
 
-  return atomicOutcomePrices
-}
+  return atomicOutcomePrices;
+};
 
-export const buyOutcomes = async (buyList) => {
+export const buyOutcomes = async buyList => {
   // load all outcome prices
   const { lmsr } = await loadConfig();
   const LMSR = await loadContract("LMSRMarketMaker", lmsr);
@@ -87,9 +101,9 @@ export const buyOutcomes = async (buyList) => {
   // console.log("buy: ", buyList)
   const cost = await LMSR.calcNetCost.call(buyList);
   // console.log("cost: ", cost.toString())
-  
+
   const defaultAccount = await getDefaultAccount();
-  const prev = new Decimal(await getAccountBalance())
+  const prev = new Decimal(await getAccountBalance());
 
   // get collateral
   const WETH = await loadContract("WETH9");
@@ -100,78 +114,39 @@ export const buyOutcomes = async (buyList) => {
   const tx = await LMSR.trade(buyList, cost, { from: defaultAccount });
 
   // console.log(tx.receipt.gasUsed)
-  const gasPrice = new Decimal(await getGasPrice())
-  const gasCost = gasPrice.mul(tx.receipt.gasUsed)
+  const gasPrice = new Decimal(await getGasPrice());
+  const gasCost = gasPrice.mul(tx.receipt.gasUsed);
 
   //const wait = await (new Promise((resolve) => setTimeout(resolve, 500)))
 
-  const now = prev.plus(gasCost).sub(new Decimal(await getAccountBalance()))
+  const now = prev.plus(gasCost).sub(new Decimal(await getAccountBalance()));
   // console.log(`wei used for tx (excluding gas): ${(await getAccountBalance()).toString()}`)
   // console.log(tx);
 };
 
-export const sellOutcomes = async (lmsrOutcomeIndexes, amount) => {
-  // console.log("TCL: sellOutcomes -> lmsrOutcomeIndexes", lmsrOutcomeIndexes);
+export const sellOutcomes = async (atomicOutcomes, amount) => {
+  const { lmsr } = await loadConfig();
+
+  const marketOutcomeCounts = await loadMarketOutcomeCounts();
+  const outcomeIdNames = nameMarketOutcomes(marketOutcomeCounts);
+  const outcomePairNames = nameOutcomePairs(outcomeIdNames);
+
+  const sellList = outcomePairNames.map(atomicOutcome => {
+    if (atomicOutcomes.includes(atomicOutcome)) {
+      return amount.toString();
+    }
+
+    return "0";
+  });
+  console.log({ sellList });
 
   // load all outcome prices
-  const { lmsr } = await loadConfig();
   const LMSR = await loadContract("LMSRMarketMaker", lmsr);
   const PMSystem = await loadContract("PredictionMarketSystem");
 
-  let conditionIds = [];
-  let conditionIdIndex = 0;
-  while (conditionIdIndex < 256) {
-    try {
-      const conditionId = await LMSR.conditionIds(conditionIdIndex);
-      conditionIds.push(conditionId.toString());
-      conditionIdIndex++;
-    } catch (err) {
-      break;
-    }
-  }
-
-  const outcomeSlotCount = (await LMSR.atomicOutcomeSlotCount()).toNumber();
-
-  // as we're not selling outcome indexes but specific outcome-sets, we need to resolve the indexes to outcome sets
-  const marketStructure = await Promise.all(
-    conditionIds.map(async marketConditionId => {
-      const amountOfOutcomes = (await PMSystem.getOutcomeSlotCount(
-        marketConditionId
-      )).toNumber();
-      return Array(amountOfOutcomes).fill(0);
-    })
-  );
-
-  //const marketStructure = Array(outcomeSlotCount)
-  const { outcomePairs, outcomeIds } = resolvePartitionSets(marketStructure);
-  // console.log("TCL: sellOutcomes -> outcomePairs", outcomePairs);
-
-  // list of outcomePairIndexes we'd like to sell
-  const wantList = lmsrOutcomeIndexes.map(
-    outcomeIndex => outcomeIds.flat()[outcomeIndex]
-  );
-
-  const sellList = Array(outcomeSlotCount)
-    .fill()
-    .map((_, index) => {
-      const outcomePair = outcomePairs.flat()[index];
-
-      const outcomesInPair = outcomePair.split("&");
-      const pairHasAllWantedOutcomes = wantList.every(
-        id => outcomesInPair.indexOf(id) > -1
-      );
-
-      return pairHasAllWantedOutcomes ? -amount : SHARE_AMOUNT_NONE.toString();
-    });
-
-  // console.log(`selling "${JSON.stringify(wantList)}" with ${amount} each.`);
-  // console.log(`assembled "sellList": "${JSON.stringify(sellList)}"`);
-
-  const testSellList = [-1, "0", 0, "0"];
-
   // get market maker instance
-  const cost = await LMSR.calcNetCost.call(testSellList);
-  // console.log({ cost: cost.toString() });
+  const cost = await LMSR.calcNetCost.call(sellList);
+  console.log({ cost: cost.toString() });
 
   const defaultAccount = await getDefaultAccount();
 
@@ -181,9 +156,9 @@ export const sellOutcomes = async (lmsrOutcomeIndexes, amount) => {
   });
   // console.log("approval set");
   // run trade
-  const tx = await LMSR.trade(testSellList, cost, {
+  const tx = await LMSR.trade(sellList, cost, {
     from: defaultAccount,
     gas: 0x6691b7
   });
-  // console.log(tx);
+  console.log(tx);
 };

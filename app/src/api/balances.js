@@ -92,6 +92,7 @@ export const generatePositionList = async (balances) => {
   const outcomeIdNames = nameMarketOutcomes(marketOutcomeCounts);
   const outcomePairNames = nameOutcomePairs(outcomeIdNames);
 
+  /*
   const netCostCalculator = await lmsrNetCost(markets, lmsr);
 
   const outcomePrices = await Promise.all(
@@ -103,24 +104,25 @@ export const generatePositionList = async (balances) => {
       return (await netCostCalculator(indexes)).abs().toString();
     })
   );
+  */
 
   // extrapolate individual positions out of this information
   // e.g. Ay independent of all other outcomes is lowest amount in Ay****
   // AyBy independent of C* is lowest amount in AyBy**
 
   const positionGroupings = resolvePositionGrouping(balances.map((balance, index) => [outcomePairNames[index], balance]))
-
   const positionGroupingsSorted = sortBy(positionGroupings, [([ outcomeIds, value ]) => outcomeIds.length, ([ outcomeIds, value ]) => value ])
 
   // console.log(positionGroupingsSorted)
   return await Promise.all(
-    positionGroupingsSorted.map(async ([outcomeIds, value]) => {
+    positionGroupingsSorted.map(async ([outcomeIds, value, affectedAtomicOutcomes]) => {
       const affectedMarkets = listAffectedMarketsForOutcomeIds(markets, outcomeIds)
       
       return {
         outcomeIds,
         value,
-        markets: affectedMarkets
+        markets: affectedMarkets,
+        outcomes: affectedAtomicOutcomes,
       };
     })
   );
@@ -139,7 +141,7 @@ export const listAffectedOutcomesForIds = async (outcomeIds) => {
   return outcomePairNames.filter((outcomes) => outcomeIdArray.every((id) => outcomes.split(/&/g).includes(id)))
 }
 
-export const listOutcomeIdsForIndexes = async (outcomeIndexes, invert) => {
+export const listOutcomePairsMatchingOutcomeId = async (outcomeIndexes, invert) => {
   const marketOutcomeCounts = await loadMarketOutcomeCounts();
   const outcomeIdNames = nameMarketOutcomes(marketOutcomeCounts);
   const outcomePairNames = nameOutcomePairs(outcomeIdNames);
