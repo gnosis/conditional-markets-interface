@@ -11,6 +11,7 @@ const Fixed192x64Math = artifacts.require("Fixed192x64Math");
 const WETH9 = artifacts.require("WETH9");
 
 const initialNonce = 0x01;
+const defaultAMMFunding = (1e19).toString();
 
 module.exports = (deployer, network, accounts) => {
   if (network === "development" || network === "test") {
@@ -103,11 +104,11 @@ module.exports = (deployer, network, accounts) => {
       // Deposit the CollateralTokens necessary and approve() the pre-deployed LMSR instance
       await collateralToken.deposit({
         from: accounts[0],
-        value: process.env.AMMFUNDING || 1e12
+        value: process.env.AMMFUNDING || defaultAMMFunding
       });
       await collateralToken.approve(
         checksummedLMSRAddress,
-        process.env.AMMFUNDING || 1e12,
+        process.env.AMMFUNDING || defaultAMMFunding,
         { from: accounts[0] }
       );
       // Deploy the pre-calculated LMSR instance
@@ -115,8 +116,8 @@ module.exports = (deployer, network, accounts) => {
         pmSystemInstance.address,
         collateralToken.address,
         [conditionOneId, conditionTwoId, conditionThreeId],
-        1,
-        process.env.AMMFUNDING || 1,
+        0,
+        process.env.AMMFUNDING || defaultAMMFunding,
         { from: accounts[0] }
       );
     });
@@ -226,11 +227,11 @@ module.exports = (deployer, network, accounts) => {
       // Deposit the CollateralTokens necessary and approve() the pre-deployed LMSR instance
       await collateralToken.deposit({
         from: accounts[0],
-        value: process.env.AMMFUNDING || 1e12
+        value: process.env.AMMFUNDING || defaultAMMFunding
       });
       await collateralToken.approve(
         checksummedLMSRAddress,
-        process.env.AMMFUNDING || 1e12,
+        process.env.AMMFUNDING || defaultAMMFunding,
         { from: accounts[0] }
       );
       // Deploy the pre-calculated LMSR instance
@@ -239,7 +240,7 @@ module.exports = (deployer, network, accounts) => {
         collateralToken.address,
         [conditionOneId, conditionTwoId, conditionThreeId],
         1,
-        process.env.AMMFUNDING || 1e12,
+        process.env.AMMFUNDING || defaultAMMFunding,
         { from: accounts[0] }
       );
     });

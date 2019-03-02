@@ -10,7 +10,7 @@
     "migrate": "truffle compile --all && truffle migrate --reset",
     "test": "truffle test --network test",
     "test-app": "jest",
-    "start": "cd ./app && webpack-dev-server --config ./webpack.config.js --mode development",
+    "start": "run-with-testrpc -d \"npm run migrate && cd ./app && webpack-dev-server --config ./webpack.config.js --mode development\"",
     "build": "NODE_ENV=production cd ./app && webpack -p --config ./webpack.config.js --mode production"
   },
   "keywords": [
@@ -68,6 +68,7 @@
     "prettier": "^1.15.3",
     "react-hot-loader": "^4.6.3",
     "rlp": "^2.2.1",
+    "run-with-testrpc": "^0.3.0",
     "sass-loader": "^7.1.0",
     "style-loader": "^0.23.1",
     "truffle": "^5.0.0",
