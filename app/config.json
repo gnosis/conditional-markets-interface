@@ -4,52 +4,109 @@
     "markets": [
       {
         "conditionId": "0x5aa5951c709b312aeda63a2aa93bcc3ac99096118836536fe488c4ebc1b2e957",
-        "title": "What will be the block difficulty for Ethereum Mainnet on 31st of January, 2019?",
-        "description": "Will the difficulty be higher than 3000 or lower?",
+        "title": "Will be the block difficulty for Ethereum Mainnet be higher than 3000?",
+        "when": "the block difficulty is _higher_ than 3000",
+        "whenNot": "the block difficulty is _lower_ (or equal) than 3000",
+        "resolutionDate": "2020-01-01T09:00:00.000Z",
         "outcomes": [
-          "Difficulty will be lower than 3000",
-          "Difficulty will be equal or higher than 3000"
+          {
+            "title": "Yes",
+            "short": "Yes"
+          },
+          {
+            "title": "No",
+            "short": "No"
+          }
         ]
       },
       {
         "conditionId": "0x2d1e921dfb5450c9a4ce6282a9331a2315665e8a0fd34736c39029d671501f24",
-        "title": "What will be the Ethereum Mainnet block gas limit on 31st of January, 2019?",
-        "description": "Will the block gas limit be greater than 8,000,5000 or lower?",
+        "title": "Will be the Ethereum Mainnet block gas limit be greater than 8.000.500?",
+        "when": "the block gas limit is _higher_ than 8.000.500",
+        "whenNot": "the block gas limit is _lower_ (or equal) than 8.000.500",
+        "resolutionDate": "2020-01-05T09:00:00.000Z",
         "outcomes": [
-          "Block Gas Limit will be lower than 8000500",
-          "Block Gas Limit will be higher or equal than 8000500"
+          {
+            "title": "Yes",
+            "short": "Yes"
+          },
+          {
+            "title": "No",
+            "short": "No"
+          }
+        ]
+      },
+      {
+        "conditionId": "0xf330e09611c7ccf014b4a516ce6a74291e17ca79dcb9d6ddf9e13935749a4a95",
+        "title": "Will the Ethereum USD value be higher than 200?",
+        "when": "the value of ethereum in USD is _higher_ than 200",
+        "whenNot": "the value of ethereum in USD is _lower_ (or equal) than 200",
+        "resolutionDate": "2019-03-01T09:00:00.000Z",
+        "outcomes": [
+          {
+            "title": "Yes",
+            "short": "Yes"
+          },
+          {
+            "title": "No",
+            "short": "No"
+          }
         ]
       }
     ]
   },
   "RINKEBY": {
-    "lmsr": "0x31b2cbfb8175c139cc0872b0aacbac573961b822",
+    "lmsr": "0xE4ed21b76426356908E512eBC6E8bdf49Ff31D25",
     "markets": [
       {
-        "conditionId": "0xe4133e9d9763c7e6040d5fbb89a328fb806c862f9954dd0df27cd5320a8c31a6",
-        "title": "What will be the block difficulty for Ethereum Mainnet on 31st of January, 2019?",
-        "description": "Will the difficulty be higher than 3000 or lower?",
+        "conditionId": "0xe4c75155105d2d0da4a3238df4eac27e66503ecfaffe66c094750c0647441fdb",
+        "title": "Will be the block difficulty for Ethereum Mainnet be higher than 3000?",
+        "when": "the block difficulty is _higher_ than 3000",
+        "whenNot": "the block difficulty is _lower_ (or equal) than 3000",
+        "resolutionDate": "2020-01-01T09:00:00.000Z",
         "outcomes": [
-          "Difficulty will be lower than 3000",
-          "Difficulty will be equal or higher than 3000"
+          {
+            "title": "Yes",
+            "short": "Yes"
+          },
+          {
+            "title": "No",
+            "short": "No"
+          }
         ]
       },
       {
-        "conditionId": "0xa5c5df217704e6493d68a24e4f04f4969927c57e2f7e5244c92db1e5cc8431f1",
-        "title": "What will be the Ethereum Mainnet block gas limit on 31st of January, 2019?",
-        "description": "Will the block gas limit be greater than 8,000,5000 or lower?",
+        "conditionId": "0x8f64389f2a561704cd8057eea3e82d2e9019c81ded6f0cb4f063d16de345e9c1",
+        "title": "Will be the Ethereum Mainnet block gas limit be greater than 8.000.500?",
+        "when": "the block gas limit is _higher_ than 8.000.500",
+        "whenNot": "the block gas limit is _lower_ (or equal) than 8.000.500",
+        "resolutionDate": "2020-01-05T09:00:00.000Z",
         "outcomes": [
-          "Block Gas Limit will be lower than 8000500",
-          "Block Gas Limit will be higher or equal than 8000500"
+          {
+            "title": "Yes",
+            "short": "Yes"
+          },
+          {
+            "title": "No",
+            "short": "No"
+          }
         ]
       },
       {
-        "conditionId": "0x6c760839e92b653b26936845d1fe2431ba9c46bf6d4f416ea905ed70cb83153c",
-        "title": "What will be the price of ETH in USD on 31st of January, 2019?",
-        "description": "Will the ETH price in USD be higher than 150 USD or lower?",
+        "conditionId": "0xf3f1fce2265c3634c051cdfb95d45e77427a5dc7397dec9c5659a0b40a8018a0",
+        "title": "Will the Ethereum USD value be higher than 200?",
+        "when": "the value of ethereum in USD is _higher_ than 200",
+        "whenNot": "the value of ethereum in USD is _lower_ (or equal) than 200",
+        "resolutionDate": "2019-03-01T09:00:00.000Z",
         "outcomes": [
-          "Block Gas Limit will be lower than 150 USD",
-          "Block Gas Limit will be higher or equal than 150 USD"
+          {
+            "title": "Yes",
+            "short": "Yes"
+          },
+          {
+            "title": "No",
+            "short": "No"
+          }
         ]
       }
     ]

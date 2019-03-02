@@ -7,5 +7,20 @@
     "react-hot-loader/babel",
     "@babel/plugin-transform-runtime",
     "@babel/plugin-syntax-dynamic-import"
-  ]
+  ],
+  "env": {
+    "test": {
+      "presets": [
+        "@babel/preset-react",
+        [
+          "@babel/preset-env",
+          {
+            "forceAllTransforms": true,
+            "modules": "commonjs"
+          }
+        ]
+      ],
+      "plugins": ["@babel/plugin-syntax-dynamic-import", "@babel/plugin-transform-runtime"]
+    }
+  }
 }

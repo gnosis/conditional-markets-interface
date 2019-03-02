@@ -1,0 +1,52 @@
+.outcome-selection {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+
+  button {
+    padding: 7px 16px;
+    margin: 0;
+  }
+
+  .assume {
+    width: 100%;
+    font-size: 18px;
+    padding: 0;
+
+    > div {
+      padding: 7px 16px;
+    }
+
+    input[type="checkbox"] {
+      pointer-events: none;
+      margin-right: 5px;
+    }
+
+    label {
+      font-size: 70%;
+    }
+  }
+
+  .row-outcomes {
+    display: flex;
+    position: relative;
+    justify-content: space-between;
+
+    button {
+      width: 45%;
+      margin: 0 0 4px 0;
+
+      &:first-child {
+        margin-right: auto;
+      }
+
+      &:last-child {
+        margin-left: auto;
+      }
+    }
+  }
+
+  .row-assume {
+    width: 100%;
+  }
+}

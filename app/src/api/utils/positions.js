@@ -1,65 +1,93 @@
-import web3 from 'web3'
+import web3 from "web3";
+import { asAddress, asBytes32, addWithOverflow } from "../../utils/solidity";
+const { BN, soliditySha3 } = web3.utils;
 
-const { isBN, toBN, BN, soliditySha3, padLeft } = web3.utils
+let indent = 0
+let tree = {}
+function* positionListGenerator(markets, parentCollectionId) {
+  if (!markets.length) return
+  const newMarkets = [...markets]
+  const market = newMarkets.pop()
 
-const addWithOverflow = (a, b) => {
-  const aBN = isBN(a) ? a : toBN(a)
-  const bBN = isBN(b) ? b : toBN(b)
-
-  const aBinary = aBN.toString(2).slice(-256)
-  const bBinary = bBN.toString(2).slice(-256)
-
-  const product = (new BN(aBinary, 2).add(
-    new BN(bBinary, 2)
-  ))
-
-  const productTrunctated = new BN(product.toString(2), 2).toString(2).slice(-256)
-
-  return new BN(productTrunctated, 2)
-}
-
-export const generatePositionId = (markets, collateral, i) => {
-  // from smart contract:
-  /*
-    uint collectionId = 0;
-
-    for(uint k = 0; k < conditionIds.length; k++) {
-        uint curOutcomeSlotCount = pmSystem.getOutcomeSlotCount(conditionIds[k]);
-        collectionId += uint(keccak256(abi.encodePacked(
-            conditionIds[k],
-            1 << (i % curOutcomeSlotCount))));
-        i /= curOutcomeSlotCount;
-    }
-    return uint(keccak256(abi.encodePacked(
-        collateralToken,
-        collectionId)));
-  */
-
-  let collectionId = new BN(0)
-  markets.forEach((market) => {
-    const collectionIdBytes = [
-      market.conditionId.slice(2),
-      padLeft((1 << (i % market.outcomes.length)), 64).slice(2)
-    ].join('')
-
-    const anotherCollectionId = new BN(
-      soliditySha3({
-        t: 'bytes', v: collectionIdBytes
-      }).slice(2),
+  for(let outcomeIndex = 0; outcomeIndex < market.outcomes.length; outcomeIndex++) {
+    const marketCollectionId = new BN(
+      soliditySha3(
+        {
+          t: "bytes32",
+          v: asBytes32(market.conditionId)
+        },
+        {
+          t: "bytes32",
+          v: asBytes32(1 << outcomeIndex)
+        }
+      ).slice(2),
     16)
 
-    // needed to replicate the behaviour in the smart contract
-    collectionId = addWithOverflow(collectionId, anotherCollectionId)
+    const collectionId = addWithOverflow(parentCollectionId, marketCollectionId);
+    // used to generate a debug-tree of all position id steps
+    // console.log(`${" ".repeat((++indent) * 2)}id: ${collectionId.toString(16).slice(0, 5)}, parent: ${parentCollectionId.toString(16).slice(0, 5)}, market-index: ${newMarkets.length}, outcomeindex: ${outcomeIndex}`)
 
-    i = Math.floor(i / market.outcomes.length)
+    yield collectionId.toString(16)
+    yield *positionListGenerator(newMarkets, collectionId)
+    indent--
+  }
+}
+
+export const generateCollectionIdList = (markets) => {
+  const gen = positionListGenerator(markets, new BN(0))
+  const positionIds = []
+
+  let res = gen.next()
+  while(!res.done) {
+    positionIds.push(res.value)
+    res = gen.next()
+  }
+  return positionIds
+}
+
+export const generatePositionIdList = (markets, collateral) => {
+  const collectionIds = generateCollectionIdList(markets)
+
+  return collectionIds.map((collectionId) => {
+    return soliditySha3(
+      { t: "address", v: asAddress(collateral.address) },
+      { t: "bytes32", v: asBytes32(collectionId) }
+    );
   })
+}
 
-  const positionIdBytes = [
-    collateral.address.slice(2),
-    collectionId.toString(16)
-  ].join('')
+/**
+ * Generates atomic Position-IDs according to smart contract implementation
+ *
+ * @param {[Market]} markets - Array of Markets, must contain atleast `conditionId`
+ * @param {TruffleContract|Object} collateral - TruffleContract instance or object containing `address`
+ * @param {number} outcomeIndex - Outcome Index of the Position-ID to be generated
+ */
+export const generatePositionId = (markets, collateral, outcomeIndex) => {
+  let collectionId = new BN(0);
+  markets.forEach(market => {
+    const anotherCollectionId = new BN(
+      soliditySha3(
+        {
+          t: "bytes32",
+          v: asBytes32(market.conditionId)
+        },
+        {
+          t: "bytes32",
+          v: asBytes32(1 << outcomeIndex % market.outcomes.length)
+        }
+      ).slice(2),
+      16
+    );
+
+    // needed to replicate the behaviour in the smart contract
+    collectionId = addWithOverflow(collectionId, anotherCollectionId);
+
+    outcomeIndex = Math.floor(outcomeIndex / market.outcomes.length);
+  });
 
   return soliditySha3(
-    { t: 'bytes', v: positionIdBytes }
-  )
-}
+    { t: "address", v: asAddress(collateral.address) },
+    { t: "bytes32", v: asBytes32(collectionId) }
+  );
+};

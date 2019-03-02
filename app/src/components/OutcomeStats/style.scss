@@ -1,5 +1,13 @@
 .outcome-stat {
   width: 50%;
+  &:nth-child(even) {
+    text-align: right;
+  }
+
+  .name {
+    text-transform: uppercase;
+    font-size: 14pt;
+  }
 
   &:not(.selected) {
     color: rgba(0, 0, 0, 0.5);

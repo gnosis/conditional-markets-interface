@@ -20,7 +20,7 @@ const seed = process.env.SEED || 'witch collapse practice feed shame open despai
 const config = {
   networks: {
     development: {
-      host: "localhost",
+      host: "127.0.0.1",
       port: 8545,
       network_id: "*"
     },
