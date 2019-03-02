@@ -21,7 +21,7 @@
     "@babel/plugin-syntax-dynamic-import": "^7.2.0",
     "@babel/runtime": "^7.2.0",
     "@gnosis.pm/hg-contracts": "^2.0.1",
-    "@gnosis.pm/hg-market-makers": "^0.2.3",
+    "@gnosis.pm/hg-market-makers": "^0.2.4",
     "classnames": "^2.2.6",
     "decimal.js": "^10.0.2",
     "env": "0.0.2",
