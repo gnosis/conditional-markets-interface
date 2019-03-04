@@ -394,6 +394,9 @@ const enhancer = compose(
     handleSellOutcomes: ({
       markets,
       setMarkets,
+      setPositionIds,
+      setBalances,
+      setPositions,
       invest,
       selectedOutcomes
     }) => async () => {
@@ -414,15 +417,40 @@ const enhancer = compose(
       //   JSON.stringify(outcomeIndexes, null, 2)
       // );
       await sellOutcomes(outcomeIndexes, invest);
-      const updatedMarkets = await loadMarkets();
+      const prices = await loadMarginalPrices();
+      const updatedMarkets = await loadMarkets(prices);
       // console.log(markets)
       setMarkets(updatedMarkets);
+
+      const positionIds = await loadPositions();
+      await setPositionIds(positionIds);
+
+      const balances = await loadBalances(positionIds);
+      await setBalances(balances);
+
+      const positions = await generatePositionList(balances);
+      await setPositions(positions);
     },
-    handleSellPositions: ({ setMarkets }) => async (atomicOutcomes, amount) => {
+    handleSellPositions: ({
+      setMarkets,
+      setPositionIds,
+      setBalances,
+      setPositions,
+    }) => async (atomicOutcomes, amount) => {
       await sellOutcomes(atomicOutcomes, amount);
-      const updatedMarkets = await loadMarkets();
+      const prices = await loadMarginalPrices();
+      const updatedMarkets = await loadMarkets(prices);
       // console.log(markets)
       setMarkets(updatedMarkets);
+
+      const positionIds = await loadPositions();
+      await setPositionIds(positionIds);
+
+      const balances = await loadBalances(positionIds);
+      await setBalances(balances);
+
+      const positions = await generatePositionList(balances);
+      await setPositions(positions);
     }
   }),
   loadingHandler

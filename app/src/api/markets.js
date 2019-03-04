@@ -20,7 +20,7 @@ import {
 } from "./utils/probabilities";
 import { loadMarketOutcomeCounts, loadLmsrTokenBalances } from "./balances";
 
-const { BN } = web3.utils;
+const { BN, toBN } = web3.utils;
 
 const OUTCOME_COLORS = [
   "#fbb4ae",
@@ -170,10 +170,10 @@ export const sellOutcomes = async (atomicOutcomes, amount) => {
 
   const sellList = outcomePairNames.map(atomicOutcome => {
     if (atomicOutcomes.includes(atomicOutcome)) {
-      return amount.toString();
+      return toBN(amount).neg();
     }
 
-    return "0";
+    return toBN(0);
   });
   console.log({ sellList });
 
