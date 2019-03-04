@@ -39,9 +39,9 @@
     .inner {
       position: relative;
       height: 100%;
-      border-color: transparent;
       transition: all 1s ease-in-out;
 
+      // increase brightness dynamically
       &::after {
         content: '';
         background: white;
@@ -58,15 +58,26 @@
       }
     }
 
-    .inner-prediction { 
+    .prediction { 
       position: absolute;
+
+      &.inverted {
+        right: 0;
+        left: initial;
+
+        &::after {
+          opacity: 0.2;
+        }
+      }
+
       left: 0;
+
       top: 0;
       bottom: 0;
       height: 100%;
-      border-color: transparent;
       transition: all 1s ease-in-out;
 
+      // increase brightness dynamically
       &::after {
         content: '';
         background: white;
@@ -79,7 +90,21 @@
 
         transition: opacity ease 0.2s;
 
-        opacity: 0.4;
+        opacity: 0.8;
+      }
+
+      .hint {
+        min-width: 170px;
+        white-space: nowrap;
+        top: calc(100% + 40px);
+        
+        &::after {
+          top: -7px;
+          bottom: auto;
+          border-width: 0px 5px 8px 5px;
+          border-bottom-color: inherit;
+          border-top-color: transparent;
+        }
       }
     }
 

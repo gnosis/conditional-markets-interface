@@ -58,7 +58,7 @@ const Market = ({
         </div>
       </section>
       <section className={cx("outcomes-section")}>
-        <OutcomesBinary outcomes={outcomesWithAssumation} predictionProbabilities={predictionProbabilities[marketIndex]} />
+        <OutcomesBinary outcomes={outcomesWithAssumation} predictionProbabilities={assumed ? undefined : predictionProbabilities[marketIndex]} />
       </section>
       <section className={cx("selection-section")}>
         <OutcomeSelection

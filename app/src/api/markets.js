@@ -2,7 +2,8 @@ import web3 from "web3";
 import Decimal from "decimal.js";
 
 import {
-  lmsrMarginalPrice
+  lmsrMarginalPrice,
+  lmsrNetCost,
 } from './utils/lmsr'
 
 import {
@@ -110,11 +111,12 @@ export const loadMarginalPrices = async (tokenOffsets = []) => {
   const funding = await LMSR.funding()
   const lmsrTokenBalances = await loadLmsrTokenBalances(lmsr)
 
+  const cost = lmsrNetCost(funding, tokenOffsets, lmsrTokenBalances)
+
   const lmsrTokenBalancesAfter = lmsrTokenBalances.map((balance, index) => {
     if (!tokenOffsets[index]) return balance
-    return new Decimal(balance).sub(new Decimal(tokenOffsets[index])).toString()
+    return new Decimal(balance).sub(new Decimal(tokenOffsets[index])).add(cost).toString()
   })
-  console.log(lmsrTokenBalancesAfter)
 
   // load all marginal prices for atomic outcomes e.g. (Ay&By&Cy)
   const atomicOutcomeCount = (await LMSR.atomicOutcomeSlotCount()).toNumber();

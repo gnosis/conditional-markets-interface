@@ -16,8 +16,11 @@ export const lmsrMarginalPrice = (
   lmsrTokenBalances,
   outcomeIndex
 ) => {
-  console.log(lmsrTokenBalances, lmsrTokenBalances[outcomeIndex])
-  return new Decimal(lmsrTokenBalances[outcomeIndex].toString()).neg().dividedBy(new Decimal(funding.toString())).exp()
+  const liquidityParam = new Decimal(funding.toString()).dividedBy(
+    new Decimal(lmsrTokenBalances.length).ln()
+  );
+
+  return new Decimal(lmsrTokenBalances[outcomeIndex].toString()).neg().dividedBy(liquidityParam).exp()
 };
 
 export const lmsrTradeCost = (_funding, balances, outcomeTokenAmounts) => {

@@ -1,7 +1,7 @@
 {
-  "name": "decentralized-oracle",
+  "name": "hg-first-decentralized-market",
   "version": "0.0.1",
-  "description": "A decentralized oracle for the price of Ether, Hashrate, and Block gas limit.",
+  "description": "PM 2.0 Experiments",
   "main": "truffle-config.js",
   "directories": {
     "test": "test"
@@ -21,7 +21,8 @@
     "@babel/plugin-syntax-dynamic-import": "^7.2.0",
     "@babel/runtime": "^7.2.0",
     "@gnosis.pm/hg-contracts": "^2.0.1",
-    "@gnosis.pm/hg-market-makers": "^0.2.3",
+    "@gnosis.pm/hg-market-makers": "^0.2.5",
+    "@gnosis.pm/util-contracts": "^2.0.0",
     "classnames": "^2.2.6",
     "decimal.js": "^10.0.2",
     "env": "0.0.2",
@@ -43,7 +44,7 @@
     "web3": "^1.0.0-beta.37",
     "websocket": "^1.0.28"
   },
-  "author": "Anton Shtylman",
+  "author": "GNOSIS",
   "license": "MIT",
   "devDependencies": {
     "@babel/cli": "^7.2.3",
@@ -67,7 +68,7 @@
     "node-sass": "^4.11.0",
     "prettier": "^1.15.3",
     "react-hot-loader": "^4.6.3",
-    "rlp": "^2.2.1",
+    "rlp": "^2.2.2",
     "sass-loader": "^7.1.0",
     "style-loader": "^0.23.1",
     "truffle": "^5.0.0",

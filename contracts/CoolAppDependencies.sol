@@ -6,6 +6,7 @@ pragma solidity ^0.5.1;
 import '@gnosis.pm/hg-market-makers/contracts/LMSRMarketMaker.sol';
 import '@gnosis.pm/hg-market-makers/contracts/LMSRMarketMakerFactory.sol';
 import 'canonical-weth/contracts/WETH9.sol';
+import '@gnosis.pm/util-contracts/HumanFriendlyToken.sol';
 
 contract CoolAppDependencies { 
 }
