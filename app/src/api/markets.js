@@ -2,6 +2,10 @@ import web3 from "web3";
 import Decimal from "decimal.js";
 
 import {
+  lmsrMarginalPrice
+} from './utils/lmsr'
+
+import {
   getDefaultAccount,
   loadContract,
   loadConfig,
@@ -13,7 +17,7 @@ import {
   nameOutcomePairs,
   getIndividualProbabilities
 } from "./utils/probabilities";
-import { loadMarketOutcomeCounts } from "./balances";
+import { loadMarketOutcomeCounts, loadLmsrTokenBalances } from "./balances";
 
 const { BN } = web3.utils;
 
@@ -33,6 +37,27 @@ const OUTCOME_COLORS = [
 ];
 
 const SHARE_AMOUNT_NONE = new BN(0);
+
+export const loadProbabilitiesForPredictions = async (atomicOutcomePrices) => {
+  if (!marketOutcomeCounts) {
+    // load contracts
+    const PMSystem = await loadContract("PredictionMarketSystem");
+
+    marketOutcomeCounts = await Promise.all(
+      markets.map(async market =>
+        (await PMSystem.getOutcomeSlotCount(market.conditionId)).toNumber()
+      )
+    );
+  }
+
+  const individualProbabilities = getIndividualProbabilities(
+    atomicOutcomePrices,
+    marketOutcomeCounts,
+    []
+  );
+
+  return individualProbabilities
+}
 
 /**
  * Fetches markets, transforms them, adds data from smart contracts and returns them.
@@ -61,11 +86,13 @@ export const loadMarkets = async (atomicOutcomePrices, assumptions = []) => {
     assumptions
   );
 
+  let lmsrIndex = 0
   const marketsWithData = markets.map((market, marketIndex) => {
     return {
       ...market,
       outcomes: market.outcomes.map((outcome, outcomeIndex) => ({
         ...outcome,
+        lmsrIndex: lmsrIndex++,
         color: OUTCOME_COLORS[marketIndex * markets.length + outcomeIndex],
         probability: individualProbabilities[marketIndex][outcomeIndex]
       }))
@@ -75,20 +102,27 @@ export const loadMarkets = async (atomicOutcomePrices, assumptions = []) => {
   return marketsWithData;
 };
 
-export const loadMarginalPrices = async () => {
+export const loadMarginalPrices = async (tokenOffsets = []) => {
   // load hardcoded market entries from config
   const { lmsr } = await loadConfig();
   const LMSR = await loadContract("LMSRMarketMaker", lmsr);
+
+  const funding = await LMSR.funding()
+  const lmsrTokenBalances = await loadLmsrTokenBalances(lmsr)
+
+  const lmsrTokenBalancesAfter = lmsrTokenBalances.map((balance, index) => {
+    if (!tokenOffsets[index]) return balance
+    return new Decimal(balance).sub(new Decimal(tokenOffsets[index])).toString()
+  })
+  console.log(lmsrTokenBalancesAfter)
 
   // load all marginal prices for atomic outcomes e.g. (Ay&By&Cy)
   const atomicOutcomeCount = (await LMSR.atomicOutcomeSlotCount()).toNumber();
   const atomicOutcomePrices = await Promise.all(
     Array(atomicOutcomeCount)
       .fill()
-      .map(async (_, index) => (await LMSR.calcMarginalPrice(index)).toString())
+      .map(async (_, index) => lmsrMarginalPrice(funding, lmsrTokenBalancesAfter, index).toString())
   );
-
-  // console.log("marginal prices:", atomicOutcomePrices)
 
   return atomicOutcomePrices;
 };

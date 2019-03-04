@@ -25,6 +25,7 @@ function Page({
   selectionPrice,
   validPosition,
   positions,
+  predictionProbabilities,
 }) {
   return (
     <div className={cx("page")}>
@@ -36,6 +37,7 @@ function Page({
           selectedOutcomes={selectedOutcomes}
           assumptions={assumptions}
           handleSelectAssumption={handleSelectAssumption}
+          predictionProbabilities={predictionProbabilities}
         />
       </section>
       <div className={cx("seperator")} />

@@ -15,7 +15,7 @@ if (process.env.NODE_ENV === "development") {
   provider = new Web3(window.web3.currentProvider);
 }
 
-if (provider.enable) {
+if (typeof provider.enable === 'function') {
   provider.enable();
 }
 

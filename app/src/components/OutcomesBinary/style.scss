@@ -58,6 +58,31 @@
       }
     }
 
+    .inner-prediction { 
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      height: 100%;
+      border-color: transparent;
+      transition: all 1s ease-in-out;
+
+      &::after {
+        content: '';
+        background: white;
+        position: absolute;
+        width: 100%;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+
+        transition: opacity ease 0.2s;
+
+        opacity: 0.4;
+      }
+    }
+
     .hint {
       right: 50%;
       transform: translate(50%, -100%);

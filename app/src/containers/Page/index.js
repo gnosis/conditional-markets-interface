@@ -14,6 +14,7 @@ import {
 import {
   loadMarginalPrices,
   loadMarkets,
+  loadProbabilitiesForPredictions,
   buyOutcomes,
   sellOutcomes
 } from "api/markets";
@@ -61,6 +62,7 @@ const enhancer = compose(
   withState("outcomesToBuy", "setOutcomesToBuy", []),
   withState("outcomeTokenBuyAmounts", "setOutcomeTokenBuyAmounts", []),
   withState("selectionPrice", "setSelectionPrice", 0),
+  withState("predictionProbabilities", "setPredictionProbabilities", []),
   withState("validPosition", "setValidPosition", false),
   lifecycle({
     async componentDidMount() {
@@ -140,7 +142,8 @@ const enhancer = compose(
       assumptions,
       markets,
       selectedOutcomes,
-      setMarkets
+      setMarkets,
+      outcomeTokenBuyAmounts
     }) => async () => {
       const assumedOutcomeIndexes = [];
 
@@ -208,7 +211,7 @@ const enhancer = compose(
       const selectionPrice = await sumPricePerShare(outcomePairs);
       await setSelectionPrice(selectionPrice);
     },
-    handleUpdateOutcomeTokenCounts: ({ selectedOutcomes, assumptions, markets, setOutcomeTokenBuyAmounts }) => async (amount) => {
+    handleUpdateOutcomeTokenCounts: ({ selectedOutcomes, assumptions, markets, setPredictionProbabilities, setOutcomeTokenBuyAmounts }) => async (amount) => {
       const amountValid = !isNaN(parseFloat(amount)) && parseFloat(amount) > 0
 
       if (!amountValid) return
@@ -241,6 +244,12 @@ const enhancer = compose(
       const outcomeTokenCounts = await calcOutcomeTokenCounts(outcomePairs, assumedPairs, amount)
       await setOutcomeTokenBuyAmounts(outcomeTokenCounts)
 
+      const newPrices = await loadMarginalPrices(outcomeTokenCounts)
+      const predictionProbabilities = await loadProbabilitiesForPredictions(
+        newPrices,
+      )
+
+      setPredictionProbabilities(predictionProbabilities)
       // console.log("tokens purchase list:")
       // console.log(outcomeTokenCounts)
     },

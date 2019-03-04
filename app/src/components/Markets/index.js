@@ -12,12 +12,14 @@ const Markets = ({
   handleSelectAssumption,
   handleBuyOutcomes,
   sellAmounts,
+  predictionProbabilities,
 }) => (
   <div>
-    {markets.map(market => (
+    {markets.map((market, index) => (
       <Market
         key={market.conditionId}
         {...market}
+        marketIndex={index}
         assumed={assumptions.indexOf(market.conditionId) > -1}
         handleSelectOutcome={handleSelectOutcome}
         selectedOutcome={selectedOutcomes[market.conditionId]}
@@ -27,6 +29,7 @@ const Markets = ({
         handleSellOutcome={handleSellOutcome}
         handleSelectAssumption={handleSelectAssumption}
         handleBuyOutcomes={handleBuyOutcomes}
+        predictionProbabilities={predictionProbabilities}
       />
     ))}
   </div>

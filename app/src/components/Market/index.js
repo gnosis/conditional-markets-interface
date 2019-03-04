@@ -21,9 +21,11 @@ const Market = ({
   disabled,
   handleSelectSell,
   assumed,
+  marketIndex,
   sellAmounts,
   handleSellOutcome,
-  handleSelectAssumption
+  handleSelectAssumption,
+  predictionProbabilities,
 }) => {
   let probabilities = outcomes.map(outcome => outcome.probability);
 
@@ -56,7 +58,7 @@ const Market = ({
         </div>
       </section>
       <section className={cx("outcomes-section")}>
-        <OutcomesBinary outcomes={outcomesWithAssumation} />
+        <OutcomesBinary outcomes={outcomesWithAssumation} predictionProbabilities={predictionProbabilities[marketIndex]} />
       </section>
       <section className={cx("selection-section")}>
         <OutcomeSelection

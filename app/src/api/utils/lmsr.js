@@ -7,26 +7,17 @@ import { loadContract } from "../web3";
  * Calculates the marginal prices in the LMSR contract for a specific outcome. Marginal prices can be used as probabilities.
  *
  * @param {String|Number|BigNumber|Decimal} funding - Funding the LMSR was created with
- * @param {String[]|Number[]|BigNumber[]|Decimal[]} netOutcomeTokensSold - Array of all token positions that the LMSR sold
+ * @param {String[]|Number[]|BigNumber[]|Decimal[]} lmsrTokenBalances - Array of all token balances that the LMSR holds
  * @param {Number} outcomeIndex - Index of the outcome you want to calculate the marginal price for
+ * @returns {Decimal} - marginalPrice of the specified outcomes index
  */
 export const lmsrMarginalPrice = (
   funding,
-  netOutcomeTokensSold,
+  lmsrTokenBalances,
   outcomeIndex
 ) => {
-  const b = new Decimal(funding.toString()).div(
-    Decimal.ln(netOutcomeTokensSold.length)
-  );
-  const numerator = new Decimal(netOutcomeTokensSold[outcomeIndex].toString())
-    .div(b)
-    .exp();
-  const denominator = netOutcomeTokensSold.reduce(
-    (acc, tokensSold) =>
-      acc.add(new Decimal(tokensSold.toString()).div(b).exp()),
-    new Decimal(0)
-  );
-  return numerator.div(denominator).toString();
+  console.log(lmsrTokenBalances, lmsrTokenBalances[outcomeIndex])
+  return new Decimal(lmsrTokenBalances[outcomeIndex].toString()).neg().dividedBy(new Decimal(funding.toString())).exp()
 };
 
 export const lmsrTradeCost = (_funding, balances, outcomeTokenAmounts) => {
