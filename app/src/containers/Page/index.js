@@ -17,7 +17,8 @@ import {
   loadMarkets,
   loadProbabilitiesForPredictions,
   buyOutcomes,
-  sellOutcomes
+  sellOutcomes,
+  loadCollateral,
 } from "api/markets";
 import {
   loadBalances,
@@ -27,8 +28,6 @@ import {
   listOutcomePairsMatchingOutcomeId,
   calcOutcomeTokenCounts
 } from "api/balances";
-
-import { lmsrCalcOutcomeTokenCount } from "api/utils/lmsr";
 
 export const LOADING_STATES = {
   UNKNOWN: "UNKNOWN",
@@ -77,6 +76,7 @@ const enhancer = compose(
   withState("invest", "setInvest"),
   withState("prices", "setPrices", {}),
   withState("balances", "setBalances", {}),
+  withState("collateral", "setCollateral", { symbol: "E", name: "ETH", decimals: 18 }),
   withState("positionIds", "setPositionIds", {}),
   withState("positions", "setPositions", {}),
   withState("outcomesToBuy", "setOutcomesToBuy", []),
@@ -94,6 +94,7 @@ const enhancer = compose(
         setPrices,
         setPositionIds,
         setPositions,
+        setCollateral,
         setBalances
       } = this.props;
       setLoading(LOADING_STATES.LOADING);
@@ -109,6 +110,8 @@ const enhancer = compose(
         await setBalances(balances);
         const positions = await generatePositionList(balances);
         await setPositions(positions);
+        const collateral = await loadCollateral();
+        await setCollateral(collateral);
 
         setLoading(LOADING_STATES.SUCCESS);
       } catch (err) {
@@ -384,6 +387,7 @@ const enhancer = compose(
         await setMarkets(newMarkets);
         const positions = await generatePositionList(balances);
         await setPositions(positions);
+
         await handleUpdateOutcomeTokenCounts(invest || "0");
         setBuyingStatus(false);
       } catch (err) {

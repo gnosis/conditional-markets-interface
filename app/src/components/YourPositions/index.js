@@ -9,13 +9,13 @@ import style from './style.scss'
 
 const cx = cn.bind(style)
 
-const YourPositions = ({ positions, handleSellPosition }) => (
+const YourPositions = ({ positions, handleSellPosition, collateral }) => (
   <div className={cx("your-positions")}>
     <h2>Positions</h2>
     {!positions.length && <em>You don't hold any positions yet.</em>}
     {positions.map((position, index) => (
       <div key={index} className={cx("position")}>
-        <div className={cx("value")}><strong>{formatFromWei(position.value)}</strong>&nbsp;</div>
+        <div className={cx("value")}><strong>{formatFromWei(position.value, collateral.symbol)}</strong>&nbsp;</div>
         <div className={cx("description")}>
           {position.outcomeIds === "" ? (
             position.value > 0 && (

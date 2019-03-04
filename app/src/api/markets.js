@@ -40,16 +40,7 @@ const OUTCOME_COLORS = [
 const SHARE_AMOUNT_NONE = new BN(0);
 
 export const loadProbabilitiesForPredictions = async (atomicOutcomePrices) => {
-  if (!marketOutcomeCounts) {
-    // load contracts
-    const PMSystem = await loadContract("PredictionMarketSystem");
-
-    marketOutcomeCounts = await Promise.all(
-      markets.map(async market =>
-        (await PMSystem.getOutcomeSlotCount(market.conditionId)).toNumber()
-      )
-    );
-  }
+  const marketOutcomeCounts = await loadMarketOutcomeCounts()
 
   const individualProbabilities = getIndividualProbabilities(
     atomicOutcomePrices,
@@ -69,17 +60,7 @@ let marketOutcomeCounts;
 export const loadMarkets = async (atomicOutcomePrices, assumptions = []) => {
   // load hardcoded market entries from config
   const { markets } = await loadConfig();
-
-  if (!marketOutcomeCounts) {
-    // load contracts
-    const PMSystem = await loadContract("PredictionMarketSystem");
-
-    marketOutcomeCounts = await Promise.all(
-      markets.map(async market =>
-        (await PMSystem.getOutcomeSlotCount(market.conditionId)).toNumber()
-      )
-    );
-  }
+  const marketOutcomeCounts = await loadMarketOutcomeCounts()
 
   const individualProbabilities = getIndividualProbabilities(
     atomicOutcomePrices,
@@ -129,6 +110,40 @@ export const loadMarginalPrices = async (tokenOffsets = []) => {
   return atomicOutcomePrices;
 };
 
+export const loadCollateral = async () => {
+  const { collateral } = await loadConfig();
+
+  if (!collateral) {
+    return {
+      symbol: "E",
+      decimals: 18,
+      name: "ETH"
+    }
+  }
+
+  const erc20 = await loadContract("ERC20Detailed", collateral);
+  const [symbol, name, decimals] = await Promise.all([
+    erc20.symbol(),
+    erc20.name(),
+    erc20.decimals(),
+  ])
+  console.log(name)
+  // return altered symbol and description for wrapped eth
+  if (/^w?eth/i.test(symbol)) {
+    return {
+      symbol: "\u039E",
+      decimals: 18,
+      name: "ETH (Wrapped)"
+    }
+  }
+
+  return {
+    symbol,
+    name,
+    decimals: decimals.toNumber()
+  }
+}
+
 export const buyOutcomes = async buyList => {
   // load all outcome prices
   const { lmsr, collateral } = await loadConfig();
@@ -175,15 +190,13 @@ export const sellOutcomes = async (atomicOutcomes, amount) => {
 
     return toBN(0);
   });
-  console.log({ sellList });
-
+  
   // load all outcome prices
   const LMSR = await loadContract("LMSRMarketMaker", lmsr);
   const PMSystem = await loadContract("PredictionMarketSystem");
 
   // get market maker instance
   const cost = await LMSR.calcNetCost.call(sellList);
-  console.log({ cost: cost.toString() });
 
   const defaultAccount = await getDefaultAccount();
 
@@ -197,5 +210,4 @@ export const sellOutcomes = async (atomicOutcomes, amount) => {
     from: defaultAccount,
     gas: 0x6691b7
   });
-  console.log(tx);
 };

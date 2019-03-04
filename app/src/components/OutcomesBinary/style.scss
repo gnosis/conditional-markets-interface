@@ -93,10 +93,31 @@
         opacity: 0.8;
       }
 
+      // shift left/right if we're too close to the edges of the outcome-bar
+      &.shiftLeft {
+        .hint {
+          transform: translate(100%, -100%);
+
+          &::after {
+            left: 5%;
+          }
+        }
+      }
+
+      &.shiftRight {
+        .hint {
+          transform: translate(0%, -100%);
+
+          &::after {
+            left: 95%;
+          }
+        }
+      }
+
       .hint {
         min-width: 170px;
         white-space: nowrap;
-        top: calc(100% + 40px);
+        top: calc(100% + 50px);
         
         &::after {
           top: -7px;
@@ -123,6 +144,8 @@
       border-radius: 4px;
       padding: 8px 6px;
       opacity: 0.8;
+
+      transition: all .2s ease;
 
       .text {
         width: 100%;

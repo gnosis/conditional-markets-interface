@@ -15,12 +15,13 @@ const BuySection = ({
   validPosition,
   outcomeTokenBuyAmounts,
   isBuying,
-  buyError
+  buyError,
+  collateral
 }) => (
   <div className={cx("positions")}>
     <input
       type="text"
-      placeholder="Your Invest in ETH"
+      placeholder={`Your Invest in ${collateral.name}`}
       value={invest}
       onChange={handleSelectInvest}
     />

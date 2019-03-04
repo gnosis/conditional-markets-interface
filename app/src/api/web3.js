@@ -100,7 +100,6 @@ export const getNetwork = async () => {
   }
 };
 
-loadContract("WETH9").then(console.log)
 let loadedConfig;
 export const loadConfig = async () => {
   if (loadedConfig) return loadedConfig;
