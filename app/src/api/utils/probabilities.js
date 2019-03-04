@@ -100,6 +100,11 @@ export const getIndividualProbabilities = (
     new Decimal(0)
   );
 
+  // prevents NaN on empty markets
+  if (assumedOutcomesPriceSum.lte(new Decimal(0))) {
+    return outcomeIdNames.map(marketIds => marketIds.map(() => new Decimal(0.5).toString))
+  }
+
   const individualProbabilities = outcomeIdNames.map((marketIds) =>
     marketIds.map((outcomeId) => {
       const sum = outcomePairNames.reduce((acc, outcomePair, outcomePairIndex) => {

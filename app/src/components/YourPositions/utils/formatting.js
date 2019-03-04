@@ -9,7 +9,7 @@ export const formatFromWei = (inWei) => {
   const dInWei = new Decimal(inWei)
   const dInEthTruncated = dInWei.dividedBy(ONE_ETH).toSignificantDigits(MIN_VAL_DIGITS)
 
-  const inEth = dInEthTruncated.lte(new Decimal(0)) ? `<${MIN_VAL.toFixed(MIN_VAL_DIGITS)}` : `${dInEthTruncated.toPrecision(MIN_VAL_DIGITS)}`
+  const inEth = dInEthTruncated.lte(new Decimal(0)) ? `<${MIN_VAL.toFixed(MIN_VAL_DIGITS)}` : `${dInEthTruncated.toSD(MIN_VAL_DIGITS).toString()}`
 
   return <>{inEth} &Xi;</>
 }
