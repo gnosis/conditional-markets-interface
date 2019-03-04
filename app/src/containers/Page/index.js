@@ -1,6 +1,7 @@
 import React from "react";
 import Page from "components/Page";
-import { findIndex } from "lodash";
+import Spinner from "components/Spinner";
+import { findIndex, find } from "lodash";
 import {
   renderComponent,
   compose,
@@ -24,12 +25,10 @@ import {
   generatePositionList,
   sumPricePerShare,
   listOutcomePairsMatchingOutcomeId,
-  calcOutcomeTokenCounts,
+  calcOutcomeTokenCounts
 } from "api/balances";
 
-import {
-  lmsrCalcOutcomeTokenCount,
-} from "api/utils/lmsr"
+import { lmsrCalcOutcomeTokenCount } from "api/utils/lmsr";
 
 export const LOADING_STATES = {
   UNKNOWN: "UNKNOWN",
@@ -39,7 +38,11 @@ export const LOADING_STATES = {
 };
 
 const marketLoadingFailure = () => <p>Failed to load</p>;
-const marketLoading = () => <p>Loading...</p>;
+const marketLoading = () => (
+  <div style={{ height: "100%", width: "100%" }}>
+    <Spinner centered inverted width={100} height={100} />
+  </div>
+);
 
 const loadingHandler = branch(
   ({ loading }) => loading !== "SUCCESS",
@@ -198,23 +201,30 @@ const enhancer = compose(
       });
 
       // sets which outcome combinations will be bought
-      const outcomePairs = await listOutcomePairsMatchingOutcomeId(outcomeIndexes);
+      const outcomePairs = await listOutcomePairsMatchingOutcomeId(
+        outcomeIndexes
+      );
       await setOutcomesToBuy(outcomePairs);
 
       // sets if the selected position is valid (ie not all positions and not no positions)
       await setValidPosition(
-        outcomePairs.length > 0 && 
-          outcomePairs.length < totalOutcomeIndex + 1
+        outcomePairs.length > 0 && outcomePairs.length < totalOutcomeIndex + 1
       );
 
       // update the price for the selected outcomes the user would buy
       const selectionPrice = await sumPricePerShare(outcomePairs);
       await setSelectionPrice(selectionPrice);
     },
-    handleUpdateOutcomeTokenCounts: ({ selectedOutcomes, assumptions, markets, setPredictionProbabilities, setOutcomeTokenBuyAmounts }) => async (amount) => {
-      const amountValid = !isNaN(parseFloat(amount)) && parseFloat(amount) > 0
+    handleUpdateOutcomeTokenCounts: ({
+      selectedOutcomes,
+      assumptions,
+      markets,
+      setPredictionProbabilities,
+      setOutcomeTokenBuyAmounts
+    }) => async amount => {
+      const amountValid = !isNaN(parseFloat(amount)) && parseFloat(amount) > 0;
 
-      if (!amountValid) return
+      if (!amountValid) return;
 
       const outcomeIndexes = [];
       const assumedIndexes = [];
@@ -223,7 +233,10 @@ const enhancer = compose(
       let totalOutcomeIndex = 0;
       markets.forEach(market => {
         if (selectedOutcomes[market.conditionId] != null) {
-          const selectedOutcome = parseInt(selectedOutcomes[market.conditionId], 10);
+          const selectedOutcome = parseInt(
+            selectedOutcomes[market.conditionId],
+            10
+          );
 
           if (assumptions.includes(market.conditionId)) {
             assumedIndexes.push(totalOutcomeIndex + selectedOutcome);
@@ -237,22 +250,32 @@ const enhancer = compose(
 
       // outcome ids:   Ay, .... By, ... Bn
       // atomic outcomes: AyByCn "outcomePairs"
-      
-      const outcomePairs = await listOutcomePairsMatchingOutcomeId([...outcomeIndexes, ...assumedIndexes]);
-      const assumedPairs = assumedIndexes.length > 0 ? (await listOutcomePairsMatchingOutcomeId(assumedIndexes, true)) : [];
-      
-      const outcomeTokenCounts = await calcOutcomeTokenCounts(outcomePairs, assumedPairs, amount)
-      await setOutcomeTokenBuyAmounts(outcomeTokenCounts)
 
-      const newPrices = await loadMarginalPrices(outcomeTokenCounts)
+      const outcomePairs = await listOutcomePairsMatchingOutcomeId([
+        ...outcomeIndexes,
+        ...assumedIndexes
+      ]);
+      const assumedPairs =
+        assumedIndexes.length > 0
+          ? await listOutcomePairsMatchingOutcomeId(assumedIndexes, true)
+          : [];
+
+      const outcomeTokenCounts = await calcOutcomeTokenCounts(
+        outcomePairs,
+        assumedPairs,
+        amount
+      );
+      await setOutcomeTokenBuyAmounts(outcomeTokenCounts);
+
+      const newPrices = await loadMarginalPrices(outcomeTokenCounts);
       const predictionProbabilities = await loadProbabilitiesForPredictions(
-        newPrices,
-      )
+        newPrices
+      );
 
-      setPredictionProbabilities(predictionProbabilities)
+      setPredictionProbabilities(predictionProbabilities);
       // console.log("tokens purchase list:")
       // console.log(outcomeTokenCounts)
-    },
+    }
   }),
   withHandlers({
     handleSelectAssumption: ({
@@ -262,7 +285,7 @@ const enhancer = compose(
       addAssumption,
       handleUpdateMarkets,
       handleUpdateOutcomeTokenCounts,
-      invest,
+      invest
     }) => async conditionId => {
       if (assumptions.includes(conditionId)) {
         await removeAssumption(conditionId);
@@ -297,9 +320,12 @@ const enhancer = compose(
 
       await handleUpdateAffectedOutcomes();
       await handleUpdateMarkets();
-      await handleUpdateOutcomeTokenCounts(invest) || "0";
+      (await handleUpdateOutcomeTokenCounts(invest)) || "0";
     },
-    handleSelectInvest: ({ setInvest, handleUpdateOutcomeTokenCounts }) => e => {
+    handleSelectInvest: ({
+      setInvest,
+      handleUpdateOutcomeTokenCounts
+    }) => e => {
       const asNum = parseFloat(e.target.value);
 
       const isEmpty = e.target.value === "";
@@ -307,7 +333,7 @@ const enhancer = compose(
 
       setInvest(e.target.value);
 
-      if(!isEmpty && validNum) {
+      if (!isEmpty && validNum) {
         handleUpdateOutcomeTokenCounts(asNum);
       }
     },
@@ -320,7 +346,7 @@ const enhancer = compose(
       setBalances,
       outcomeTokenBuyAmounts,
       invest,
-      handleUpdateOutcomeTokenCounts,
+      handleUpdateOutcomeTokenCounts
     }) => async () => {
       await buyOutcomes(outcomeTokenBuyAmounts);
 
@@ -363,14 +389,12 @@ const enhancer = compose(
       // console.log(markets)
       setMarkets(updatedMarkets);
     },
-    handleSellPositions: ({
-      setMarkets,
-    }) => async (atomicOutcomes, amount) => {
+    handleSellPositions: ({ setMarkets }) => async (atomicOutcomes, amount) => {
       await sellOutcomes(atomicOutcomes, amount);
       const updatedMarkets = await loadMarkets();
       // console.log(markets)
       setMarkets(updatedMarkets);
-    },
+    }
   }),
   loadingHandler
 );
