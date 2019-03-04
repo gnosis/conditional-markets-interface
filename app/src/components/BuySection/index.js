@@ -16,7 +16,8 @@ const BuySection = ({
   outcomeTokenBuyAmounts,
   isBuying,
   buyError,
-  collateral
+  collateral,
+  stagedPositions
 }) => (
   <div className={cx("positions")}>
     <input
@@ -33,6 +34,7 @@ const BuySection = ({
       {isBuying ? <Spinner centered inverted width={25} height={25} /> : "Buy"}
     </button>
     {buyError && <span className={cx("error")}>{buyError === true ? "An error has occured" : buyError}</span>}
+    <pre>{JSON.stringify(stagedPositions)}</pre>
   </div>
 );
 

@@ -83,6 +83,7 @@ const enhancer = compose(
   withState("collateral", "setCollateral", { symbol: "E", name: "ETH", decimals: 18 }),
   withState("positionIds", "setPositionIds", {}),
   withState("positions", "setPositions", {}),
+  withState("stagedPositions", "setStagedPositions", null),
   withState("outcomesToBuy", "setOutcomesToBuy", []),
   withState("outcomeTokenBuyAmounts", "setOutcomeTokenBuyAmounts", []),
   withState("selectionPrice", "setSelectionPrice", 0),
@@ -251,7 +252,8 @@ const enhancer = compose(
       assumptions,
       markets,
       setPredictionProbabilities,
-      setOutcomeTokenBuyAmounts
+      setOutcomeTokenBuyAmounts,
+      setStagedPositions,
     }) => async amount => {
       const amountValid = !isNaN(parseFloat(amount)) && parseFloat(amount) > 0;
 
@@ -306,6 +308,7 @@ const enhancer = compose(
       setPredictionProbabilities(predictionProbabilities);
       // console.log("tokens purchase list:")
       // console.log(outcomeTokenCounts)
+      setStagedPositions(true);
     },
     handleCheckBalance: ({ setBuyError }) => async (invest) => {
       const { collateral } = await loadConfig()

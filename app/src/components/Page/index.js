@@ -24,6 +24,7 @@ function Page({
   selectionPrice,
   validPosition,
   positions,
+  stagedPositions,
   predictionProbabilities,
   buyError,
   isBuying,
@@ -57,6 +58,7 @@ function Page({
           isBuying={isBuying}
           buyError={buyError}
           collateral={collateral}
+          stagedPositions={stagedPositions}
         />
         <YourPositions
           positions={positions}
