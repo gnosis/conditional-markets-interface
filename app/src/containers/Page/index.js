@@ -37,7 +37,18 @@ export const LOADING_STATES = {
   FAILURE: "FAILURE"
 };
 
-const marketLoadingFailure = () => <p>Failed to load</p>;
+const marketLoadingFailure = () => (
+  <div
+    style={{
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      height: "100vh"
+    }}
+  >
+    <h2>Failed to load 😞</h2>
+  </div>
+);
 const marketLoading = () => (
   <div style={{ height: "100%", width: "100%" }}>
     <Spinner centered inverted width={100} height={100} />
