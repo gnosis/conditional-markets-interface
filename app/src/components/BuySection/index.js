@@ -27,12 +27,12 @@ const BuySection = ({
     />
     <button
       type="button"
-      disabled={!validPosition || isBuying}
+      disabled={!validPosition || isBuying || buyError !== false}
       onClick={handleBuyOutcomes}
     >
       {isBuying ? <Spinner centered inverted width={25} height={25} /> : "Buy"}
     </button>
-    {buyError && <span className={cx("error")}>An error has occured</span>}
+    {buyError && <span className={cx("error")}>{buyError === true ? "An error has occured" : buyError}</span>}
   </div>
 );
 

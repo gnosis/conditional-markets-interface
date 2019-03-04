@@ -26,8 +26,12 @@ import {
   generatePositionList,
   sumPricePerShare,
   listOutcomePairsMatchingOutcomeId,
-  calcOutcomeTokenCounts
+  calcOutcomeTokenCounts,
+  generateBuyDetails,
+  getCollateralBalance,
 } from "api/balances";
+import Decimal from "decimal.js";
+import { loadConfig } from "../../api/web3";
 
 export const LOADING_STATES = {
   UNKNOWN: "UNKNOWN",
@@ -204,19 +208,21 @@ const enhancer = compose(
       assumptions
     }) => async () => {
       const outcomeIndexes = [];
+      const assumedIndexes = [];
 
       // transform selectedOutcomes into outcomeIndex array, filtering all assumptions
       let totalOutcomeIndex = 0;
       markets.forEach(market => {
         if (
-          selectedOutcomes[market.conditionId] != null &&
-          !assumptions.includes(market.conditionId)
+          selectedOutcomes[market.conditionId] != null
         ) {
-          const selectedOutcome = parseInt(
-            selectedOutcomes[market.conditionId],
-            10
-          );
-          outcomeIndexes.push(totalOutcomeIndex + selectedOutcome);
+          const selectedOutcome = parseInt(selectedOutcomes[market.conditionId], 10);
+
+          if (assumptions.includes(market.conditionId)) {
+            assumedIndexes.push(totalOutcomeIndex + selectedOutcome)
+          } else {
+            outcomeIndexes.push(totalOutcomeIndex + selectedOutcome);
+          }
         }
 
         totalOutcomeIndex += market.outcomes.length;
@@ -226,12 +232,15 @@ const enhancer = compose(
       const outcomePairs = await listOutcomePairsMatchingOutcomeId(
         outcomeIndexes
       );
+      const assumedPairs = assumedIndexes.length > 0 ? await listOutcomePairsMatchingOutcomeId(assumedIndexes, true) : []
       await setOutcomesToBuy(outcomePairs);
 
       // sets if the selected position is valid (ie not all positions and not no positions)
       await setValidPosition(
         outcomePairs.length > 0 && outcomePairs.length < totalOutcomeIndex + 1
       );
+
+      generateBuyDetails(outcomePairs, assumedPairs)
 
       // update the price for the selected outcomes the user would buy
       const selectionPrice = await sumPricePerShare(outcomePairs);
@@ -297,6 +306,27 @@ const enhancer = compose(
       setPredictionProbabilities(predictionProbabilities);
       // console.log("tokens purchase list:")
       // console.log(outcomeTokenCounts)
+    },
+    handleCheckBalance: ({ setBuyError }) => async (invest) => {
+      const { collateral } = await loadConfig()
+      const collateralProps = await loadCollateral()
+
+      const collateralDecimalDenominator = new Decimal(10).pow(collateralProps.decimals || 18)
+
+      const investWei = (new Decimal(invest)).mul(collateralDecimalDenominator)
+      // only needed for WETH? todo
+      //const gasEstimate = new Decimal(500000).mul(1e10) // 500.000 gas * 10 gwei gasprice as buffer for invest
+
+      const collateralBalance = await getCollateralBalance()
+      const collateralBalanceDecimal = new Decimal(collateralBalance.toString())
+
+      const hasEnough = investWei.lte(collateralBalanceDecimal)
+
+      if (!hasEnough) {
+        setBuyError(`Sorry, you don't have enough balance of ${collateralProps.name}. You're missing ${investWei.sub(collateralBalanceDecimal).dividedBy(collateralDecimalDenominator).toSD(4).toString()} ${collateralProps.symbol}`)
+      } else {
+        setBuyError(false)
+      }
     }
   }),
   withHandlers({
@@ -346,7 +376,8 @@ const enhancer = compose(
     },
     handleSelectInvest: ({
       setInvest,
-      handleUpdateOutcomeTokenCounts
+      handleUpdateOutcomeTokenCounts,
+      handleCheckBalance,
     }) => e => {
       const asNum = parseFloat(e.target.value);
 
@@ -357,6 +388,9 @@ const enhancer = compose(
 
       if (!isEmpty && validNum) {
         handleUpdateOutcomeTokenCounts(asNum);
+      }
+      if (!isEmpty && validNum) {
+        handleCheckBalance(asNum);
       }
     },
     handleBuyOutcomes: ({
