@@ -43,10 +43,16 @@ const marketLoadingFailure = () => (
       display: "flex",
       justifyContent: "center",
       alignItems: "center",
+      flexDirection: "column",
       height: "100vh"
     }}
   >
     <h2>Failed to load 😞</h2>
+    <h3>Please check the following:</h3>
+    <ul>
+      <li>Connect to correct network (Rinkeby or Mainnet)</li>
+      <li>Install/Unlock Metamask</li>
+    </ul>
   </div>
 );
 const marketLoading = () => (
@@ -60,7 +66,7 @@ const loadingHandler = branch(
   branch(
     ({ loading }) => loading === "FAILURE",
     renderComponent(marketLoadingFailure),
-    renderComponent(marketLoading)
+    renderComponent(marketLoadingFailure)
   )
 );
 
