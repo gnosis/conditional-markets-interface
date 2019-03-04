@@ -102,7 +102,7 @@ export const getIndividualProbabilities = (
 
   // prevents NaN on empty markets
   if (assumedOutcomesPriceSum.lte(new Decimal(0))) {
-    return outcomeIdNames.map(marketIds => marketIds.map(() => new Decimal(0.5).toString()))
+    return outcomeIdNames.map(marketIds => marketIds.map(() => 0.5))
   }
 
   const individualProbabilities = outcomeIdNames.map((marketIds) =>
