@@ -23,7 +23,7 @@ const OutcomesBinary = ({
           <span className={cx("text")}>{(probability * 100).toFixed(2)}%</span>
         </div>
       </div>
-      <div className={cx("prediction", { "inverted": predictionProbability < probability})}
+      {predictionProbability != null && predictionProbability != probability && <div className={cx("prediction", { "inverted": predictionProbability < probability})}
         style={{
           backgroundColor: color,
           borderColor: color,
@@ -36,7 +36,7 @@ const OutcomesBinary = ({
       {predictionProbability != null && predictionProbability != probability && <div className={cx("hint")}>
         <span className={cx("text")}><small>PREDICTED CHANGE</small> {((predictionProbability - probability) * 100).toFixed(2)}%</span>
       </div>}
-      </div>
+      </div>}
     </div>
   </div>
 );

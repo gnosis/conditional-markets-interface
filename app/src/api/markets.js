@@ -131,7 +131,7 @@ export const loadMarginalPrices = async (tokenOffsets = []) => {
 
 export const buyOutcomes = async buyList => {
   // load all outcome prices
-  const { lmsr } = await loadConfig();
+  const { lmsr, collateral } = await loadConfig();
   const LMSR = await loadContract("LMSRMarketMaker", lmsr);
   // get market maker instance
   // console.log("buy: ", buyList)
@@ -142,9 +142,10 @@ export const buyOutcomes = async buyList => {
   const prev = new Decimal(await getAccountBalance());
 
   // get collateral
-  const WETH = await loadContract("WETH9");
-  await WETH.deposit({ value: cost, from: defaultAccount });
-  await WETH.approve(LMSR.address, cost, { from: defaultAccount });
+  const Collateral = await loadContract("ERC20Detailed", collateral);
+
+  //await Collateral.deposit({ value: cost, from: defaultAccount });
+  await Collateral.approve(LMSR.address, cost, { from: defaultAccount });
 
   // run trade
   const tx = await LMSR.trade(buyList, cost, { from: defaultAccount });

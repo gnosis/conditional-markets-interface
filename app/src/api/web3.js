@@ -9,7 +9,6 @@ if (process.env.NODE_ENV === "development") {
   // console.log('Using ganache because "NODE_ENV" is in development mode.');
   provider = new Web3("http://localhost:8545");
   isLocal = true;
-  
   window.web3Instance = provider
 } else {
   provider = new Web3(window.web3.currentProvider);
@@ -101,6 +100,7 @@ export const getNetwork = async () => {
   }
 };
 
+loadContract("WETH9").then(console.log)
 let loadedConfig;
 export const loadConfig = async () => {
   if (loadedConfig) return loadedConfig;
