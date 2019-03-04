@@ -1,4 +1,6 @@
 .positions {
+  position: relative;
+
   input,
   button {
     width: 100%;
@@ -11,5 +13,13 @@
   button {
     min-height: 36px;
     position: relative;
+  }
+
+  .error {
+    color: red;
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
   }
 }

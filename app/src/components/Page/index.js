@@ -25,6 +25,7 @@ function Page({
   validPosition,
   positions,
   predictionProbabilities,
+  buyError,
   isBuying
 }) {
   return (
@@ -53,6 +54,7 @@ function Page({
           outcomeTokenBuyAmounts={outcomeTokenBuyAmounts}
           validPosition={validPosition}
           isBuying={isBuying}
+          buyError={buyError}
         />
         <YourPositions
           positions={positions}

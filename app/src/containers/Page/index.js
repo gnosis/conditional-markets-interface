@@ -68,6 +68,7 @@ const enhancer = compose(
   withState("predictionProbabilities", "setPredictionProbabilities", []),
   withState("validPosition", "setValidPosition", false),
   withState("isBuying", "setBuyingStatus", false),
+  withState("buyError", "setBuyError", ""),
   lifecycle({
     async componentDidMount() {
       const {
@@ -348,23 +349,30 @@ const enhancer = compose(
       outcomeTokenBuyAmounts,
       invest,
       setBuyingStatus,
+      setBuyError,
       handleUpdateOutcomeTokenCounts
     }) => async () => {
       setBuyingStatus(true);
-      await buyOutcomes(outcomeTokenBuyAmounts);
+      setBuyError("");
+      try {
+        await buyOutcomes(outcomeTokenBuyAmounts);
 
-      const newPrices = await loadMarginalPrices();
-      await setPrices(newPrices);
-      const positionIds = await loadPositions();
-      await setPositionIds(positionIds);
-      const balances = await loadBalances(positionIds);
-      await setBalances(balances);
-      const newMarkets = await loadMarkets(newPrices);
-      await setMarkets(newMarkets);
-      const positions = await generatePositionList(balances);
-      await setPositions(positions);
-      await handleUpdateOutcomeTokenCounts(invest || "0");
-      setBuyingStatus(false);
+        const newPrices = await loadMarginalPrices();
+        await setPrices(newPrices);
+        const positionIds = await loadPositions();
+        await setPositionIds(positionIds);
+        const balances = await loadBalances(positionIds);
+        await setBalances(balances);
+        const newMarkets = await loadMarkets(newPrices);
+        await setMarkets(newMarkets);
+        const positions = await generatePositionList(balances);
+        await setPositions(positions);
+        await handleUpdateOutcomeTokenCounts(invest || "0");
+        setBuyingStatus(false);
+      } catch (err) {
+        setBuyError(err.message);
+        setBuyingStatus(false);
+      }
     },
     handleSellOutcomes: ({
       markets,

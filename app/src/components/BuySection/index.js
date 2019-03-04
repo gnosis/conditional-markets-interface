@@ -14,7 +14,8 @@ const BuySection = ({
   selectionPrice,
   validPosition,
   outcomeTokenBuyAmounts,
-  isBuying
+  isBuying,
+  buyError
 }) => (
   <div className={cx("positions")}>
     <input
@@ -28,8 +29,9 @@ const BuySection = ({
       disabled={!validPosition || isBuying}
       onClick={handleBuyOutcomes}
     >
-      {true ? <Spinner centered inverted width={25} height={25} /> : "Buy"}
+      {isBuying ? <Spinner centered inverted width={25} height={25} /> : "Buy"}
     </button>
+    {buyError && <span className={cx("error")}>An error has occured</span>}
   </div>
 );
 
@@ -37,7 +39,8 @@ BuySection.defaultProps = {
   invest: "",
   selectionPrice: 0,
   outcomeTokenBuyAmounts: [],
-  isBuying: false
+  isBuying: false,
+  buyError: ""
 };
 
 export default BuySection;
