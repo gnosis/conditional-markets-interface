@@ -1,9 +1,15 @@
 .positions {
-  input, button {
+  input,
+  button {
     width: 100%;
   }
-  
+
   input {
     height: 30px;
+  }
+
+  button {
+    min-height: 36px;
+    position: relative;
   }
 }

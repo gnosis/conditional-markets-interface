@@ -67,6 +67,7 @@ const enhancer = compose(
   withState("selectionPrice", "setSelectionPrice", 0),
   withState("predictionProbabilities", "setPredictionProbabilities", []),
   withState("validPosition", "setValidPosition", false),
+  withState("isBuying", "setBuyingStatus", false),
   lifecycle({
     async componentDidMount() {
       const {
@@ -346,8 +347,10 @@ const enhancer = compose(
       setBalances,
       outcomeTokenBuyAmounts,
       invest,
+      setBuyingStatus,
       handleUpdateOutcomeTokenCounts
     }) => async () => {
+      setBuyingStatus(true);
       await buyOutcomes(outcomeTokenBuyAmounts);
 
       const newPrices = await loadMarginalPrices();
@@ -361,6 +364,7 @@ const enhancer = compose(
       const positions = await generatePositionList(balances);
       await setPositions(positions);
       await handleUpdateOutcomeTokenCounts(invest || "0");
+      setBuyingStatus(false);
     },
     handleSellOutcomes: ({
       markets,

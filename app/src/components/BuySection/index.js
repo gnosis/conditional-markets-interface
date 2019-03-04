@@ -1,13 +1,22 @@
-import React from 'react'
-import classnames from 'classnames/bind'
-import Decimal from 'decimal.js'
+import React from "react";
+import classnames from "classnames/bind";
+import Decimal from "decimal.js";
+import Spinner from "components/Spinner";
 
-import style from './style.scss'
+import style from "./style.scss";
 
-const cx = classnames.bind(style)
+const cx = classnames.bind(style);
 
-const BuySection = ({ handleBuyOutcomes, handleSelectInvest, invest, selectionPrice, validPosition, outcomeTokenBuyAmounts }) => (
-  <div className={cx('positions')}>
+const BuySection = ({
+  handleBuyOutcomes,
+  handleSelectInvest,
+  invest,
+  selectionPrice,
+  validPosition,
+  outcomeTokenBuyAmounts,
+  isBuying
+}) => (
+  <div className={cx("positions")}>
     <input
       type="text"
       placeholder="Your Invest in ETH"
@@ -16,18 +25,19 @@ const BuySection = ({ handleBuyOutcomes, handleSelectInvest, invest, selectionPr
     />
     <button
       type="button"
-      disabled={!validPosition}
+      disabled={!validPosition || isBuying}
       onClick={handleBuyOutcomes}
     >
-      Buy
+      {true ? <Spinner centered inverted width={25} height={25} /> : "Buy"}
     </button>
   </div>
-)
+);
 
 BuySection.defaultProps = {
-  invest: '',
+  invest: "",
   selectionPrice: 0,
-  outcomeTokenBuyAmounts: []
-}
+  outcomeTokenBuyAmounts: [],
+  isBuying: false
+};
 
-export default BuySection
+export default BuySection;

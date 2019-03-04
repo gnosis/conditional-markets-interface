@@ -6,7 +6,6 @@ import Markets from "../Markets";
 import BuySection from "../BuySection";
 import YourPositions from "../YourPositions";
 
-
 import cn from "classnames/bind";
 const cx = cn.bind(css);
 
@@ -26,6 +25,7 @@ function Page({
   validPosition,
   positions,
   predictionProbabilities,
+  isBuying
 }) {
   return (
     <div className={cx("page")}>
@@ -52,6 +52,7 @@ function Page({
           selectionPrice={selectionPrice}
           outcomeTokenBuyAmounts={outcomeTokenBuyAmounts}
           validPosition={validPosition}
+          isBuying={isBuying}
         />
         <YourPositions
           positions={positions}
