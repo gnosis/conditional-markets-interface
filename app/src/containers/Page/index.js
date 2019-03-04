@@ -66,7 +66,7 @@ const loadingHandler = branch(
   branch(
     ({ loading }) => loading === "FAILURE",
     renderComponent(marketLoadingFailure),
-    renderComponent(marketLoadingFailure)
+    renderComponent(marketLoading)
   )
 );
 
