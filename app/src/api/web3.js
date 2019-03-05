@@ -36,12 +36,12 @@ export const loadContract = async (contractName, address) => {
     let instance;
     if (address) {
       instance = await contract.at(address);
-      // console.log(`Loading ${contractName}@${address}`);
-      // console.log(instance);
+      console.log(`Loading ${contractName}@${address}`);
+      console.log(instance);
     } else {
       instance = await contract.deployed();
-      // console.log(`Loading ${contractName}@deployed`);
-      // console.log(instance);
+      console.log(`Loading ${contractName}@deployed`);
+      console.log(instance);
     }
 
     contracts[path] = instance;
@@ -107,7 +107,7 @@ export const loadConfig = async () => {
   const network = await getNetwork();
 
   if (config[network]) {
-    // console.log(`Loading configuration for network ${network}`);
+    console.log(`Loading configuration for network ${network}`);
     loadedConfig = config[network];
     return loadedConfig;
   }
