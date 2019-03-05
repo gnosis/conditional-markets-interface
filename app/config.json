@@ -58,6 +58,7 @@
   },
   "RINKEBY": {
     "lmsr": "0x7f686a74876245d5ecb9c278e9c6316686c50e6e",
+    "collateral": "0xD9204409d2d01f9CA4092B30BA8290A60d0EE0a5",
     "markets": [
       {
         "conditionId": "0x60978227adc1b801c7f47794629b41bd9bc0d6e2cb186bbcbbf46fcb06a29c81",
