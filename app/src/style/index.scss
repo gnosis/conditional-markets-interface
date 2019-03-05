@@ -8,10 +8,15 @@ $button-color-primary: #00a6c6;
     color: white;
   }
 
+  input {
+    box-sizing: border-box;
+  }
+
   button {
     background-color: #00a6c6;
     color: white;
     max-width: none;
+    box-sizing: border-box;
 
     // [disabled] or disabled class
     &:disabled, &.disabled {

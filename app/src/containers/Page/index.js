@@ -29,9 +29,11 @@ import {
   calcOutcomeTokenCounts,
   generateBuyDetails,
   getCollateralBalance,
+  calcProfitForSale,
 } from "api/balances";
 import Decimal from "decimal.js";
 import { loadConfig } from "../../api/web3";
+import { lmsrNetCost } from "../../api/utils/lmsr";
 
 export const LOADING_STATES = {
   UNKNOWN: "UNKNOWN",
@@ -90,6 +92,9 @@ const enhancer = compose(
   withState("validPosition", "setValidPosition", false),
   withState("isBuying", "setBuyingStatus", false),
   withState("buyError", "setBuyError", ""),
+  withState("selectedSell", "setSelectedSellPosition"),
+  withState("selectedSellAmount", "setSelectedSellAmount", ""),
+  withState("predictedSellProfit", "setPredictedSellProfit"),
   lifecycle({
     async componentDidMount() {
       const {
@@ -327,6 +332,21 @@ const enhancer = compose(
       } else {
         setBuyError(false)
       }
+    },
+    handleUpdateSellProfit: ({ positions, selectedSellAmount, setPredictedSellProfit }) => async (positionOutcomeGrouping) => {
+      const asNum = parseFloat(selectedSellAmount);
+
+      const isEmpty = selectedSellAmount === "";
+      const validNum = !isNaN(asNum) && isFinite(asNum) && asNum > 0;
+      if (isEmpty || !validNum) return
+
+      const targetPosition = find(positions, {outcomeIds: positionOutcomeGrouping})
+      console.log(positionOutcomeGrouping, targetPosition)
+      const sellAmountDecimal = new Decimal(selectedSellAmount).mul(new Decimal(10).pow(18)).floor()
+      if (targetPosition && targetPosition.outcomes.length > 0) {
+        const estimatedProfit = await calcProfitForSale(targetPosition.outcomes.map((positionOutcomeIds) => [positionOutcomeIds, sellAmountDecimal.toString()]))
+        setPredictedSellProfit(estimatedProfit)
+      }
     }
   }),
   withHandlers({
@@ -392,6 +412,33 @@ const enhancer = compose(
       if (!isEmpty && validNum) {
         handleCheckBalance(asNum);
       }
+    },
+    handleSelectSell: ({ setSelectedSellPosition, setSelectedSellAmount, selectedSell, handleUpdateSellProfit, setPredictedSellProfit }) => (positionOutcomeGrouping) => {
+      setSelectedSellAmount() // reset selected sell
+      setPredictedSellProfit()
+      setSelectedSellPosition(positionOutcomeGrouping === selectedSell ? undefined : positionOutcomeGrouping)
+      handleUpdateSellProfit(positionOutcomeGrouping)
+    },
+    handleSelectSellAmount: ({
+      setSelectedSellAmount,
+      selectedSell,
+      handleUpdateSellProfit,
+    }) => async (e) => {
+      if (typeof e !== "string") {
+        const asNum = parseFloat(e.target.value);
+        const isEmpty = e.target.value === "";
+        const validNum = !isNaN(asNum) && isFinite(asNum) && asNum > 0;
+        console.log(selectedSell)
+
+        await setSelectedSellAmount(e.target.value);
+        if (!isEmpty && validNum) {
+          handleUpdateSellProfit(selectedSell)
+        }
+      } else {
+        await setSelectedSellAmount(e);
+        handleUpdateSellProfit(selectedSell)
+      }
+
     },
     handleBuyOutcomes: ({
       markets,
@@ -474,6 +521,9 @@ const enhancer = compose(
       setPositionIds,
       setBalances,
       setPositions,
+      setSelectedSellAmount,
+      setPredictedSellProfit,
+      setSelectedSellPosition,
     }) => async (atomicOutcomes, amount) => {
       await sellOutcomes(atomicOutcomes, amount);
       const prices = await loadMarginalPrices();
@@ -489,6 +539,11 @@ const enhancer = compose(
 
       const positions = await generatePositionList(balances);
       await setPositions(positions);
+
+      // reset sell menu
+      setSelectedSellAmount() // reset selected sell
+      setSelectedSellPosition()
+      setPredictedSellProfit()
     }
   }),
   loadingHandler

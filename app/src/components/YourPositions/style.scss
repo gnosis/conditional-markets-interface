@@ -1,9 +1,15 @@
+@import "~style/vars.scss";
+
 .your-positions {
   .position {
     margin-bottom: 5px;
+    line-height: 1.5;
+  }
 
+  .details {
+  
     display: flex;
-
+  
     .value {
       white-space: nowrap;
     }
@@ -17,9 +23,55 @@
     .controls {
       flex-basis: 10%;
 
+    }
+  }
+
+  .error {
+    color: red;
+  }
+  
+  .sell {
+    position: relative;
+    background-color: $background-muted;
+    padding: 1px 10px 20px 10px;
+    margin-top: 15px;
+
+    .controls {
+      display: flex;
+      width: 100%;
+
+      input {
+        flex-grow: 10;
+      }
+
       button {
-        margin: 0;
+        flex-basis: 10%;
       }
     }
+
+    &::after {
+      position: absolute;
+      top: -9px;
+      content: '';
+      left: 50%;
+      margin-left: -16px;
+
+      width: 0;
+      height: 0;
+      transform: rotate(360deg);
+      -webkit-transform: rotate(360deg);
+
+      border-style: inset;
+      border-style: solid;
+      border-width: 0px 16px 10px 16px;
+      border-color: $background-muted;
+      border-left-color: transparent;
+      border-right-color: transparent;
+      border-top-color: transparent;
+    }
+  }
+
+  button {
+    margin: 0;
   }
 }

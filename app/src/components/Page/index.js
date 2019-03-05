@@ -28,6 +28,11 @@ function Page({
   buyError,
   isBuying,
   collateral,
+  selectedSell,
+  handleSelectSell,
+  handleSelectSellAmount,
+  selectedSellAmount,
+  predictedSellProfit,
 }) {
   return (
     <div className={cx("page")}>
@@ -62,6 +67,11 @@ function Page({
           positions={positions}
           handleSellPosition={handleSellPositions}
           collateral={collateral}
+          handleSelectSell={handleSelectSell}
+          handleSelectSellAmount={handleSelectSellAmount}
+          selectedSellAmount={selectedSellAmount}
+          selectedSell={selectedSell}
+          predictedSellProfit={predictedSellProfit}
         />
       </section>
     </div>

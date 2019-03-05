@@ -1,10 +1,11 @@
-import { sortBy } from "lodash"
+import { sortBy, findIndex } from "lodash"
 
 import { getDefaultAccount, loadContract, loadConfig } from "./web3";
 import { generatePositionId, generatePositionIdList } from "./utils/positions";
 import { nameMarketOutcomes, nameOutcomePairs, listAffectedMarketsForOutcomeIds } from "./utils/probabilities";
-import { lmsrTradeCost, lmsrCalcOutcomeTokenCount } from "./utils/lmsr";
+import { lmsrTradeCost, lmsrCalcOutcomeTokenCount, lmsrNetCost } from "./utils/lmsr";
 import { resolvePositionGrouping } from "./utils/positionGrouping";
+import Decimal from "decimal.js";
 
 export const loadPositions = async () => {
   const { lmsr, markets } = await loadConfig();
@@ -109,6 +110,29 @@ export const generatePositionList = async (balances) => {
   );
 };
 
+export const calcProfitForSale = async (sellAmounts) => {
+  const marketOutcomeCounts = await loadMarketOutcomeCounts();
+  const outcomeIdNames = nameMarketOutcomes(marketOutcomeCounts);
+  const outcomePairNames = nameOutcomePairs(outcomeIdNames);
+
+  const simulatedSellAmounts = outcomePairNames.map(_ => "0")
+
+  sellAmounts.forEach(([atomicOutcome, amount]) => {
+    const pairNameListIndex = outcomePairNames.indexOf(atomicOutcome)
+    simulatedSellAmounts[pairNameListIndex] = `-${amount}`
+  })
+
+  const { lmsr } = await loadConfig()
+  const LMSR = await loadContract("LMSRMarketMaker", lmsr)
+
+  const funding = (await LMSR.funding()).toString()
+  const lmsrTokenBalances = await loadLmsrTokenBalances(lmsr)
+  console.log(funding, simulatedSellAmounts, lmsrTokenBalances)
+  const predictedProfit = lmsrTradeCost(funding, lmsrTokenBalances, simulatedSellAmounts)
+
+  return predictedProfit.neg().mul(new Decimal(10).pow(18)).toString()
+}
+
 export const getCollateralBalance = async () => {
   const { collateral } = await loadConfig()
   const collateralContract = await loadContract("ERC20Detailed", collateral)
@@ -119,6 +143,7 @@ export const getCollateralBalance = async () => {
 
   return amount
 }
+window.getCollateralBalance = getCollateralBalance
 
 export const generateBuyDetails = async (outcomePairs, assumedPairs) => {
   const marketOutcomeCounts = await loadMarketOutcomeCounts();
