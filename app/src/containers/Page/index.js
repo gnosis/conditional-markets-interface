@@ -341,7 +341,6 @@ const enhancer = compose(
       if (isEmpty || !validNum) return
 
       const targetPosition = find(positions, {outcomeIds: positionOutcomeGrouping})
-      console.log(positionOutcomeGrouping, targetPosition)
       const sellAmountDecimal = new Decimal(selectedSellAmount).mul(new Decimal(10).pow(18)).floor()
       if (targetPosition && targetPosition.outcomes.length > 0) {
         const estimatedProfit = await calcProfitForSale(targetPosition.outcomes.map((positionOutcomeIds) => [positionOutcomeIds, sellAmountDecimal.toString()]))
@@ -428,7 +427,6 @@ const enhancer = compose(
         const asNum = parseFloat(e.target.value);
         const isEmpty = e.target.value === "";
         const validNum = !isNaN(asNum) && isFinite(asNum) && asNum > 0;
-        console.log(selectedSell)
 
         await setSelectedSellAmount(e.target.value);
         if (!isEmpty && validNum) {
