@@ -7,6 +7,7 @@ import '@gnosis.pm/hg-market-makers/contracts/LMSRMarketMaker.sol';
 import '@gnosis.pm/hg-market-makers/contracts/LMSRMarketMakerFactory.sol';
 import 'canonical-weth/contracts/WETH9.sol';
 import 'openzeppelin-solidity/contracts/token/ERC20/ERC20Detailed.sol';
+import 'openzeppelin-solidity/contracts/token/ERC20/IERC20.sol';
 
 contract CoolAppDependencies { 
 }
