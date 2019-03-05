@@ -128,7 +128,9 @@ export const calcProfitForSale = async (sellAmounts) => {
   const funding = (await LMSR.funding()).toString()
   const lmsrTokenBalances = await loadLmsrTokenBalances(lmsr)
   //console.log(funding, simulatedSellAmounts, lmsrTokenBalances)
-  const predictedProfit = lmsrTradeCost(funding, lmsrTokenBalances, simulatedSellAmounts)
+
+  return new Decimal((await LMSR.calcNetCost.call(simulatedSellAmounts)).toString()).neg()
+  //const predictedProfit = lmsrNetCost(funding, simulatedSellAmounts, lmsrTokenBalances)
 
   return predictedProfit.neg().mul(new Decimal(10).pow(18)).toString()
 }
