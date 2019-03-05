@@ -1,7 +1,7 @@
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 const publicPath =
-  process.env.NODE_ENV === "production"
+  process.env.NODE_ENV === "productionnnnnnnn"
     ? "/hg-first-decentralized-market/"
     : "/";
 
