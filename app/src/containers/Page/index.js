@@ -561,6 +561,7 @@ const enhancer = compose(
         const allowance = await loadAllowance()
         await setAllowanceAvailable(allowance)
       } catch (err) {
+        console.error(err)
         await setBuyError("Could not set allowance. Please try again")
       } finally {
         await setBuyingStatus(false)
