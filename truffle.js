@@ -31,7 +31,7 @@ const config = {
       network_id: "4"
     },
     mainnet: {
-      provider: () => new HDWalletProvider(seed, "http://node-green.mainnet.gnosis.pm"),
+      provider: () => new HDWalletProvider(seed, "https://node-green.mainnet.gnosis.pm"),
       network_id: "1"
     }
   },

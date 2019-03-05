@@ -266,9 +266,9 @@ module.exports = (deployer, network, accounts) => {
         LMSRMarketMakerFactory
       );
 
-      const QUESTIONID1 = process.env.O1QUESTIONID || "0x01000003"
-      const QUESTIONID2 = process.env.O2QUESTIONID || "0x02000003"
-      const QUESTIONID3 = process.env.O3QUESTIONID || "0x03000003"
+      const QUESTIONID1 = process.env.O1QUESTIONID || "0x04"
+      const QUESTIONID2 = process.env.O2QUESTIONID || "0x05"
+      const QUESTIONID3 = process.env.O3QUESTIONID || "0x06"
       // Deploy the Oracle contracts
       /*
       const difficultyOracleInstance = await deployer.deploy(
