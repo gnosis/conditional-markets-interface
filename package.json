@@ -1,13 +1,13 @@
 {
-  "name": "decentralized-oracle",
-  "version": "0.0.1",
-  "description": "A decentralized oracle for the price of Ether, Hashrate, and Block gas limit.",
+  "name": "hg-first-decentralized-market",
+  "version": "0.5.0",
+  "description": "PM 2.0 Experiments Showcase/Alpha Development",
   "main": "truffle-config.js",
   "directories": {
     "test": "test"
   },
   "scripts": {
-    "migrate": "truffle compile --all && truffle migrate --reset",
+    "migrate": "truffle compile --all && truffle migrate",
     "test": "truffle test --network test",
     "test-app": "jest",
     "start": "cd ./app && webpack-dev-server --config ./webpack.config.js --mode development",
@@ -43,7 +43,7 @@
     "web3": "^1.0.0-beta.37",
     "websocket": "^1.0.28"
   },
-  "author": "Anton Shtylman",
+  "author": "Gnosis",
   "license": "MIT",
   "devDependencies": {
     "@babel/cli": "^7.2.3",
