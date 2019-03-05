@@ -114,7 +114,7 @@
     ]
   },
   "MAINNET": {
-    "lmsr": "0xcd42e8850783e3eb1456c88dfccb5aadeed41e48",
+    "lmsr": "0x06c8471d793aF0b5AaB468F199361f680249B38a",
     "collateral": "0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359",
     "markets": [
       {
