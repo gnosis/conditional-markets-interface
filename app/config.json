@@ -57,10 +57,10 @@
     ]
   },
   "RINKEBY": {
-    "lmsr": "0xE4ed21b76426356908E512eBC6E8bdf49Ff31D25",
+    "lmsr": "0x7f686a74876245d5ecb9c278e9c6316686c50e6e",
     "markets": [
       {
-        "conditionId": "0xe4c75155105d2d0da4a3238df4eac27e66503ecfaffe66c094750c0647441fdb",
+        "conditionId": "0x60978227adc1b801c7f47794629b41bd9bc0d6e2cb186bbcbbf46fcb06a29c81",
         "title": "Will the DAI/ETH auction take more than 6 hours?",
         "when": "the DAI/ETH auction will take more than 6 hours",
         "whenNot": "the DAI/ETH auction will take less than 6 hours",
@@ -77,7 +77,7 @@
         ]
       },
       {
-        "conditionId": "0x8f64389f2a561704cd8057eea3e82d2e9019c81ded6f0cb4f063d16de345e9c1",
+        "conditionId": "0x07cc0a144d6237a84d390ea6e2e0345d890a03cbf71e72df29921c1de4569f8f",
         "title": "Will DAI sell for ETH price lower than 1% below coinmarketcap.com at closing time?",
         "when": "DAI will sell for ETH price lower than 1%",
         "whenNot": "DAI will sell for ETH price higher than 1%",
@@ -94,7 +94,7 @@
         ]
       },
       {
-        "conditionId": "0xf3f1fce2265c3634c051cdfb95d45e77427a5dc7397dec9c5659a0b40a8018a0",
+        "conditionId": "0xbd53f100c1746d69df6b78e9ed2d79f807ad4417ceae1d81775b503077834946",
         "title": "Will DAI supply increase from today (89,499,267 DAI) until 05.03.2019 8pm UTC?",
         "when": "DAI supply will increase",
         "whenNot": "DAI supply will not increase",
