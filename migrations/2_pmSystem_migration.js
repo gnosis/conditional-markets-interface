@@ -11,6 +11,7 @@ const Fixed192x64Math = artifacts.require("Fixed192x64Math");
 const WETH9 = artifacts.require("WETH9");
 
 const initialNonce = 0x01;
+const defaultAMMFunding = (1e19).toString();
 
 module.exports = (deployer, network, accounts) => {
   if (network === "development" || network === "test") {
@@ -103,11 +104,11 @@ module.exports = (deployer, network, accounts) => {
       // Deposit the CollateralTokens necessary and approve() the pre-deployed LMSR instance
       await collateralToken.deposit({
         from: accounts[0],
-        value: process.env.AMMFUNDING || 1e12
+        value: process.env.AMMFUNDING || defaultAMMFunding
       });
       await collateralToken.approve(
         checksummedLMSRAddress,
-        process.env.AMMFUNDING || 1e12,
+        process.env.AMMFUNDING || defaultAMMFunding,
         { from: accounts[0] }
       );
       // Deploy the pre-calculated LMSR instance
@@ -116,17 +117,19 @@ module.exports = (deployer, network, accounts) => {
         collateralToken.address,
         [conditionOneId, conditionTwoId, conditionThreeId],
         0,
-        process.env.AMMFUNDING || 1e12,
+        process.env.AMMFUNDING || defaultAMMFunding,
         { from: accounts[0] }
       );
     });
   } else if (network === "rinkeby" || network === "mainnet") {
+    /*
     let medianizerAddr;
     if (network === "rinkeby") {
       medianizerAddr = "0xbfFf80B73F081Cc159534d922712551C5Ed8B3D3";
     } else if (network === "mainnet") {
       medianizerAddr = "0x729D19f657BD0614b4985Cf1D82531c67569197B";
     }
+    */
 
     deployer.deploy(PredictionMarketSystem).then(async pmSystemInstance => {
       // Deploy the base contracts
@@ -226,11 +229,11 @@ module.exports = (deployer, network, accounts) => {
       // Deposit the CollateralTokens necessary and approve() the pre-deployed LMSR instance
       await collateralToken.deposit({
         from: accounts[0],
-        value: process.env.AMMFUNDING || 1e12
+        value: process.env.AMMFUNDING || defaultAMMFunding
       });
       await collateralToken.approve(
         checksummedLMSRAddress,
-        process.env.AMMFUNDING || 1e12,
+        process.env.AMMFUNDING || defaultAMMFunding,
         { from: accounts[0] }
       );
       // Deploy the pre-calculated LMSR instance
@@ -239,7 +242,7 @@ module.exports = (deployer, network, accounts) => {
         collateralToken.address,
         [conditionOneId, conditionTwoId, conditionThreeId],
         0,
-        process.env.AMMFUNDING || 1e12,
+        process.env.AMMFUNDING || defaultAMMFunding,
         { from: accounts[0] }
       );
     });

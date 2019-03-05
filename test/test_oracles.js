@@ -100,8 +100,6 @@ contract("Oracles", function(accounts) {
     });
 
     it("The LMSR should have the correct amount of tokens at the specified positions", async () => {
-
-
         assert.equal(await pmSystem.balanceOf(lmsrInstance.address, positionId1), process.env.AMMFUNDING);    
         assert.equal(await pmSystem.balanceOf(lmsrInstance.address, positionId2), process.env.AMMFUNDING);    
         assert.equal(await pmSystem.balanceOf(lmsrInstance.address, positionId3), process.env.AMMFUNDING);    
@@ -112,13 +110,24 @@ contract("Oracles", function(accounts) {
         // Users should buy one of the AMMs positions.
         await collateralToken.deposit({ from: accounts[9], value: toBN(1e18) });
         await collateralToken.approve(lmsrInstance.address, toBN(1e18), { from: accounts[9] });
-        await lmsrInstance.trade([1e9, 0, 1e9, 0], toBN(1e18), { from: accounts[9]});
 
-        assert.equal(await pmSystem.balanceOf(accounts[9], positionId1), 0);
+        await lmsrInstance.trade([1e9, 1e9, 1e9, 1e9], 0, { from: accounts[9]});
+
+        assert.equal(await pmSystem.balanceOf(accounts[9], positionId1), 1e9);
         assert.equal(await pmSystem.balanceOf(accounts[9], positionId2), 1e9);
-        assert.equal(await pmSystem.balanceOf(accounts[9], positionId3), 0);
+        assert.equal(await pmSystem.balanceOf(accounts[9], positionId3), 1e9);
         assert.equal(await pmSystem.balanceOf(accounts[9], positionId4), 1e9);
     });
+
+    it("Users should be able to make complex buy / sell orders", async () => {
+        await pmSystem.setApprovalForAll(lmsrInstance.address, true, { from: accounts[9] });
+        await lmsrInstance.trade([-1e9, -1e9, -1e9, -1e9], toBN(1e18), { from: accounts[9]});
+
+        assert.equal(await pmSystem.balanceOf(accounts[9], positionId1), 1e9);
+        assert.equal(await pmSystem.balanceOf(accounts[9], positionId2), 1e9);
+        assert.equal(await pmSystem.balanceOf(accounts[9], positionId3), 1e9);
+        assert.equal(await pmSystem.balanceOf(accounts[9], positionId4), 1e9);
+    })
 
     it("Users should not be able to redeem a position before the oracle reports", async () => {
         await truffleAssert.fails(
