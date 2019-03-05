@@ -160,7 +160,7 @@ export const buyOutcomes = async buyList => {
   const Collateral = await loadContract("ERC20Detailed", collateral);
 
   //await Collateral.deposit({ value: cost, from: defaultAccount });
-  await Collateral.approve(LMSR.address, cost, { from: defaultAccount });
+  //await Collateral.approve(LMSR.address, cost, { from: defaultAccount });
 
   // run trade
   const tx = await LMSR.trade(buyList, cost, { from: defaultAccount });

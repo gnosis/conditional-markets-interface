@@ -110,6 +110,29 @@ export const generatePositionList = async (balances) => {
   );
 };
 
+export const loadAllowance = async () => {
+  const { lmsr, collateral } = await loadConfig()
+  
+  const owner = await getDefaultAccount()
+  const collateralContract = await loadContract("ERC20Detailed", collateral)
+
+  return (await collateralContract.allowance(owner, lmsr)).toString()
+}
+
+export const setAllowanceInsanelyHigh = async () => {
+  const { lmsr, collateral } = await loadConfig()
+  
+  const owner = await getDefaultAccount()
+  const collateralContract = await loadContract("ERC20Detailed", collateral)
+
+  // 10 ETH
+  //console.log("Setting allowance")
+  const tx = await collateralContract.approve(lmsr, new Decimal(10).pow(18).toString(), { from: owner })
+  //console.log(tx)
+
+  return (await collateralContract.allowance(owner, lmsr)).toString()
+}
+
 export const calcProfitForSale = async (sellAmounts) => {
   const marketOutcomeCounts = await loadMarketOutcomeCounts();
   const outcomeIdNames = nameMarketOutcomes(marketOutcomeCounts);

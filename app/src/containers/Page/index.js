@@ -23,6 +23,7 @@ import {
 import {
   loadBalances,
   loadPositions,
+  loadAllowance,
   generatePositionList,
   sumPricePerShare,
   listOutcomePairsMatchingOutcomeId,
@@ -34,6 +35,7 @@ import {
 import Decimal from "decimal.js";
 import { loadConfig } from "../../api/web3";
 import { lmsrNetCost } from "../../api/utils/lmsr";
+import { setAllowanceInsanelyHigh } from "../../api/balances";
 
 export const LOADING_STATES = {
   UNKNOWN: "UNKNOWN",
@@ -96,6 +98,7 @@ const enhancer = compose(
   withState("selectedSell", "setSelectedSellPosition"),
   withState("selectedSellAmount", "setSelectedSellAmount", ""),
   withState("predictedSellProfit", "setPredictedSellProfit"),
+  withState("allowanceAvailable", "setAllowanceAvailable"),
   lifecycle({
     async componentDidMount() {
       const {
@@ -105,7 +108,8 @@ const enhancer = compose(
         setPositionIds,
         setPositions,
         setCollateral,
-        setBalances
+        setBalances,
+        setAllowanceAvailable,
       } = this.props;
       setLoading(LOADING_STATES.LOADING);
 
@@ -122,6 +126,9 @@ const enhancer = compose(
         await setPositions(positions);
         const collateral = await loadCollateral();
         await setCollateral(collateral);
+
+        const allowance = await loadAllowance()
+        await setAllowanceAvailable(allowance)
 
         setLoading(LOADING_STATES.SUCCESS);
       } catch (err) {
@@ -546,6 +553,18 @@ const enhancer = compose(
       setSelectedSellAmount() // reset selected sell
       setSelectedSellPosition()
       setPredictedSellProfit()
+    },
+    handleSetAllowance: ({ setAllowanceAvailable, setBuyingStatus, setBuyError }) => async e => {
+      await setBuyingStatus(true)
+      try {
+        await setAllowanceInsanelyHigh()
+        const allowance = await loadAllowance()
+        await setAllowanceAvailable(allowance)
+      } catch (err) {
+        await setBuyError("Could not set allowance. Please try again")
+      } finally {
+        await setBuyingStatus(false)
+      }
     }
   }),
   loadingHandler

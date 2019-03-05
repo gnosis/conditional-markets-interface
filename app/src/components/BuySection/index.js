@@ -13,6 +13,7 @@ const cx = classnames.bind(style);
 const BuySection = ({
   handleBuyOutcomes,
   handleSelectInvest,
+  handleSetAllowance,
   invest,
   selectionPrice,
   validPosition,
@@ -20,7 +21,8 @@ const BuySection = ({
   isBuying,
   buyError,
   collateral,
-  stagedPositions
+  stagedPositions,
+  hasAllowance
 }) => (
   <div className={cx("positions")}>
     <input
@@ -31,11 +33,18 @@ const BuySection = ({
     />
     <button
       type="button"
-      disabled={!validPosition || isBuying || buyError !== false}
+      disabled={!hasAllowance || !validPosition || isBuying || buyError !== false}
       onClick={handleBuyOutcomes}
     >
       {isBuying ? <Spinner centered inverted width={25} height={25} /> : "Buy"}
     </button>
+    {!hasAllowance && <button
+      type="button"
+      disabled={hasAllowance}
+      onClick={handleSetAllowance}
+    >
+      {isBuying ? <Spinner centered inverted width={25} height={25} /> : "Toggle Allowance"}
+    </button>}
     {buyError && <span className={cx("error")}>{buyError === true ? "An error has occured" : buyError}</span>}
 
     {validPosition && !isBuying && !buyError && stagedPositions.length > 0 && <div>
@@ -67,7 +76,8 @@ BuySection.defaultProps = {
   selectionPrice: 0,
   outcomeTokenBuyAmounts: [],
   isBuying: false,
-  buyError: ""
+  buyError: "",
+  hasAllowance: false
 };
 
 export default BuySection;
