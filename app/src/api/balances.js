@@ -11,7 +11,7 @@ export const loadPositions = async () => {
   const { lmsr, markets, collateral: collateralAddress } = await loadConfig();
   
   // use position id generator
-  const collateral = await loadContract(collateralAddress);
+  const collateral = await loadContract("ERC20Detailed", collateralAddress);
   const LMSR = await loadContract("LMSRMarketMaker", lmsr);
   const outcomeSlots = (await LMSR.atomicOutcomeSlotCount()).toNumber();
 
