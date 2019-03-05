@@ -29,6 +29,10 @@ const config = {
        return new HDWalletProvider(seed, "https://rinkeby.infura.io/v3/22218302c99b4ee29f8a5876ad0b552c"); 
       }, 
       network_id: "4"
+    },
+    mainnet: {
+      provider: () => new HDWalletProvider(seed, "https://mainnet.infura.io/v3/82c92a5c552d43e5be8f05003a72f607"),
+      network_id: "1"
     }
   },
   compilers: {

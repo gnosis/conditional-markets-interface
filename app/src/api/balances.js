@@ -127,7 +127,7 @@ export const setAllowanceInsanelyHigh = async () => {
 
   // 10 ETH
   //console.log("Setting allowance")
-  const tx = await collateralContract.approve(lmsr, new Decimal(10).pow(18).toString(), { from: owner })
+  const tx = await collateralContract.approve(lmsr, new Decimal(100).pow(18).toString(), { from: owner })
   //console.log(tx)
 
   return (await collateralContract.allowance(owner, lmsr)).toString()
@@ -155,7 +155,7 @@ export const calcProfitForSale = async (sellAmounts) => {
   return new Decimal((await LMSR.calcNetCost.call(simulatedSellAmounts)).toString()).neg()
   //const predictedProfit = lmsrNetCost(funding, simulatedSellAmounts, lmsrTokenBalances)
 
-  return predictedProfit.neg().mul(new Decimal(10).pow(18)).toString()
+  //return predictedProfit.neg().mul(new Decimal(10).pow(18)).toString()
 }
 
 export const getCollateralBalance = async () => {

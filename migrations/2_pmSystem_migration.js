@@ -10,7 +10,6 @@ const LMSRMarketMakerFactory = artifacts.require("LMSRMarketMakerFactory");
 const Fixed192x64Math = artifacts.require("Fixed192x64Math");
 const WETH9 = artifacts.require("WETH9");
 const ERC20Detailed = artifacts.require("ERC20Detailed");
-const IERC20 = artifacts.require("IERC20");
 
 const initialNonce = 0x01;
 const defaultAMMFunding = (1e19).toString();
@@ -267,6 +266,7 @@ module.exports = (deployer, network, accounts) => {
         LMSRMarketMakerFactory
       );
       // Deploy the Oracle contracts
+      /*
       const difficultyOracleInstance = await deployer.deploy(
         DifficultyOracle,
         pmSystemInstance.address,
@@ -292,25 +292,26 @@ module.exports = (deployer, network, accounts) => {
         process.env.O3TARGET || 10,
         process.env.O3QUESTIONID || "0x03"
       );
+      */
       // Prepare and identify the conditions in the pmSystem
       await pmSystemInstance.prepareCondition(
-        difficultyOracleInstance.address,
+        accounts[0],
         process.env.O1QUESTIONID || "0x01",
         2
       );
       await pmSystemInstance.prepareCondition(
-        gasLimitOracleInstance.address,
+        accounts[0],
         process.env.O2QUESTIONID || "0x02",
         2
       );
       await pmSystemInstance.prepareCondition(
-        ethValueOracleInstance.address,
+        accounts[0],
         process.env.O3QUESTIONID || "0x03",
         2
       );
 
       const conditionOneId = keccak256(
-        difficultyOracleInstance.address +
+        accounts[0] +
           [
             process.env.O1QUESTIONID ||
               "0x0100000000000000000000000000000000000000000000000000000000000000",
@@ -320,7 +321,7 @@ module.exports = (deployer, network, accounts) => {
             .join("")
       );
       const conditionTwoId = keccak256(
-        gasLimitOracleInstance.address +
+        accounts[0] +
           [
             process.env.O2QUESTIONID ||
               "0x0200000000000000000000000000000000000000000000000000000000000000",
@@ -330,7 +331,7 @@ module.exports = (deployer, network, accounts) => {
             .join("")
       );
       const conditionThreeId = keccak256(
-        ethValueOracleInstance.address +
+        accounts[0] +
           [
             process.env.O3QUESTIONID ||
               "0x0300000000000000000000000000000000000000000000000000000000000000",
