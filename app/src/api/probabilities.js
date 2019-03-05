@@ -99,7 +99,7 @@ export const getIndividualProbabilities = (
         return acc;
       }, new Decimal(0));
 
-      return sum.div(assumedOutcomesPriceSum).toNumber();
+      return sum.div(assumedOutcomesPriceSum).toString();
     })
   );
 
