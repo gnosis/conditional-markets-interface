@@ -114,11 +114,11 @@
     ]
   },
   "MAINNET": {
-    "lmsr": "0xE3cB571a238F8f01e4C6261EEaE79ee149De6fC1",
+    "lmsr": "0xA76665acFbFF811Ed48764C1e4a7d7d3f319B0Ec",
     "collateral": "0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359",
     "markets": [
       {
-        "conditionId": "0x8b9c0fb31360eeb3d3a73be5326fea5ad39412fbc2f5d748cdb0c63cbf42d845",
+        "conditionId": "0x3327e00df218553710383c8d8b7d26e408623d1c17316d7c3f92dcd2a3471bad",
         "title": "Will the DAI/ETH auction take more than 6 hours?",
         "when": "the DAI/ETH auction will take more than 6 hours",
         "whenNot": "the DAI/ETH auction will take less than 6 hours",
@@ -135,7 +135,7 @@
         ]
       },
       {
-        "conditionId": "0xda27dbcd2c6dd9990b1fab387630ef32fc95d71220f032541c5b0032aa13ccb5",
+        "conditionId": "0x48caad792fbcd2ec5ead412968cbd6472481f06e0c21ef16f6cf545d9ea27a5d",
         "title": "Will DAI sell for ETH price lower than 1% below coinmarketcap.com at closing time?",
         "when": "DAI will sell for ETH price lower than 1%",
         "whenNot": "DAI will sell for ETH price higher than 1%",
@@ -152,7 +152,7 @@
         ]
       },
       {
-        "conditionId": "0x4369ed4adb8faf44a3b381e8da3f9955e621d50099b64131a42f44c83da1bef2",
+        "conditionId": "0x0dbee3f0c04d0b340ee6ed3071db063906946b5c913a948456892a59f02732a5",
         "title": "Will DAI supply increase from today (89,499,267 DAI) until 05.03.2019 8pm UTC?",
         "when": "DAI supply will increase",
         "whenNot": "DAI supply will not increase",
