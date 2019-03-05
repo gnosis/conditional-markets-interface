@@ -1,7 +1,7 @@
 {
   "GANACHE": {
     "lmsr": "0x8c6aad0c92a48112aaa0e6e8f98a160120f17059",
-    "collateral": "0xc89ce4735882c9f0f0fe26686c53074e09b0d550",
+    "collateral": "0x6f2d6ff85efca691aad23d549771160a12f0a0fc",
     "markets": [
       {
         "conditionId": "0x5aa5951c709b312aeda63a2aa93bcc3ac99096118836536fe488c4ebc1b2e957",
