@@ -8,9 +8,10 @@ import { resolvePositionGrouping } from "./utils/positionGrouping";
 import Decimal from "decimal.js";
 
 export const loadPositions = async () => {
-  const { lmsr, markets } = await loadConfig();
+  const { lmsr, markets, collateral: collateralAddress } = await loadConfig();
+  
   // use position id generator
-  const collateral = await loadContract("WETH9");
+  const collateral = await loadContract(collateralAddress);
   const LMSR = await loadContract("LMSRMarketMaker", lmsr);
   const outcomeSlots = (await LMSR.atomicOutcomeSlotCount()).toNumber();
 
