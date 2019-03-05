@@ -122,14 +122,12 @@ module.exports = (deployer, network, accounts) => {
       );
     });
   } else if (network === "rinkeby" || network === "mainnet") {
-    /*
     let medianizerAddr;
     if (network === "rinkeby") {
       medianizerAddr = "0xbfFf80B73F081Cc159534d922712551C5Ed8B3D3";
     } else if (network === "mainnet") {
       medianizerAddr = "0x729D19f657BD0614b4985Cf1D82531c67569197B";
     }
-    */
 
     deployer.deploy(PredictionMarketSystem).then(async pmSystemInstance => {
       // Deploy the base contracts
@@ -241,7 +239,7 @@ module.exports = (deployer, network, accounts) => {
         pmSystemInstance.address,
         collateralToken.address,
         [conditionOneId, conditionTwoId, conditionThreeId],
-        0,
+        1,
         process.env.AMMFUNDING || defaultAMMFunding,
         { from: accounts[0] }
       );
