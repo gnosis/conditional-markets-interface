@@ -122,12 +122,10 @@ export const loadCollateral = async () => {
   }
 
   const erc20 = await loadContract("ERC20Detailed", collateral);
-  const [symbol, name, decimals] = await Promise.all([
-    erc20.symbol(),
-    erc20.name(),
-    erc20.decimals(),
-  ])
-  console.log(name)
+  const symbol = await erc20.symbol()
+  const name = await erc20.name()
+  const decimals = await erc20.decimals()
+  
   // return altered symbol and description for wrapped eth
   if (/^w?eth/i.test(symbol)) {
     return {
