@@ -266,9 +266,9 @@ module.exports = (deployer, network, accounts) => {
         LMSRMarketMakerFactory
       );
 
-      const QUESTIONID1 = process.env.O1QUESTIONID || "0x01000001"
-      const QUESTIONID2 = process.env.O2QUESTIONID || "0x02000001"
-      const QUESTIONID3 = process.env.O3QUESTIONID || "0x03000001"
+      const QUESTIONID1 = process.env.O1QUESTIONID || "0x01000003"
+      const QUESTIONID2 = process.env.O2QUESTIONID || "0x02000003"
+      const QUESTIONID3 = process.env.O3QUESTIONID || "0x03000003"
       // Deploy the Oracle contracts
       /*
       const difficultyOracleInstance = await deployer.deploy(
@@ -368,6 +368,7 @@ module.exports = (deployer, network, accounts) => {
         process.env.AMMFUNDING || defaultAMMFunding,
         { from: accounts[0] }
       );
+      console.log("Approved DAI for future LMSR Instance")
       // Deploy the pre-calculated LMSR instance
       await LMSRMarketMakerFactoryInstance.createLMSRMarketMaker(
         pmSystemInstance.address,
@@ -377,6 +378,7 @@ module.exports = (deployer, network, accounts) => {
         process.env.AMMFUNDING || defaultAMMFunding,
         { from: accounts[0] }
       );
+      console.log("Created market maker")
     });
     //
     // Mainnet Deploy above this point. Be careful 🙈

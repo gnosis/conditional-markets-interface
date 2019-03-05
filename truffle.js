@@ -31,7 +31,7 @@ const config = {
       network_id: "4"
     },
     mainnet: {
-      provider: () => new HDWalletProvider(seed, "https://mainnet.infura.io/v3/82c92a5c552d43e5be8f05003a72f607"),
+      provider: () => new HDWalletProvider(seed, "http://node-green.mainnet.gnosis.pm"),
       network_id: "1"
     }
   },
