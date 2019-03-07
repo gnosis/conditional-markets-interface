@@ -117,6 +117,20 @@ export const loadAllowance = async () => {
   const owner = await getDefaultAccount()
   const collateralContract = await loadContract("ERC20Detailed", collateral)
 
+  // DEBUG: sets a window func to deposit to collateral, if possible
+  if (!window.deposit) {
+    window.deposit = async (amount) => {
+      const collateralContractForDeposit = await loadContract("WETH9", collateral)
+      if (!collateralContractForDeposit.deposit) { console.error("No deposit function on this collateral token instance") }
+      try {
+        await collateralContractForDeposit.deposit({ value: amount, from: owner })
+        console.log(`success. deposited ${new Decimal(amount).dividedBy(new Decimal(10).pow(18)).toSD(4).toString()} collateral`)
+      } catch (err) {
+        console.log("failed")
+      }
+    }
+  }
+
   return (await collateralContract.allowance(owner, lmsr)).toString()
 }
 

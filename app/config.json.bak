@@ -1,0 +1,173 @@
+{
+  "GANACHE": {
+    "lmsr": "0x55457AAa58c817494A37fc888660eDCD9a38C5c4",
+    "collateral": "0x9982bCCb508C19E61cf683307768d3F88Fda55Cc",
+    "markets": [
+      {
+        "conditionId": "0x1853cdfc821030362fbfba1a23131d706f76568dc5fe716d3a45778d7f393d8e",
+        "title": "Will be the block difficulty for Ethereum Mainnet be higher than 3000?",
+        "when": "the block difficulty is _higher_ than 3000",
+        "whenNot": "the block difficulty is _lower_ (or equal) than 3000",
+        "resolutionDate": "2020-01-01T09:00:00.000Z",
+        "outcomes": [
+          {
+            "title": "Yes",
+            "short": "Yes"
+          },
+          {
+            "title": "No",
+            "short": "No"
+          }
+        ]
+      },
+      {
+        "conditionId": "0x5946c6f1712c5d32374b1e5e69e163f984965e0a4ec371812308f87d7ff06dc4",
+        "title": "Will be the Ethereum Mainnet block gas limit be greater than 8.000.500?",
+        "when": "the block gas limit is _higher_ than 8.000.500",
+        "whenNot": "the block gas limit is _lower_ (or equal) than 8.000.500",
+        "resolutionDate": "2020-01-05T09:00:00.000Z",
+        "outcomes": [
+          {
+            "title": "Yes",
+            "short": "Yes"
+          },
+          {
+            "title": "No",
+            "short": "No"
+          }
+        ]
+      },
+      {
+        "conditionId": "0x97cf72fd583321eac32f541918747ec05d936aa8db7ab2a1d02e5c26e68d7beb",
+        "title": "Will the Ethereum USD value be higher than 200?",
+        "when": "the value of ethereum in USD is _higher_ than 200",
+        "whenNot": "the value of ethereum in USD is _lower_ (or equal) than 200",
+        "resolutionDate": "2019-03-01T09:00:00.000Z",
+        "outcomes": [
+          {
+            "title": "Yes",
+            "short": "Yes"
+          },
+          {
+            "title": "No",
+            "short": "No"
+          }
+        ]
+      }
+    ]
+  },
+  "RINKEBY": {
+    "lmsr": "0x7f686a74876245d5ecb9c278e9c6316686c50e6e",
+    "collateral": "0x2e765D217252895bd54168d61dC2530B40A6231E",
+    "markets": [
+      {
+        "conditionId": "0xd31735d8ac7d1afbb49e2a5b7a92a8c2f0447125a462be15b1eb5ecfd320a9c4",
+        "title": "Will the DAI/ETH auction take more than 6 hours?",
+        "when": "the DAI/ETH auction will take more than 6 hours",
+        "whenNot": "the DAI/ETH auction will take less than 6 hours",
+        "resolutionDate": "2019-03-05T20:00:00.000Z",
+        "outcomes": [
+          {
+            "title": "Yes",
+            "short": "Yes"
+          },
+          {
+            "title": "No",
+            "short": "No"
+          }
+        ]
+      },
+      {
+        "conditionId": "0x5401f4b2a93aff98e1772aa213363bb08552f534f5d514a50172080cc292c870",
+        "title": "Will DAI sell for ETH price lower than 1% below coinmarketcap.com at closing time?",
+        "when": "DAI will sell for ETH price lower than 1%",
+        "whenNot": "DAI will sell for ETH price higher than 1%",
+        "resolutionDate": "2019-03-05T20:00:00.000Z",
+        "outcomes": [
+          {
+            "title": "Yes",
+            "short": "Yes"
+          },
+          {
+            "title": "No",
+            "short": "No"
+          }
+        ]
+      },
+      {
+        "conditionId": "0x7e1cb14c5b474c291c523fdedc143f5334fcaee5d45796dcf5073a1bea435f0e",
+        "title": "Will DAI supply increase from today (89,499,267 DAI) until 05.03.2019 8pm UTC?",
+        "when": "DAI supply will increase",
+        "whenNot": "DAI supply will not increase",
+        "resolutionDate": "2019-03-05T20:00:00.000Z",
+        "outcomes": [
+          {
+            "title": "Yes",
+            "short": "Yes"
+          },
+          {
+            "title": "No",
+            "short": "No"
+          }
+        ]
+      }
+    ]
+  },
+  "MAINNET": {
+    "lmsr": "0x06c8471d793aF0b5AaB468F199361f680249B38a",
+    "collateral": "0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359",
+    "markets": [
+      {
+        "conditionId": "0x865a48fcff648984d8e1f75e67786bb39fbd03dac9d484fde8decb817aae5ab9",
+        "title": "Will the DAI/ETH auction take more than 6 hours?",
+        "when": "the DAI/ETH auction will take more than 6 hours",
+        "whenNot": "the DAI/ETH auction will take less than 6 hours",
+        "resolutionDate": "2019-03-05T20:00:00.000Z",
+        "outcomes": [
+          {
+            "title": "Yes",
+            "short": "Yes"
+          },
+          {
+            "title": "No",
+            "short": "No"
+          }
+        ]
+      },
+      {
+        "conditionId": "0x2c4c120cf6ba3e734a03df687db37c09e3f5820adb28afd344b10ada7b04b4bc",
+        "title": "Will DAI sell for ETH price lower than 1% below coinmarketcap.com at closing time?",
+        "when": "DAI will sell for ETH price lower than 1%",
+        "whenNot": "DAI will sell for ETH price higher than 1%",
+        "resolutionDate": "2019-03-05T20:00:00.000Z",
+        "outcomes": [
+          {
+            "title": "Yes",
+            "short": "Yes"
+          },
+          {
+            "title": "No",
+            "short": "No"
+          }
+        ]
+      },
+      {
+        "conditionId": "0xeb7b2eb5eee50520030df71acfe6acc3a99122a156e7f000f06e91ae3a432fdf",
+        "title": "Will DAI supply increase from today (89,499,267 DAI) until 05.03.2019 8pm UTC?",
+        "when": "DAI supply will increase",
+        "whenNot": "DAI supply will not increase",
+        "resolutionDate": "2019-03-05T20:00:00.000Z",
+        "outcomes": [
+          {
+            "title": "Yes",
+            "short": "Yes"
+          },
+          {
+            "title": "No",
+            "short": "No"
+          }
+        ]
+      }
+    ]
+  }
+}
