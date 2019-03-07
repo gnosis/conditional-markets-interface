@@ -103,6 +103,7 @@ module.exports = async (deployer, network, accounts) => {
       ).substr(26)
     );
     // Deposit the CollateralTokens necessary and approve() the pre-deployed LMSR instance
+    console.log(`funding with ${process.env.AMMFUNDING || defaultAMMFunding}`)
     await collateralToken.deposit({
       from: accounts[0],
       value: process.env.AMMFUNDING || defaultAMMFunding
