@@ -210,7 +210,9 @@ module.exports = (deployer, network, accounts) => {
       )
     });
   } else if (network === "development" || network === "test") {
+    console.log("deploying pm system")
     deployer.deploy(PredictionMarketSystem).then(async pmSystemInstance => {
+      console.log("deployed pm system", pmSystemInstance)
       // Deploy the base contracts
       await deployer.deploy(Fixed192x64Math);
       await deployer.link(Fixed192x64Math, LMSRMarketMakerFactory);

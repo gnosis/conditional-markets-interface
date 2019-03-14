@@ -5,7 +5,7 @@ import config from "../../config.json";
 
 let provider;
 let isLocal;
-if (process.env.NODE_ENV === "development") {
+if (process.env.NODE_ENV === "development" || process.env.NODE_ENV === "test") {
   // console.log('Using ganache because "NODE_ENV" is in development mode.');
   provider = new Web3("http://localhost:8545");
   isLocal = true;

@@ -310,6 +310,7 @@ const enhancer = compose(
         assumedPairs,
         amount
       );
+      console.log({ outcomeTokenCounts })
       await setOutcomeTokenBuyAmounts(outcomeTokenCounts);
 
       const newPrices = await loadMarginalPrices(outcomeTokenCounts);
