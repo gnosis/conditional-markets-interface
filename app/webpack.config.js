@@ -13,6 +13,7 @@ module.exports = {
     publicPath,
     filename: "bundle.js"
   },
+  target: "web",
   resolve: {
     symlinks: false,
     alias: {

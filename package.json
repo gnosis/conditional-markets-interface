@@ -8,11 +8,11 @@
   },
   "scripts": {
     "migrate": "truffle migrate",
-    "rebuild-contracts": "truffle compile --all",
     "test": "truffle test --network test",
     "test-app": "jest",
     "start": "cd ./app && webpack-dev-server --config ./webpack.config.js --mode development",
-    "build": "NODE_ENV=production cd ./app && webpack -p --config ./webpack.config.js --mode production"
+    "build": "NODE_ENV=production cd ./app && webpack -p --config ./webpack.config.js --mode production",
+    "compile": "truffle compile --all"
   },
   "keywords": [
     "Oracle",
@@ -21,8 +21,10 @@
   "dependencies": {
     "@babel/plugin-syntax-dynamic-import": "^7.2.0",
     "@babel/runtime": "^7.2.0",
-    "@gnosis.pm/hg-contracts": "^2.0.1",
-    "@gnosis.pm/hg-market-makers": "^0.2.4",
+    "@gnosis.pm/hg-contracts": "file:../hg-contracts",
+    "@gnosis.pm/hg-market-makers": "file:../hg-automated-market-makers",
+    "@gnosis.pm/util-contracts": "^3.0.0-alpha.3",
+    "canonical-weth": "^1.4.0",
     "classnames": "^2.2.6",
     "decimal.js": "^10.0.2",
     "env": "0.0.2",
@@ -41,7 +43,7 @@
     "recompose": "^0.30.0",
     "truffle-contract": "^4.0.2",
     "truffle-hdwallet-provider": "^1.0.2",
-    "web3": "^1.0.0-beta.37",
+    "web3": "^1.0.0-beta.50",
     "websocket": "^1.0.28"
   },
   "author": "Gnosis",
@@ -61,7 +63,7 @@
     "css-loader": "^2.1.0",
     "eslint": "^5.11.1",
     "eslint-config-prettier": "^3.3.0",
-    "eslint-plugin-prettier": "^3.0.0",
+    "eslint-plugin-prettier": "^3.0.1",
     "eslint-plugin-react": "^7.12.4",
     "ganache-core": "^2.5.3",
     "html-webpack-plugin": "^4.0.0-beta.5",
