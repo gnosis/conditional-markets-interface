@@ -18,7 +18,11 @@ import {
   nameOutcomePairs,
   getIndividualProbabilities
 } from "./utils/probabilities";
-import { loadMarketOutcomeCounts, loadLmsrTokenBalances } from "./balances";
+import {
+  loadMarketOutcomeCounts,
+  loadLmsrTokenBalances,
+  tryToDepositCollateral,
+} from "./balances";
 
 const { BN, toBN } = web3.utils;
 
@@ -162,11 +166,8 @@ export const buyOutcomes = async buyList => {
   const defaultAccount = await getDefaultAccount();
   const prev = new Decimal(await getAccountBalance());
 
-  // get collateral
-  const Collateral = await loadContract("ERC20Detailed", collateral);
-
-  //await Collateral.deposit({ value: cost, from: defaultAccount });
-  //await Collateral.approve(LMSR.address, cost, { from: defaultAccount });
+  // deposit and approve collateral, depositing only if collateral is wrapped eth
+  tryToDepositCollateral(collateral, LMSR.address, cost)
 
   // run trade
   const tx = await LMSR.trade(buyList, cost, { from: defaultAccount });

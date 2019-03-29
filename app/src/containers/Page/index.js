@@ -483,6 +483,8 @@ const enhancer = compose(
         setBuyingStatus(false);
       } catch (err) {
         setBuyError(err.message);
+        console.error(err.message)
+        console.error(err.stack)
         setBuyingStatus(false);
       }
     },
