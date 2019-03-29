@@ -45,12 +45,14 @@ const OutcomeSelection = ({
         onClick={() => handleSelectAssumption(conditionId)}
       >
         <div>
-          <input
-            type="checkbox"
-            readOnly
-            checked={assumed}
-          />
-          <label>{selectedOutcome == null ? "Base your prediction on assuming this occoured" : `Assuming "${outcomes[selectedOutcome].short}" occoured`}</label>
+          {selectedOutcome != null && (
+            <input
+              type="checkbox"
+              readOnly
+              checked={assumed}
+            />
+          )}
+          <label>{selectedOutcome == null ? "To select an assumption, make a selection above" : `Assuming "${outcomes[selectedOutcome].short}" occurred`}</label>
         </div>
       </button>
     </div>

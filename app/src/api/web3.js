@@ -16,7 +16,7 @@ if (process.env.NODE_ENV === "development" || process.env.NODE_ENV === "test") {
     ethereum.enable();
   } else {
     console.log('Using window.web3 because "NODE_ENV" is in production mode and window.web3 is available.');
-    provider = new Web3(window.ethereum);
+    provider = new Web3(window.web3.currentProvider);
   }
 }
 
@@ -75,6 +75,13 @@ export const getGasPrice = async () => {
   const gasPrice = await provider.eth.getGasPrice()
   // console.log(gasPrice)
   return gasPrice.toString()
+}
+
+export const getETHBalance = async () => {
+  const account = await getDefaultAccount()
+  const ethBalance = await provider.eth.getBalance(account)
+
+  return ethBalance.toString()
 }
 
 const localhostRegex = /https?:\/\/localhost:*/g;

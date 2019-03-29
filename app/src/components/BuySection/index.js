@@ -33,7 +33,7 @@ const BuySection = ({
     />
     <button
       type="button"
-      disabled={!hasAllowance || !validPosition || isBuying || buyError !== false}
+      disabled={!hasAllowance || !validPosition || isBuying || !!buyError}
       onClick={handleBuyOutcomes}
     >
       {isBuying ? <Spinner centered inverted width={25} height={25} /> : "Buy"}

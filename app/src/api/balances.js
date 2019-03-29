@@ -1,6 +1,6 @@
 import { sortBy, findIndex } from "lodash"
 
-import { getDefaultAccount, loadContract, loadConfig } from "./web3";
+import { getDefaultAccount, getETHBalance, loadContract, loadConfig } from "./web3";
 import { generatePositionId, generatePositionIdList } from "./utils/positions";
 import { nameMarketOutcomes, nameOutcomePairs, listAffectedMarketsForOutcomeIds } from "./utils/probabilities";
 import { lmsrTradeCost, lmsrCalcOutcomeTokenCount, lmsrNetCost } from "./utils/lmsr";
@@ -175,11 +175,24 @@ export const calcProfitForSale = async (sellAmounts) => {
 
 export const getCollateralBalance = async () => {
   const { collateral } = await loadConfig()
-  const collateralContract = await loadContract("ERC20Detailed", collateral)
+
+  let collateralContract
+  let amount = new Decimal("0")
+  try {
+    collateralContract = await loadContract("WETH9", collateral)
+
+    const ethBalance = await getETHBalance()
+    amount = amount.add(ethBalance)
+  } catch (err) {}
+
+  if (!collateralContract) {
+    collateralContract = await loadContract("ERC20Detailed", collateral)
+  }
+  
 
   const owner = await getDefaultAccount()
-
-  const amount = await collateralContract.balanceOf(owner)
+  const collateralBalance = await collateralContract.balanceOf(owner)
+  amount = amount.add(new Decimal(collateralBalance.toString()))
 
   return amount
 }
@@ -270,4 +283,22 @@ export const calcOutcomeTokenCounts = async (outcomePairs, assumedPairs, amount)
   const outcomeTokenCounts = await lmsrCalcOutcomeTokenCount(funding, lmsrTokenBalances, outcomePairsAsIndexes, amount, assumedPairIndexes)
   
   return outcomeTokenCounts
+}
+
+export const tryToDepositCollateral = async (collateralAddress, targetAddress, amount) => {
+  const defaultAccount = await getDefaultAccount();
+
+  let collateralContract
+  try {
+    collateralContract = await loadContract("WETH9", collateralAddress);
+    console.log("WETH9 compatible, wrapping ETH")
+    await collateralContract.deposit({ value: amount, from: defaultAccount })
+  } catch (err) {}
+
+  if (!collateralContract) {
+    console.log("Not WETH9 compatible")
+    //collateralContract = await loadContract("ERC20Detailed", collateral)
+  }
+  
+  return collateralContract
 }
