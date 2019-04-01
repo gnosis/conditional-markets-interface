@@ -167,7 +167,9 @@ export const buyOutcomes = async buyList => {
   const prev = new Decimal(await getAccountBalance());
 
   // deposit and approve collateral, depositing only if collateral is wrapped eth
-  tryToDepositCollateral(collateral, LMSR.address, cost)
+  await tryToDepositCollateral(collateral, LMSR.address, cost)
+  const collateralContract = await loadContract("ERC20Detailed", collateral);
+  await collateralContract.approve(lmsr, cost, { from: defaultAccount })
 
   // run trade
   const tx = await LMSR.trade(buyList, cost, { from: defaultAccount });
