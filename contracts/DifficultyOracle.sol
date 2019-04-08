@@ -30,7 +30,7 @@ contract DifficultyOracle {
         questionId = _questionId;
     }
 
-    /// @dev Triggers an oracle report. If the transaction occurs within the prescribed valid time window, the oracle will attempt to report a result to the prediction market system. The result reported will be two EVM words (2*32=64 bytes). If the witnessed difficulty exceeds the block difficulty, the first word will be 0 and the second will be 1. Otherwise, if the witnessed difficulty is less than or equal to the block difficulty, the first word will be 1 and the second will be 0. (AUDIT: this function's visibility can be limited to external)
+    /// @dev Triggers an oracle report. If the transaction occurs within the prescribed valid time window, the oracle will attempt to report a result to the prediction market system. The result reported will be two EVM words (2*32=64 bytes). If the witnessed difficulty exceeds the target difficulty, the first word will be 0 and the second will be 1. Otherwise, if the witnessed difficulty is less than or equal to the target difficulty, the first word will be 1 and the second will be 0. (AUDIT: this function's visibility can be limited to external)
     /// @return diff Difficulty level witnessed by this oracle (AUDIT: no return is necessary)
     function resolveDifficulty() public returns (uint diff) {
         // AUDIT: it would be more gas-efficient to use block.timestamp and block.difficulty directly
