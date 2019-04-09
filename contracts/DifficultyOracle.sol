@@ -14,11 +14,11 @@ contract DifficultyOracle {
     bytes32 public questionId;
 
     /// @dev Emitted upon the successful reporting of whether the difficulty has exceeded the difficulty target to the prediction market system.
-    /// @param startTime Beginning of time window in which valid reports may be generated. 
-    /// @param endTime End of time window in which valid reports may be generated.
+    /// @param _startTime Beginning of time window in which valid reports may be generated. 
+    /// @param _endTime End of time window in which valid reports may be generated.
     /// @param currentTime Time at which this oracle made a determination of the difficulty level.
-    /// @param diff The difficulty level found by this contract during the reporting of the difficulty level.
-    event DifficultyResolutionSuccessful(uint _startTime, uint _endTime, uint currentTime, uint diff);
+    /// @param difficulty The difficulty level found by this contract during the reporting of the difficulty level.
+    event DifficultyResolutionSuccessful(uint _startTime, uint _endTime, uint currentTime, uint difficulty);
 
     constructor (PredictionMarketSystem _pmSystem, uint _startTime, uint _endTime, uint _difficultyTarget, bytes32 _questionId) public {
         pmSystem = _pmSystem;

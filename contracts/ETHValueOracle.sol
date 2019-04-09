@@ -17,11 +17,11 @@ contract ETHValueOracle {
     bytes32 public questionId;
 
     /// @dev Emitted upon the successful reporting of whether the ETH price has exceeded the ETH price target to the prediction market system.
-    /// @param startTime Beginning of time window in which valid reports may be generated. 
-    /// @param endTime End of time window in which valid reports may be generated. 
+    /// @param _startTime Beginning of time window in which valid reports may be generated. 
+    /// @param _endTime End of time window in which valid reports may be generated. 
     /// @param currentTime Time at which this oracle made a determination of the ETH price level.
-    /// @param ethPrice The ETH price level found by this contract during the reporting of the ETH price level.
-    event resolutionSuccessful(uint _startTime, uint _endTime, uint currentTime, uint _ethPrice);
+    /// @param _ethPrice The ETH price level found by this contract during the reporting of the ETH price level.
+    event ResolutionSuccessful(uint _startTime, uint _endTime, uint currentTime, uint _ethPrice);
     
     constructor (PredictionMarketSystem _pmSystem, Medianizer _priceFeed, uint _startTime, uint _endTime, uint _ethPrice, bytes32 _questionId) public {
         pmSystem = PredictionMarketSystem(_pmSystem);
@@ -40,11 +40,11 @@ contract ETHValueOracle {
         if (block.timestamp >= startTime && block.timestamp <= endTime) {
             if (uint(price) > ethPrice) {
                 pmSystem.receiveResult(questionId, abi.encodePacked(bytes32(0), bytes32(uint(1))));
-                emit resolutionSuccessful(startTime, endTime, block.timestamp, uint(price));
+                emit ResolutionSuccessful(startTime, endTime, block.timestamp, uint(price));
                 return uint(price);
             }
             pmSystem.receiveResult(questionId, abi.encodePacked(bytes32(uint(1)), bytes32(0)));
-            emit resolutionSuccessful(startTime, endTime, block.timestamp, uint(price));
+            emit ResolutionSuccessful(startTime, endTime, block.timestamp, uint(price));
             return uint(price);
         }
         revert("Please submit a resolution during the correct time interval");
