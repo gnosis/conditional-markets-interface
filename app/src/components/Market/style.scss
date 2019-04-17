@@ -50,6 +50,10 @@
         .value {
           font-weight: 800;
         }
+
+        .centered {
+          text-align: center;
+        }
       }
     }
   }
@@ -58,8 +62,12 @@
     width: auto;
     padding: 0 12px;
 
-    flex-basis: 50%;
-    flex-shrink: 1;
+    flex-basis: 100%;
+    @media screen and (min-width: $break-large) {
+      flex-basis: 50%;
+      flex-shrink: 1;
+      flex-grow: 1;
+    }
   }
 
   .selection-section {
@@ -67,8 +75,9 @@
     padding: 0 12px;
     margin-top: 50px;
 
-    flex-basis: 45%;
     flex-shrink: 1;
+    flex-basis: 40%;
+    flex-grow: 5;
 
     display: flex;
     justify-content: flex-end;

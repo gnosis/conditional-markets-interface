@@ -9,6 +9,7 @@ const ETHValueOracle = artifacts.require("ETHValueOracle");
 const GasLimitOracle = artifacts.require("GasLimitOracle");
 const LMSRMarketMaker = artifacts.require("LMSRMarketMaker");
 const LMSRMarketMakerFactory = artifacts.require("LMSRMarketMakerFactory");
+const TestMedianizer = artifacts.require("Medianizer");
 const Fixed192x64Math = artifacts.require("Fixed192x64Math");
 const WETH9 = artifacts.require("WETH9");
 const ERC20Detailed = artifacts.require("ERC20Detailed");
@@ -210,9 +211,7 @@ module.exports = (deployer, network, accounts) => {
       )
     });
   } else if (network === "development" || network === "test") {
-    console.log("deploying pm system")
     deployer.deploy(PredictionMarketSystem).then(async pmSystemInstance => {
-      console.log("deployed pm system", pmSystemInstance)
       // Deploy the base contracts
       await deployer.deploy(Fixed192x64Math);
       await deployer.link(Fixed192x64Math, LMSRMarketMakerFactory);
@@ -238,14 +237,20 @@ module.exports = (deployer, network, accounts) => {
         process.env.O2TARGET || 10,
         process.env.O2QUESTIONID || "0x02"
       );
-      const anotherGasLimitOracleInstance = await deployer.deploy(
-        GasLimitOracle,
+      now = Math.floor(new Date().getTime() / 1000)
+      startTime = now - 60 * 60 * 24 // yesterday
+      endTime = now + 60 * 60 * 24 * 30 // 1 month
+      const medianizerInstance = await deployer.deploy(TestMedianizer)
+
+      const ethValueOracle = await deployer.deploy(
+        ETHValueOracle,
         pmSystemInstance.address,
-        process.env.O2STARTBLOCK || 1,
-        process.env.O2ENDBLOCK || 1e9,
-        process.env.O2TARGET || 10,
-        process.env.O2QUESTIONID || "0x03"
-      );
+        medianizerInstance.address,
+        process.env.O3STARTBLOCK || 1,
+        process.env.O3ENDBLOCK || 1e9,
+        process.env.O3TARGET || 10,
+        process.env.O3QUESTIONID || "0x03"
+      )
       // Prepare and identify the conditions in the pmSystem
       await pmSystemInstance.prepareCondition(
         difficultyOracleInstance.address,
@@ -258,12 +263,12 @@ module.exports = (deployer, network, accounts) => {
         2
       );
       await pmSystemInstance.prepareCondition(
-        anotherGasLimitOracleInstance.address,
+        ethValueOracle.address,
         process.env.O2QUESTIONID || "0x03",
         2
       );
       const conditionOneId = keccak256(
-        difficultyOracleInstance.address +
+        accounts[0] +
           [
             process.env.O1QUESTIONID ||
               "0x0100000000000000000000000000000000000000000000000000000000000000",
@@ -273,7 +278,7 @@ module.exports = (deployer, network, accounts) => {
             .join("")
       );
       const conditionTwoId = keccak256(
-        gasLimitOracleInstance.address +
+        accounts[0] +
           [
             process.env.O2QUESTIONID ||
               "0x0200000000000000000000000000000000000000000000000000000000000000",
@@ -283,7 +288,7 @@ module.exports = (deployer, network, accounts) => {
             .join("")
       );
       const conditionThreeId = keccak256(
-        anotherGasLimitOracleInstance.address +
+        accounts[0] +
           [
             process.env.O3QUESTIONID ||
               "0x0300000000000000000000000000000000000000000000000000000000000000",

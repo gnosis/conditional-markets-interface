@@ -3,7 +3,6 @@ import { asAddress, asBytes32, addWithOverflow } from "../../utils/solidity";
 const { BN, soliditySha3 } = web3.utils;
 
 let indent = 0
-let tree = {}
 function* positionListGenerator(markets, parentCollectionId) {
   if (!markets.length) return
   const newMarkets = [...markets]
@@ -22,7 +21,7 @@ function* positionListGenerator(markets, parentCollectionId) {
         }
       ).slice(2),
     16)
-
+    
     const collectionId = addWithOverflow(parentCollectionId, marketCollectionId);
     // used to generate a debug-tree of all position id steps
     // console.log(`${" ".repeat((++indent) * 2)}id: ${collectionId.toString(16).slice(0, 5)}, parent: ${parentCollectionId.toString(16).slice(0, 5)}, market-index: ${newMarkets.length}, outcomeindex: ${outcomeIndex}`)
@@ -30,6 +29,36 @@ function* positionListGenerator(markets, parentCollectionId) {
     yield collectionId.toString(16)
     yield *positionListGenerator(newMarkets, collectionId)
     indent--
+  }
+}
+
+let collectionIdIndent = 0
+function* collectionIdGeneratorForRedeem(markets, parentCollectionId, targetDepth, targetOutcomes) {
+  if (!markets.length) return
+  const newMarkets = [...markets]
+  const market = newMarkets.pop()
+
+  for(let outcomeIndex = 0; outcomeIndex < market.outcomes.length; outcomeIndex++) {
+    const marketCollectionId = new BN(
+      soliditySha3(
+        {
+          t: "bytes32",
+          v: asBytes32(market.conditionId)
+        },
+        {
+          t: "bytes32",
+          v: asBytes32(1 << outcomeIndex)
+        }
+      ).slice(2),
+    16)
+    
+    const collectionId = addWithOverflow(parentCollectionId, marketCollectionId);
+    collectionIdIndent++
+    console.log(market, market.outcomes[market.selectedOutcome])
+      // used to generate a debug-tree of all position id steps
+    yield collectionId.toString(16)
+    yield *collectionIdGeneratorForRedeem(newMarkets, collectionId, targetDepth, targetOutcomes)
+    collectionIdIndent--
   }
 }
 
@@ -54,6 +83,17 @@ export const generatePositionIdList = (markets, collateral) => {
       { t: "bytes32", v: asBytes32(collectionId) }
     );
   })
+}
+
+export const findCollectionIdsForConditionsAndSelections = (markets) => {
+  const targetOutcomes = markets.map((market) => market.outcomes[market.selectedOutcome].lmsrIndex)
+  console.log(targetOutcomes)
+  // format from collectionIdGeneratorForRedeem is [collectionId, lmsrIndexOfTargetOutcome]
+  const targetCollectionIds = [...collectionIdGeneratorForRedeem(markets, new BN(0), 0, targetOutcomes)]
+  targetCollectionIds.push([0, undefined])
+  console.log(targetCollectionIds)
+
+  return targetCollectionIds
 }
 
 /**

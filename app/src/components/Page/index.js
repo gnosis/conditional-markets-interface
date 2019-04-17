@@ -28,10 +28,13 @@ function Page({
   predictionProbabilities,
   buyError,
   isBuying,
+  redeemError,
+  isRedeeming,
   collateral,
   selectedSell,
   handleSelectSell,
   handleSelectSellAmount,
+  handleRedeem,
   selectedSellAmount,
   predictedSellProfit,
   allowanceAvailable,
@@ -72,12 +75,15 @@ function Page({
         <YourPositions
           positions={positions}
           handleSellPosition={handleSellPositions}
+          handleRedeem={handleRedeem}
           collateral={collateral}
           handleSelectSell={handleSelectSell}
           handleSelectSellAmount={handleSelectSellAmount}
           selectedSellAmount={selectedSellAmount}
           selectedSell={selectedSell}
           predictedSellProfit={predictedSellProfit}
+          redeemError={redeemError}
+          isRedeeming={isRedeeming}
         />
       </section>
     </div>

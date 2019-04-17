@@ -23,7 +23,7 @@ module.exports = async (deployer, network, accounts) => {
   }
   
   const [conditionOneId, conditionTwoId, conditionThreeId] = process.env.CONDITION_IDS.split(",")
-
+  console.log(conditionOneId, conditionTwoId, conditionThreeId)
   if (network === "mainnet") {
     //   __  __    _    ___ _   _ _   _ _____ _____ 
     // |  \/  |  / \  |_ _| \ | | \ | | ____|_   _|

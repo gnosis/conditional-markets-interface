@@ -1,11 +1,13 @@
-import { sortBy, findIndex } from "lodash"
+import { sortBy, padEnd, padStart } from "lodash"
 
 import { getDefaultAccount, getETHBalance, loadContract, loadConfig } from "./web3";
-import { generatePositionId, generatePositionIdList } from "./utils/positions";
+import { generatePositionId, generatePositionIdList, findCollectionIdsForConditionsAndSelections } from "./utils/positions";
 import { nameMarketOutcomes, nameOutcomePairs, listAffectedMarketsForOutcomeIds } from "./utils/probabilities";
 import { lmsrTradeCost, lmsrCalcOutcomeTokenCount, lmsrNetCost } from "./utils/lmsr";
 import { resolvePositionGrouping } from "./utils/positionGrouping";
 import Decimal from "decimal.js";
+
+window.Decimal = Decimal
 
 export const loadPositions = async () => {
   const { lmsr, markets, collateral: collateralAddress } = await loadConfig();
@@ -30,6 +32,8 @@ export const loadPositions = async () => {
   return positionIdsForOrder.filter(
     id => positionIdsUnordered.indexOf(id) > -1
   );
+
+  // filtering only for positions for which we hold balances
 };
 
 export const loadBalances = async positions => {
@@ -45,6 +49,8 @@ export const loadBalances = async positions => {
         owner,
         positionId
       )).toString();
+
+      
       balancesList.push(balances[positionId]);
     })
   );
@@ -84,19 +90,19 @@ export const loadMarketOutcomeCounts = async () => {
   return stored_marketOutcomeCounts
 }
 
-export const generatePositionList = async (balances) => {
+export const generatePositionList = async (markets, balances) => {
   const marketOutcomeCounts = await loadMarketOutcomeCounts();
-  const { markets, lmsr } = await loadConfig();
+  const { lmsr } = await loadConfig();
   const outcomeIdNames = nameMarketOutcomes(marketOutcomeCounts);
   const outcomePairNames = nameOutcomePairs(outcomeIdNames);
   
   // extrapolate individual positions out of this information
   // e.g. Ay independent of all other outcomes is lowest amount in Ay****
   // AyBy independent of C* is lowest amount in AyBy**
-
+  
   const positionGroupings = resolvePositionGrouping(outcomeIdNames, balances.map((balance, index) => [outcomePairNames[index], balance]))
   const positionGroupingsSorted = sortBy(positionGroupings, [([ outcomeIds, value ]) => outcomeIds.length, ([ outcomeIds, value ]) => value ])
-
+  
   return await Promise.all(
     positionGroupingsSorted.map(async ([outcomeIds, value, affectedAtomicOutcomes]) => {
       const affectedMarkets = listAffectedMarketsForOutcomeIds(markets, outcomeIds)
@@ -291,9 +297,14 @@ export const tryToDepositCollateral = async (collateralAddress, targetAddress, a
   let collateralContract
   try {
     collateralContract = await loadContract("WETH9", collateralAddress);
+    const balance = await collateralContract.balanceOf(defaultAccount)
     console.log("WETH9 compatible, wrapping ETH")
-    await collateralContract.deposit({ value: amount, from: defaultAccount })
-  } catch (err) {}
+    console.log((new Decimal(amount.toString())).sub(new Decimal(balance.toString())).toString())
+    await collateralContract.deposit({ value: (new Decimal(amount.toString())).sub(new Decimal(balance.toString())).toString(), from: defaultAccount })
+  } catch (err) {
+    console.log("depositing failed")
+    console.log(err)
+  }
 
   if (!collateralContract) {
     console.log("Not WETH9 compatible")
@@ -301,4 +312,42 @@ export const tryToDepositCollateral = async (collateralAddress, targetAddress, a
   }
   
   return collateralContract
+}
+export const redeemPositions = async (outcomeIds) => {
+  const { collateral, markets } = await loadConfig()
+  const marketOutcomeCounts = await loadMarketOutcomeCounts();
+  const outcomeIdNames = nameMarketOutcomes(marketOutcomeCounts);
+  const outcomePairNames = nameOutcomePairs(outcomeIdNames);
+
+  const atomicIndexes = outcomeIds.outcomes.map((outcomePair) => outcomePairNames.indexOf(outcomePair))
+  if (atomicIndexes.some(val => val === -1)) {
+    throw new Error("Invalid outcomes selected - not found in configured markets. Please try again later!")
+  }
+
+  const outcomeIndexes = outcomeIds.outcomes.map((outcome) => outcomeIdNames.indexOf(outcome))
+  const pms = await loadContract("PredictionMarketSystem")
+  const defaultAccount = await getDefaultAccount()
+
+  const collectionIds = findCollectionIdsForConditionsAndSelections(outcomeIds.markets)
+
+  const redeemPayout = await Promise.all(collectionIds.map(([collectionId, selectedOutcome]) => {
+    console.log(collectionId, selectedOutcome)
+  }))
+
+  const redeemings = await Promise.all(markets.map(async (market, index) => {
+    const indexSets = market.outcomes.map((outcome, index) => 0b1 << index)
+    console.log("resolving", market.conditionId, indexSets.map(n => n.toString(2)))
+    
+    const tx = await pms.redeemPositions(
+      collateral,
+      padEnd('0x0', 66, '0'),
+      market.conditionId,
+      indexSets,
+      { from: defaultAccount }
+    )
+    
+    return tx.logs[0].args.payout.toString()
+  }))
+
+  console.log(redeemings.reduce((acc, redeeming) => new Decimal(redeeming).add(acc), new Decimal(0)).toString())
 }

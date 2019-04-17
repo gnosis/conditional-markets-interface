@@ -29,6 +29,7 @@
     "env": "0.0.2",
     "erc-1155": "github:cag/erc-1155#pragma-0.5.0",
     "ethers": "^4.0.21",
+    "inquirer": "^6.3.1",
     "lodash": "^4.17.11",
     "lodash.combinations": "^18.9.19",
     "normalize.css": "^8.0.1",

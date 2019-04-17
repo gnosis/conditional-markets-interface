@@ -9,6 +9,7 @@
   .details {
   
     display: flex;
+    flex-wrap: wrap;
   
     .value {
       white-space: nowrap;
@@ -23,6 +24,11 @@
     .controls {
       flex-basis: 10%;
 
+    }
+
+    .messages {
+      flex-basis: 100%;
+      text-align: right;
     }
   }
 
