@@ -237,11 +237,8 @@ module.exports = (deployer, network, accounts) => {
         process.env.O2TARGET || 10,
         process.env.O2QUESTIONID || "0x02"
       );
-      now = Math.floor(new Date().getTime() / 1000)
-      startTime = now - 60 * 60 * 24 // yesterday
-      endTime = now + 60 * 60 * 24 * 30 // 1 month
+      
       const medianizerInstance = await deployer.deploy(TestMedianizer)
-
       const ethValueOracle = await deployer.deploy(
         ETHValueOracle,
         pmSystemInstance.address,
