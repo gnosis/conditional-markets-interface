@@ -12,7 +12,9 @@
     "test-app": "jest",
     "start": "cd ./app && webpack-dev-server --config ./webpack.config.js --mode development",
     "build": "NODE_ENV=production cd ./app && webpack -p --config ./webpack.config.js --mode production",
-    "compile": "truffle compile --all"
+    "compile": "truffle compile --all",
+    "lintjs": "eslint .",
+    "fmtjs": "eslint . --fix"
   },
   "keywords": [
     "Oracle",
