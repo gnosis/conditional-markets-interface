@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 import cn from "classnames/bind";
 import style from "./style.scss";
 
@@ -10,10 +11,7 @@ const OutcomeSelection = ({
   assumed,
   handleSelectAssumption,
   handleSelectOutcome,
-  handleBuyOutcomes,
-  selectedOutcome,
-  invest,
-  handleSelectInvest
+  selectedOutcome
 }) => (
   <div className={cx("outcome-selection")}>
     <div className={cx("row-outcomes")}>
@@ -34,7 +32,7 @@ const OutcomeSelection = ({
         name={`${conditionId}`}
         onClick={handleSelectOutcome}
       >
-        I don't know
+        {"I don't know"}
       </button>
     </div>
     <div className={cx("row-assume")}>
@@ -60,5 +58,18 @@ const OutcomeSelection = ({
     </div>
   </div>
 );
+
+OutcomeSelection.propTypes = {
+  conditionId: PropTypes.string.isRequired,
+  outcomes: PropTypes.arrayOf(
+    PropTypes.shape({
+      short: PropTypes.string.isRequired
+    }).isRequired
+  ).isRequired,
+  assumed: PropTypes.bool.isRequired,
+  handleSelectAssumption: PropTypes.func.isRequired,
+  handleSelectOutcome: PropTypes.func.isRequired,
+  selectedOutcome: PropTypes.number.isRequired
+};
 
 export default OutcomeSelection;

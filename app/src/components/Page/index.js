@@ -91,8 +91,35 @@ function Page({
 }
 
 Page.propTypes = {
-  loading: PropTypes.string.isRequired,
-  markets: PropTypes.arrayOf(PropTypes.shape)
+  markets: PropTypes.any.isRequired,
+  invest: PropTypes.any.isRequired,
+  selectedOutcomes: PropTypes.any.isRequired,
+  handleSellPositions: PropTypes.any.isRequired,
+  handleSelectOutcome: PropTypes.any.isRequired,
+  handleBuyOutcomes: PropTypes.any.isRequired,
+  assumptions: PropTypes.any.isRequired,
+  handleSelectInvest: PropTypes.any.isRequired,
+  handleSelectAssumption: PropTypes.any.isRequired,
+  outcomeTokenBuyAmounts: PropTypes.any.isRequired,
+  outcomesToBuy: PropTypes.any.isRequired,
+  selectionPrice: PropTypes.any.isRequired,
+  validPosition: PropTypes.any.isRequired,
+  positions: PropTypes.any.isRequired,
+  stagedPositions: PropTypes.any.isRequired,
+  predictionProbabilities: PropTypes.any.isRequired,
+  buyError: PropTypes.any.isRequired,
+  isBuying: PropTypes.any.isRequired,
+  redeemError: PropTypes.any.isRequired,
+  isRedeeming: PropTypes.any.isRequired,
+  collateral: PropTypes.any.isRequired,
+  selectedSell: PropTypes.any.isRequired,
+  handleSelectSell: PropTypes.any.isRequired,
+  handleSelectSellAmount: PropTypes.any.isRequired,
+  handleRedeem: PropTypes.any.isRequired,
+  selectedSellAmount: PropTypes.any.isRequired,
+  predictedSellProfit: PropTypes.any.isRequired,
+  allowanceAvailable: PropTypes.number.isRequired,
+  handleSetAllowance: PropTypes.any.isRequired
 };
 
 Page.defaultProps = {

@@ -1,4 +1,4 @@
-const { asAddress, asBytes32, normHex } = require("./solidity");
+const { asAddress, asBytes32 } = require("./solidity");
 
 describe("solidity.js", () => {
   describe('"asAddress()"', () => {

@@ -1,5 +1,5 @@
 import React from "react";
-
+import PropTypes from "prop-types";
 import cn from "classnames/bind";
 import css from "./style.scss";
 
@@ -9,9 +9,8 @@ const cx = cn.bind(css);
 
 const OutcomesBinary = ({
   isResolved,
-  winningOutcome,
-  predictionProbabilities: [predictionProbability, negativeProbability],
-  outcomes: [{ probability, positionId, balance, color }, negativeOutcome]
+  predictionProbabilities: [predictionProbability /*, negativeProbability */],
+  outcomes: [{ probability, color } /*, negativeOutcome */]
 }) => {
   const predictedProbabilityDifference = clamp(
     predictionProbability - probability,
@@ -82,6 +81,18 @@ const OutcomesBinary = ({
       </div>
     </div>
   );
+};
+
+OutcomesBinary.propTypes = {
+  isResolved: PropTypes.bool.isRequired,
+  predictionProbabilities: PropTypes.arrayOf(PropTypes.number.isRequired)
+    .isRequired,
+  outcomes: PropTypes.arrayOf(
+    PropTypes.shape({
+      probability: PropTypes.number.isRequired,
+      color: PropTypes.string.isRequired
+    }).isRequired
+  ).isRequired
 };
 
 OutcomesBinary.defaultProps = {

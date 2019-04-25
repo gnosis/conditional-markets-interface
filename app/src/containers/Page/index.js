@@ -34,8 +34,6 @@ import {
   redeemPositions
 } from "api/balances";
 import Decimal from "decimal.js";
-import { loadConfig } from "../../api/web3";
-import { lmsrNetCost } from "../../api/utils/lmsr";
 import { setAllowanceInsanelyHigh } from "../../api/balances";
 
 export const LOADING_STATES = {
@@ -140,8 +138,6 @@ const enhancer = compose(
         setLoading(LOADING_STATES.SUCCESS);
       } catch (err) {
         setLoading(LOADING_STATES.FAILURE);
-        console.error(err.message);
-        console.error(err.stack);
       }
     }
   }),
@@ -191,8 +187,7 @@ const enhancer = compose(
       assumptions,
       markets,
       selectedOutcomes,
-      setMarkets,
-      outcomeTokenBuyAmounts
+      setMarkets
     }) => async () => {
       const assumedOutcomeIndexes = [];
 
@@ -321,7 +316,6 @@ const enhancer = compose(
         assumedPairs,
         amount
       );
-      console.log({ outcomeTokenCounts });
       await setOutcomeTokenBuyAmounts(outcomeTokenCounts);
 
       const newPrices = await loadMarginalPrices(outcomeTokenCounts);
@@ -330,8 +324,6 @@ const enhancer = compose(
       );
 
       setPredictionProbabilities(predictionProbabilities);
-      // console.log("tokens purchase list:")
-      // console.log(outcomeTokenCounts)
       const stagedPositions = await generatePositionList(
         markets,
         outcomeTokenCounts
@@ -339,7 +331,6 @@ const enhancer = compose(
       setStagedPositions(stagedPositions);
     },
     handleCheckBalance: ({ setBuyError }) => async invest => {
-      const { collateral } = await loadConfig();
       const collateralProps = await loadCollateral();
 
       const collateralDecimalDenominator = new Decimal(10).pow(
@@ -433,7 +424,7 @@ const enhancer = compose(
       handleUpdateOutcomeTokenCounts,
       invest
     }) => async e => {
-      const [conditionId, outcomeIndex] = e.target.name.split(/[\-\]]/g);
+      const [conditionId, outcomeIndex] = e.target.name.split(/[-\]]/g);
       await selectOutcomes(conditionId, outcomeIndex);
 
       if (outcomeIndex === undefined && assumptions.includes(conditionId)) {
@@ -504,14 +495,11 @@ const enhancer = compose(
       try {
         await redeemPositions(outcomeIds);
       } catch (err) {
-        console.error(err.message);
-        console.error(err.stack);
         await setRedeemError(err.message);
       }
       await setRedeemStatus(false);
     },
     handleBuyOutcomes: ({
-      markets,
       setMarkets,
       setPrices,
       setPositionIds,
@@ -529,8 +517,6 @@ const enhancer = compose(
         await buyOutcomes(outcomeTokenBuyAmounts);
       } catch (err) {
         setBuyError(err.message);
-        console.error(err.message);
-        console.error(err.stack);
         setBuyingStatus(false);
         return;
       }
@@ -551,8 +537,6 @@ const enhancer = compose(
         setBuyingStatus(false);
       } catch (err) {
         setBuyError(err.message);
-        console.error(err.message);
-        console.error(err.stack);
         setBuyingStatus(false);
       }
     },
@@ -629,14 +613,13 @@ const enhancer = compose(
       setAllowanceAvailable,
       setBuyingStatus,
       setBuyError
-    }) => async e => {
+    }) => async () => {
       await setBuyingStatus(true);
       try {
         await setAllowanceInsanelyHigh();
         const allowance = await loadAllowance();
         await setAllowanceAvailable(allowance);
       } catch (err) {
-        console.error(err);
         await setBuyError("Could not set allowance. Please try again");
       } finally {
         await setBuyingStatus(false);

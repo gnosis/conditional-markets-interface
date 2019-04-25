@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 import cn from "classnames/bind";
 import CountUp from "react-countup";
 import { withState, compose } from "recompose";
@@ -10,7 +11,6 @@ import { formatEther } from "./utils/numberFormat";
 const cx = cn.bind(css);
 
 const OutcomeStats = ({
-  name,
   short,
   price,
   balance,
@@ -40,6 +40,15 @@ const OutcomeStats = ({
     </dl>
   </div>
 );
+
+OutcomeStats.propTypes = {
+  short: PropTypes.string.isRequired,
+  price: PropTypes.string.isRequired,
+  balance: PropTypes.string.isRequired,
+  isSelected: PropTypes.bool.isRequired,
+  lastValue: PropTypes.string.isRequired,
+  setLastValue: PropTypes.func.isRequired
+};
 
 const enhancer = compose(
   withState("lastValue", "setLastValue", ({ balance }) =>

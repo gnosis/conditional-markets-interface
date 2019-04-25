@@ -3,13 +3,7 @@ import Decimal from "decimal.js";
 
 import { lmsrMarginalPrice, lmsrNetCost } from "./utils/lmsr";
 
-import {
-  getDefaultAccount,
-  loadContract,
-  loadConfig,
-  getAccountBalance,
-  getGasPrice
-} from "./web3";
+import { getDefaultAccount, loadContract, loadConfig } from "./web3";
 import {
   nameMarketOutcomes,
   nameOutcomePairs,
@@ -21,7 +15,7 @@ import {
   tryToDepositCollateral
 } from "./balances";
 
-const { BN, toBN } = web3.utils;
+const { toBN } = web3.utils;
 
 const OUTCOME_COLORS = [
   "#fbb4ae",
@@ -37,8 +31,6 @@ const OUTCOME_COLORS = [
   "#fddaec",
   "#f2f2f2"
 ];
-
-const SHARE_AMOUNT_NONE = new BN(0);
 
 export const loadProbabilitiesForPredictions = async atomicOutcomePrices => {
   const marketOutcomeCounts = await loadMarketOutcomeCounts();
@@ -57,7 +49,6 @@ export const loadProbabilitiesForPredictions = async atomicOutcomePrices => {
  *
  * @param {*} assumedOutcomes Simulate prices, costs and probabilities with given outcomes
  */
-let marketOutcomeCounts;
 export const loadMarkets = async (atomicOutcomePrices, assumptions = []) => {
   // load hardcoded market entries from config
   const { markets } = await loadConfig();
@@ -94,9 +85,6 @@ export const loadMarkets = async (atomicOutcomePrices, assumptions = []) => {
       const resolved = new Decimal(payoutDenominator.toString()).gt(
         new Decimal(0)
       );
-      console.log(result, resolved);
-      console.log("payoutNumerator:", payoutNumerators);
-      console.log("payoutDenominator:", payoutDenominator.toString());
 
       return {
         ...market,
@@ -199,7 +187,6 @@ export const buyOutcomes = async buyList => {
   // console.log("cost: ", cost.toString())
 
   const defaultAccount = await getDefaultAccount();
-  const prev = new Decimal(await getAccountBalance());
 
   // deposit and approve collateral, depositing only if collateral is wrapped eth
   await tryToDepositCollateral(collateral, LMSR.address, cost);
@@ -207,24 +194,7 @@ export const buyOutcomes = async buyList => {
   await collateralContract.approve(lmsr, cost, { from: defaultAccount });
 
   // run trade
-  let tx;
-  try {
-    tx = await LMSR.trade(buyList, cost, { from: defaultAccount /*gas: 5e6*/ });
-  } catch (err) {
-    console.log("LMSR.Trade failed");
-    console.error(err);
-    return;
-  }
-
-  // console.log(tx.receipt.gasUsed)
-  const gasPrice = new Decimal(await getGasPrice());
-  const gasCost = gasPrice.mul(tx.receipt.gasUsed);
-
-  //const wait = await (new Promise((resolve) => setTimeout(resolve, 500)))
-
-  const now = prev.plus(gasCost).sub(new Decimal(await getAccountBalance()));
-  // console.log(`wei used for tx (excluding gas): ${(await getAccountBalance()).toString()}`)
-  // console.log(tx);
+  await LMSR.trade(buyList, cost, { from: defaultAccount });
 };
 
 export const sellOutcomes = async (atomicOutcomes, amount) => {
@@ -257,8 +227,5 @@ export const sellOutcomes = async (atomicOutcomes, amount) => {
   });
   // console.log("approval set");
   // run trade
-  const tx = await LMSR.trade(sellList, cost, {
-    from: defaultAccount,
-    gas: 0x6691b7
-  });
+  await LMSR.trade(sellList, cost, { from: defaultAccount });
 };

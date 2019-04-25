@@ -1,15 +1,9 @@
-const { toHex, padLeft, keccak256, toChecksumAddress } = web3.utils;
+const { keccak256, toChecksumAddress } = web3.utils;
 const rlp = require("rlp");
-const env = require("env");
 const writeToConfig = require("./utils/writeToConfig");
 
 const PredictionMarketSystem = artifacts.require("PredictionMarketSystem");
-const DifficultyOracle = artifacts.require("DifficultyOracle");
-const ETHValueOracle = artifacts.require("ETHValueOracle");
-const GasLimitOracle = artifacts.require("GasLimitOracle");
-const LMSRMarketMaker = artifacts.require("LMSRMarketMaker");
 const LMSRMarketMakerFactory = artifacts.require("LMSRMarketMakerFactory");
-const Fixed192x64Math = artifacts.require("Fixed192x64Math");
 const WETH9 = artifacts.require("WETH9");
 const ERC20Detailed = artifacts.require("ERC20Detailed");
 
@@ -29,7 +23,6 @@ module.exports = async (deployer, network, accounts) => {
     conditionTwoId,
     conditionThreeId
   ] = process.env.CONDITION_IDS.split(",");
-  console.log(conditionOneId, conditionTwoId, conditionThreeId);
   if (network === "mainnet") {
     //   __  __    _    ___ _   _ _   _ _____ _____
     // |  \/  |  / \  |_ _| \ | | \ | | ____|_   _|
@@ -46,15 +39,12 @@ module.exports = async (deployer, network, accounts) => {
     const LMSRMarketMakerFactoryInstance = await LMSRMarketMakerFactory.deployed();
 
     // Pre-Calculate the LMSRAMM instance address
-    console.log("calculating checksummedAddress");
     const checksummedLMSRAddress = toChecksumAddress(
       keccak256(
         rlp.encode([LMSRMarketMakerFactoryInstance.address, initialNonce])
       ).substr(26)
     );
-    console.log(checksummedLMSRAddress);
     // Deposit the CollateralTokens necessary and approve() the pre-deployed LMSR instance
-    console.log("approving dai");
     await collateralToken.approve(
       checksummedLMSRAddress,
       process.env.AMMFUNDING || defaultAMMFunding,
@@ -62,7 +52,6 @@ module.exports = async (deployer, network, accounts) => {
     );
 
     // Deploy the pre-calculated LMSR instance
-    console.log("creating market maker");
     const tx = await LMSRMarketMakerFactoryInstance.createLMSRMarketMaker(
       pmSystemInstance.address,
       collateralToken.address,
@@ -76,11 +65,7 @@ module.exports = async (deployer, network, accounts) => {
     )[0];
     const lmsrAddress = lmsrEvent.args.lmsrMarketMaker;
 
-    console.log(JSON.stringify(lmsrEvent, null, 2));
-
     if (lmsrAddress !== checksummedLMSRAddress) {
-      console.warn("Expected: " + checksummedLMSRAddress);
-      console.warn("Received: " + lmsrAddress);
       throw new Error("LMSR ADDRESS DOES NOT MATCH");
     }
 
@@ -108,7 +93,6 @@ module.exports = async (deployer, network, accounts) => {
       ).substr(26)
     );
     // Deposit the CollateralTokens necessary and approve() the pre-deployed LMSR instance
-    console.log(`funding with ${process.env.AMMFUNDING || defaultAMMFunding}`);
     await collateralToken.deposit({
       from: accounts[0],
       value: process.env.AMMFUNDING || defaultAMMFunding
@@ -132,11 +116,7 @@ module.exports = async (deployer, network, accounts) => {
     )[0];
     const lmsrAddress = lmsrEvent.args.lmsrMarketMaker;
 
-    console.log(JSON.stringify(lmsrEvent, null, 2));
-
     if (lmsrAddress !== checksummedLMSRAddress) {
-      console.warn("Expected: " + checksummedLMSRAddress);
-      console.warn("Received: " + lmsrAddress);
       throw new Error("LMSR ADDRESS DOES NOT MATCH");
     }
 
@@ -149,7 +129,6 @@ module.exports = async (deployer, network, accounts) => {
     const LMSRMarketMakerFactoryInstance = await LMSRMarketMakerFactory.deployed();
 
     // Pre-Calculate the LMSRAMM instance address
-    console.log(LMSRMarketMakerFactoryInstance.address, initialNonce);
     const checksummedLMSRAddress = toChecksumAddress(
       keccak256(
         rlp.encode([LMSRMarketMakerFactoryInstance.address, initialNonce])
@@ -179,11 +158,8 @@ module.exports = async (deployer, network, accounts) => {
       log => log.event === "LMSRMarketMakerCreation"
     )[0];
     const lmsrAddress = lmsrEvent.args.lmsrMarketMaker;
-    console.log(JSON.stringify(lmsrEvent, null, 2));
 
     if (lmsrAddress !== checksummedLMSRAddress) {
-      console.warn("Expected: " + checksummedLMSRAddress);
-      console.warn("Received: " + lmsrAddress);
       throw new Error("LMSR ADDRESS DOES NOT MATCH");
     }
 

@@ -1,21 +1,10 @@
 const truffleAssert = require("truffle-assertions");
 const assert = require("chai").assert;
 const rlp = require("rlp");
-const { assertRejects, getParamFromTxEvent } = require("./utils");
-const {
-  toHex,
-  padLeft,
-  keccak256,
-  asciiToHex,
-  toBN,
-  fromWei,
-  toChecksumAddress
-} = web3.utils;
-const { getBlockNumber } = web3.eth;
+const { toHex, padLeft, keccak256, toBN, toChecksumAddress } = web3.utils;
 
 const PredictionMarketSystem = artifacts.require("PredictionMarketSystem");
 const DifficultyOracle = artifacts.require("DifficultyOracle");
-const ETHValueOracle = artifacts.require("ETHValueOracle");
 const GasLimitOracle = artifacts.require("GasLimitOracle");
 const LMSRMarketMaker = artifacts.require("LMSRMarketMaker");
 const LMSRMarketMakerFactory = artifacts.require("LMSRMarketMakerFactory");
@@ -23,6 +12,7 @@ const WETH9 = artifacts.require("WETH9");
 
 contract("Oracles", function(accounts) {
   let pmSystem;
+  let lmsrFactory;
   let diffOracleInstance;
   let gasOracleInstance;
   let collateralToken;
@@ -30,7 +20,7 @@ contract("Oracles", function(accounts) {
   let checksummedLMSRAddress;
   let lmsrInstance;
   let baseCollectionId1, baseCollectionId2;
-  let basePositionId1, basePositionId2;
+  // let basePositionId1, basePositionId2;
   let collectionId1, collectionId2, collectionId3, collectionId4;
   let positionId1, positionId2, positionId3, positionId4;
 
@@ -78,12 +68,12 @@ contract("Oracles", function(accounts) {
       conditionTwoId + padLeft(toHex(0b10), 64).slice(2)
     );
 
-    basePositionId1 = keccak256(
-      collateralToken.address + baseCollectionId1.slice(2)
-    );
-    basePositionId2 = keccak256(
-      collateralToken.address + baseCollectionId2.slice(2)
-    );
+    // basePositionId1 = keccak256(
+    //   collateralToken.address + baseCollectionId1.slice(2)
+    // );
+    // basePositionId2 = keccak256(
+    //   collateralToken.address + baseCollectionId2.slice(2)
+    // );
 
     collectionId1 =
       "0x" +
@@ -209,7 +199,7 @@ contract("Oracles", function(accounts) {
       resolveGas,
       "resolutionSuccessful",
       event => {
-        return eval.param1 == process.env.O2STARTGAS;
+        return event.param1 == process.env.O2STARTGAS;
       },
       "The sucessful gas resolution should be emitted with the correct parameters"
     );

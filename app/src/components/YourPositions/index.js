@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 import Decimal from "decimal.js";
 import cn from "classnames/bind";
 
@@ -25,7 +26,7 @@ const YourPositions = ({
 }) => (
   <div className={cx("your-positions")}>
     <h2>Positions</h2>
-    {!positions.length && <em>You don't hold any positions yet.</em>}
+    {!positions.length && <em>{"You don't hold any positions yet."}</em>}
     {positions.map((position, index) => {
       const empty = selectedSellAmount === "";
       const validNum =
@@ -42,7 +43,7 @@ const YourPositions = ({
         selectedSell === position.outcomeIds &&
         validNum &&
         sellAmountLowerThanBalance;
-      console.log(position.markets);
+
       // only if all markets are resolved
       const wasResolved = position.markets.every(market => market.isResolved);
 
@@ -178,6 +179,36 @@ const YourPositions = ({
     })}
   </div>
 );
+
+YourPositions.propTypes = {
+  positions: PropTypes.arrayOf(
+    PropTypes.shape({
+      value: PropTypes.number.isRequired,
+      outcomeIds: PropTypes.string.isRequired,
+      markets: PropTypes.arrayOf(
+        PropTypes.shape({
+          isResolved: PropTypes.bool.isRequired,
+          result: PropTypes.number.isRequired,
+          selectedOutcome: PropTypes.number.isRequired,
+          when: PropTypes.string.isRequired,
+          whenNot: PropTypes.string.isRequired
+        }).isRequired
+      ).isRequired
+    }).isRequired
+  ).isRequired,
+  handleSelectSell: PropTypes.func.isRequired,
+  handleRedeem: PropTypes.func.isRequired,
+  handleSellPosition: PropTypes.func.isRequired,
+  selectedSellAmount: PropTypes.string.isRequired,
+  handleSelectSellAmount: PropTypes.func.isRequired,
+  collateral: PropTypes.shape({
+    symbol: PropTypes.string.isRequired
+  }).isRequired,
+  selectedSell: PropTypes.string.isRequired,
+  predictedSellProfit: PropTypes.number.isRequired,
+  isRedeeming: PropTypes.bool.isRequired,
+  redeemError: PropTypes.string.isRequired
+};
 
 YourPositions.defaultProps = {
   selectedSellAmount: ""

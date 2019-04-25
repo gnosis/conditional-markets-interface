@@ -83,8 +83,8 @@ export const getIndividualProbabilities = (
     new Decimal(0)
   );
 
-  const individualProbabilities = outcomeIdNames.map((marketIds, marketIndex) =>
-    marketIds.map((outcomeId, outcomeIndex) => {
+  const individualProbabilities = outcomeIdNames.map(marketIds =>
+    marketIds.map(outcomeId => {
       const sum = outcomePairNames.reduce(
         (acc, outcomePair, outcomePairIndex) => {
           const idsInOutcomePair = outcomePair.split("&");

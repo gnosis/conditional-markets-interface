@@ -1,9 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
-import Collapse, { Panel } from "rc-collapse";
 import OutcomesBinary from "../OutcomesBinary";
 import OutcomeSelection from "../OutcomeSelection";
-import OutcomeStats from "../OutcomeStats";
 import cn from "classnames/bind";
 
 import css from "./style.scss";
@@ -21,11 +19,8 @@ const Market = ({
   disabled,
   isResolved,
   result,
-  handleSelectSell,
   assumed,
   marketIndex,
-  sellAmounts,
-  handleSellOutcome,
   handleSelectAssumption,
   predictionProbabilities
 }) => {
@@ -109,13 +104,25 @@ const Market = ({
 
 Market.propTypes = {
   title: PropTypes.string.isRequired,
+  resolutionDate: PropTypes.string.isRequired,
   outcomes: PropTypes.arrayOf(
     PropTypes.shape({
-      name: PropTypes.string,
-      probability: PropTypes.number,
-      price: PropTypes.string
-    })
-  )
+      name: PropTypes.string.isRequired,
+      probability: PropTypes.number.isRequired,
+      price: PropTypes.string.isRequired
+    }).isRequired
+  ).isRequired,
+  conditionId: PropTypes.any.isRequired,
+  selectedOutcome: PropTypes.string.isRequired,
+  handleSelectOutcome: PropTypes.any.isRequired,
+  handleBuyOutcomes: PropTypes.any.isRequired,
+  disabled: PropTypes.bool.isRequired,
+  isResolved: PropTypes.bool.isRequired,
+  result: PropTypes.number.isRequired,
+  assumed: PropTypes.bool.isRequired,
+  marketIndex: PropTypes.number.isRequired,
+  handleSelectAssumption: PropTypes.any.isRequired,
+  predictionProbabilities: PropTypes.array.isRequired
 };
 
 Market.defaultProps = {

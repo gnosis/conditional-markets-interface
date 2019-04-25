@@ -34,7 +34,7 @@ export const resolvePositionGrouping = (
     for (let conditionTuple of combinations(conditions, numConditions)) {
       (numConditions === 0 ? [[]] : [...cartesian(...conditionTuple)]).forEach(
         cartesianTuple => {
-          const filteredThings = things.filter(([atomicOutcome, balance]) =>
+          const filteredThings = things.filter(([atomicOutcome]) =>
             cartesianTuple.every(condition => atomicOutcome.includes(condition))
           );
 

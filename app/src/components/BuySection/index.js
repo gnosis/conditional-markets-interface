@@ -1,6 +1,6 @@
 import React from "react";
+import PropTypes from "prop-types";
 import classnames from "classnames/bind";
-import Decimal from "decimal.js";
 import Spinner from "components/Spinner";
 
 import { arrayToHumanReadableList } from "../YourPositions/utils/list";
@@ -18,9 +18,7 @@ const BuySection = ({
   handleSelectInvest,
   handleSetAllowance,
   invest,
-  selectionPrice,
   validPosition,
-  outcomeTokenBuyAmounts,
   isBuying,
   buyError,
   collateral,
@@ -93,6 +91,34 @@ const BuySection = ({
     )}
   </div>
 );
+
+BuySection.propTypes = {
+  handleBuyOutcomes: PropTypes.func.isRequired,
+  handleSelectInvest: PropTypes.func.isRequired,
+  handleSetAllowance: PropTypes.func.isRequired,
+  invest: PropTypes.string.isRequired,
+  validPosition: PropTypes.bool.isRequired,
+  isBuying: PropTypes.bool.isRequired,
+  buyError: PropTypes.string.isRequired,
+  collateral: PropTypes.shape({
+    name: PropTypes.string.isRequired,
+    symbol: PropTypes.string.isRequired
+  }).isRequired,
+  stagedPositions: PropTypes.arrayOf(
+    PropTypes.shape({
+      value: PropTypes.number.isRequired,
+      outcomeIds: PropTypes.string.isRequired,
+      markets: PropTypes.arrayOf(
+        PropTypes.shape({
+          selectedOutcome: PropTypes.number.isRequired,
+          when: PropTypes.string.isRequired,
+          whenNot: PropTypes.string.isRequired
+        }).isRequired
+      ).isRequired
+    }).isRequired
+  ).isRequired,
+  hasAllowance: PropTypes.bool.isRequired
+};
 
 BuySection.defaultProps = {
   invest: "",

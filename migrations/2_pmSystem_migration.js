@@ -1,5 +1,4 @@
-const { toHex, padLeft, keccak256, toChecksumAddress } = web3.utils;
-const rlp = require("rlp");
+const { toHex, padLeft, keccak256 } = web3.utils;
 
 const writeToConfig = require("./utils/writeToConfig");
 
@@ -35,9 +34,7 @@ module.exports = (deployer, network, accounts) => {
       await deployer.link(Fixed192x64Math, LMSRMarketMakerFactory);
       await deployer.link(Fixed192x64Math, LMSRMarketMaker);
       const collateralToken = await ERC20Detailed.at(DAI_TOKEN_ADDRESS);
-      const LMSRMarketMakerFactoryInstance = await deployer.deploy(
-        LMSRMarketMakerFactory
-      );
+      await deployer.deploy(LMSRMarketMakerFactory);
 
       const QUESTIONID1 = process.env.O1QUESTIONID || "0x07";
       const QUESTIONID2 = process.env.O2QUESTIONID || "0x08";
@@ -96,9 +93,8 @@ module.exports = (deployer, network, accounts) => {
       await deployer.deploy(Fixed192x64Math);
       await deployer.link(Fixed192x64Math, LMSRMarketMakerFactory);
       await deployer.link(Fixed192x64Math, LMSRMarketMaker);
-      const LMSRMarketMakerFactoryInstance = await deployer.deploy(
-        LMSRMarketMakerFactory
-      );
+      await deployer.deploy(LMSRMarketMakerFactory);
+
       // Deploy the Oracle contracts
       const difficultyOracleInstance = await deployer.deploy(
         DifficultyOracle,
@@ -178,11 +174,6 @@ module.exports = (deployer, network, accounts) => {
         conditionTwoId,
         conditionThreeId
       ].join(",");
-      console.log({
-        difficultyMarket: conditionOneId,
-        gasLimitMarket: conditionTwoId,
-        ethValueMarket: conditionThreeId
-      });
 
       writeToConfig("rinkeby", {
         conditionIds: [conditionOneId, conditionTwoId, conditionThreeId],
@@ -196,9 +187,7 @@ module.exports = (deployer, network, accounts) => {
       await deployer.link(Fixed192x64Math, LMSRMarketMakerFactory);
       await deployer.link(Fixed192x64Math, LMSRMarketMaker);
       const collateralToken = await deployer.deploy(WETH9);
-      const LMSRMarketMakerFactoryInstance = await deployer.deploy(
-        LMSRMarketMakerFactory
-      );
+      await deployer.deploy(LMSRMarketMakerFactory);
       // Deploy the Oracle contracts
       const difficultyOracleInstance = await deployer.deploy(
         DifficultyOracle,

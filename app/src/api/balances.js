@@ -1,4 +1,4 @@
-import { sortBy, padEnd, padStart } from "lodash";
+import { sortBy } from "lodash";
 
 import {
   getDefaultAccount,
@@ -6,21 +6,13 @@ import {
   loadContract,
   loadConfig
 } from "./web3";
-import {
-  generatePositionId,
-  generatePositionIdList,
-  findCollectionIdsForConditionsAndSelections
-} from "./utils/positions";
+import { generatePositionId, generatePositionIdList } from "./utils/positions";
 import {
   nameMarketOutcomes,
   nameOutcomePairs,
   listAffectedMarketsForOutcomeIds
 } from "./utils/probabilities";
-import {
-  lmsrTradeCost,
-  lmsrCalcOutcomeTokenCount,
-  lmsrNetCost
-} from "./utils/lmsr";
+import { lmsrTradeCost, lmsrCalcOutcomeTokenCount } from "./utils/lmsr";
 import { resolvePositionGrouping } from "./utils/positionGrouping";
 import Decimal from "decimal.js";
 
@@ -110,7 +102,6 @@ export const loadMarketOutcomeCounts = async () => {
 
 export const generatePositionList = async (markets, balances) => {
   const marketOutcomeCounts = await loadMarketOutcomeCounts();
-  const { lmsr } = await loadConfig();
   const outcomeIdNames = nameMarketOutcomes(marketOutcomeCounts);
   const outcomePairNames = nameOutcomePairs(outcomeIdNames);
 
@@ -123,8 +114,8 @@ export const generatePositionList = async (markets, balances) => {
     balances.map((balance, index) => [outcomePairNames[index], balance])
   );
   const positionGroupingsSorted = sortBy(positionGroupings, [
-    ([outcomeIds, value]) => outcomeIds.length,
-    ([outcomeIds, value]) => value
+    ([outcomeIds]) => outcomeIds.length,
+    ([, value]) => value
   ]);
 
   return await Promise.all(
@@ -159,23 +150,17 @@ export const loadAllowance = async () => {
         "WETH9",
         collateral
       );
+
       if (!collateralContractForDeposit.deposit) {
-        console.error("No deposit function on this collateral token instance");
-      }
-      try {
-        await collateralContractForDeposit.deposit({
-          value: amount,
-          from: owner
-        });
-        console.log(
-          `success. deposited ${new Decimal(amount)
-            .dividedBy(new Decimal(10).pow(18))
-            .toSD(4)
-            .toString()} collateral`
+        throw new Error(
+          "No deposit function on this collateral token instance"
         );
-      } catch (err) {
-        console.log("failed");
       }
+
+      await collateralContractForDeposit.deposit({
+        value: amount,
+        from: owner
+      });
     };
   }
 
@@ -188,14 +173,9 @@ export const setAllowanceInsanelyHigh = async () => {
   const owner = await getDefaultAccount();
   const collateralContract = await loadContract("ERC20Detailed", collateral);
 
-  // 10 ETH
-  //console.log("Setting allowance")
-  const tx = await collateralContract.approve(
-    lmsr,
-    new Decimal(10).pow(19).toString(),
-    { from: owner }
-  );
-  //console.log(tx)
+  await collateralContract.approve(lmsr, new Decimal(10).pow(19).toString(), {
+    from: owner
+  });
 
   return (await collateralContract.allowance(owner, lmsr)).toString();
 };
@@ -205,7 +185,7 @@ export const calcProfitForSale = async sellAmounts => {
   const outcomeIdNames = nameMarketOutcomes(marketOutcomeCounts);
   const outcomePairNames = nameOutcomePairs(outcomeIdNames);
 
-  const simulatedSellAmounts = outcomePairNames.map(_ => "0");
+  const simulatedSellAmounts = outcomePairNames.map(() => "0");
 
   sellAmounts.forEach(([atomicOutcome, amount]) => {
     const pairNameListIndex = outcomePairNames.indexOf(atomicOutcome);
@@ -215,16 +195,9 @@ export const calcProfitForSale = async sellAmounts => {
   const { lmsr } = await loadConfig();
   const LMSR = await loadContract("LMSRMarketMaker", lmsr);
 
-  const funding = (await LMSR.funding()).toString();
-  const lmsrTokenBalances = await loadLmsrTokenBalances(lmsr);
-  //console.log(funding, simulatedSellAmounts, lmsrTokenBalances)
-
   return new Decimal(
     (await LMSR.calcNetCost.call(simulatedSellAmounts)).toString()
   ).neg();
-  //const predictedProfit = lmsrNetCost(funding, simulatedSellAmounts, lmsrTokenBalances)
-
-  //return predictedProfit.neg().mul(new Decimal(10).pow(18)).toString()
 };
 
 export const getCollateralBalance = async () => {
@@ -237,9 +210,7 @@ export const getCollateralBalance = async () => {
 
     const ethBalance = await getETHBalance();
     amount = amount.add(ethBalance);
-  } catch (err) {}
-
-  if (!collateralContract) {
+  } catch (err) {
     collateralContract = await loadContract("ERC20Detailed", collateral);
   }
 
@@ -250,14 +221,6 @@ export const getCollateralBalance = async () => {
   return amount;
 };
 window.getCollateralBalance = getCollateralBalance;
-
-export const generateBuyDetails = async (outcomePairs, assumedPairs) => {
-  const marketOutcomeCounts = await loadMarketOutcomeCounts();
-  const { markets, lmsr } = await loadConfig();
-  const outcomeIdNames = nameMarketOutcomes(marketOutcomeCounts);
-
-  // todo
-};
 
 export const listAffectedOutcomesForIds = async outcomeIds => {
   const marketOutcomeCounts = await loadMarketOutcomeCounts();
@@ -378,92 +341,15 @@ export const tryToDepositCollateral = async (
 ) => {
   const defaultAccount = await getDefaultAccount();
 
-  let collateralContract;
-  try {
-    collateralContract = await loadContract("WETH9", collateralAddress);
-    const balance = await collateralContract.balanceOf(defaultAccount);
-    console.log("WETH9 compatible, wrapping ETH");
-    console.log(
-      new Decimal(amount.toString())
-        .sub(new Decimal(balance.toString()))
-        .toString()
-    );
-    await collateralContract.deposit({
-      value: new Decimal(amount.toString())
-        .sub(new Decimal(balance.toString()))
-        .toString(),
-      from: defaultAccount
-    });
-  } catch (err) {
-    console.log("depositing failed");
-    console.log(err);
-  }
+  const collateralContract = await loadContract("WETH9", collateralAddress);
+  const balance = await collateralContract.balanceOf(defaultAccount);
 
-  if (!collateralContract) {
-    console.log("Not WETH9 compatible");
-    //collateralContract = await loadContract("ERC20Detailed", collateral)
-  }
+  await collateralContract.deposit({
+    value: new Decimal(amount.toString())
+      .sub(new Decimal(balance.toString()))
+      .toString(),
+    from: defaultAccount
+  });
 
   return collateralContract;
-};
-export const redeemPositions = async outcomeIds => {
-  const { collateral, markets } = await loadConfig();
-  const marketOutcomeCounts = await loadMarketOutcomeCounts();
-  const outcomeIdNames = nameMarketOutcomes(marketOutcomeCounts);
-  const outcomePairNames = nameOutcomePairs(outcomeIdNames);
-
-  const atomicIndexes = outcomeIds.outcomes.map(outcomePair =>
-    outcomePairNames.indexOf(outcomePair)
-  );
-  if (atomicIndexes.some(val => val === -1)) {
-    throw new Error(
-      "Invalid outcomes selected - not found in configured markets. Please try again later!"
-    );
-  }
-
-  const outcomeIndexes = outcomeIds.outcomes.map(outcome =>
-    outcomeIdNames.indexOf(outcome)
-  );
-  const pms = await loadContract("PredictionMarketSystem");
-  const defaultAccount = await getDefaultAccount();
-
-  const collectionIds = findCollectionIdsForConditionsAndSelections(
-    outcomeIds.markets
-  );
-
-  const redeemPayout = await Promise.all(
-    collectionIds.map(([collectionId, selectedOutcome]) => {
-      console.log(collectionId, selectedOutcome);
-    })
-  );
-
-  const redeemings = await Promise.all(
-    markets.map(async (market, index) => {
-      const indexSets = market.outcomes.map((outcome, index) => 0b1 << index);
-      console.log(
-        "resolving",
-        market.conditionId,
-        indexSets.map(n => n.toString(2))
-      );
-
-      const tx = await pms.redeemPositions(
-        collateral,
-        padEnd("0x0", 66, "0"),
-        market.conditionId,
-        indexSets,
-        { from: defaultAccount }
-      );
-
-      return tx.logs[0].args.payout.toString();
-    })
-  );
-
-  console.log(
-    redeemings
-      .reduce(
-        (acc, redeeming) => new Decimal(redeeming).add(acc),
-        new Decimal(0)
-      )
-      .toString()
-  );
 };

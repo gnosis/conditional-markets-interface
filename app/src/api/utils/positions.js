@@ -2,7 +2,6 @@ import web3 from "web3";
 import { asAddress, asBytes32, addWithOverflow } from "../../utils/solidity";
 const { BN, soliditySha3 } = web3.utils;
 
-let indent = 0;
 function* positionListGenerator(markets, parentCollectionId) {
   if (!markets.length) return;
   const newMarkets = [...markets];
@@ -31,16 +30,12 @@ function* positionListGenerator(markets, parentCollectionId) {
       parentCollectionId,
       marketCollectionId
     );
-    // used to generate a debug-tree of all position id steps
-    // console.log(`${" ".repeat((++indent) * 2)}id: ${collectionId.toString(16).slice(0, 5)}, parent: ${parentCollectionId.toString(16).slice(0, 5)}, market-index: ${newMarkets.length}, outcomeindex: ${outcomeIndex}`)
 
     yield collectionId.toString(16);
     yield* positionListGenerator(newMarkets, collectionId);
-    indent--;
   }
 }
 
-let collectionIdIndent = 0;
 function* collectionIdGeneratorForRedeem(
   markets,
   parentCollectionId,
@@ -74,8 +69,6 @@ function* collectionIdGeneratorForRedeem(
       parentCollectionId,
       marketCollectionId
     );
-    collectionIdIndent++;
-    console.log(market, market.outcomes[market.selectedOutcome]);
     // used to generate a debug-tree of all position id steps
     yield collectionId.toString(16);
     yield* collectionIdGeneratorForRedeem(
@@ -84,7 +77,6 @@ function* collectionIdGeneratorForRedeem(
       targetDepth,
       targetOutcomes
     );
-    collectionIdIndent--;
   }
 }
 
@@ -115,13 +107,11 @@ export const findCollectionIdsForConditionsAndSelections = markets => {
   const targetOutcomes = markets.map(
     market => market.outcomes[market.selectedOutcome].lmsrIndex
   );
-  console.log(targetOutcomes);
   // format from collectionIdGeneratorForRedeem is [collectionId, lmsrIndexOfTargetOutcome]
   const targetCollectionIds = [
     ...collectionIdGeneratorForRedeem(markets, new BN(0), 0, targetOutcomes)
   ];
   targetCollectionIds.push([0, undefined]);
-  console.log(targetCollectionIds);
 
   return targetCollectionIds;
 };

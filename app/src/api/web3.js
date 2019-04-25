@@ -6,7 +6,6 @@ import config from "../../config.json";
 let provider;
 let isLocal;
 if (process.env.NODE_ENV === "development" || process.env.NODE_ENV === "test") {
-  console.log('Using ganache because "NODE_ENV" is in development mode.');
   provider = new Web3("http://localhost:8545");
   isLocal = true;
 } else {
@@ -14,15 +13,9 @@ if (process.env.NODE_ENV === "development" || process.env.NODE_ENV === "test") {
     typeof window.ethereum !== "undefined" &&
     typeof window.ethereum.enable !== "undefined"
   ) {
-    console.log(
-      'Using window.ethereum because "NODE_ENV" is in production mode and window.ethereum.enable is available.'
-    );
     provider = new Web3(window.ethereum);
-    ethereum.enable();
+    window.ethereum.enable();
   } else {
-    console.log(
-      'Using window.web3 because "NODE_ENV" is in production mode and window.web3 is available.'
-    );
     provider = new Web3(window.web3.currentProvider);
   }
 }
@@ -48,12 +41,8 @@ export const loadContract = async (contractName, address) => {
     let instance;
     if (address) {
       instance = await contract.at(address);
-      console.log(`Loading ${contractName}@${address}`);
-      console.log(instance);
     } else {
       instance = await contract.deployed();
-      console.log(`Loading ${contractName}@deployed`);
-      console.log(instance);
     }
 
     contracts[path] = instance;
@@ -126,7 +115,6 @@ export const loadConfig = async () => {
   const network = await getNetwork();
 
   if (config[network]) {
-    console.log(`Loading configuration for network ${network}`);
     loadedConfig = config[network];
     return loadedConfig;
   }

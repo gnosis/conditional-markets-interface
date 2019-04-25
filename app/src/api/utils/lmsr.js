@@ -1,8 +1,5 @@
 import Decimal from "decimal.js";
 
-import { generatePositionId } from "./positions";
-import { loadContract } from "../web3";
-
 /**
  * Calculates the marginal prices in the LMSR contract for a specific outcome. Marginal prices can be used as probabilities.
  *

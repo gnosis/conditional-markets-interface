@@ -1,5 +1,5 @@
 import React from "react";
-
+import PropTypes from "prop-types";
 import Market from "../Market";
 
 const Markets = ({
@@ -34,5 +34,22 @@ const Markets = ({
     ))}
   </div>
 );
+
+Markets.propTypes = {
+  markets: PropTypes.arrayOf(
+    PropTypes.shape({
+      conditionId: PropTypes.string.isRequired
+    }).isRequired
+  ).isRequired,
+  assumptions: PropTypes.arrayOf(PropTypes.string.isRequired).isRequired,
+  selectedOutcomes: PropTypes.object.isRequired,
+  handleSelectOutcome: PropTypes.any.isRequired,
+  handleSelectSell: PropTypes.any.isRequired,
+  handleSellOutcome: PropTypes.any.isRequired,
+  handleSelectAssumption: PropTypes.any.isRequired,
+  handleBuyOutcomes: PropTypes.any.isRequired,
+  sellAmounts: PropTypes.any.isRequired,
+  predictionProbabilities: PropTypes.any.isRequired
+};
 
 export default Markets;
