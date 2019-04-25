@@ -12,46 +12,41 @@ contract ETHValueOracle {
     /// End of time window in which valid reports may be generated. Value is inclusive, meaning that the last valid timestamp is this.
     uint public endTime;
     /// Target ETH price at which oracle would report a full value in the first slot if the actual ETH price according to the medianizer was less than or equal to this target, and a full value in the second slot if the actual ETH price exceeded the target. This value is in the same units as the Medianizer#read function's result.
-    uint public ethTarget;
+    uint public ethPrice;
     /// Question ID oracle will use during report to the prediction market system.
     bytes32 public questionId;
 
     /// @dev Emitted upon the successful reporting of whether the ETH price has exceeded the ETH price target to the prediction market system.
-    /// @param startTime Beginning of time window in which valid reports may be generated. (AUDIT: duplicate of storage var)
-    /// @param endTime End of time window in which valid reports may be generated. (AUDIT: duplicate of storage var)
+    /// @param _startTime Beginning of time window in which valid reports may be generated. 
+    /// @param _endTime End of time window in which valid reports may be generated. 
     /// @param currentTime Time at which this oracle made a determination of the ETH price level.
-    /// @param price The ETH price level found by this contract during the reporting of the ETH price level.
-    event resolutionSuccessful(uint startTime, uint endTime, uint currentTime, uint price);
-    // (AUDIT: This event never gets emitted)
-    event resolutionFailed(uint startTime, uint endTime, uint currentTime, uint price);
-
-    constructor (PredictionMarketSystem _pmSystem, Medianizer _priceFeed, uint _startTime, uint _endTime, uint _ethTarget, bytes32 _questionId) public {
+    /// @param _ethPrice The ETH price level found by this contract during the reporting of the ETH price level.
+    event ResolutionSuccessful(uint _startTime, uint _endTime, uint currentTime, uint _ethPrice);
+    
+    constructor (PredictionMarketSystem _pmSystem, Medianizer _priceFeed, uint _startTime, uint _endTime, uint _ethPrice, bytes32 _questionId) public {
         pmSystem = PredictionMarketSystem(_pmSystem);
         priceFeed = Medianizer(_priceFeed);
         startTime = _startTime;
         endTime = _endTime;
-        ethTarget = _ethTarget;
+        ethPrice = _ethPrice;
         questionId = _questionId;
     }
 
-    /// @dev Triggers an oracle report. If the transaction occurs within the prescribed valid time window, the oracle will attempt to read an ETH price from the medianizer and report a result to the prediction market system. The result reported will be two EVM words (2*32=64 bytes). If the witnessed ETH price exceeds the target ETH price, the first word will be 0 and the second will be 1. Otherwise, if the witnessed ETH price is less than or equal to the target ETH price, the first word will be 1 and the second will be 0. (AUDIT: this function's visibility can be limited to external)
+    /// @dev Triggers an oracle report. If the transaction occurs within the prescribed valid time window, the oracle will attempt to read an ETH price from the medianizer and report a result to the prediction market system. The result reported will be two EVM words (2*32=64 bytes). If the witnessed ETH price exceeds the target ETH price, the first word will be 0 and the second will be 1. Otherwise, if the witnessed ETH price is less than or equal to the target ETH price, the first word will be 1 and the second will be 0. 
     /// @return ETH price witnessed by this oracle (AUDIT: no return is necessary)
-    function resolveETHValue() public returns(uint) {
-        // AUDIT: use block.timestamp property directly instead of pushing new variables on the stack for efficiency. priceFeed.read() expensive enough to be worth putting on the stack though.
-        uint currentTime = block.timestamp;
+    function resolveETHValue() external returns(uint) {
         bytes32 price = priceFeed.read();
 
-        if (currentTime >= startTime && currentTime <= endTime) {
-            if (uint(price) > ethTarget) {
+        if (block.timestamp >= startTime && block.timestamp <= endTime) {
+            if (uint(price) > ethPrice) {
                 pmSystem.receiveResult(questionId, abi.encodePacked(bytes32(0), bytes32(uint(1))));
-                emit resolutionSuccessful(startTime, endTime, currentTime, uint(price));
+                emit ResolutionSuccessful(startTime, endTime, block.timestamp, uint(price));
                 return uint(price);
             }
             pmSystem.receiveResult(questionId, abi.encodePacked(bytes32(uint(1)), bytes32(0)));
-            emit resolutionSuccessful(startTime, endTime, currentTime, uint(price));
+            emit ResolutionSuccessful(startTime, endTime, block.timestamp, uint(price));
             return uint(price);
         }
-        emit resolutionFailed(startTime, endTime, currentTime, uint(price));
         revert("Please submit a resolution during the correct time interval");
     }
 }

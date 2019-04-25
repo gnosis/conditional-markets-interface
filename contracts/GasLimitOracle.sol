@@ -8,20 +8,17 @@ contract GasLimitOracle {
     uint public endTime;
     /// Block gas limit at which oracle would report a full value in the first slot if the actual gas limit was less than or equal to this target, and a full value in the second slot if the actual gas limit exceeded the target.
     uint public gasLimitTarget;
-    /// Question ID oracle will use during report to the prediction market system. (AUDIT: this has no accessor unlike the other variables?)
-    bytes32 questionId;
+    /// Question ID oracle will use during report to the prediction market system.
+    bytes32 public questionId;
     /// Prediction market system this oracle reports to.
     PredictionMarketSystem public pmSystem;
 
     /// @dev Emitted upon the successful reporting of whether the gas limit has exceeded the gas limit target to the prediction market system.
-    /// @param startTime Beginning of time window in which valid reports may be generated. (AUDIT: duplicate of storage var)
-    /// @param endTime End of time window in which valid reports may be generated. (AUDIT: duplicate of storage var)
+    /// @param _startTime Beginning of time window in which valid reports may be generated. 
+    /// @param _endTime End of time window in which valid reports may be generated. 
     /// @param currentTime Time at which this oracle made a determination of the gas limit level.
     /// @param gasLimit The gas limit level found by this contract during the reporting of the gas limit level.
-    event resolutionSuccessful(uint startTime, uint endTime, uint currentTime, uint gasLimit);
-    // (AUDIT: This event never gets emitted)
-    event resolutionFailed(uint startTime, uint endTime, uint currentTime, uint gasLimit);
-
+    event ResolutionSuccessful(uint _startTime, uint _endTime, uint currentTime, uint gasLimit);
     
     constructor (PredictionMarketSystem _pmSystem, uint _startTime, uint _endTime, uint _gasLimitTarget, bytes32 _questionId) public {
         pmSystem = _pmSystem;
@@ -31,30 +28,19 @@ contract GasLimitOracle {
         questionId = _questionId;
     }
 
-    /// @dev Triggers an oracle report. If the transaction occurs within the prescribed valid time window, the oracle will attempt to report a result to the prediction market system. The result reported will be two EVM words (2*32=64 bytes). If the witnessed gas limit exceeds the target gas limit, the first word will be 0 and the second will be 1. Otherwise, if the witnessed gas limit is less than or equal to the target gas limit, the first word will be 1 and the second will be 0. (AUDIT: this function's visibility can be limited to external)
+    /// @dev Triggers an oracle report. If the transaction occurs within the prescribed valid time window, the oracle will attempt to report a result to the prediction market system. The result reported will be two EVM words (2*32=64 bytes). If the witnessed gas limit exceeds the target gas limit, the first word will be 0 and the second will be 1. Otherwise, if the witnessed gas limit is less than or equal to the target gas limit, the first word will be 1 and the second will be 0.
     /// @return Gas limit witnessed by this oracle (AUDIT: no return is necessary)
-    function resolveGasLimit() public returns(uint) {
-      // AUDIT: use block.* properties directly instead of pushing new variables on the stack for efficiency
-      uint gasLimit;
-      uint currentTime = block.timestamp;
-
-      // AUDIT: why not use block.gaslimit?
-      assembly {
-        gasLimit := gaslimit
-      }
-
-      if (currentTime >= startTime && currentTime <= endTime) {
-          if (gasLimit > gasLimitTarget) {  
+    function resolveGasLimit() external returns(uint) {
+      if (block.timestamp >= startTime && block.timestamp <= endTime) {
+          if (block.gaslimit > gasLimitTarget) {  
             pmSystem.receiveResult(questionId, abi.encodePacked(bytes32(0), bytes32(uint(1))));
-            emit resolutionSuccessful(startTime, endTime, currentTime, gasLimit);
-            return gasLimit;
+            emit ResolutionSuccessful(startTime, endTime, block.timestamp, block.gaslimit);
+            return block.gaslimit;
           } 
           pmSystem.receiveResult(questionId, abi.encodePacked(bytes32(uint(1)), bytes32(0)));
-          emit resolutionSuccessful(startTime, endTime, currentTime, gasLimit);
-          return gasLimit;
+          emit ResolutionSuccessful(startTime, endTime, block.timestamp, block.gaslimit);
+          return block.gaslimit;
       }
-      // AUDIT: If revert happens, no event would be emitted
-      emit resolutionFailed(startTime, endTime, currentTime, gasLimit);
       revert("Please submit a resolution during the correct time interval");
     }
 }
