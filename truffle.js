@@ -2,7 +2,7 @@ require('dotenv').config();
 
 var HDWalletProvider = require("truffle-hdwallet-provider");
 
-const seed = process.env.SEED || 'witch collapse practice feed shame open despair creek road again ice least' 
+const seed = process.env.SEED || 'brand gallery sock inspire error kitten orphan arch unaware palace twin soft' 
 
 /*
  * NB: since truffle-hdwallet-provider 0.0.5 you must wrap HDWallet providers in a 
