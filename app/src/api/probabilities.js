@@ -60,7 +60,7 @@ export const nameOutcomePairs = marketOutcomeNames => {
 export const getIndividualProbabilities = (
   atomicOutcomePrices,
   marketOutcomeCounts,
-  assumedOutcomeIndexes,
+  assumedOutcomeIndexes
 ) => {
   // console.log(atomicOutcomePrices)
   const outcomeIdNames = nameMarketOutcomes(marketOutcomeCounts);
@@ -85,19 +85,25 @@ export const getIndividualProbabilities = (
 
   const individualProbabilities = outcomeIdNames.map((marketIds, marketIndex) =>
     marketIds.map((outcomeId, outcomeIndex) => {
-      const sum = outcomePairNames.reduce((acc, outcomePair, outcomePairIndex) => {
-        const idsInOutcomePair = outcomePair.split("&");
+      const sum = outcomePairNames.reduce(
+        (acc, outcomePair, outcomePairIndex) => {
+          const idsInOutcomePair = outcomePair.split("&");
 
-        const hasAllAssumedOutcomesInPair = assumedOutcomeIndexes.every(
-          outcomeIndex =>
-            idsInOutcomePair.includes(outcomeIdNames.flat()[outcomeIndex])
-        );
+          const hasAllAssumedOutcomesInPair = assumedOutcomeIndexes.every(
+            outcomeIndex =>
+              idsInOutcomePair.includes(outcomeIdNames.flat()[outcomeIndex])
+          );
 
-        if (idsInOutcomePair.includes(outcomeId) && hasAllAssumedOutcomesInPair) {
-          return acc.add(new Decimal(atomicOutcomePrices[outcomePairIndex]));
-        }
-        return acc;
-      }, new Decimal(0));
+          if (
+            idsInOutcomePair.includes(outcomeId) &&
+            hasAllAssumedOutcomesInPair
+          ) {
+            return acc.add(new Decimal(atomicOutcomePrices[outcomePairIndex]));
+          }
+          return acc;
+        },
+        new Decimal(0)
+      );
 
       return sum.div(assumedOutcomesPriceSum).toString();
     })

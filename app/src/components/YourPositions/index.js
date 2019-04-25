@@ -21,40 +21,55 @@ const YourPositions = ({
   selectedSell,
   predictedSellProfit,
   isRedeeming,
-  redeemError,
+  redeemError
 }) => (
   <div className={cx("your-positions")}>
     <h2>Positions</h2>
     {!positions.length && <em>You don't hold any positions yet.</em>}
     {positions.map((position, index) => {
-      const empty = selectedSellAmount === ""
-      const validNum = !isNaN(parseFloat(selectedSellAmount)) && selectedSellAmount > 0 && isFinite(selectedSellAmount)
-      const sellAmountLowerThanBalance = validNum && !empty && new Decimal(position.value).dividedBy(new Decimal(10).pow(18)).gte(new Decimal(selectedSellAmount))
-      const canSellThisPosition = selectedSell === position.outcomeIds && validNum && sellAmountLowerThanBalance
-      console.log(position.markets)
+      const empty = selectedSellAmount === "";
+      const validNum =
+        !isNaN(parseFloat(selectedSellAmount)) &&
+        selectedSellAmount > 0 &&
+        isFinite(selectedSellAmount);
+      const sellAmountLowerThanBalance =
+        validNum &&
+        !empty &&
+        new Decimal(position.value)
+          .dividedBy(new Decimal(10).pow(18))
+          .gte(new Decimal(selectedSellAmount));
+      const canSellThisPosition =
+        selectedSell === position.outcomeIds &&
+        validNum &&
+        sellAmountLowerThanBalance;
+      console.log(position.markets);
       // only if all markets are resolved
-      const wasResolved = position.markets.every((market) => market.isResolved)
+      const wasResolved = position.markets.every(market => market.isResolved);
 
       // only if we have winnings from atleast one market
-      const hasWinnings = position.markets.some(market => market.result === market.selectedOutcome)
+      const hasWinnings = position.markets.some(
+        market => market.result === market.selectedOutcome
+      );
 
-      let sellErrorReason
+      let sellErrorReason;
 
-       if (!validNum) {
-        sellErrorReason = "Please enter a valid amount of token to sell"
+      if (!validNum) {
+        sellErrorReason = "Please enter a valid amount of token to sell";
       } else if (!sellAmountLowerThanBalance) {
-        sellErrorReason = "You can't sell more than you own of this token"
+        sellErrorReason = "You can't sell more than you own of this token";
       } else {
-        sellErrorReason = "Sorry, an error occurred. Please try again later"
+        sellErrorReason = "Sorry, an error occurred. Please try again later";
       }
 
-      if (position.value == "0") return null
+      if (position.value == "0") return null;
 
       return (
         <div key={index} className={cx("position")}>
           <div className={cx("row", "details")}>
             <div className={cx("value")}>
-              <strong>{formatFromWei(position.value, collateral.symbol)}</strong>
+              <strong>
+                {formatFromWei(position.value, collateral.symbol)}
+              </strong>
               &nbsp;
             </div>
             <div className={cx("description")}>
@@ -74,22 +89,26 @@ const YourPositions = ({
               )}
             </div>
             <div className={cx("controls")}>
-            {wasResolved && hasWinnings ? (
-              <button
-                type="button"
-                onClick={() => handleRedeem(position)}
-                disabled={isRedeeming}
-              >
-                {isRedeeming ? <Spinner centered inverted width={25} height={25} /> : "Redeem"}
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={() => handleSelectSell(position.outcomeIds)}
-              >
-                Sell
-              </button>
-            )}
+              {wasResolved && hasWinnings ? (
+                <button
+                  type="button"
+                  onClick={() => handleRedeem(position)}
+                  disabled={isRedeeming}
+                >
+                  {isRedeeming ? (
+                    <Spinner centered inverted width={25} height={25} />
+                  ) : (
+                    "Redeem"
+                  )}
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => handleSelectSell(position.outcomeIds)}
+                >
+                  Sell
+                </button>
+              )}
             </div>
             <div className={cx("messages")}>
               {!isRedeeming && redeemError && (
@@ -111,31 +130,51 @@ const YourPositions = ({
                   onChange={handleSelectSellAmount}
                 />
                 <button
-                type="button"
-                onClick={() => handleSelectSellAmount(new Decimal(position.value).dividedBy(new Decimal(10).pow(18)).toString())}
+                  type="button"
+                  onClick={() =>
+                    handleSelectSellAmount(
+                      new Decimal(position.value)
+                        .dividedBy(new Decimal(10).pow(18))
+                        .toString()
+                    )
+                  }
                 >
                   Max Amount
                 </button>
                 <button
                   type="button"
                   disabled={!canSellThisPosition}
-                  onClick={() => handleSellPosition(position.outcomes, new Decimal(selectedSellAmount).mul(new Decimal(10).pow(18)).toString())}
+                  onClick={() =>
+                    handleSellPosition(
+                      position.outcomes,
+                      new Decimal(selectedSellAmount)
+                        .mul(new Decimal(10).pow(18))
+                        .toString()
+                    )
+                  }
                 >
                   Confirm
                 </button>
               </div>
-              <div className={cx("row", "messages")}>  
+              <div className={cx("row", "messages")}>
                 <>
-                  {predictedSellProfit && predictedSellProfit > 0 && <span>Estimated earnings from sale: {formatFromWei(predictedSellProfit, collateral.symbol)}</span>}
+                  {predictedSellProfit && predictedSellProfit > 0 && (
+                    <span>
+                      Estimated earnings from sale:{" "}
+                      {formatFromWei(predictedSellProfit, collateral.symbol)}
+                    </span>
+                  )}
                 </>
                 <>
-                  {!empty && !canSellThisPosition && <span className={cx("error")}>{sellErrorReason}</span>}
+                  {!empty && !canSellThisPosition && (
+                    <span className={cx("error")}>{sellErrorReason}</span>
+                  )}
                 </>
               </div>
             </div>
           )}
         </div>
-      )
+      );
     })}
   </div>
 );

@@ -38,7 +38,7 @@ function Page({
   selectedSellAmount,
   predictedSellProfit,
   allowanceAvailable,
-  handleSetAllowance,
+  handleSetAllowance
 }) {
   return (
     <div className={cx("page")}>

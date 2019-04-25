@@ -59,6 +59,7 @@
     "@babel/preset-react": "^7.0.0",
     "@gnosis.pm/mock-contract": "^3.0.6",
     "@gnosis.pm/truffle-nice-tools": "^1.2.3",
+    "babel-eslint": "^10.0.1",
     "babel-jest": "^24.0.0",
     "babel-loader": "^8.0.5",
     "chai": "^4.2.0",

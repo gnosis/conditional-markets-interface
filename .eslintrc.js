@@ -1,12 +1,9 @@
 module.exports = {
-  extends: [
-    "plugin:react/recommended",
-    "plugin:prettier/recommended",
-  ],
-  parserOptions: { ecmaVersion: 8, sourceType: "module" },
-  "settings": {
-    "react": {
-      "version": "detect",
-    },
+  extends: ["plugin:react/recommended", "plugin:prettier/recommended"],
+  parser: "babel-eslint",
+  settings: {
+    react: {
+      version: "detect"
+    }
   }
 };

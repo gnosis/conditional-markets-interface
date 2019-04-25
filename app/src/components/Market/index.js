@@ -27,7 +27,7 @@ const Market = ({
   sellAmounts,
   handleSellOutcome,
   handleSelectAssumption,
-  predictionProbabilities,
+  predictionProbabilities
 }) => {
   let probabilities = outcomes.map(outcome => outcome.probability);
 
@@ -40,7 +40,7 @@ const Market = ({
   let outcomesWithAssumation = outcomes.map((outcome, index) => ({
     ...outcome,
     probability: probabilities[index]
-  }))
+  }));
 
   return (
     <article className={cx("market", { disabled })}>
@@ -51,7 +51,9 @@ const Market = ({
             {isResolved ? (
               <>
                 <h2 className={cx("label")}>winning outcome</h2>
-                <h2 className={cx("value", "centered")}>{outcomes[result].title}</h2>
+                <h2 className={cx("value", "centered")}>
+                  {outcomes[result].title}
+                </h2>
               </>
             ) : (
               <>
@@ -65,31 +67,42 @@ const Market = ({
           {isResolved ? (
             <div className={cx("title-info")}>
               <h2 className={cx("label")}>market closed</h2>
-              <h2 className={cx("value")}></h2>
+              <h2 className={cx("value")} />
             </div>
           ) : (
             <div className={cx("title-info")}>
               <h2 className={cx("label")}>resolves</h2>
-              <h2 className={cx("value")}>{(new Date(resolutionDate)).toLocaleString()}</h2>
+              <h2 className={cx("value")}>
+                {new Date(resolutionDate).toLocaleString()}
+              </h2>
             </div>
           )}
         </div>
       </section>
       <section className={cx("outcomes-section")}>
-        <OutcomesBinary outcomes={outcomesWithAssumation} predictionProbabilities={assumed ? undefined : predictionProbabilities[marketIndex]} isResolved={isResolved} winningOutcome={result}/>
+        <OutcomesBinary
+          outcomes={outcomesWithAssumation}
+          predictionProbabilities={
+            assumed ? undefined : predictionProbabilities[marketIndex]
+          }
+          isResolved={isResolved}
+          winningOutcome={result}
+        />
       </section>
 
-      {!isResolved && <section className={cx("selection-section")}>
-        <OutcomeSelection
-          conditionId={conditionId}
-          outcomes={outcomesWithAssumation}
-          selectedOutcome={selectedOutcome}
-          handleSelectAssumption={handleSelectAssumption}
-          handleSelectOutcome={handleSelectOutcome}
-          handleBuyOutcomes={handleBuyOutcomes}
-          assumed={assumed}
-        />
-      </section>}
+      {!isResolved && (
+        <section className={cx("selection-section")}>
+          <OutcomeSelection
+            conditionId={conditionId}
+            outcomes={outcomesWithAssumation}
+            selectedOutcome={selectedOutcome}
+            handleSelectAssumption={handleSelectAssumption}
+            handleSelectOutcome={handleSelectOutcome}
+            handleBuyOutcomes={handleBuyOutcomes}
+            assumed={assumed}
+          />
+        </section>
+      )}
     </article>
   );
 };

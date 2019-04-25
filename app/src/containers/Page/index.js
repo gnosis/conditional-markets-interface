@@ -18,7 +18,7 @@ import {
   loadProbabilitiesForPredictions,
   buyOutcomes,
   sellOutcomes,
-  loadCollateral,
+  loadCollateral
 } from "api/markets";
 import {
   loadBalances,
@@ -31,7 +31,7 @@ import {
   generateBuyDetails,
   getCollateralBalance,
   calcProfitForSale,
-  redeemPositions,
+  redeemPositions
 } from "api/balances";
 import Decimal from "decimal.js";
 import { loadConfig } from "../../api/web3";
@@ -85,7 +85,11 @@ const enhancer = compose(
   withState("invest", "setInvest"),
   withState("prices", "setPrices", {}),
   withState("balances", "setBalances", {}),
-  withState("collateral", "setCollateral", { symbol: "E", name: "ETH", decimals: 18 }),
+  withState("collateral", "setCollateral", {
+    symbol: "E",
+    name: "ETH",
+    decimals: 18
+  }),
   withState("positionIds", "setPositionIds", {}),
   withState("positions", "setPositions", {}),
   withState("stagedPositions", "setStagedPositions", []),
@@ -112,7 +116,7 @@ const enhancer = compose(
         setPositions,
         setCollateral,
         setBalances,
-        setAllowanceAvailable,
+        setAllowanceAvailable
       } = this.props;
       setLoading(LOADING_STATES.LOADING);
 
@@ -130,8 +134,8 @@ const enhancer = compose(
         const collateral = await loadCollateral();
         await setCollateral(collateral);
 
-        const allowance = await loadAllowance()
-        await setAllowanceAvailable(allowance)
+        const allowance = await loadAllowance();
+        await setAllowanceAvailable(allowance);
 
         setLoading(LOADING_STATES.SUCCESS);
       } catch (err) {
@@ -229,13 +233,14 @@ const enhancer = compose(
       // transform selectedOutcomes into outcomeIndex array, filtering all assumptions
       let totalOutcomeIndex = 0;
       markets.forEach(market => {
-        if (
-          selectedOutcomes[market.conditionId] != null
-        ) {
-          const selectedOutcome = parseInt(selectedOutcomes[market.conditionId], 10);
+        if (selectedOutcomes[market.conditionId] != null) {
+          const selectedOutcome = parseInt(
+            selectedOutcomes[market.conditionId],
+            10
+          );
 
           if (assumptions.includes(market.conditionId)) {
-            assumedIndexes.push(totalOutcomeIndex + selectedOutcome)
+            assumedIndexes.push(totalOutcomeIndex + selectedOutcome);
           } else {
             outcomeIndexes.push(totalOutcomeIndex + selectedOutcome);
           }
@@ -248,7 +253,10 @@ const enhancer = compose(
       const outcomePairs = await listOutcomePairsMatchingOutcomeId(
         outcomeIndexes
       );
-      const assumedPairs = assumedIndexes.length > 0 ? await listOutcomePairsMatchingOutcomeId(assumedIndexes, true) : []
+      const assumedPairs =
+        assumedIndexes.length > 0
+          ? await listOutcomePairsMatchingOutcomeId(assumedIndexes, true)
+          : [];
       await setOutcomesToBuy(outcomePairs);
 
       // sets if the selected position is valid (ie not all positions and not no positions)
@@ -256,7 +264,7 @@ const enhancer = compose(
         outcomePairs.length > 0 && outcomePairs.length < totalOutcomeIndex + 1
       );
 
-      generateBuyDetails(outcomePairs, assumedPairs)
+      generateBuyDetails(outcomePairs, assumedPairs);
 
       // update the price for the selected outcomes the user would buy
       const selectionPrice = await sumPricePerShare(outcomePairs);
@@ -268,7 +276,7 @@ const enhancer = compose(
       markets,
       setPredictionProbabilities,
       setOutcomeTokenBuyAmounts,
-      setStagedPositions,
+      setStagedPositions
     }) => async amount => {
       const amountValid = !isNaN(parseFloat(amount)) && parseFloat(amount) > 0;
 
@@ -313,7 +321,7 @@ const enhancer = compose(
         assumedPairs,
         amount
       );
-      console.log({ outcomeTokenCounts })
+      console.log({ outcomeTokenCounts });
       await setOutcomeTokenBuyAmounts(outcomeTokenCounts);
 
       const newPrices = await loadMarginalPrices(outcomeTokenCounts);
@@ -324,42 +332,70 @@ const enhancer = compose(
       setPredictionProbabilities(predictionProbabilities);
       // console.log("tokens purchase list:")
       // console.log(outcomeTokenCounts)
-      const stagedPositions = await generatePositionList(markets, outcomeTokenCounts);
+      const stagedPositions = await generatePositionList(
+        markets,
+        outcomeTokenCounts
+      );
       setStagedPositions(stagedPositions);
     },
-    handleCheckBalance: ({ setBuyError }) => async (invest) => {
-      const { collateral } = await loadConfig()
-      const collateralProps = await loadCollateral()
+    handleCheckBalance: ({ setBuyError }) => async invest => {
+      const { collateral } = await loadConfig();
+      const collateralProps = await loadCollateral();
 
-      const collateralDecimalDenominator = new Decimal(10).pow(collateralProps.decimals || 18)
+      const collateralDecimalDenominator = new Decimal(10).pow(
+        collateralProps.decimals || 18
+      );
 
-      const investWei = (new Decimal(invest)).mul(collateralDecimalDenominator)
+      const investWei = new Decimal(invest).mul(collateralDecimalDenominator);
       // only needed for WETH? todo
       //const gasEstimate = new Decimal(500000).mul(1e10) // 500.000 gas * 10 gwei gasprice as buffer for invest
 
-      const collateralBalance = await getCollateralBalance()
-      const collateralBalanceDecimal = new Decimal(collateralBalance.toString())
+      const collateralBalance = await getCollateralBalance();
+      const collateralBalanceDecimal = new Decimal(
+        collateralBalance.toString()
+      );
 
-      const hasEnough = investWei.lte(collateralBalanceDecimal)
+      const hasEnough = investWei.lte(collateralBalanceDecimal);
 
       if (!hasEnough) {
-        setBuyError(`Sorry, you don't have enough balance of ${collateralProps.name}. You're missing ${investWei.sub(collateralBalanceDecimal).dividedBy(collateralDecimalDenominator).toSD(4).toString()} ${collateralProps.symbol}`)
+        setBuyError(
+          `Sorry, you don't have enough balance of ${
+            collateralProps.name
+          }. You're missing ${investWei
+            .sub(collateralBalanceDecimal)
+            .dividedBy(collateralDecimalDenominator)
+            .toSD(4)
+            .toString()} ${collateralProps.symbol}`
+        );
       } else {
-        setBuyError(false)
+        setBuyError(false);
       }
     },
-    handleUpdateSellProfit: ({ positions, selectedSellAmount, setPredictedSellProfit }) => async (positionOutcomeGrouping) => {
+    handleUpdateSellProfit: ({
+      positions,
+      selectedSellAmount,
+      setPredictedSellProfit
+    }) => async positionOutcomeGrouping => {
       const asNum = parseFloat(selectedSellAmount);
 
       const isEmpty = selectedSellAmount === "";
       const validNum = !isNaN(asNum) && isFinite(asNum) && asNum > 0;
-      if (isEmpty || !validNum) return
+      if (isEmpty || !validNum) return;
 
-      const targetPosition = find(positions, {outcomeIds: positionOutcomeGrouping})
-      const sellAmountDecimal = new Decimal(selectedSellAmount).mul(new Decimal(10).pow(18)).floor()
+      const targetPosition = find(positions, {
+        outcomeIds: positionOutcomeGrouping
+      });
+      const sellAmountDecimal = new Decimal(selectedSellAmount)
+        .mul(new Decimal(10).pow(18))
+        .floor();
       if (targetPosition && targetPosition.outcomes.length > 0) {
-        const estimatedProfit = await calcProfitForSale(targetPosition.outcomes.map((positionOutcomeIds) => [positionOutcomeIds, sellAmountDecimal.toString()]))
-        setPredictedSellProfit(estimatedProfit)
+        const estimatedProfit = await calcProfitForSale(
+          targetPosition.outcomes.map(positionOutcomeIds => [
+            positionOutcomeIds,
+            sellAmountDecimal.toString()
+          ])
+        );
+        setPredictedSellProfit(estimatedProfit);
       }
     }
   }),
@@ -411,7 +447,7 @@ const enhancer = compose(
     handleSelectInvest: ({
       setInvest,
       handleUpdateOutcomeTokenCounts,
-      handleCheckBalance,
+      handleCheckBalance
     }) => e => {
       const asNum = parseFloat(e.target.value);
 
@@ -427,17 +463,27 @@ const enhancer = compose(
         handleCheckBalance(asNum);
       }
     },
-    handleSelectSell: ({ setSelectedSellPosition, setSelectedSellAmount, selectedSell, handleUpdateSellProfit, setPredictedSellProfit }) => (positionOutcomeGrouping) => {
-      setSelectedSellAmount() // reset selected sell
-      setPredictedSellProfit()
-      setSelectedSellPosition(positionOutcomeGrouping === selectedSell ? undefined : positionOutcomeGrouping)
-      handleUpdateSellProfit(positionOutcomeGrouping)
+    handleSelectSell: ({
+      setSelectedSellPosition,
+      setSelectedSellAmount,
+      selectedSell,
+      handleUpdateSellProfit,
+      setPredictedSellProfit
+    }) => positionOutcomeGrouping => {
+      setSelectedSellAmount(); // reset selected sell
+      setPredictedSellProfit();
+      setSelectedSellPosition(
+        positionOutcomeGrouping === selectedSell
+          ? undefined
+          : positionOutcomeGrouping
+      );
+      handleUpdateSellProfit(positionOutcomeGrouping);
     },
     handleSelectSellAmount: ({
       setSelectedSellAmount,
       selectedSell,
-      handleUpdateSellProfit,
-    }) => async (e) => {
+      handleUpdateSellProfit
+    }) => async e => {
       if (typeof e !== "string") {
         const asNum = parseFloat(e.target.value);
         const isEmpty = e.target.value === "";
@@ -445,28 +491,24 @@ const enhancer = compose(
 
         await setSelectedSellAmount(e.target.value);
         if (!isEmpty && validNum) {
-          handleUpdateSellProfit(selectedSell)
+          handleUpdateSellProfit(selectedSell);
         }
       } else {
         await setSelectedSellAmount(e);
-        handleUpdateSellProfit(selectedSell)
+        handleUpdateSellProfit(selectedSell);
       }
-
     },
-    handleRedeem: ({
-      setRedeemStatus,
-      setRedeemError,
-    }) => async (outcomeIds) => {
-      setRedeemStatus(true)
-      setRedeemError("")
+    handleRedeem: ({ setRedeemStatus, setRedeemError }) => async outcomeIds => {
+      setRedeemStatus(true);
+      setRedeemError("");
       try {
-        await redeemPositions(outcomeIds)
+        await redeemPositions(outcomeIds);
       } catch (err) {
-        console.error(err.message)
-        console.error(err.stack)
-        await setRedeemError(err.message)
+        console.error(err.message);
+        console.error(err.stack);
+        await setRedeemError(err.message);
       }
-      await setRedeemStatus(false)
+      await setRedeemStatus(false);
     },
     handleBuyOutcomes: ({
       markets,
@@ -487,10 +529,10 @@ const enhancer = compose(
         await buyOutcomes(outcomeTokenBuyAmounts);
       } catch (err) {
         setBuyError(err.message);
-        console.error(err.message)
-        console.error(err.stack)
+        console.error(err.message);
+        console.error(err.stack);
         setBuyingStatus(false);
-        return
+        return;
       }
 
       try {
@@ -509,8 +551,8 @@ const enhancer = compose(
         setBuyingStatus(false);
       } catch (err) {
         setBuyError(err.message);
-        console.error(err.message)
-        console.error(err.stack)
+        console.error(err.message);
+        console.error(err.stack);
         setBuyingStatus(false);
       }
     },
@@ -561,7 +603,7 @@ const enhancer = compose(
       setPositions,
       setSelectedSellAmount,
       setPredictedSellProfit,
-      setSelectedSellPosition,
+      setSelectedSellPosition
     }) => async (atomicOutcomes, amount) => {
       await sellOutcomes(atomicOutcomes, amount);
       const prices = await loadMarginalPrices();
@@ -579,21 +621,25 @@ const enhancer = compose(
       await setPositions(positions);
 
       // reset sell menu
-      setSelectedSellAmount() // reset selected sell
-      setSelectedSellPosition()
-      setPredictedSellProfit()
+      setSelectedSellAmount(); // reset selected sell
+      setSelectedSellPosition();
+      setPredictedSellProfit();
     },
-    handleSetAllowance: ({ setAllowanceAvailable, setBuyingStatus, setBuyError }) => async e => {
-      await setBuyingStatus(true)
+    handleSetAllowance: ({
+      setAllowanceAvailable,
+      setBuyingStatus,
+      setBuyError
+    }) => async e => {
+      await setBuyingStatus(true);
       try {
-        await setAllowanceInsanelyHigh()
-        const allowance = await loadAllowance()
-        await setAllowanceAvailable(allowance)
+        await setAllowanceInsanelyHigh();
+        const allowance = await loadAllowance();
+        await setAllowanceAvailable(allowance);
       } catch (err) {
-        console.error(err)
-        await setBuyError("Could not set allowance. Please try again")
+        console.error(err);
+        await setBuyError("Could not set allowance. Please try again");
       } finally {
-        await setBuyingStatus(false)
+        await setBuyingStatus(false);
       }
     }
   }),

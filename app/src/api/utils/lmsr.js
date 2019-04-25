@@ -11,16 +11,15 @@ import { loadContract } from "../web3";
  * @param {Number} outcomeIndex - Index of the outcome you want to calculate the marginal price for
  * @returns {Decimal} - marginalPrice of the specified outcomes index
  */
-export const lmsrMarginalPrice = (
-  funding,
-  lmsrTokenBalances,
-  outcomeIndex
-) => {
+export const lmsrMarginalPrice = (funding, lmsrTokenBalances, outcomeIndex) => {
   const liquidityParam = new Decimal(funding.toString()).dividedBy(
     new Decimal(lmsrTokenBalances.length).ln()
   );
 
-  return new Decimal(lmsrTokenBalances[outcomeIndex].toString()).neg().dividedBy(liquidityParam).exp()
+  return new Decimal(lmsrTokenBalances[outcomeIndex].toString())
+    .neg()
+    .dividedBy(liquidityParam)
+    .exp();
 };
 
 export const lmsrTradeCost = (_funding, balances, outcomeTokenAmounts) => {
@@ -55,23 +54,19 @@ export const lmsrTradeCost = (_funding, balances, outcomeTokenAmounts) => {
   return costBefore.sub(costAfter);
 };
 
-export const lmsrNetCost = (
-  funding,
-  tokenAmounts,
-  lmsrTokenBalances,
-) => {
+export const lmsrNetCost = (funding, tokenAmounts, lmsrTokenBalances) => {
   // netCost = Funding * log2(2**((tokenAmounts[0]-lmsrTokenBalances[0])/F) + 2**((tokenAmounts[1]-lmsrTokenBalances[1])/F)) + ...
-  const decimalFunding = new Decimal(funding.toString())
+  const decimalFunding = new Decimal(funding.toString());
   const tokenDifferences = tokenAmounts.map((amount, index) => {
-    const decimalAmount = new Decimal(amount)
-    const decimalBalance = new Decimal(lmsrTokenBalances[index].toString())
+    const decimalAmount = new Decimal(amount);
+    const decimalBalance = new Decimal(lmsrTokenBalances[index].toString());
 
-    return Decimal.sub(decimalAmount, decimalBalance).dividedBy(decimalFunding)
-  })
+    return Decimal.sub(decimalAmount, decimalBalance).dividedBy(decimalFunding);
+  });
 
   return tokenDifferences.reduce((acc, difference) => {
-    return acc.plus(difference.exp().ln())
-  }, new Decimal(0))
+    return acc.plus(difference.exp().ln());
+  }, new Decimal(0));
 };
 
 /**
@@ -87,37 +82,67 @@ export const lmsrCalcOutcomeTokenCount = (
   lmsrTokenBalances,
   outcomenTokenIndexes,
   amount,
-  unassumedTokenIndexes,
+  unassumedTokenIndexes
 ) => {
-  const collateralAmount = new Decimal(amount.toString()).times(new Decimal(10).pow(18))
-  const atomicOutcomeCount = lmsrTokenBalances.length
+  const collateralAmount = new Decimal(amount.toString()).times(
+    new Decimal(10).pow(18)
+  );
+  const atomicOutcomeCount = lmsrTokenBalances.length;
 
   const liquidityParam = new Decimal(funding.toString()).dividedBy(
     new Decimal(atomicOutcomeCount).ln()
   );
 
-  const lmsrTokenBalancesInsideSet = lmsrTokenBalances.filter((_, index) => outcomenTokenIndexes.includes(index))
-  const lmsrTokenBalancesOutsideSetUnassumed = lmsrTokenBalances.filter((_, index) => !outcomenTokenIndexes.includes(index) && unassumedTokenIndexes.includes(index))
-  const lmsrTokenBalancesOutsideSetAssumed = lmsrTokenBalances.filter((_, index) => !outcomenTokenIndexes.includes(index) && !unassumedTokenIndexes.includes(index))
+  const lmsrTokenBalancesInsideSet = lmsrTokenBalances.filter((_, index) =>
+    outcomenTokenIndexes.includes(index)
+  );
+  const lmsrTokenBalancesOutsideSetUnassumed = lmsrTokenBalances.filter(
+    (_, index) =>
+      !outcomenTokenIndexes.includes(index) &&
+      unassumedTokenIndexes.includes(index)
+  );
+  const lmsrTokenBalancesOutsideSetAssumed = lmsrTokenBalances.filter(
+    (_, index) =>
+      !outcomenTokenIndexes.includes(index) &&
+      !unassumedTokenIndexes.includes(index)
+  );
 
-  const negExpSummer = (acc, numShares) => acc.plus(
-    new Decimal(numShares.toString()).neg().dividedBy(liquidityParam).exp()
-  )
+  const negExpSummer = (acc, numShares) =>
+    acc.plus(
+      new Decimal(numShares.toString())
+        .neg()
+        .dividedBy(liquidityParam)
+        .exp()
+    );
 
-  const shareAmountEach = liquidityParam.times(
-    collateralAmount.dividedBy(liquidityParam).exp().sub(
-      lmsrTokenBalancesOutsideSetUnassumed.reduce(negExpSummer, new Decimal(0)).mul(collateralAmount.dividedBy(liquidityParam).exp())
-    ).sub(
-      lmsrTokenBalancesOutsideSetAssumed.reduce(negExpSummer, new Decimal(0))
-    ).dividedBy(
-      lmsrTokenBalancesInsideSet.reduce(negExpSummer, new Decimal(0))
-    ).ln()
-  ).floor();
+  const shareAmountEach = liquidityParam
+    .times(
+      collateralAmount
+        .dividedBy(liquidityParam)
+        .exp()
+        .sub(
+          lmsrTokenBalancesOutsideSetUnassumed
+            .reduce(negExpSummer, new Decimal(0))
+            .mul(collateralAmount.dividedBy(liquidityParam).exp())
+        )
+        .sub(
+          lmsrTokenBalancesOutsideSetAssumed.reduce(
+            negExpSummer,
+            new Decimal(0)
+          )
+        )
+        .dividedBy(
+          lmsrTokenBalancesInsideSet.reduce(negExpSummer, new Decimal(0))
+        )
+        .ln()
+    )
+    .floor();
 
   return lmsrTokenBalances.map((_, index) => {
-    if (outcomenTokenIndexes.includes(index)) return shareAmountEach.toString()
-    if (unassumedTokenIndexes.includes(index)) return collateralAmount.toString()
-    return "0"
-  })
+    if (outcomenTokenIndexes.includes(index)) return shareAmountEach.toString();
+    if (unassumedTokenIndexes.includes(index))
+      return collateralAmount.toString();
+    return "0";
+  });
 };
-window.lmsrCalcOutcomeTokenCount = lmsrCalcOutcomeTokenCount
+window.lmsrCalcOutcomeTokenCount = lmsrCalcOutcomeTokenCount;

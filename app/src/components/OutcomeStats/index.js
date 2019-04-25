@@ -9,12 +9,18 @@ import { formatEther } from "./utils/numberFormat";
 
 const cx = cn.bind(css);
 
-const OutcomeStats = ({ name, short, price, balance, isSelected, lastValue, setLastValue }) => (
+const OutcomeStats = ({
+  name,
+  short,
+  price,
+  balance,
+  isSelected,
+  lastValue,
+  setLastValue
+}) => (
   <div className={cx("outcome-stat", { selected: isSelected })}>
     <div>
-      <span className={cx("name")}>
-        {short}&nbsp;
-      </span>
+      <span className={cx("name")}>{short}&nbsp;</span>
     </div>
     <dl className={cx("stats")}>
       <dt>Price</dt>
@@ -35,6 +41,10 @@ const OutcomeStats = ({ name, short, price, balance, isSelected, lastValue, setL
   </div>
 );
 
-const enhancer = compose(withState("lastValue", "setLastValue", ({ balance }) => parseInt(balance || "0", 10)));
+const enhancer = compose(
+  withState("lastValue", "setLastValue", ({ balance }) =>
+    parseInt(balance || "0", 10)
+  )
+);
 
 export default enhancer(OutcomeStats);

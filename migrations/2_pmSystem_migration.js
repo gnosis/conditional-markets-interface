@@ -1,7 +1,7 @@
 const { toHex, padLeft, keccak256, toChecksumAddress } = web3.utils;
 const rlp = require("rlp");
 
-const writeToConfig = require("./utils/writeToConfig")
+const writeToConfig = require("./utils/writeToConfig");
 
 const PredictionMarketSystem = artifacts.require("PredictionMarketSystem");
 const DifficultyOracle = artifacts.require("DifficultyOracle");
@@ -18,96 +18,73 @@ const defaultAMMFunding = (1e19).toString();
 
 module.exports = (deployer, network, accounts) => {
   if (network === "mainnet") {
-    //   __  __    _    ___ _   _ _   _ _____ _____ 
+    //   __  __    _    ___ _   _ _   _ _____ _____
     // |  \/  |  / \  |_ _| \ | | \ | | ____|_   _|
-    // | |\/| | / _ \  | ||  \| |  \| |  _|   | |  
-    // | |  | |/ ___ \ | || |\  | |\  | |___  | |  
-    // |_|  |_/_/   \_\___|_| \_|_| \_|_____| |_|    
+    // | |\/| | / _ \  | ||  \| |  \| |  _|   | |
+    // | |  | |/ ___ \ | || |\  | |\  | |___  | |
+    // |_|  |_/_/   \_\___|_| \_|_| \_|_____| |_|
     //
     // Mainnet Deploy below this point. Be careful 🙈
     //
 
-    const DAI_TOKEN_ADDRESS = "0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359"
+    const DAI_TOKEN_ADDRESS = "0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359";
     // MAINNET DEPLOY FOR DAI PRESENTATION 2019/03/05
     deployer.deploy(PredictionMarketSystem).then(async pmSystemInstance => {
       // Deploy the base contracts
       await deployer.deploy(Fixed192x64Math);
       await deployer.link(Fixed192x64Math, LMSRMarketMakerFactory);
       await deployer.link(Fixed192x64Math, LMSRMarketMaker);
-      const collateralToken = await ERC20Detailed.at(DAI_TOKEN_ADDRESS)
+      const collateralToken = await ERC20Detailed.at(DAI_TOKEN_ADDRESS);
       const LMSRMarketMakerFactoryInstance = await deployer.deploy(
         LMSRMarketMakerFactory
       );
 
-      const QUESTIONID1 = process.env.O1QUESTIONID || "0x07"
-      const QUESTIONID2 = process.env.O2QUESTIONID || "0x08"
-      const QUESTIONID3 = process.env.O3QUESTIONID || "0x09"
-      
+      const QUESTIONID1 = process.env.O1QUESTIONID || "0x07";
+      const QUESTIONID2 = process.env.O2QUESTIONID || "0x08";
+      const QUESTIONID3 = process.env.O3QUESTIONID || "0x09";
+
       // Prepare and identify the conditions in the pmSystem
-      await pmSystemInstance.prepareCondition(
-        accounts[0],
-        QUESTIONID1,
-        2
-      );
-      await pmSystemInstance.prepareCondition(
-        accounts[0],
-        QUESTIONID2,
-        2
-      );
-      await pmSystemInstance.prepareCondition(
-        accounts[0],
-        QUESTIONID3,
-        2
-      );
+      await pmSystemInstance.prepareCondition(accounts[0], QUESTIONID1, 2);
+      await pmSystemInstance.prepareCondition(accounts[0], QUESTIONID2, 2);
+      await pmSystemInstance.prepareCondition(accounts[0], QUESTIONID3, 2);
 
       const conditionOneId = keccak256(
         accounts[0] +
-          [
-            QUESTIONID1,
-            2
-          ]
-            .map(v => padLeft(toHex(v), 64).slice(2))
-            .join("")
+          [QUESTIONID1, 2].map(v => padLeft(toHex(v), 64).slice(2)).join("")
       );
       const conditionTwoId = keccak256(
         accounts[0] +
-          [
-            QUESTIONID2,
-            2
-          ]
-            .map(v => padLeft(toHex(v), 64).slice(2))
-            .join("")
+          [QUESTIONID2, 2].map(v => padLeft(toHex(v), 64).slice(2)).join("")
       );
       const conditionThreeId = keccak256(
         accounts[0] +
-          [
-            QUESTIONID3,
-            2
-          ]
-            .map(v => padLeft(toHex(v), 64).slice(2))
-            .join("")
+          [QUESTIONID3, 2].map(v => padLeft(toHex(v), 64).slice(2)).join("")
       );
 
-      process.env.CONDITION_IDS = [conditionOneId, conditionTwoId, conditionThreeId].join(",")
+      process.env.CONDITION_IDS = [
+        conditionOneId,
+        conditionTwoId,
+        conditionThreeId
+      ].join(",");
       writeToConfig("mainnet", {
         conditionIds: [conditionOneId, conditionTwoId, conditionThreeId],
-        collateral: collateralToken.address, 
-      })
+        collateral: collateralToken.address
+      });
     });
     //
     // Mainnet Deploy above this point. Be careful 🙈
-    //   __  __    _    ___ _   _ _   _ _____ _____ 
+    //   __  __    _    ___ _   _ _   _ _____ _____
     // |  \/  |  / \  |_ _| \ | | \ | | ____|_   _|
-    // | |\/| | / _ \  | ||  \| |  \| |  _|   | |  
-    // | |  | |/ ___ \ | || |\  | |\  | |___  | |  
-    // |_|  |_/_/   \_\___|_| \_|_| \_|_____| |_|    
+    // | |\/| | / _ \  | ||  \| |  \| |  _|   | |
+    // | |  | |/ ___ \ | || |\  | |\  | |___  | |
+    // |_|  |_/_/   \_\___|_| \_|_| \_|_____| |_|
     //
   } else if (network === "rinkeby") {
     const medianizerAddr = "0xbfFf80B73F081Cc159534d922712551C5Ed8B3D3";
     //const DAI_TOKEN_ADDRESS = "0x6f2d6ff85efca691aad23d549771160a12f0a0fc"
     deployer.deploy(PredictionMarketSystem).then(async pmSystemInstance => {
-      const WETH9Instance = await deployer.deploy(WETH9)
-      const collateralToken = await ERC20Detailed.at(WETH9Instance.address)
+      const WETH9Instance = await deployer.deploy(WETH9);
+      const collateralToken = await ERC20Detailed.at(WETH9Instance.address);
 
       // Deposit the CollateralTokens necessary and approve() the pre-deployed LMSR instance
       await WETH9Instance.deposit({
@@ -195,20 +172,22 @@ module.exports = (deployer, network, accounts) => {
             .map(v => padLeft(toHex(v), 64).slice(2))
             .join("")
       );
-      
-      process.env.CONDITION_IDS = [conditionOneId, conditionTwoId, conditionThreeId].join(",")
+
+      process.env.CONDITION_IDS = [
+        conditionOneId,
+        conditionTwoId,
+        conditionThreeId
+      ].join(",");
       console.log({
         difficultyMarket: conditionOneId,
         gasLimitMarket: conditionTwoId,
         ethValueMarket: conditionThreeId
       });
-      
-      writeToConfig(
-        "rinkeby", {
-          conditionIds: [conditionOneId, conditionTwoId, conditionThreeId],
-          collateral: collateralToken.address
-        }
-      )
+
+      writeToConfig("rinkeby", {
+        conditionIds: [conditionOneId, conditionTwoId, conditionThreeId],
+        collateral: collateralToken.address
+      });
     });
   } else if (network === "development" || network === "test") {
     deployer.deploy(PredictionMarketSystem).then(async pmSystemInstance => {
@@ -237,8 +216,8 @@ module.exports = (deployer, network, accounts) => {
         process.env.O2TARGET || 10,
         process.env.O2QUESTIONID || "0x02"
       );
-      
-      const medianizerInstance = await deployer.deploy(TestMedianizer)
+
+      const medianizerInstance = await deployer.deploy(TestMedianizer);
       const ethValueOracle = await deployer.deploy(
         ETHValueOracle,
         pmSystemInstance.address,
@@ -247,7 +226,7 @@ module.exports = (deployer, network, accounts) => {
         process.env.O3ENDBLOCK || 1e9,
         process.env.O3TARGET || 10,
         process.env.O3QUESTIONID || "0x03"
-      )
+      );
       // Prepare and identify the conditions in the pmSystem
       await pmSystemInstance.prepareCondition(
         difficultyOracleInstance.address,
@@ -295,12 +274,16 @@ module.exports = (deployer, network, accounts) => {
             .join("")
       );
 
-      process.env.CONDITION_IDS = [conditionOneId, conditionTwoId, conditionThreeId].join(",")
+      process.env.CONDITION_IDS = [
+        conditionOneId,
+        conditionTwoId,
+        conditionThreeId
+      ].join(",");
       if (network === "development") {
         writeToConfig("ganache", {
           conditionIds: [conditionOneId, conditionTwoId, conditionThreeId],
-          collateral: collateralToken.address, 
-        })
+          collateral: collateralToken.address
+        });
       }
     });
   }

@@ -1,17 +1,34 @@
-import { sortBy, padEnd, padStart } from "lodash"
+import { sortBy, padEnd, padStart } from "lodash";
 
-import { getDefaultAccount, getETHBalance, loadContract, loadConfig } from "./web3";
-import { generatePositionId, generatePositionIdList, findCollectionIdsForConditionsAndSelections } from "./utils/positions";
-import { nameMarketOutcomes, nameOutcomePairs, listAffectedMarketsForOutcomeIds } from "./utils/probabilities";
-import { lmsrTradeCost, lmsrCalcOutcomeTokenCount, lmsrNetCost } from "./utils/lmsr";
+import {
+  getDefaultAccount,
+  getETHBalance,
+  loadContract,
+  loadConfig
+} from "./web3";
+import {
+  generatePositionId,
+  generatePositionIdList,
+  findCollectionIdsForConditionsAndSelections
+} from "./utils/positions";
+import {
+  nameMarketOutcomes,
+  nameOutcomePairs,
+  listAffectedMarketsForOutcomeIds
+} from "./utils/probabilities";
+import {
+  lmsrTradeCost,
+  lmsrCalcOutcomeTokenCount,
+  lmsrNetCost
+} from "./utils/lmsr";
 import { resolvePositionGrouping } from "./utils/positionGrouping";
 import Decimal from "decimal.js";
 
-window.Decimal = Decimal
+window.Decimal = Decimal;
 
 export const loadPositions = async () => {
   const { lmsr, markets, collateral: collateralAddress } = await loadConfig();
-  
+
   // use position id generator
   const collateral = await loadContract("ERC20Detailed", collateralAddress);
   const LMSR = await loadContract("LMSRMarketMaker", lmsr);
@@ -50,7 +67,6 @@ export const loadBalances = async positions => {
         positionId
       )).toString();
 
-      
       balancesList.push(balances[positionId]);
     })
   );
@@ -66,7 +82,9 @@ export const loadLmsrTokenBalances = async lmsr => {
 
   return Promise.all(
     positions.map(async position => {
-      const balance = (await PMSystem.balanceOf(lmsr, position)).abs().toString();
+      const balance = (await PMSystem.balanceOf(lmsr, position))
+        .abs()
+        .toString();
 
       return balance;
     })
@@ -87,122 +105,151 @@ export const loadMarketOutcomeCounts = async () => {
     );
   }
 
-  return stored_marketOutcomeCounts
-}
+  return stored_marketOutcomeCounts;
+};
 
 export const generatePositionList = async (markets, balances) => {
   const marketOutcomeCounts = await loadMarketOutcomeCounts();
   const { lmsr } = await loadConfig();
   const outcomeIdNames = nameMarketOutcomes(marketOutcomeCounts);
   const outcomePairNames = nameOutcomePairs(outcomeIdNames);
-  
+
   // extrapolate individual positions out of this information
   // e.g. Ay independent of all other outcomes is lowest amount in Ay****
   // AyBy independent of C* is lowest amount in AyBy**
-  
-  const positionGroupings = resolvePositionGrouping(outcomeIdNames, balances.map((balance, index) => [outcomePairNames[index], balance]))
-  const positionGroupingsSorted = sortBy(positionGroupings, [([ outcomeIds, value ]) => outcomeIds.length, ([ outcomeIds, value ]) => value ])
-  
+
+  const positionGroupings = resolvePositionGrouping(
+    outcomeIdNames,
+    balances.map((balance, index) => [outcomePairNames[index], balance])
+  );
+  const positionGroupingsSorted = sortBy(positionGroupings, [
+    ([outcomeIds, value]) => outcomeIds.length,
+    ([outcomeIds, value]) => value
+  ]);
+
   return await Promise.all(
-    positionGroupingsSorted.map(async ([outcomeIds, value, affectedAtomicOutcomes]) => {
-      const affectedMarkets = listAffectedMarketsForOutcomeIds(markets, outcomeIds)
-      
-      return {
-        outcomeIds,
-        value,
-        markets: affectedMarkets,
-        outcomes: affectedAtomicOutcomes,
-      };
-    })
+    positionGroupingsSorted.map(
+      async ([outcomeIds, value, affectedAtomicOutcomes]) => {
+        const affectedMarkets = listAffectedMarketsForOutcomeIds(
+          markets,
+          outcomeIds
+        );
+
+        return {
+          outcomeIds,
+          value,
+          markets: affectedMarkets,
+          outcomes: affectedAtomicOutcomes
+        };
+      }
+    )
   );
 };
 
 export const loadAllowance = async () => {
-  const { lmsr, collateral } = await loadConfig()
-  
-  const owner = await getDefaultAccount()
-  const collateralContract = await loadContract("ERC20Detailed", collateral)
+  const { lmsr, collateral } = await loadConfig();
+
+  const owner = await getDefaultAccount();
+  const collateralContract = await loadContract("ERC20Detailed", collateral);
 
   // DEBUG: sets a window func to deposit to collateral, if possible
   if (!window.deposit) {
-    window.deposit = async (amount) => {
-      const collateralContractForDeposit = await loadContract("WETH9", collateral)
-      if (!collateralContractForDeposit.deposit) { console.error("No deposit function on this collateral token instance") }
-      try {
-        await collateralContractForDeposit.deposit({ value: amount, from: owner })
-        console.log(`success. deposited ${new Decimal(amount).dividedBy(new Decimal(10).pow(18)).toSD(4).toString()} collateral`)
-      } catch (err) {
-        console.log("failed")
+    window.deposit = async amount => {
+      const collateralContractForDeposit = await loadContract(
+        "WETH9",
+        collateral
+      );
+      if (!collateralContractForDeposit.deposit) {
+        console.error("No deposit function on this collateral token instance");
       }
-    }
+      try {
+        await collateralContractForDeposit.deposit({
+          value: amount,
+          from: owner
+        });
+        console.log(
+          `success. deposited ${new Decimal(amount)
+            .dividedBy(new Decimal(10).pow(18))
+            .toSD(4)
+            .toString()} collateral`
+        );
+      } catch (err) {
+        console.log("failed");
+      }
+    };
   }
 
-  return (await collateralContract.allowance(owner, lmsr)).toString()
-}
+  return (await collateralContract.allowance(owner, lmsr)).toString();
+};
 
 export const setAllowanceInsanelyHigh = async () => {
-  const { lmsr, collateral } = await loadConfig()
-  
-  const owner = await getDefaultAccount()
-  const collateralContract = await loadContract("ERC20Detailed", collateral)
+  const { lmsr, collateral } = await loadConfig();
+
+  const owner = await getDefaultAccount();
+  const collateralContract = await loadContract("ERC20Detailed", collateral);
 
   // 10 ETH
   //console.log("Setting allowance")
-  const tx = await collateralContract.approve(lmsr, new Decimal(10).pow(19).toString(), { from: owner })
+  const tx = await collateralContract.approve(
+    lmsr,
+    new Decimal(10).pow(19).toString(),
+    { from: owner }
+  );
   //console.log(tx)
 
-  return (await collateralContract.allowance(owner, lmsr)).toString()
-}
+  return (await collateralContract.allowance(owner, lmsr)).toString();
+};
 
-export const calcProfitForSale = async (sellAmounts) => {
+export const calcProfitForSale = async sellAmounts => {
   const marketOutcomeCounts = await loadMarketOutcomeCounts();
   const outcomeIdNames = nameMarketOutcomes(marketOutcomeCounts);
   const outcomePairNames = nameOutcomePairs(outcomeIdNames);
 
-  const simulatedSellAmounts = outcomePairNames.map(_ => "0")
+  const simulatedSellAmounts = outcomePairNames.map(_ => "0");
 
   sellAmounts.forEach(([atomicOutcome, amount]) => {
-    const pairNameListIndex = outcomePairNames.indexOf(atomicOutcome)
-    simulatedSellAmounts[pairNameListIndex] = `-${amount}`
-  })
+    const pairNameListIndex = outcomePairNames.indexOf(atomicOutcome);
+    simulatedSellAmounts[pairNameListIndex] = `-${amount}`;
+  });
 
-  const { lmsr } = await loadConfig()
-  const LMSR = await loadContract("LMSRMarketMaker", lmsr)
+  const { lmsr } = await loadConfig();
+  const LMSR = await loadContract("LMSRMarketMaker", lmsr);
 
-  const funding = (await LMSR.funding()).toString()
-  const lmsrTokenBalances = await loadLmsrTokenBalances(lmsr)
+  const funding = (await LMSR.funding()).toString();
+  const lmsrTokenBalances = await loadLmsrTokenBalances(lmsr);
   //console.log(funding, simulatedSellAmounts, lmsrTokenBalances)
 
-  return new Decimal((await LMSR.calcNetCost.call(simulatedSellAmounts)).toString()).neg()
+  return new Decimal(
+    (await LMSR.calcNetCost.call(simulatedSellAmounts)).toString()
+  ).neg();
   //const predictedProfit = lmsrNetCost(funding, simulatedSellAmounts, lmsrTokenBalances)
 
   //return predictedProfit.neg().mul(new Decimal(10).pow(18)).toString()
-}
+};
 
 export const getCollateralBalance = async () => {
-  const { collateral } = await loadConfig()
+  const { collateral } = await loadConfig();
 
-  let collateralContract
-  let amount = new Decimal("0")
+  let collateralContract;
+  let amount = new Decimal("0");
   try {
-    collateralContract = await loadContract("WETH9", collateral)
+    collateralContract = await loadContract("WETH9", collateral);
 
-    const ethBalance = await getETHBalance()
-    amount = amount.add(ethBalance)
+    const ethBalance = await getETHBalance();
+    amount = amount.add(ethBalance);
   } catch (err) {}
 
   if (!collateralContract) {
-    collateralContract = await loadContract("ERC20Detailed", collateral)
+    collateralContract = await loadContract("ERC20Detailed", collateral);
   }
-  
 
-  const owner = await getDefaultAccount()
-  const collateralBalance = await collateralContract.balanceOf(owner)
-  amount = amount.add(new Decimal(collateralBalance.toString()))
+  const owner = await getDefaultAccount();
+  const collateralBalance = await collateralContract.balanceOf(owner);
+  amount = amount.add(new Decimal(collateralBalance.toString()));
 
-  return amount
-}
-window.getCollateralBalance = getCollateralBalance
+  return amount;
+};
+window.getCollateralBalance = getCollateralBalance;
 
 export const generateBuyDetails = async (outcomePairs, assumedPairs) => {
   const marketOutcomeCounts = await loadMarketOutcomeCounts();
@@ -210,144 +257,213 @@ export const generateBuyDetails = async (outcomePairs, assumedPairs) => {
   const outcomeIdNames = nameMarketOutcomes(marketOutcomeCounts);
 
   // todo
-}
+};
 
-export const listAffectedOutcomesForIds = async (outcomeIds) => {
+export const listAffectedOutcomesForIds = async outcomeIds => {
   const marketOutcomeCounts = await loadMarketOutcomeCounts();
   const outcomeIdNames = nameMarketOutcomes(marketOutcomeCounts);
   const outcomePairNames = nameOutcomePairs(outcomeIdNames);
 
-  let outcomeIdArray = outcomeIds
-  if (typeof outcomeIds === 'string') {
-    outcomeIdArray = outcomeIds.split(/&/g)
+  let outcomeIdArray = outcomeIds;
+  if (typeof outcomeIds === "string") {
+    outcomeIdArray = outcomeIds.split(/&/g);
   }
 
-  return outcomePairNames.filter((outcomes) => outcomeIdArray.every((id) => outcomes.split(/&/g).includes(id)))
-}
+  return outcomePairNames.filter(outcomes =>
+    outcomeIdArray.every(id => outcomes.split(/&/g).includes(id))
+  );
+};
 
-export const listOutcomePairsMatchingOutcomeId = async (outcomeIndexes, invert) => {
+export const listOutcomePairsMatchingOutcomeId = async (
+  outcomeIndexes,
+  invert
+) => {
   const marketOutcomeCounts = await loadMarketOutcomeCounts();
   const outcomeIdNames = nameMarketOutcomes(marketOutcomeCounts);
   const outcomePairNames = nameOutcomePairs(outcomeIdNames);
 
   if (invert) {
     // if it doesn't include any passed outcome ids
-    return outcomePairNames.filter((pair) => outcomeIndexes.some((index) => !pair.split(/&/g).includes(outcomeIdNames.flat()[index])))
+    return outcomePairNames.filter(pair =>
+      outcomeIndexes.some(
+        index => !pair.split(/&/g).includes(outcomeIdNames.flat()[index])
+      )
+    );
   }
 
   // if it includes all passed outcome ids
-  return outcomePairNames.filter((pair) => outcomeIndexes.every((index) => pair.split(/&/g).includes(outcomeIdNames.flat()[index])))
-}
+  return outcomePairNames.filter(pair =>
+    outcomeIndexes.every(index =>
+      pair.split(/&/g).includes(outcomeIdNames.flat()[index])
+    )
+  );
+};
 
-export const indexesForOutcomePairs = async (outcomePairs) => {
+export const indexesForOutcomePairs = async outcomePairs => {
   const marketOutcomeCounts = await loadMarketOutcomeCounts();
   const outcomeIdNames = nameMarketOutcomes(marketOutcomeCounts);
   const outcomePairNames = nameOutcomePairs(outcomeIdNames);
 
-  return outcomePairNames.map((_, index) => index).filter((outcomePairIndex) => outcomePairs.includes(outcomePairNames[outcomePairIndex]))
-}
+  return outcomePairNames
+    .map((_, index) => index)
+    .filter(outcomePairIndex =>
+      outcomePairs.includes(outcomePairNames[outcomePairIndex])
+    );
+};
 
-export const sumPricePerShare = async (outcomePairs) => {
-  const { lmsr } = await loadConfig()
+export const sumPricePerShare = async outcomePairs => {
+  const { lmsr } = await loadConfig();
 
   const marketOutcomeCounts = await loadMarketOutcomeCounts();
   const outcomeIdNames = nameMarketOutcomes(marketOutcomeCounts);
   const outcomePairNames = nameOutcomePairs(outcomeIdNames);
 
-  const outcomePairsAsIndexes = outcomePairs.map((outcomePair) => outcomePairNames.indexOf(outcomePair))
-  const LMSR = await loadContract("LMSRMarketMaker", lmsr)
+  const outcomePairsAsIndexes = outcomePairs.map(outcomePair =>
+    outcomePairNames.indexOf(outcomePair)
+  );
+  const LMSR = await loadContract("LMSRMarketMaker", lmsr);
 
-  const funding = (await LMSR.funding()).toString()
-  const balances = await loadLmsrTokenBalances(lmsr)
+  const funding = (await LMSR.funding()).toString();
+  const balances = await loadLmsrTokenBalances(lmsr);
 
-  const tokenAmounts = Array(outcomePairNames.length).fill().map((_, index) => (
-    outcomePairsAsIndexes.includes(index) ? 1 : 0
-  ))
+  const tokenAmounts = Array(outcomePairNames.length)
+    .fill()
+    .map((_, index) => (outcomePairsAsIndexes.includes(index) ? 1 : 0));
 
-  return lmsrTradeCost(funding, balances, tokenAmounts)
-}
+  return lmsrTradeCost(funding, balances, tokenAmounts);
+};
 
-export const calcOutcomeTokenCounts = async (outcomePairs, assumedPairs, amount) => {
+export const calcOutcomeTokenCounts = async (
+  outcomePairs,
+  assumedPairs,
+  amount
+) => {
   // console.log(outcomePairs)
-  const { lmsr } = await loadConfig()
+  const { lmsr } = await loadConfig();
 
   const marketOutcomeCounts = await loadMarketOutcomeCounts();
   const outcomeIdNames = nameMarketOutcomes(marketOutcomeCounts);
   const outcomePairNames = nameOutcomePairs(outcomeIdNames);
 
-  const LMSR = await loadContract("LMSRMarketMaker", lmsr)
-  const funding = (await LMSR.funding()).toString()
-  const lmsrTokenBalances = await loadLmsrTokenBalances(lmsr)
+  const LMSR = await loadContract("LMSRMarketMaker", lmsr);
+  const funding = (await LMSR.funding()).toString();
+  const lmsrTokenBalances = await loadLmsrTokenBalances(lmsr);
 
   // console.log("selected and assumed")
   // console.log(outcomePairs, assumedPairs)
 
-  const assumedPairIndexes = assumedPairs.map((outcomePair) => outcomePairNames.indexOf(outcomePair))
-  const outcomePairsAsIndexes = outcomePairs.map((outcomePair) => outcomePairNames.indexOf(outcomePair))
+  const assumedPairIndexes = assumedPairs.map(outcomePair =>
+    outcomePairNames.indexOf(outcomePair)
+  );
+  const outcomePairsAsIndexes = outcomePairs.map(outcomePair =>
+    outcomePairNames.indexOf(outcomePair)
+  );
 
   // console.log(assumedPairIndexes, outcomePairsAsIndexes)
-  const outcomeTokenCounts = await lmsrCalcOutcomeTokenCount(funding, lmsrTokenBalances, outcomePairsAsIndexes, amount, assumedPairIndexes)
-  
-  return outcomeTokenCounts
-}
+  const outcomeTokenCounts = await lmsrCalcOutcomeTokenCount(
+    funding,
+    lmsrTokenBalances,
+    outcomePairsAsIndexes,
+    amount,
+    assumedPairIndexes
+  );
 
-export const tryToDepositCollateral = async (collateralAddress, targetAddress, amount) => {
+  return outcomeTokenCounts;
+};
+
+export const tryToDepositCollateral = async (
+  collateralAddress,
+  targetAddress,
+  amount
+) => {
   const defaultAccount = await getDefaultAccount();
 
-  let collateralContract
+  let collateralContract;
   try {
     collateralContract = await loadContract("WETH9", collateralAddress);
-    const balance = await collateralContract.balanceOf(defaultAccount)
-    console.log("WETH9 compatible, wrapping ETH")
-    console.log((new Decimal(amount.toString())).sub(new Decimal(balance.toString())).toString())
-    await collateralContract.deposit({ value: (new Decimal(amount.toString())).sub(new Decimal(balance.toString())).toString(), from: defaultAccount })
+    const balance = await collateralContract.balanceOf(defaultAccount);
+    console.log("WETH9 compatible, wrapping ETH");
+    console.log(
+      new Decimal(amount.toString())
+        .sub(new Decimal(balance.toString()))
+        .toString()
+    );
+    await collateralContract.deposit({
+      value: new Decimal(amount.toString())
+        .sub(new Decimal(balance.toString()))
+        .toString(),
+      from: defaultAccount
+    });
   } catch (err) {
-    console.log("depositing failed")
-    console.log(err)
+    console.log("depositing failed");
+    console.log(err);
   }
 
   if (!collateralContract) {
-    console.log("Not WETH9 compatible")
+    console.log("Not WETH9 compatible");
     //collateralContract = await loadContract("ERC20Detailed", collateral)
   }
-  
-  return collateralContract
-}
-export const redeemPositions = async (outcomeIds) => {
-  const { collateral, markets } = await loadConfig()
+
+  return collateralContract;
+};
+export const redeemPositions = async outcomeIds => {
+  const { collateral, markets } = await loadConfig();
   const marketOutcomeCounts = await loadMarketOutcomeCounts();
   const outcomeIdNames = nameMarketOutcomes(marketOutcomeCounts);
   const outcomePairNames = nameOutcomePairs(outcomeIdNames);
 
-  const atomicIndexes = outcomeIds.outcomes.map((outcomePair) => outcomePairNames.indexOf(outcomePair))
+  const atomicIndexes = outcomeIds.outcomes.map(outcomePair =>
+    outcomePairNames.indexOf(outcomePair)
+  );
   if (atomicIndexes.some(val => val === -1)) {
-    throw new Error("Invalid outcomes selected - not found in configured markets. Please try again later!")
+    throw new Error(
+      "Invalid outcomes selected - not found in configured markets. Please try again later!"
+    );
   }
 
-  const outcomeIndexes = outcomeIds.outcomes.map((outcome) => outcomeIdNames.indexOf(outcome))
-  const pms = await loadContract("PredictionMarketSystem")
-  const defaultAccount = await getDefaultAccount()
+  const outcomeIndexes = outcomeIds.outcomes.map(outcome =>
+    outcomeIdNames.indexOf(outcome)
+  );
+  const pms = await loadContract("PredictionMarketSystem");
+  const defaultAccount = await getDefaultAccount();
 
-  const collectionIds = findCollectionIdsForConditionsAndSelections(outcomeIds.markets)
+  const collectionIds = findCollectionIdsForConditionsAndSelections(
+    outcomeIds.markets
+  );
 
-  const redeemPayout = await Promise.all(collectionIds.map(([collectionId, selectedOutcome]) => {
-    console.log(collectionId, selectedOutcome)
-  }))
+  const redeemPayout = await Promise.all(
+    collectionIds.map(([collectionId, selectedOutcome]) => {
+      console.log(collectionId, selectedOutcome);
+    })
+  );
 
-  const redeemings = await Promise.all(markets.map(async (market, index) => {
-    const indexSets = market.outcomes.map((outcome, index) => 0b1 << index)
-    console.log("resolving", market.conditionId, indexSets.map(n => n.toString(2)))
-    
-    const tx = await pms.redeemPositions(
-      collateral,
-      padEnd('0x0', 66, '0'),
-      market.conditionId,
-      indexSets,
-      { from: defaultAccount }
-    )
-    
-    return tx.logs[0].args.payout.toString()
-  }))
+  const redeemings = await Promise.all(
+    markets.map(async (market, index) => {
+      const indexSets = market.outcomes.map((outcome, index) => 0b1 << index);
+      console.log(
+        "resolving",
+        market.conditionId,
+        indexSets.map(n => n.toString(2))
+      );
 
-  console.log(redeemings.reduce((acc, redeeming) => new Decimal(redeeming).add(acc), new Decimal(0)).toString())
-}
+      const tx = await pms.redeemPositions(
+        collateral,
+        padEnd("0x0", 66, "0"),
+        market.conditionId,
+        indexSets,
+        { from: defaultAccount }
+      );
+
+      return tx.logs[0].args.payout.toString();
+    })
+  );
+
+  console.log(
+    redeemings
+      .reduce(
+        (acc, redeeming) => new Decimal(redeeming).add(acc),
+        new Decimal(0)
+      )
+      .toString()
+  );
+};

@@ -49,23 +49,24 @@ export const nameOutcomePairs = marketOutcomeNames => {
 };
 
 export const listAffectedMarketsForOutcomeIds = (markets, outcomeIds) => {
-  const targetIds = outcomeIds.split(/&/g)
-  
+  const targetIds = outcomeIds.split(/&/g);
+
   return markets
     .map((market, index) => {
-      const letter = MARKET_IDS[index]
-      const outcomeIdIndex = outcomeIds.indexOf(letter)
-      const outcomeIndex = ["y", "n"].indexOf(outcomeIds[outcomeIdIndex+1])
+      const letter = MARKET_IDS[index];
+      const outcomeIdIndex = outcomeIds.indexOf(letter);
+      const outcomeIndex = ["y", "n"].indexOf(outcomeIds[outcomeIdIndex + 1]);
 
       return {
         ...market,
         selectedOutcome: outcomeIndex
-      }
-    }).filter((_, index) => {
-      const letter = MARKET_IDS[index]
-      return targetIds.map(c => c[0]).includes(letter)
+      };
     })
-}
+    .filter((_, index) => {
+      const letter = MARKET_IDS[index];
+      return targetIds.map(c => c[0]).includes(letter);
+    });
+};
 
 /**
  * Calculates all individiual outcome probabilities, based on the marginal prices of all outcome combinations and optional assumptions.
@@ -77,7 +78,7 @@ export const listAffectedMarketsForOutcomeIds = (markets, outcomeIds) => {
 export const getIndividualProbabilities = (
   atomicOutcomePrices,
   marketOutcomeCounts,
-  assumedOutcomeIndexes,
+  assumedOutcomeIndexes
 ) => {
   // console.log(atomicOutcomePrices)
   const outcomeIdNames = nameMarketOutcomes(marketOutcomeCounts);
@@ -102,24 +103,30 @@ export const getIndividualProbabilities = (
 
   // prevents NaN on empty markets
   if (assumedOutcomesPriceSum.lte(new Decimal(0))) {
-    return outcomeIdNames.map(marketIds => marketIds.map(() => 0.5))
+    return outcomeIdNames.map(marketIds => marketIds.map(() => 0.5));
   }
 
-  const individualProbabilities = outcomeIdNames.map((marketIds) =>
-    marketIds.map((outcomeId) => {
-      const sum = outcomePairNames.reduce((acc, outcomePair, outcomePairIndex) => {
-        const idsInOutcomePair = outcomePair.split("&");
+  const individualProbabilities = outcomeIdNames.map(marketIds =>
+    marketIds.map(outcomeId => {
+      const sum = outcomePairNames.reduce(
+        (acc, outcomePair, outcomePairIndex) => {
+          const idsInOutcomePair = outcomePair.split("&");
 
-        const hasAllAssumedOutcomesInPair = assumedOutcomeIndexes.every(
-          outcomeIndex =>
-            idsInOutcomePair.includes(outcomeIdNames.flat()[outcomeIndex])
-        );
+          const hasAllAssumedOutcomesInPair = assumedOutcomeIndexes.every(
+            outcomeIndex =>
+              idsInOutcomePair.includes(outcomeIdNames.flat()[outcomeIndex])
+          );
 
-        if (idsInOutcomePair.includes(outcomeId) && hasAllAssumedOutcomesInPair) {
-          return acc.add(new Decimal(atomicOutcomePrices[outcomePairIndex]));
-        }
-        return acc;
-      }, new Decimal(0));
+          if (
+            idsInOutcomePair.includes(outcomeId) &&
+            hasAllAssumedOutcomesInPair
+          ) {
+            return acc.add(new Decimal(atomicOutcomePrices[outcomePairIndex]));
+          }
+          return acc;
+        },
+        new Decimal(0)
+      );
 
       return sum.div(assumedOutcomesPriceSum).toNumber();
     })

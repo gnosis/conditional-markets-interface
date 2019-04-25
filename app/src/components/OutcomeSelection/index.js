@@ -13,7 +13,7 @@ const OutcomeSelection = ({
   handleBuyOutcomes,
   selectedOutcome,
   invest,
-  handleSelectInvest,
+  handleSelectInvest
 }) => (
   <div className={cx("outcome-selection")}>
     <div className={cx("row-outcomes")}>
@@ -33,7 +33,9 @@ const OutcomeSelection = ({
         type="button"
         name={`${conditionId}`}
         onClick={handleSelectOutcome}
-      >I don't know</button>
+      >
+        I don't know
+      </button>
     </div>
     <div className={cx("row-assume")}>
       <button
@@ -46,13 +48,13 @@ const OutcomeSelection = ({
       >
         <div>
           {selectedOutcome != null && (
-            <input
-              type="checkbox"
-              readOnly
-              checked={assumed}
-            />
+            <input type="checkbox" readOnly checked={assumed} />
           )}
-          <label>{selectedOutcome == null ? "To select an assumption, make a selection above" : `Assuming "${outcomes[selectedOutcome].short}" occurred`}</label>
+          <label>
+            {selectedOutcome == null
+              ? "To select an assumption, make a selection above"
+              : `Assuming "${outcomes[selectedOutcome].short}" occurred`}
+          </label>
         </div>
       </button>
     </div>

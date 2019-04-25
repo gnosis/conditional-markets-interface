@@ -12,7 +12,7 @@ const Markets = ({
   handleSelectAssumption,
   handleBuyOutcomes,
   sellAmounts,
-  predictionProbabilities,
+  predictionProbabilities
 }) => (
   <div>
     {markets.map((market, index) => (

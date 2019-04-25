@@ -1,7 +1,7 @@
 const { toHex, padLeft, keccak256, toChecksumAddress } = web3.utils;
 const rlp = require("rlp");
-const env = require("env")
-const writeToConfig = require("./utils/writeToConfig")
+const env = require("env");
+const writeToConfig = require("./utils/writeToConfig");
 
 const PredictionMarketSystem = artifacts.require("PredictionMarketSystem");
 const DifficultyOracle = artifacts.require("DifficultyOracle");
@@ -15,40 +15,46 @@ const ERC20Detailed = artifacts.require("ERC20Detailed");
 
 //const initialNonce = 0x03;
 const defaultAMMFunding = (1e19).toString();
-const initialNonce = 0x01
+const initialNonce = 0x01;
 
 module.exports = async (deployer, network, accounts) => {
   if (!process.env.CONDITION_IDS) {
-    throw new Error("Rerun this Migration with 'export CONDITION_IDS=\"0xabc,0xdef,0xbeef\"' or run all migrations again with --reset")
+    throw new Error(
+      "Rerun this Migration with 'export CONDITION_IDS=\"0xabc,0xdef,0xbeef\"' or run all migrations again with --reset"
+    );
   }
-  
-  const [conditionOneId, conditionTwoId, conditionThreeId] = process.env.CONDITION_IDS.split(",")
-  console.log(conditionOneId, conditionTwoId, conditionThreeId)
+
+  const [
+    conditionOneId,
+    conditionTwoId,
+    conditionThreeId
+  ] = process.env.CONDITION_IDS.split(",");
+  console.log(conditionOneId, conditionTwoId, conditionThreeId);
   if (network === "mainnet") {
-    //   __  __    _    ___ _   _ _   _ _____ _____ 
+    //   __  __    _    ___ _   _ _   _ _____ _____
     // |  \/  |  / \  |_ _| \ | | \ | | ____|_   _|
-    // | |\/| | / _ \  | ||  \| |  \| |  _|   | |  
-    // | |  | |/ ___ \ | || |\  | |\  | |___  | |  
-    // |_|  |_/_/   \_\___|_| \_|_| \_|_____| |_|    
+    // | |\/| | / _ \  | ||  \| |  \| |  _|   | |
+    // | |  | |/ ___ \ | || |\  | |\  | |___  | |
+    // |_|  |_/_/   \_\___|_| \_|_| \_|_____| |_|
     //
     // Mainnet Deploy below this point. Be careful 🙈
     //
 
-    const DAI_TOKEN_ADDRESS = "0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359"
-    const pmSystemInstance = await PredictionMarketSystem.deployed()
-    const collateralToken = await ERC20Detailed.at(DAI_TOKEN_ADDRESS)
-    const LMSRMarketMakerFactoryInstance = await LMSRMarketMakerFactory.deployed()
+    const DAI_TOKEN_ADDRESS = "0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359";
+    const pmSystemInstance = await PredictionMarketSystem.deployed();
+    const collateralToken = await ERC20Detailed.at(DAI_TOKEN_ADDRESS);
+    const LMSRMarketMakerFactoryInstance = await LMSRMarketMakerFactory.deployed();
 
     // Pre-Calculate the LMSRAMM instance address
-    console.log("calculating checksummedAddress")
+    console.log("calculating checksummedAddress");
     const checksummedLMSRAddress = toChecksumAddress(
       keccak256(
         rlp.encode([LMSRMarketMakerFactoryInstance.address, initialNonce])
       ).substr(26)
     );
-    console.log(checksummedLMSRAddress)
+    console.log(checksummedLMSRAddress);
     // Deposit the CollateralTokens necessary and approve() the pre-deployed LMSR instance
-    console.log("approving dai")
+    console.log("approving dai");
     await collateralToken.approve(
       checksummedLMSRAddress,
       process.env.AMMFUNDING || defaultAMMFunding,
@@ -56,7 +62,7 @@ module.exports = async (deployer, network, accounts) => {
     );
 
     // Deploy the pre-calculated LMSR instance
-    console.log("creating market maker")
+    console.log("creating market maker");
     const tx = await LMSRMarketMakerFactoryInstance.createLMSRMarketMaker(
       pmSystemInstance.address,
       collateralToken.address,
@@ -65,36 +71,35 @@ module.exports = async (deployer, network, accounts) => {
       process.env.AMMFUNDING || defaultAMMFunding,
       { from: accounts[0] }
     );
-    const lmsrEvent = tx.receipt.logs.filter(log => log.event === "LMSRMarketMakerCreation")[0]
-    const lmsrAddress = lmsrEvent.args.lmsrMarketMaker
-    
-    console.log(JSON.stringify(lmsrEvent, null, 2))
+    const lmsrEvent = tx.receipt.logs.filter(
+      log => log.event === "LMSRMarketMakerCreation"
+    )[0];
+    const lmsrAddress = lmsrEvent.args.lmsrMarketMaker;
+
+    console.log(JSON.stringify(lmsrEvent, null, 2));
 
     if (lmsrAddress !== checksummedLMSRAddress) {
-      console.warn("Expected: " + checksummedLMSRAddress)
-      console.warn("Received: " + lmsrAddress)
-      throw new Error("LMSR ADDRESS DOES NOT MATCH")
+      console.warn("Expected: " + checksummedLMSRAddress);
+      console.warn("Received: " + lmsrAddress);
+      throw new Error("LMSR ADDRESS DOES NOT MATCH");
     }
 
-    writeToConfig(
-      "mainnet", 
-      {
-        lmsr: checksummedLMSRAddress,
-      }
-    )
+    writeToConfig("mainnet", {
+      lmsr: checksummedLMSRAddress
+    });
 
     //
     // Mainnet Deploy above this point. Be careful 🙈
-    //   __  __    _    ___ _   _ _   _ _____ _____ 
+    //   __  __    _    ___ _   _ _   _ _____ _____
     // |  \/  |  / \  |_ _| \ | | \ | | ____|_   _|
-    // | |\/| | / _ \  | ||  \| |  \| |  _|   | |  
-    // | |  | |/ ___ \ | || |\  | |\  | |___  | |  
-    // |_|  |_/_/   \_\___|_| \_|_| \_|_____| |_|    
+    // | |\/| | / _ \  | ||  \| |  \| |  _|   | |
+    // | |  | |/ ___ \ | || |\  | |\  | |___  | |
+    // |_|  |_/_/   \_\___|_| \_|_| \_|_____| |_|
     //
   } else if (network === "rinkeby") {
-    const collateralToken = await WETH9.deployed()
-    const pmSystemInstance = await PredictionMarketSystem.deployed()
-    const LMSRMarketMakerFactoryInstance = await LMSRMarketMakerFactory.deployed()
+    const collateralToken = await WETH9.deployed();
+    const pmSystemInstance = await PredictionMarketSystem.deployed();
+    const LMSRMarketMakerFactoryInstance = await LMSRMarketMakerFactory.deployed();
 
     // Pre-Calculate the LMSRAMM instance address
     const checksummedLMSRAddress = toChecksumAddress(
@@ -103,7 +108,7 @@ module.exports = async (deployer, network, accounts) => {
       ).substr(26)
     );
     // Deposit the CollateralTokens necessary and approve() the pre-deployed LMSR instance
-    console.log(`funding with ${process.env.AMMFUNDING || defaultAMMFunding}`)
+    console.log(`funding with ${process.env.AMMFUNDING || defaultAMMFunding}`);
     await collateralToken.deposit({
       from: accounts[0],
       value: process.env.AMMFUNDING || defaultAMMFunding
@@ -122,28 +127,29 @@ module.exports = async (deployer, network, accounts) => {
       process.env.AMMFUNDING || defaultAMMFunding,
       { from: accounts[0] }
     );
-    const lmsrEvent = tx.receipt.logs.filter(log => log.event === "LMSRMarketMakerCreation")[0]
-    const lmsrAddress = lmsrEvent.args.lmsrMarketMaker
-    
-    console.log(JSON.stringify(lmsrEvent, null, 2))
+    const lmsrEvent = tx.receipt.logs.filter(
+      log => log.event === "LMSRMarketMakerCreation"
+    )[0];
+    const lmsrAddress = lmsrEvent.args.lmsrMarketMaker;
+
+    console.log(JSON.stringify(lmsrEvent, null, 2));
 
     if (lmsrAddress !== checksummedLMSRAddress) {
-      console.warn("Expected: " + checksummedLMSRAddress)
-      console.warn("Received: " + lmsrAddress)
-      throw new Error("LMSR ADDRESS DOES NOT MATCH")
+      console.warn("Expected: " + checksummedLMSRAddress);
+      console.warn("Received: " + lmsrAddress);
+      throw new Error("LMSR ADDRESS DOES NOT MATCH");
     }
-
 
     writeToConfig("rinkeby", {
       lmsr: checksummedLMSRAddress
-    })
+    });
   } else if (network === "development" || network === "test") {
-    const collateralToken = await WETH9.deployed()
-    const pmSystemInstance = await PredictionMarketSystem.deployed()
-    const LMSRMarketMakerFactoryInstance = await LMSRMarketMakerFactory.deployed()
+    const collateralToken = await WETH9.deployed();
+    const pmSystemInstance = await PredictionMarketSystem.deployed();
+    const LMSRMarketMakerFactoryInstance = await LMSRMarketMakerFactory.deployed();
 
     // Pre-Calculate the LMSRAMM instance address
-    console.log(LMSRMarketMakerFactoryInstance.address, initialNonce)
+    console.log(LMSRMarketMakerFactoryInstance.address, initialNonce);
     const checksummedLMSRAddress = toChecksumAddress(
       keccak256(
         rlp.encode([LMSRMarketMakerFactoryInstance.address, initialNonce])
@@ -168,19 +174,21 @@ module.exports = async (deployer, network, accounts) => {
       process.env.AMMFUNDING || defaultAMMFunding,
       { from: accounts[0] }
     );
-   
-    const lmsrEvent = tx.receipt.logs.filter(log => log.event === "LMSRMarketMakerCreation")[0]
-    const lmsrAddress = lmsrEvent.args.lmsrMarketMaker
-    console.log(JSON.stringify(lmsrEvent, null, 2))
+
+    const lmsrEvent = tx.receipt.logs.filter(
+      log => log.event === "LMSRMarketMakerCreation"
+    )[0];
+    const lmsrAddress = lmsrEvent.args.lmsrMarketMaker;
+    console.log(JSON.stringify(lmsrEvent, null, 2));
 
     if (lmsrAddress !== checksummedLMSRAddress) {
-      console.warn("Expected: " + checksummedLMSRAddress)
-      console.warn("Received: " + lmsrAddress)
-      throw new Error("LMSR ADDRESS DOES NOT MATCH")
+      console.warn("Expected: " + checksummedLMSRAddress);
+      console.warn("Received: " + lmsrAddress);
+      throw new Error("LMSR ADDRESS DOES NOT MATCH");
     }
 
     writeToConfig("ganache", {
       lmsr: checksummedLMSRAddress
-    })
+    });
   }
 };

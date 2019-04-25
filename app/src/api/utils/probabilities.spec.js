@@ -1,7 +1,7 @@
 const { resolvePartitionSets } = require("./probabilities");
 
 describe.only("probabilities.js", () => {
-  describe("\"resolvePartitionSets\"", () => {
+  describe('"resolvePartitionSets"', () => {
     // update this
   });
 });

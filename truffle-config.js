@@ -1,16 +1,18 @@
-require('dotenv').config();
+require("dotenv").config();
 
 var HDWalletProvider = require("truffle-hdwallet-provider");
 
-const seed = process.env.SEED || 'brand gallery sock inspire error kitten orphan arch unaware palace twin soft' 
+const seed =
+  process.env.SEED ||
+  "brand gallery sock inspire error kitten orphan arch unaware palace twin soft";
 
 /*
- * NB: since truffle-hdwallet-provider 0.0.5 you must wrap HDWallet providers in a 
+ * NB: since truffle-hdwallet-provider 0.0.5 you must wrap HDWallet providers in a
  * function when declaring them. Failure to do so will cause commands to hang. ex:
  * ```
  * mainnet: {
- *     provider: function() { 
- *       return new HDWalletProvider(mnemonic, 'https://mainnet.infura.io/<infura-key>') 
+ *     provider: function() {
+ *       return new HDWalletProvider(mnemonic, 'https://mainnet.infura.io/<infura-key>')
  *     },
  *     network_id: '1',
  *     gas: 4500000,
@@ -25,11 +27,16 @@ const config = {
       network_id: "*"
     },
     rinkeby: {
-      provider: () => new HDWalletProvider(seed, "https://rinkeby.infura.io/v3/22218302c99b4ee29f8a5876ad0b552c"), 
+      provider: () =>
+        new HDWalletProvider(
+          seed,
+          "https://rinkeby.infura.io/v3/22218302c99b4ee29f8a5876ad0b552c"
+        ),
       network_id: "4"
     },
     mainnet: {
-      provider: () => new HDWalletProvider(seed, "https://node-green.mainnet.gnosis.pm"),
+      provider: () =>
+        new HDWalletProvider(seed, "https://node-green.mainnet.gnosis.pm"),
       network_id: "1"
     }
   },
@@ -38,7 +45,7 @@ const config = {
       version: "0.5.1"
     }
   },
-  build: 'webpack'
-}
+  build: "webpack"
+};
 
 module.exports = config;
