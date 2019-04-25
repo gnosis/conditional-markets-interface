@@ -5,6 +5,7 @@ import cn from "classnames/bind";
 import { arrayToHumanReadableList } from "./utils/list";
 import { formatFromWei, pseudoMarkdown } from "./utils/formatting";
 
+import Spinner from "components/Spinner";
 import style from "./style.scss";
 
 const cx = cn.bind(style);
@@ -12,12 +13,15 @@ const cx = cn.bind(style);
 const YourPositions = ({
   positions,
   handleSelectSell,
+  handleRedeem,
   handleSellPosition,
   selectedSellAmount,
   handleSelectSellAmount,
   collateral,
   selectedSell,
-  predictedSellProfit
+  predictedSellProfit,
+  isRedeeming,
+  redeemError,
 }) => (
   <div className={cx("your-positions")}>
     <h2>Positions</h2>
@@ -27,6 +31,13 @@ const YourPositions = ({
       const validNum = !isNaN(parseFloat(selectedSellAmount)) && selectedSellAmount > 0 && isFinite(selectedSellAmount)
       const sellAmountLowerThanBalance = validNum && !empty && new Decimal(position.value).dividedBy(new Decimal(10).pow(18)).gte(new Decimal(selectedSellAmount))
       const canSellThisPosition = selectedSell === position.outcomeIds && validNum && sellAmountLowerThanBalance
+      console.log(position.markets)
+      // only if all markets are resolved
+      const wasResolved = position.markets.every((market) => market.isResolved)
+
+      // only if we have winnings from atleast one market
+      const hasWinnings = position.markets.some(market => market.result === market.selectedOutcome)
+
       let sellErrorReason
 
        if (!validNum) {
@@ -34,8 +45,10 @@ const YourPositions = ({
       } else if (!sellAmountLowerThanBalance) {
         sellErrorReason = "You can't sell more than you own of this token"
       } else {
-        sellErrorReason = "Sorry, an error occoured. Please try again later"
+        sellErrorReason = "Sorry, an error occurred. Please try again later"
       }
+
+      if (position.value == "0") return null
 
       return (
         <div key={index} className={cx("position")}>
@@ -61,12 +74,27 @@ const YourPositions = ({
               )}
             </div>
             <div className={cx("controls")}>
+            {wasResolved && hasWinnings ? (
+              <button
+                type="button"
+                onClick={() => handleRedeem(position)}
+                disabled={isRedeeming}
+              >
+                {isRedeeming ? <Spinner centered inverted width={25} height={25} /> : "Redeem"}
+              </button>
+            ) : (
               <button
                 type="button"
                 onClick={() => handleSelectSell(position.outcomeIds)}
               >
                 Sell
               </button>
+            )}
+            </div>
+            <div className={cx("messages")}>
+              {!isRedeeming && redeemError && (
+                <span className={cx("error")}>{redeemError}</span>
+              )}
             </div>
           </div>
           {selectedSell === position.outcomeIds && (

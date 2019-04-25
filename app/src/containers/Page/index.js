@@ -31,6 +31,7 @@ import {
   generateBuyDetails,
   getCollateralBalance,
   calcProfitForSale,
+  redeemPositions,
 } from "api/balances";
 import Decimal from "decimal.js";
 import { loadConfig } from "../../api/web3";
@@ -95,6 +96,8 @@ const enhancer = compose(
   withState("validPosition", "setValidPosition", false),
   withState("isBuying", "setBuyingStatus", false),
   withState("buyError", "setBuyError", ""),
+  withState("isRedeeming", "setRedeemStatus", false),
+  withState("redeemError", "setRedeemError", ""),
   withState("selectedSell", "setSelectedSellPosition"),
   withState("selectedSellAmount", "setSelectedSellAmount", ""),
   withState("predictedSellProfit", "setPredictedSellProfit"),
@@ -122,7 +125,7 @@ const enhancer = compose(
         await setPositionIds(positionIds);
         const balances = await loadBalances(positionIds);
         await setBalances(balances);
-        const positions = await generatePositionList(balances);
+        const positions = await generatePositionList(markets, balances);
         await setPositions(positions);
         const collateral = await loadCollateral();
         await setCollateral(collateral);
@@ -321,7 +324,7 @@ const enhancer = compose(
       setPredictionProbabilities(predictionProbabilities);
       // console.log("tokens purchase list:")
       // console.log(outcomeTokenCounts)
-      const stagedPositions = await generatePositionList(outcomeTokenCounts);
+      const stagedPositions = await generatePositionList(markets, outcomeTokenCounts);
       setStagedPositions(stagedPositions);
     },
     handleCheckBalance: ({ setBuyError }) => async (invest) => {
@@ -450,6 +453,21 @@ const enhancer = compose(
       }
 
     },
+    handleRedeem: ({
+      setRedeemStatus,
+      setRedeemError,
+    }) => async (outcomeIds) => {
+      setRedeemStatus(true)
+      setRedeemError("")
+      try {
+        await redeemPositions(outcomeIds)
+      } catch (err) {
+        console.error(err.message)
+        console.error(err.stack)
+        await setRedeemError(err.message)
+      }
+      await setRedeemStatus(false)
+    },
     handleBuyOutcomes: ({
       markets,
       setMarkets,
@@ -467,7 +485,15 @@ const enhancer = compose(
       setBuyError("");
       try {
         await buyOutcomes(outcomeTokenBuyAmounts);
+      } catch (err) {
+        setBuyError(err.message);
+        console.error(err.message)
+        console.error(err.stack)
+        setBuyingStatus(false);
+        return
+      }
 
+      try {
         const newPrices = await loadMarginalPrices();
         await setPrices(newPrices);
         const positionIds = await loadPositions();
@@ -476,13 +502,15 @@ const enhancer = compose(
         await setBalances(balances);
         const newMarkets = await loadMarkets(newPrices);
         await setMarkets(newMarkets);
-        const positions = await generatePositionList(balances);
+        const positions = await generatePositionList(newMarkets, balances);
         await setPositions(positions);
 
         await handleUpdateOutcomeTokenCounts(invest || "0");
         setBuyingStatus(false);
       } catch (err) {
         setBuyError(err.message);
+        console.error(err.message)
+        console.error(err.stack)
         setBuyingStatus(false);
       }
     },
@@ -523,7 +551,7 @@ const enhancer = compose(
       const balances = await loadBalances(positionIds);
       await setBalances(balances);
 
-      const positions = await generatePositionList(balances);
+      const positions = await generatePositionList(updatedMarkets, balances);
       await setPositions(positions);
     },
     handleSellPositions: ({
@@ -547,7 +575,7 @@ const enhancer = compose(
       const balances = await loadBalances(positionIds);
       await setBalances(balances);
 
-      const positions = await generatePositionList(balances);
+      const positions = await generatePositionList(updatedMarkets, balances);
       await setPositions(positions);
 
       // reset sell menu

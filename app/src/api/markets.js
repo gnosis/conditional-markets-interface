@@ -18,7 +18,11 @@ import {
   nameOutcomePairs,
   getIndividualProbabilities
 } from "./utils/probabilities";
-import { loadMarketOutcomeCounts, loadLmsrTokenBalances } from "./balances";
+import {
+  loadMarketOutcomeCounts,
+  loadLmsrTokenBalances,
+  tryToDepositCollateral,
+} from "./balances";
 
 const { BN, toBN } = web3.utils;
 
@@ -68,18 +72,36 @@ export const loadMarkets = async (atomicOutcomePrices, assumptions = []) => {
     assumptions
   );
 
+  const PMSystem = await loadContract("PredictionMarketSystem");
+
   let lmsrIndex = 0
-  const marketsWithData = markets.map((market, marketIndex) => {
+  const marketsWithData = await Promise.all(markets.map(async (market, marketIndex) => {
+    const payoutNumerators = await Promise.all(market.outcomes.map(async (outcome, outcomeIndex) => {
+      const numerator = await PMSystem.payoutNumerators(market.conditionId, outcomeIndex)
+
+      return numerator.toString()
+    }))
+    const payoutDenominator = await PMSystem.payoutDenominator(market.conditionId)
+    // only works with binary for now
+    const result = payoutNumerators.findIndex((numerator) => Decimal(numerator).gt(new Decimal(0)))
+    const resolved = new Decimal(payoutDenominator.toString()).gt(new Decimal(0))
+    console.log(result, resolved)
+    console.log('payoutNumerator:', payoutNumerators)
+    console.log('payoutDenominator:', payoutDenominator.toString())
+
     return {
       ...market,
+      isResolved: resolved, // TODO: Replace with actual values
+      result, // TODO: Replace with actual values
       outcomes: market.outcomes.map((outcome, outcomeIndex) => ({
         ...outcome,
+        outcomeIndex,
         lmsrIndex: lmsrIndex++,
         color: OUTCOME_COLORS[marketIndex * markets.length + outcomeIndex],
         probability: individualProbabilities[marketIndex][outcomeIndex]
       }))
     };
-  });
+  }));
 
   return marketsWithData;
 };
@@ -162,14 +184,20 @@ export const buyOutcomes = async buyList => {
   const defaultAccount = await getDefaultAccount();
   const prev = new Decimal(await getAccountBalance());
 
-  // get collateral
-  const Collateral = await loadContract("ERC20Detailed", collateral);
-
-  //await Collateral.deposit({ value: cost, from: defaultAccount });
-  //await Collateral.approve(LMSR.address, cost, { from: defaultAccount });
+  // deposit and approve collateral, depositing only if collateral is wrapped eth
+  await tryToDepositCollateral(collateral, LMSR.address, cost)
+  const collateralContract = await loadContract("ERC20Detailed", collateral);
+  await collateralContract.approve(lmsr, cost, { from: defaultAccount })
 
   // run trade
-  const tx = await LMSR.trade(buyList, cost, { from: defaultAccount });
+  let tx
+  try {
+    tx = await LMSR.trade(buyList, cost, { from: defaultAccount, /*gas: 5e6*/ });
+  } catch (err) {
+    console.log("LMSR.Trade failed")
+    console.error(err)
+    return
+  }
 
   // console.log(tx.receipt.gasUsed)
   const gasPrice = new Decimal(await getGasPrice());

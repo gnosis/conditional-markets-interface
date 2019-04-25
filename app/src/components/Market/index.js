@@ -19,6 +19,8 @@ const Market = ({
   handleSelectOutcome,
   handleBuyOutcomes,
   disabled,
+  isResolved,
+  result,
   handleSelectSell,
   assumed,
   marketIndex,
@@ -46,21 +48,38 @@ const Market = ({
         <h1 className={cx("title")}>{title}</h1>
         <div className={cx("title-infos")}>
           <div className={cx("title-info")}>
-            <h2 className={cx("label")}>probability</h2>
-            <h2 className={cx("value")}>
-              {(probabilities[0] * 100).toFixed(2)}%
-            </h2>
+            {isResolved ? (
+              <>
+                <h2 className={cx("label")}>winning outcome</h2>
+                <h2 className={cx("value", "centered")}>{outcomes[result].title}</h2>
+              </>
+            ) : (
+              <>
+                <h2 className={cx("label")}>probability</h2>
+                <h2 className={cx("value")}>
+                  {(probabilities[0] * 100).toFixed(2)}%
+                </h2>
+              </>
+            )}
           </div>
-          <div className={cx("title-info")}>
-            <h2 className={cx("label")}>resolves</h2>
-            <h2 className={cx("value")}>{(new Date(resolutionDate)).toLocaleString()}</h2>
-          </div>
+          {isResolved ? (
+            <div className={cx("title-info")}>
+              <h2 className={cx("label")}>market closed</h2>
+              <h2 className={cx("value")}></h2>
+            </div>
+          ) : (
+            <div className={cx("title-info")}>
+              <h2 className={cx("label")}>resolves</h2>
+              <h2 className={cx("value")}>{(new Date(resolutionDate)).toLocaleString()}</h2>
+            </div>
+          )}
         </div>
       </section>
       <section className={cx("outcomes-section")}>
-        <OutcomesBinary outcomes={outcomesWithAssumation} predictionProbabilities={assumed ? undefined : predictionProbabilities[marketIndex]} />
+        <OutcomesBinary outcomes={outcomesWithAssumation} predictionProbabilities={assumed ? undefined : predictionProbabilities[marketIndex]} isResolved={isResolved} winningOutcome={result}/>
       </section>
-      <section className={cx("selection-section")}>
+
+      {!isResolved && <section className={cx("selection-section")}>
         <OutcomeSelection
           conditionId={conditionId}
           outcomes={outcomesWithAssumation}
@@ -70,7 +89,7 @@ const Market = ({
           handleBuyOutcomes={handleBuyOutcomes}
           assumed={assumed}
         />
-      </section>
+      </section>}
     </article>
   );
 };

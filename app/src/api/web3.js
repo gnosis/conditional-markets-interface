@@ -6,17 +6,22 @@ import config from "../../config.json";
 let provider;
 let isLocal;
 if (process.env.NODE_ENV === "development" || process.env.NODE_ENV === "test") {
-  // console.log('Using ganache because "NODE_ENV" is in development mode.');
+  console.log('Using ganache because "NODE_ENV" is in development mode.');
   provider = new Web3("http://localhost:8545");
   isLocal = true;
-  window.web3Instance = provider
 } else {
-  provider = new Web3(window.web3.currentProvider);
+  if (typeof window.ethereum !== 'undefined' && typeof window.ethereum.enable !== 'undefined') {
+    console.log('Using window.ethereum because "NODE_ENV" is in production mode and window.ethereum.enable is available.');
+    provider = new Web3(window.ethereum);
+    ethereum.enable();
+  } else {
+    console.log('Using window.web3 because "NODE_ENV" is in production mode and window.web3 is available.');
+    provider = new Web3(window.web3.currentProvider);
+  }
 }
 
-if (typeof provider.enable === 'function') {
-  provider.enable();
-}
+// This sets a globally available web3 instance, so certain operation can be checked easily
+window.usedWeb3 = provider
 
 const contracts = {};
 
@@ -70,6 +75,13 @@ export const getGasPrice = async () => {
   const gasPrice = await provider.eth.getGasPrice()
   // console.log(gasPrice)
   return gasPrice.toString()
+}
+
+export const getETHBalance = async () => {
+  const account = await getDefaultAccount()
+  const ethBalance = await provider.eth.getBalance(account)
+
+  return ethBalance.toString()
 }
 
 const localhostRegex = /https?:\/\/localhost:*/g;

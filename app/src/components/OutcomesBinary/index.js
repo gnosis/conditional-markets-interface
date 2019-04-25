@@ -10,16 +10,17 @@ const clamp = (val, min, max) => (
 const cx = cn.bind(css);
 
 const OutcomesBinary = ({
+  isResolved, winningOutcome,
   predictionProbabilities: [predictionProbability, negativeProbability],
   outcomes: [{ probability, positionId, balance, color }, negativeOutcome]
 }) => {
   const predictedProbabilityDifference = clamp(predictionProbability - probability, -1, 1)
-  const displayPredictionProbability = predictionProbability != null && predictionProbability != probability
+  const displayPredictionProbability = predictionProbability != null && predictionProbability != probability && !isResolved
 
   const estimatedHintPosition = (Math.abs(probability)) + (predictionProbability / 2)
 
   return (
-    <div className={cx("binary-outcome")}>
+    <div className={cx("binary-outcome", { closed: isResolved })}>
       <div className={cx("bar")} style={{ color }}>
         <div
           className={cx("inner")}
@@ -53,6 +54,7 @@ const OutcomesBinary = ({
           <span className={cx("text")}><small>PREDICTED CHANGE</small> {(predictedProbabilityDifference * 100).toFixed(2)}%</span>
         </div>}
         </div>}
+        {isResolved && <div className={cx("predictions-before-close")}><em>Final Predictions before market was resolved</em></div>}
       </div>
     </div>
   )

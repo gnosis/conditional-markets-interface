@@ -51,20 +51,20 @@ export const nameOutcomePairs = marketOutcomeNames => {
 export const listAffectedMarketsForOutcomeIds = (markets, outcomeIds) => {
   const targetIds = outcomeIds.split(/&/g)
   
-  return markets.filter((m, index) => {
-    const letter = MARKET_IDS[index]
+  return markets
+    .map((market, index) => {
+      const letter = MARKET_IDS[index]
+      const outcomeIdIndex = outcomeIds.indexOf(letter)
+      const outcomeIndex = ["y", "n"].indexOf(outcomeIds[outcomeIdIndex+1])
 
-    return targetIds.map(c => c[0]).includes(letter)
-  }).map((market, index) => {
-    const letter = MARKET_IDS[index]
-    const outcomeIdIndex = outcomeIds.indexOf(letter)
-    const outcomeIndex = ["y", "n"].indexOf(outcomeIds[outcomeIdIndex+1])
-
-    return {
-      ...market,
-      selectedOutcome: outcomeIndex
-    }
-  }) 
+      return {
+        ...market,
+        selectedOutcome: outcomeIndex
+      }
+    }).filter((_, index) => {
+      const letter = MARKET_IDS[index]
+      return targetIds.map(c => c[0]).includes(letter)
+    })
 }
 
 /**
