@@ -63,6 +63,7 @@
     "babel-jest": "^24.0.0",
     "babel-loader": "^8.0.5",
     "chai": "^4.2.0",
+    "common-tags": "^1.8.0",
     "css-loader": "^2.1.0",
     "eslint": "^5.11.1",
     "eslint-config-prettier": "^3.3.0",

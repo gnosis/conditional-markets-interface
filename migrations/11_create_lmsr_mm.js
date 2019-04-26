@@ -51,6 +51,7 @@ module.exports = function(deployer) {
       process.env.AMMFUNDING || defaultAMMFunding
     );
     writeToConfig("ganache", {
+      networkId: await web3.eth.net.getId(),
       conditionIds,
       collateral: collateralToken.address,
       lmsr: lmsrAddress

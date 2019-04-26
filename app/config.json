@@ -54,7 +54,8 @@
           }
         ]
       }
-    ]
+    ],
+    "networkId": 1556302126867
   },
   "RINKEBY": {
     "lmsr": "0xeE4642e53d5a45566BEFc7f6b2Af69b1213e2487",

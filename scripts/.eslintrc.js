@@ -1,6 +1,7 @@
 module.exports = {
   globals: {
-    artifacts: true
+    artifacts: true,
+    web3: true
   },
   rules: {
     "no-console": "off"
