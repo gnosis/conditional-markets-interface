@@ -28,10 +28,8 @@ import {
   sumPricePerShare,
   listOutcomePairsMatchingOutcomeId,
   calcOutcomeTokenCounts,
-  generateBuyDetails,
   getCollateralBalance,
-  calcProfitForSale,
-  redeemPositions
+  calcProfitForSale
 } from "api/balances";
 import Decimal from "decimal.js";
 import { setAllowanceInsanelyHigh } from "../../api/balances";
@@ -138,6 +136,7 @@ const enhancer = compose(
         setLoading(LOADING_STATES.SUCCESS);
       } catch (err) {
         setLoading(LOADING_STATES.FAILURE);
+        throw err;
       }
     }
   }),
@@ -248,18 +247,12 @@ const enhancer = compose(
       const outcomePairs = await listOutcomePairsMatchingOutcomeId(
         outcomeIndexes
       );
-      const assumedPairs =
-        assumedIndexes.length > 0
-          ? await listOutcomePairsMatchingOutcomeId(assumedIndexes, true)
-          : [];
       await setOutcomesToBuy(outcomePairs);
 
       // sets if the selected position is valid (ie not all positions and not no positions)
       await setValidPosition(
         outcomePairs.length > 0 && outcomePairs.length < totalOutcomeIndex + 1
       );
-
-      generateBuyDetails(outcomePairs, assumedPairs);
 
       // update the price for the selected outcomes the user would buy
       const selectionPrice = await sumPricePerShare(outcomePairs);
@@ -489,15 +482,8 @@ const enhancer = compose(
         handleUpdateSellProfit(selectedSell);
       }
     },
-    handleRedeem: ({ setRedeemStatus, setRedeemError }) => async outcomeIds => {
-      setRedeemStatus(true);
-      setRedeemError("");
-      try {
-        await redeemPositions(outcomeIds);
-      } catch (err) {
-        await setRedeemError(err.message);
-      }
-      await setRedeemStatus(false);
+    handleRedeem: () => async () => {
+      throw new Error("not implemented yet");
     },
     handleBuyOutcomes: ({
       setMarkets,
@@ -518,7 +504,7 @@ const enhancer = compose(
       } catch (err) {
         setBuyError(err.message);
         setBuyingStatus(false);
-        return;
+        throw err;
       }
 
       try {
@@ -538,6 +524,7 @@ const enhancer = compose(
       } catch (err) {
         setBuyError(err.message);
         setBuyingStatus(false);
+        throw err;
       }
     },
     handleSellOutcomes: ({
@@ -621,6 +608,7 @@ const enhancer = compose(
         await setAllowanceAvailable(allowance);
       } catch (err) {
         await setBuyError("Could not set allowance. Please try again");
+        throw err;
       } finally {
         await setBuyingStatus(false);
       }

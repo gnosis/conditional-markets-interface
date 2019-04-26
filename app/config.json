@@ -1,10 +1,10 @@
 {
   "GANACHE": {
-    "lmsr": "0x107cB26e12990fd1CD6F7C5f1b7939a96B11C867",
-    "collateral": "0x5D6562aB6c959133DCF9D648e5AF07Aa09a1174a",
+    "lmsr": "0xCa24282be001a428d27FdAC4676561c2EB1DE393",
+    "collateral": "0x59d3631c86BbE35EF041872d502F218A39FBa150",
     "markets": [
       {
-        "conditionId": "0x14a06c51d9812b3fa7b71b499b8188d949a6c2b40a40a5b70bd0dd3fae464b87",
+        "conditionId": "0xff72fe6cf72067593ce6bd3f9a2ce12a02c3d7905fb18108da4017e1af3e698a",
         "title": "Will be the block difficulty for Ethereum Mainnet be higher than 3000?",
         "when": "the block difficulty is _higher_ than 3000",
         "whenNot": "the block difficulty is _lower_ (or equal) than 3000",
@@ -21,7 +21,7 @@
         ]
       },
       {
-        "conditionId": "0xf82b3c6e357622c0a4d85663d702234ec97cfd235091fbf83004f508de3963ff",
+        "conditionId": "0xec5c77df4a262273bdfa0b2e7e5b840eb79b77807b46215154be1ac213602d06",
         "title": "Will be the Ethereum Mainnet block gas limit be greater than 8.000.500?",
         "when": "the block gas limit is _higher_ than 8.000.500",
         "whenNot": "the block gas limit is _lower_ (or equal) than 8.000.500",
@@ -38,7 +38,7 @@
         ]
       },
       {
-        "conditionId": "0x9c96d0c1abe3e49565ce5e9fef8312556c6d1ccc6a51f7a172d792e2e8badbe6",
+        "conditionId": "0x137f3ad21f2a26f6f40be42b30b909dc0115c5c405672371b3621807e6ae61ed",
         "title": "Will the Ethereum USD value be higher than 200?",
         "when": "the value of ethereum in USD is _higher_ than 200",
         "whenNot": "the value of ethereum in USD is _lower_ (or equal) than 200",
