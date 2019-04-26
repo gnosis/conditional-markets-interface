@@ -1,6 +1,9 @@
 pragma solidity ^0.5.1;
 import "@gnosis.pm/hg-contracts/contracts/PredictionMarketSystem.sol";
-import "./TestMedianizer.sol";
+
+interface Medianizer {
+    function read() external view returns (bytes32);
+}
 
 contract ETHValueOracle {
     /// Prediction market system this oracle reports to.

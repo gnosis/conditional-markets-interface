@@ -1,3 +1,3 @@
 module.exports = function(deployer) {
-  deployer.deploy(artifacts.require("Medianizer"));
+  deployer.deploy(artifacts.require("TestMedianizer"));
 };
