@@ -99,14 +99,14 @@ BuySection.propTypes = {
   invest: PropTypes.string.isRequired,
   validPosition: PropTypes.bool.isRequired,
   isBuying: PropTypes.bool.isRequired,
-  buyError: PropTypes.string.isRequired,
+  buyError: PropTypes.oneOfType([PropTypes.string, PropTypes.bool]).isRequired,
   collateral: PropTypes.shape({
     name: PropTypes.string.isRequired,
     symbol: PropTypes.string.isRequired
   }).isRequired,
   stagedPositions: PropTypes.arrayOf(
     PropTypes.shape({
-      value: PropTypes.number.isRequired,
+      value: PropTypes.string.isRequired,
       outcomeIds: PropTypes.string.isRequired,
       markets: PropTypes.arrayOf(
         PropTypes.shape({

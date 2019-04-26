@@ -92,7 +92,7 @@ function Page({
 
 Page.propTypes = {
   markets: PropTypes.any.isRequired,
-  invest: PropTypes.any.isRequired,
+  invest: PropTypes.any,
   selectedOutcomes: PropTypes.any.isRequired,
   handleSellPositions: PropTypes.any.isRequired,
   handleSelectOutcome: PropTypes.any.isRequired,
@@ -112,13 +112,13 @@ Page.propTypes = {
   redeemError: PropTypes.any.isRequired,
   isRedeeming: PropTypes.any.isRequired,
   collateral: PropTypes.any.isRequired,
-  selectedSell: PropTypes.any.isRequired,
-  handleSelectSell: PropTypes.any.isRequired,
+  selectedSell: PropTypes.any,
+  handleSelectSell: PropTypes.any,
   handleSelectSellAmount: PropTypes.any.isRequired,
   handleRedeem: PropTypes.any.isRequired,
-  selectedSellAmount: PropTypes.any.isRequired,
-  predictedSellProfit: PropTypes.any.isRequired,
-  allowanceAvailable: PropTypes.number.isRequired,
+  selectedSellAmount: PropTypes.any,
+  predictedSellProfit: PropTypes.any,
+  allowanceAvailable: PropTypes.string.isRequired,
   handleSetAllowance: PropTypes.any.isRequired
 };
 

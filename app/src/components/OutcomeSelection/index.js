@@ -69,7 +69,7 @@ OutcomeSelection.propTypes = {
   assumed: PropTypes.bool.isRequired,
   handleSelectAssumption: PropTypes.func.isRequired,
   handleSelectOutcome: PropTypes.func.isRequired,
-  selectedOutcome: PropTypes.number.isRequired
+  selectedOutcome: PropTypes.string
 };
 
 export default OutcomeSelection;

@@ -44,11 +44,11 @@ Markets.propTypes = {
   assumptions: PropTypes.arrayOf(PropTypes.string.isRequired).isRequired,
   selectedOutcomes: PropTypes.object.isRequired,
   handleSelectOutcome: PropTypes.any.isRequired,
-  handleSelectSell: PropTypes.any.isRequired,
-  handleSellOutcome: PropTypes.any.isRequired,
+  handleSelectSell: PropTypes.any,
+  handleSellOutcome: PropTypes.any,
   handleSelectAssumption: PropTypes.any.isRequired,
-  handleBuyOutcomes: PropTypes.any.isRequired,
-  sellAmounts: PropTypes.any.isRequired,
+  handleBuyOutcomes: PropTypes.any,
+  sellAmounts: PropTypes.any,
   predictionProbabilities: PropTypes.any.isRequired
 };
 

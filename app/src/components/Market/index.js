@@ -107,15 +107,14 @@ Market.propTypes = {
   resolutionDate: PropTypes.string.isRequired,
   outcomes: PropTypes.arrayOf(
     PropTypes.shape({
-      name: PropTypes.string.isRequired,
-      probability: PropTypes.number.isRequired,
-      price: PropTypes.string.isRequired
+      title: PropTypes.string.isRequired,
+      probability: PropTypes.number.isRequired
     }).isRequired
   ).isRequired,
   conditionId: PropTypes.any.isRequired,
-  selectedOutcome: PropTypes.string.isRequired,
+  selectedOutcome: PropTypes.string,
   handleSelectOutcome: PropTypes.any.isRequired,
-  handleBuyOutcomes: PropTypes.any.isRequired,
+  handleBuyOutcomes: PropTypes.any,
   disabled: PropTypes.bool.isRequired,
   isResolved: PropTypes.bool.isRequired,
   result: PropTypes.number.isRequired,

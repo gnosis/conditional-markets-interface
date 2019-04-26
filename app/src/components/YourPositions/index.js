@@ -183,7 +183,7 @@ const YourPositions = ({
 YourPositions.propTypes = {
   positions: PropTypes.arrayOf(
     PropTypes.shape({
-      value: PropTypes.number.isRequired,
+      value: PropTypes.string.isRequired,
       outcomeIds: PropTypes.string.isRequired,
       markets: PropTypes.arrayOf(
         PropTypes.shape({
@@ -204,8 +204,8 @@ YourPositions.propTypes = {
   collateral: PropTypes.shape({
     symbol: PropTypes.string.isRequired
   }).isRequired,
-  selectedSell: PropTypes.string.isRequired,
-  predictedSellProfit: PropTypes.number.isRequired,
+  selectedSell: PropTypes.string,
+  predictedSellProfit: PropTypes.instanceOf(Decimal),
   isRedeeming: PropTypes.bool.isRequired,
   redeemError: PropTypes.string.isRequired
 };
