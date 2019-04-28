@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import classnames from "classnames/bind";
-import Spinner from "components/Spinner";
+import Spinner from "../Spinner";
 
 import { arrayToHumanReadableList } from "../YourPositions/utils/list";
 import {

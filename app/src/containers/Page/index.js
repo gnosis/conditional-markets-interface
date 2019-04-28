@@ -1,6 +1,6 @@
 import React from "react";
-import Page from "components/Page";
-import Spinner from "components/Spinner";
+import Page from "../../components/Page";
+import Spinner from "../../components/Spinner";
 import { findIndex, find } from "lodash";
 import {
   renderComponent,
@@ -19,7 +19,7 @@ import {
   buyOutcomes,
   sellOutcomes,
   loadCollateral
-} from "api/markets";
+} from "../../api/markets";
 import {
   loadBalances,
   loadPositions,
@@ -30,7 +30,7 @@ import {
   calcOutcomeTokenCounts,
   getCollateralBalance,
   calcProfitForSale
-} from "api/balances";
+} from "../../api/balances";
 import Decimal from "decimal.js";
 import { setAllowanceInsanelyHigh } from "../../api/balances";
 

@@ -28,13 +28,15 @@ const contracts = {};
 export const loadContract = async (contractName, address) => {
   const path = `${contractName}}${address}`;
   if (!contracts[path]) {
-    const artifact = await import(/* webpackInclude: /.*\/build\/contracts\/.*\.json$/g */
-    /* webpackChunkName: "contracts" */
-    /* webpackMode: "lazy" */
-    /* webpackPrefetch: true */
+    const artifact = await import(
+      /* webpackInclude: /.*\/build\/contracts\/.*\.json$/g */
+      /* webpackChunkName: "contracts" */
+      /* webpackMode: "lazy" */
+      /* webpackPrefetch: true */
 
-    /* webpackPreload: true */
-    `../../../build/contracts/${contractName}.json`);
+      /* webpackPreload: true */
+      `../../../build/contracts/${contractName}.json`
+    );
     const contract = TC(artifact);
     contract.setProvider(provider.currentProvider);
 
