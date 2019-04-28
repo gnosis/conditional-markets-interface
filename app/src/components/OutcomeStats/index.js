@@ -2,7 +2,6 @@ import React from "react";
 import PropTypes from "prop-types";
 import cn from "classnames/bind";
 import CountUp from "react-countup";
-import { withState, compose } from "recompose";
 
 import css from "./style.scss";
 
@@ -50,10 +49,4 @@ OutcomeStats.propTypes = {
   setLastValue: PropTypes.func.isRequired
 };
 
-const enhancer = compose(
-  withState("lastValue", "setLastValue", ({ balance }) =>
-    parseInt(balance || "0", 10)
-  )
-);
-
-export default enhancer(OutcomeStats);
+export default OutcomeStats;
