@@ -7,7 +7,6 @@ const Markets = ({
   assumptions,
   selectedOutcomes,
   handleSelectOutcome,
-  handleSelectSell,
   handleSellOutcome,
   handleSelectAssumption,
   handleBuyOutcomes,
@@ -24,7 +23,6 @@ const Markets = ({
         handleSelectOutcome={handleSelectOutcome}
         selectedOutcome={selectedOutcomes[market.conditionId]}
         disabled={!!assumptions[market.conditionId]}
-        handleSelectSell={handleSelectSell}
         sellAmounts={sellAmounts}
         handleSellOutcome={handleSellOutcome}
         handleSelectAssumption={handleSelectAssumption}
@@ -44,7 +42,6 @@ Markets.propTypes = {
   assumptions: PropTypes.arrayOf(PropTypes.string.isRequired).isRequired,
   selectedOutcomes: PropTypes.object.isRequired,
   handleSelectOutcome: PropTypes.any.isRequired,
-  handleSelectSell: PropTypes.any,
   handleSellOutcome: PropTypes.any,
   handleSelectAssumption: PropTypes.any.isRequired,
   handleBuyOutcomes: PropTypes.any,

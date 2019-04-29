@@ -567,7 +567,7 @@ const enhancer = compose(
       const positions = await generatePositionList(updatedMarkets, balances);
       await setPositions(positions);
     },
-    handleSellPositions: ({
+    handleSellPosition: ({
       setMarkets,
       setPositionIds,
       setBalances,

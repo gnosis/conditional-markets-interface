@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { hot } from "react-hot-loader";
+import Decimal from "decimal.js";
 
 import Page from "./Page";
 import Spinner from "./Spinner";
@@ -8,10 +9,9 @@ import {
   loadMarkets,
   loadCollateral,
   loadMarginalPrices,
-  loadProbabilitiesForPredictions
-
-  // buyOutcomes,
-  // sellOutcomes,
+  loadProbabilitiesForPredictions,
+  buyOutcomes,
+  sellOutcomes
 } from "../api/markets";
 import {
   loadBalances,
@@ -20,9 +20,10 @@ import {
   generatePositionList,
   listOutcomePairsMatchingOutcomeId,
   calcOutcomeTokenCounts,
-  sumPricePerShare
-  // getCollateralBalance,
-  // calcProfitForSale
+  sumPricePerShare,
+  getCollateralBalance,
+  setAllowanceInsanelyHigh,
+  calcProfitForSale
 } from "../api/balances";
 
 const RootComponent = () => {
@@ -107,9 +108,10 @@ const RootComponent = () => {
     setMarkets(marketsWithAssumptions);
   }
 
-  const [, /*outcomeTokenBuyAmounts*/ setOutcomeTokenBuyAmounts] = useState([]);
+  const [outcomeTokenBuyAmounts, setOutcomeTokenBuyAmounts] = useState([]);
   const [predictionProbabilities, setPredictionProbabilities] = useState([]);
-  const [, /*stagedPositions*/ setStagedPositions] = useState([]);
+  const [stagedPositions, setStagedPositions] = useState([]);
+  const [invest, setInvest] = useState("");
 
   async function updateOutcomeTokenCounts(amount) {
     const amountValid = !isNaN(parseFloat(amount)) && parseFloat(amount) > 0;
@@ -155,7 +157,7 @@ const RootComponent = () => {
       assumedPairs,
       amount
     );
-    await setOutcomeTokenBuyAmounts(outcomeTokenCounts);
+    setOutcomeTokenBuyAmounts(outcomeTokenCounts);
 
     const newPrices = await loadMarginalPrices(outcomeTokenCounts);
     const predictionProbabilities = await loadProbabilitiesForPredictions(
@@ -188,9 +190,8 @@ const RootComponent = () => {
   }
 
   const [, /*outcomesToBuy*/ setOutcomesToBuy] = useState([]);
-  const [, /*validPosition*/ setValidPosition] = useState(false);
+  const [validPosition, setValidPosition] = useState(false);
   const [, /*selectionPrice*/ setSelectionPrice] = useState(0);
-  const [invest /*, setInvest*/] = useState(null);
   async function handleSelectOutcome(e) {
     const [conditionId, outcomeIndex] = e.target.name.split(/[-\]]/g);
     setSelectedOutcomes({
@@ -243,6 +244,170 @@ const RootComponent = () => {
     await updateOutcomeTokenCounts(invest || "0");
   }
 
+  const [buyError, setBuyError] = useState("");
+  async function handleSelectInvest(e) {
+    const invest = e.target.value;
+    const asNum = parseFloat(invest);
+
+    const isEmpty = invest === "";
+    const validNum = !isNaN(asNum) && isFinite(asNum) && asNum > 0;
+
+    setInvest(invest);
+
+    if (!isEmpty && validNum) {
+      await Promise.all([
+        updateOutcomeTokenCounts(invest || "0"),
+        (async () => {
+          const collateralDecimalDenominator = new Decimal(10).pow(
+            collateral.decimals || 18
+          );
+
+          const investWei = new Decimal(invest).mul(
+            collateralDecimalDenominator
+          );
+          // only needed for WETH? todo
+          //const gasEstimate = new Decimal(500000).mul(1e10) // 500.000 gas * 10 gwei gasprice as buffer for invest
+
+          const collateralBalance = await getCollateralBalance();
+          const collateralBalanceDecimal = new Decimal(
+            collateralBalance.toString()
+          );
+
+          const hasEnough = investWei.lte(collateralBalanceDecimal);
+
+          if (!hasEnough) {
+            setBuyError(
+              `Sorry, you don't have enough balance of ${
+                collateral.name
+              }. You're missing ${investWei
+                .sub(collateralBalanceDecimal)
+                .dividedBy(collateralDecimalDenominator)
+                .toSD(4)
+                .toString()} ${collateral.symbol}`
+            );
+          } else {
+            setBuyError(false);
+          }
+        })()
+      ]);
+    }
+  }
+
+  const [isBuying, setIsBuying] = useState(false);
+  async function handleSetAllowance() {
+    setIsBuying(true);
+    try {
+      await setAllowanceInsanelyHigh();
+      const allowance = await loadAllowance();
+      setAllowanceAvailable(allowance);
+    } catch (err) {
+      setBuyError("Could not set allowance. Please try again");
+      throw err;
+    } finally {
+      setIsBuying(false);
+    }
+  }
+
+  async function handleBuyOutcomes() {
+    if (isBuying) throw new Error(`attempting to buy while already buying`);
+
+    setIsBuying(true);
+    setBuyError("");
+    try {
+      await buyOutcomes(outcomeTokenBuyAmounts);
+
+      const newPrices = await loadMarginalPrices();
+      setPrices(newPrices);
+      const positionIds = await loadPositions();
+      setPositionIds(positionIds);
+      const balances = await loadBalances(positionIds);
+      setBalances(balances);
+      const newMarkets = await loadMarkets(newPrices);
+      setMarkets(newMarkets);
+      const positions = await generatePositionList(newMarkets, balances);
+      setPositions(positions);
+
+      await updateOutcomeTokenCounts(invest || "0");
+    } catch (err) {
+      setBuyError(err.message);
+      throw err;
+    } finally {
+      setIsBuying(false);
+    }
+  }
+
+  const [selectedSellAmount, setSelectedSellAmount] = useState("");
+  const [predictedSellProfit, setPredictedSellProfit] = useState(null);
+  async function updateSellProfit(positionOutcomeGrouping) {
+    const asNum = parseFloat(selectedSellAmount);
+
+    const isEmpty = selectedSellAmount === "";
+    const validNum = !isNaN(asNum) && isFinite(asNum) && asNum > 0;
+    if (isEmpty || !validNum) return;
+
+    const targetPosition = positions.find(
+      ({ outcomeIds }) => outcomeIds === positionOutcomeGrouping
+    );
+    const sellAmountDecimal = new Decimal(selectedSellAmount)
+      .mul(new Decimal(10).pow(18))
+      .floor();
+    if (targetPosition && targetPosition.outcomes.length > 0) {
+      const estimatedProfit = await calcProfitForSale(
+        targetPosition.outcomes.map(positionOutcomeIds => [
+          positionOutcomeIds,
+          sellAmountDecimal.toString()
+        ])
+      );
+      setPredictedSellProfit(estimatedProfit);
+    }
+  }
+
+  const [selectedSell, setSelectedSell] = useState(null);
+  async function handleSelectSell(positionOutcomeGrouping) {
+    setSelectedSellAmount("");
+    setPredictedSellProfit(null);
+    setSelectedSell(
+      positionOutcomeGrouping === selectedSell ? null : positionOutcomeGrouping
+    );
+    await updateSellProfit(positionOutcomeGrouping);
+  }
+
+  async function handleSelectSellAmount(e) {
+    if (typeof e !== "string") {
+      const asNum = parseFloat(e.target.value);
+      const isEmpty = e.target.value === "";
+      const validNum = !isNaN(asNum) && isFinite(asNum) && asNum > 0;
+
+      setSelectedSellAmount(e.target.value);
+      if (!isEmpty && validNum) {
+        await updateSellProfit(selectedSell);
+      }
+    } else {
+      setSelectedSellAmount(e);
+      await updateSellProfit(selectedSell);
+    }
+  }
+
+  async function handleSellPosition(atomicOutcomes, amount) {
+    await sellOutcomes(atomicOutcomes, amount);
+    const prices = await loadMarginalPrices();
+    const updatedMarkets = await loadMarkets(prices);
+    setMarkets(updatedMarkets);
+
+    const positionIds = await loadPositions();
+    setPositionIds(positionIds);
+
+    const balances = await loadBalances(positionIds);
+    setBalances(balances);
+
+    const positions = await generatePositionList(updatedMarkets, balances);
+    setPositions(positions);
+
+    setSelectedSell(null);
+    setSelectedSellAmount("");
+    setPredictedSellProfit(null);
+  }
+
   if (loading === "SUCCESS")
     return (
       <Page
@@ -252,10 +417,32 @@ const RootComponent = () => {
           collateral,
           assumptions,
           selectedOutcomes,
+
           predictionProbabilities,
+          outcomeTokenBuyAmounts,
+          stagedPositions,
+
+          validPosition,
+          allowanceAvailable,
+          invest,
+          buyError,
+          isBuying,
+
+          selectedSell,
+          selectedSellAmount,
+          predictedSellProfit,
 
           handleSelectAssumption,
-          handleSelectOutcome
+          handleSelectOutcome,
+          handleSelectInvest,
+
+          handleSetAllowance,
+          handleBuyOutcomes,
+
+          handleSelectSell,
+          handleSelectSellAmount,
+
+          handleSellPosition
         }}
       />
     );

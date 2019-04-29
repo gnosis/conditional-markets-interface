@@ -13,7 +13,7 @@ function Page({
   markets,
   invest,
   selectedOutcomes,
-  handleSellPositions,
+  handleSellPosition,
   handleSelectOutcome,
   handleBuyOutcomes,
   assumptions,
@@ -74,7 +74,7 @@ function Page({
         />
         <YourPositions
           positions={positions}
-          handleSellPosition={handleSellPositions}
+          handleSellPosition={handleSellPosition}
           handleRedeem={handleRedeem}
           collateral={collateral}
           handleSelectSell={handleSelectSell}
@@ -92,9 +92,9 @@ function Page({
 
 Page.propTypes = {
   markets: PropTypes.any.isRequired,
-  invest: PropTypes.any,
+  invest: PropTypes.any.isRequired,
   selectedOutcomes: PropTypes.any.isRequired,
-  handleSellPositions: PropTypes.any.isRequired,
+  handleSellPosition: PropTypes.any.isRequired,
   handleSelectOutcome: PropTypes.any.isRequired,
   handleBuyOutcomes: PropTypes.any.isRequired,
   assumptions: PropTypes.any.isRequired,
@@ -112,12 +112,12 @@ Page.propTypes = {
   redeemError: PropTypes.any.isRequired,
   isRedeeming: PropTypes.any.isRequired,
   collateral: PropTypes.any.isRequired,
-  selectedSell: PropTypes.any,
-  handleSelectSell: PropTypes.any,
+  selectedSell: PropTypes.any.isRequired,
+  handleSelectSell: PropTypes.any.isRequired,
   handleSelectSellAmount: PropTypes.any.isRequired,
   handleRedeem: PropTypes.any.isRequired,
-  selectedSellAmount: PropTypes.any,
-  predictedSellProfit: PropTypes.any,
+  selectedSellAmount: PropTypes.any.isRequired,
+  predictedSellProfit: PropTypes.any.isRequired,
   allowanceAvailable: PropTypes.string.isRequired,
   handleSetAllowance: PropTypes.any.isRequired
 };
