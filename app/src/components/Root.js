@@ -70,17 +70,13 @@ const RootComponent = () => {
 
   const [assumptions, setAssumptions] = useState([]);
   function removeAssumption(conditionIdToRemove) {
-    // mutating the state and rereturning the same ref
-    // (original code this was based off of also mutated ref, but then made a copy)
-    const conditionIndex = assumptions.indexOf(conditionIdToRemove);
-
-    if (conditionIndex > -1) {
-      assumptions.splice(conditionIndex, 1);
-      setAssumptions(assumptions);
-    }
     // no error will be thrown if condition is not found
     // because this may be called with an unassumed condition
     // (when user switches to "I don't know" from "Yes" or "No")
+    if (assumptions.includes(conditionIdToRemove))
+      setAssumptions(
+        assumptions.filter(conditionId => conditionId !== conditionIdToRemove)
+      );
   }
 
   const [selectedOutcomes, setSelectedOutcomes] = useState({});
@@ -179,8 +175,7 @@ const RootComponent = () => {
       removeAssumption(conditionId);
     } else {
       if (assumptions.length < markets.length - 1) {
-        assumptions.push(conditionId);
-        setAssumptions(assumptions);
+        setAssumptions([...assumptions, conditionId]);
       } else {
         alert(
           "You can't make assumptions on all markets at once. You need to make at least one prediction."
