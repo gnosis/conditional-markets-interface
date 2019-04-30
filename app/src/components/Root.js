@@ -2,7 +2,10 @@ import React, { useState, useEffect } from "react";
 import { hot } from "react-hot-loader";
 import Decimal from "decimal.js";
 
-import Page from "./Page";
+import Markets from "./Markets";
+import BuySection from "./BuySection";
+import YourPositions from "./YourPositions";
+
 import Spinner from "./Spinner";
 
 import {
@@ -24,6 +27,10 @@ import {
   setAllowanceInsanelyHigh,
   calcProfitForSale
 } from "../api/balances";
+
+import css from "./style.scss";
+import cn from "classnames/bind";
+const cx = cn.bind(css);
 
 const RootComponent = () => {
   const [loading, setLoading] = useState("LOADING");
@@ -403,41 +410,45 @@ const RootComponent = () => {
 
   if (loading === "SUCCESS")
     return (
-      <Page
-        {...{
-          markets,
-          positions,
-          collateral,
-          assumptions,
-          selectedOutcomes,
-
-          predictionProbabilities,
-          outcomeTokenBuyAmounts,
-          stagedPositions,
-
-          validPosition,
-          allowanceAvailable,
-          invest,
-          buyError,
-          isBuying,
-
-          selectedSell,
-          selectedSellAmount,
-          predictedSellProfit,
-
-          handleSelectAssumption,
-          handleSelectOutcome,
-          handleSelectInvest,
-
-          handleSetAllowance,
-          handleBuyOutcomes,
-
-          handleSelectSell,
-          handleSelectSellAmount,
-
-          handleSellPosition
-        }}
-      />
+      <div className={cx("page")}>
+        <section className={cx("section", "market-section")}>
+          <h1 className={cx("page-title")}>Gnosis PM 2.0 Experiments</h1>
+          <Markets
+            markets={markets}
+            assumptions={assumptions}
+            selectedOutcomes={selectedOutcomes}
+            predictionProbabilities={predictionProbabilities}
+            handleSelectAssumption={handleSelectAssumption}
+            handleSelectOutcome={handleSelectOutcome}
+          />
+        </section>
+        <div className={cx("seperator")} />
+        <section className={cx("section", "position-section")}>
+          <h2 className={cx("heading")}>Manage Positions</h2>
+          <BuySection
+            collateral={collateral}
+            stagedPositions={stagedPositions}
+            validPosition={validPosition}
+            hasAllowance={allowanceAvailable > 0}
+            invest={invest}
+            isBuying={isBuying}
+            buyError={buyError}
+            handleSelectInvest={handleSelectInvest}
+            handleSetAllowance={handleSetAllowance}
+            handleBuyOutcomes={handleBuyOutcomes}
+          />
+          <YourPositions
+            positions={positions}
+            collateral={collateral}
+            selectedSell={selectedSell}
+            selectedSellAmount={selectedSellAmount}
+            predictedSellProfit={predictedSellProfit}
+            handleSelectSell={handleSelectSell}
+            handleSellPosition={handleSellPosition}
+            handleSelectSellAmount={handleSelectSellAmount}
+          />
+        </section>
+      </div>
     );
 
   if (loading === "LOADING")
