@@ -12,13 +12,15 @@ const cx = cn.bind(style);
 
 const YourPositions = ({
   positions,
+  collateral,
+
+  selectedSell,
+  selectedSellAmount,
+  predictedSellProfit,
+
   handleSelectSell,
   handleSellPosition,
-  selectedSellAmount,
-  handleSelectSellAmount,
-  collateral,
-  selectedSell,
-  predictedSellProfit
+  handleSelectSellAmount
 }) => (
   <div className={cx("your-positions")}>
     <h2>Positions</h2>
@@ -165,15 +167,17 @@ YourPositions.propTypes = {
       ).isRequired
     }).isRequired
   ).isRequired,
-  handleSelectSell: PropTypes.func.isRequired,
-  handleSellPosition: PropTypes.func.isRequired,
-  selectedSellAmount: PropTypes.string.isRequired,
-  handleSelectSellAmount: PropTypes.func.isRequired,
   collateral: PropTypes.shape({
     symbol: PropTypes.string.isRequired
   }).isRequired,
+
   selectedSell: PropTypes.string.isRequired,
-  predictedSellProfit: PropTypes.instanceOf(Decimal).isRequired
+  selectedSellAmount: PropTypes.string.isRequired,
+  predictedSellProfit: PropTypes.instanceOf(Decimal).isRequired,
+
+  handleSelectSell: PropTypes.func.isRequired,
+  handleSellPosition: PropTypes.func.isRequired,
+  handleSelectSellAmount: PropTypes.func.isRequired
 };
 
 export default YourPositions;

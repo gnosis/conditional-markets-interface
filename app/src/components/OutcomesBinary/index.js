@@ -8,9 +8,9 @@ const clamp = (val, min, max) => (val < min ? min : val > max ? max : val);
 const cx = cn.bind(css);
 
 const OutcomesBinary = ({
+  outcomes: [{ probability, color } /*, negativeOutcome */],
   isResolved,
-  predictionProbabilities: [predictionProbability /*, negativeProbability */],
-  outcomes: [{ probability, color } /*, negativeOutcome */]
+  predictionProbabilities: [predictionProbability /*, negativeProbability */]
 }) => {
   const predictedProbabilityDifference = clamp(
     predictionProbability - probability,
@@ -84,15 +84,15 @@ const OutcomesBinary = ({
 };
 
 OutcomesBinary.propTypes = {
-  isResolved: PropTypes.bool.isRequired,
-  predictionProbabilities: PropTypes.arrayOf(PropTypes.number.isRequired)
-    .isRequired,
   outcomes: PropTypes.arrayOf(
     PropTypes.shape({
       probability: PropTypes.number.isRequired,
       color: PropTypes.string.isRequired
     }).isRequired
-  ).isRequired
+  ).isRequired,
+  isResolved: PropTypes.bool.isRequired,
+  predictionProbabilities: PropTypes.arrayOf(PropTypes.number.isRequired)
+    .isRequired
 };
 
 export default OutcomesBinary;

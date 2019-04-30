@@ -17,7 +17,6 @@ function Page({
   selectedOutcomes,
 
   predictionProbabilities,
-  outcomeTokenBuyAmounts,
   stagedPositions,
 
   validPosition,
@@ -48,39 +47,37 @@ function Page({
         <h1 className={cx("page-title")}>Gnosis PM 2.0 Experiments</h1>
         <Markets
           markets={markets}
-          handleSelectOutcome={handleSelectOutcome}
-          selectedOutcomes={selectedOutcomes}
           assumptions={assumptions}
-          handleSelectAssumption={handleSelectAssumption}
+          selectedOutcomes={selectedOutcomes}
           predictionProbabilities={predictionProbabilities}
+          handleSelectAssumption={handleSelectAssumption}
+          handleSelectOutcome={handleSelectOutcome}
         />
       </section>
       <div className={cx("seperator")} />
       <section className={cx("section", "position-section")}>
         <h2 className={cx("heading")}>Manage Positions</h2>
         <BuySection
-          invest={invest}
-          handleSelectInvest={handleSelectInvest}
-          selectedOutcomes={selectedOutcomes}
-          handleBuyOutcomes={handleBuyOutcomes}
-          outcomeTokenBuyAmounts={outcomeTokenBuyAmounts}
-          validPosition={validPosition}
-          isBuying={isBuying}
-          buyError={buyError}
           collateral={collateral}
           stagedPositions={stagedPositions}
+          validPosition={validPosition}
           hasAllowance={allowanceAvailable > 0}
+          invest={invest}
+          isBuying={isBuying}
+          buyError={buyError}
+          handleSelectInvest={handleSelectInvest}
           handleSetAllowance={handleSetAllowance}
+          handleBuyOutcomes={handleBuyOutcomes}
         />
         <YourPositions
           positions={positions}
-          handleSellPosition={handleSellPosition}
           collateral={collateral}
-          handleSelectSell={handleSelectSell}
-          handleSelectSellAmount={handleSelectSellAmount}
-          selectedSellAmount={selectedSellAmount}
           selectedSell={selectedSell}
+          selectedSellAmount={selectedSellAmount}
           predictedSellProfit={predictedSellProfit}
+          handleSelectSell={handleSelectSell}
+          handleSellPosition={handleSellPosition}
+          handleSelectSellAmount={handleSelectSellAmount}
         />
       </section>
     </div>

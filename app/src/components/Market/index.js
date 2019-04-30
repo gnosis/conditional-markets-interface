@@ -13,16 +13,19 @@ const Market = ({
   resolutionDate,
   outcomes,
   conditionId,
-  selectedOutcome,
-  handleSelectOutcome,
-  handleBuyOutcomes,
-  disabled,
   isResolved,
   result,
+
   assumed,
+  disabled,
+  selectedOutcome,
+
+  predictionProbabilities,
+
   marketIndex,
+
   handleSelectAssumption,
-  predictionProbabilities
+  handleSelectOutcome
 }) => {
   let probabilities = outcomes.map(outcome => outcome.probability);
 
@@ -77,24 +80,22 @@ const Market = ({
       <section className={cx("outcomes-section")}>
         <OutcomesBinary
           outcomes={outcomesWithAssumation}
+          isResolved={isResolved}
           predictionProbabilities={
             assumed ? [] : predictionProbabilities[marketIndex] || []
           }
-          isResolved={isResolved}
-          winningOutcome={result}
         />
       </section>
 
       {!isResolved && (
         <section className={cx("selection-section")}>
           <OutcomeSelection
-            conditionId={conditionId}
             outcomes={outcomesWithAssumation}
+            conditionId={conditionId}
+            assumed={assumed}
             selectedOutcome={selectedOutcome}
             handleSelectAssumption={handleSelectAssumption}
             handleSelectOutcome={handleSelectOutcome}
-            handleBuyOutcomes={handleBuyOutcomes}
-            assumed={assumed}
           />
         </section>
       )}
@@ -112,17 +113,20 @@ Market.propTypes = {
     }).isRequired
   ).isRequired,
   conditionId: PropTypes.any.isRequired,
-  selectedOutcome: PropTypes.string.isRequired,
-  handleSelectOutcome: PropTypes.any.isRequired,
-  handleBuyOutcomes: PropTypes.any.isRequired,
-  disabled: PropTypes.bool.isRequired,
   isResolved: PropTypes.bool.isRequired,
   result: PropTypes.number.isRequired,
+
   assumed: PropTypes.bool.isRequired,
-  marketIndex: PropTypes.number.isRequired,
-  handleSelectAssumption: PropTypes.any.isRequired,
+  disabled: PropTypes.bool.isRequired,
+  selectedOutcome: PropTypes.string.isRequired,
+
   predictionProbabilities: PropTypes.arrayOf(PropTypes.array.isRequired)
-    .isRequired
+    .isRequired,
+
+  marketIndex: PropTypes.number.isRequired,
+
+  handleSelectAssumption: PropTypes.any.isRequired,
+  handleSelectOutcome: PropTypes.any.isRequired
 };
 
 Market.defaultProps = {

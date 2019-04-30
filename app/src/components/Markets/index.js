@@ -6,26 +6,24 @@ const Markets = ({
   markets,
   assumptions,
   selectedOutcomes,
-  handleSelectOutcome,
-  handleSellOutcome,
+
+  predictionProbabilities,
+
   handleSelectAssumption,
-  handleBuyOutcomes,
-  predictionProbabilities
+  handleSelectOutcome
 }) => (
   <div>
     {markets.map((market, index) => (
       <Market
         key={market.conditionId}
         {...market}
-        marketIndex={index}
         assumed={assumptions.indexOf(market.conditionId) > -1}
-        handleSelectOutcome={handleSelectOutcome}
-        selectedOutcome={selectedOutcomes[market.conditionId]}
         disabled={!!assumptions[market.conditionId]}
-        handleSellOutcome={handleSellOutcome}
-        handleSelectAssumption={handleSelectAssumption}
-        handleBuyOutcomes={handleBuyOutcomes}
+        selectedOutcome={selectedOutcomes[market.conditionId]}
         predictionProbabilities={predictionProbabilities}
+        marketIndex={index}
+        handleSelectOutcome={handleSelectOutcome}
+        handleSelectAssumption={handleSelectAssumption}
       />
     ))}
   </div>
@@ -39,11 +37,11 @@ Markets.propTypes = {
   ).isRequired,
   assumptions: PropTypes.arrayOf(PropTypes.string.isRequired).isRequired,
   selectedOutcomes: PropTypes.object.isRequired,
-  handleSelectOutcome: PropTypes.any.isRequired,
-  handleSellOutcome: PropTypes.any.isRequired,
+
+  predictionProbabilities: PropTypes.any.isRequired,
+
   handleSelectAssumption: PropTypes.any.isRequired,
-  handleBuyOutcomes: PropTypes.any.isRequired,
-  predictionProbabilities: PropTypes.any.isRequired
+  handleSelectOutcome: PropTypes.any.isRequired
 };
 
 export default Markets;

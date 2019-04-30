@@ -6,12 +6,12 @@ import style from "./style.scss";
 const cx = cn.bind(style);
 
 const OutcomeSelection = ({
-  conditionId,
   outcomes,
+  conditionId,
   assumed,
+  selectedOutcome,
   handleSelectAssumption,
-  handleSelectOutcome,
-  selectedOutcome
+  handleSelectOutcome
 }) => (
   <div className={cx("outcome-selection")}>
     <div className={cx("row-outcomes")}>
@@ -60,16 +60,16 @@ const OutcomeSelection = ({
 );
 
 OutcomeSelection.propTypes = {
-  conditionId: PropTypes.string.isRequired,
   outcomes: PropTypes.arrayOf(
     PropTypes.shape({
       short: PropTypes.string.isRequired
     }).isRequired
   ).isRequired,
+  conditionId: PropTypes.string.isRequired,
   assumed: PropTypes.bool.isRequired,
+  selectedOutcome: PropTypes.string,
   handleSelectAssumption: PropTypes.func.isRequired,
-  handleSelectOutcome: PropTypes.func.isRequired,
-  selectedOutcome: PropTypes.string
+  handleSelectOutcome: PropTypes.func.isRequired
 };
 
 export default OutcomeSelection;

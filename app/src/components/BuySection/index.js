@@ -14,16 +14,19 @@ import style from "./style.scss";
 const cx = classnames.bind(style);
 
 const BuySection = ({
-  handleBuyOutcomes,
+  collateral,
+
+  stagedPositions,
+
+  validPosition,
+  hasAllowance,
+  invest,
+  buyError,
+  isBuying,
+
   handleSelectInvest,
   handleSetAllowance,
-  invest,
-  validPosition,
-  isBuying,
-  buyError,
-  collateral,
-  stagedPositions,
-  hasAllowance
+  handleBuyOutcomes
 }) => (
   <div className={cx("positions")}>
     <input
@@ -93,17 +96,11 @@ const BuySection = ({
 );
 
 BuySection.propTypes = {
-  handleBuyOutcomes: PropTypes.func.isRequired,
-  handleSelectInvest: PropTypes.func.isRequired,
-  handleSetAllowance: PropTypes.func.isRequired,
-  invest: PropTypes.string.isRequired,
-  validPosition: PropTypes.bool.isRequired,
-  isBuying: PropTypes.bool.isRequired,
-  buyError: PropTypes.oneOfType([PropTypes.string, PropTypes.bool]).isRequired,
   collateral: PropTypes.shape({
     name: PropTypes.string.isRequired,
     symbol: PropTypes.string.isRequired
   }).isRequired,
+
   stagedPositions: PropTypes.arrayOf(
     PropTypes.shape({
       value: PropTypes.string.isRequired,
@@ -117,7 +114,16 @@ BuySection.propTypes = {
       ).isRequired
     }).isRequired
   ).isRequired,
-  hasAllowance: PropTypes.bool.isRequired
+
+  validPosition: PropTypes.bool.isRequired,
+  hasAllowance: PropTypes.bool.isRequired,
+  invest: PropTypes.string.isRequired,
+  buyError: PropTypes.oneOfType([PropTypes.string, PropTypes.bool]).isRequired,
+  isBuying: PropTypes.bool.isRequired,
+
+  handleBuyOutcomes: PropTypes.func.isRequired,
+  handleSelectInvest: PropTypes.func.isRequired,
+  handleSetAllowance: PropTypes.func.isRequired
 };
 
 export default BuySection;
