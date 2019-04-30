@@ -6,7 +6,6 @@ import cn from "classnames/bind";
 import { arrayToHumanReadableList } from "./utils/list";
 import { formatFromWei, pseudoMarkdown } from "./utils/formatting";
 
-import Spinner from "components/Spinner";
 import style from "./style.scss";
 
 const cx = cn.bind(style);
@@ -14,15 +13,12 @@ const cx = cn.bind(style);
 const YourPositions = ({
   positions,
   handleSelectSell,
-  handleRedeem,
   handleSellPosition,
   selectedSellAmount,
   handleSelectSellAmount,
   collateral,
   selectedSell,
-  predictedSellProfit,
-  isRedeeming,
-  redeemError
+  predictedSellProfit
 }) => (
   <div className={cx("your-positions")}>
     <h2>Positions</h2>
@@ -43,14 +39,6 @@ const YourPositions = ({
         selectedSell === position.outcomeIds &&
         validNum &&
         sellAmountLowerThanBalance;
-
-      // only if all markets are resolved
-      const wasResolved = position.markets.every(market => market.isResolved);
-
-      // only if we have winnings from atleast one market
-      const hasWinnings = position.markets.some(
-        market => market.result === market.selectedOutcome
-      );
 
       let sellErrorReason;
 
@@ -90,31 +78,12 @@ const YourPositions = ({
               )}
             </div>
             <div className={cx("controls")}>
-              {wasResolved && hasWinnings ? (
-                <button
-                  type="button"
-                  onClick={() => handleRedeem(position)}
-                  disabled={isRedeeming}
-                >
-                  {isRedeeming ? (
-                    <Spinner centered inverted width={25} height={25} />
-                  ) : (
-                    "Redeem"
-                  )}
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => handleSelectSell(position.outcomeIds)}
-                >
-                  Sell
-                </button>
-              )}
-            </div>
-            <div className={cx("messages")}>
-              {!isRedeeming && redeemError && (
-                <span className={cx("error")}>{redeemError}</span>
-              )}
+              <button
+                type="button"
+                onClick={() => handleSelectSell(position.outcomeIds)}
+              >
+                Sell
+              </button>
             </div>
           </div>
           {selectedSell === position.outcomeIds && (
@@ -197,21 +166,14 @@ YourPositions.propTypes = {
     }).isRequired
   ).isRequired,
   handleSelectSell: PropTypes.func.isRequired,
-  handleRedeem: PropTypes.func.isRequired,
   handleSellPosition: PropTypes.func.isRequired,
   selectedSellAmount: PropTypes.string.isRequired,
   handleSelectSellAmount: PropTypes.func.isRequired,
   collateral: PropTypes.shape({
     symbol: PropTypes.string.isRequired
   }).isRequired,
-  selectedSell: PropTypes.string,
-  predictedSellProfit: PropTypes.instanceOf(Decimal),
-  isRedeeming: PropTypes.bool.isRequired,
-  redeemError: PropTypes.string.isRequired
-};
-
-YourPositions.defaultProps = {
-  selectedSellAmount: ""
+  selectedSell: PropTypes.string.isRequired,
+  predictedSellProfit: PropTypes.instanceOf(Decimal).isRequired
 };
 
 export default YourPositions;

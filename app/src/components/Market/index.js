@@ -78,7 +78,7 @@ const Market = ({
         <OutcomesBinary
           outcomes={outcomesWithAssumation}
           predictionProbabilities={
-            assumed ? undefined : predictionProbabilities[marketIndex]
+            assumed ? [] : predictionProbabilities[marketIndex] || []
           }
           isResolved={isResolved}
           winningOutcome={result}
@@ -112,16 +112,17 @@ Market.propTypes = {
     }).isRequired
   ).isRequired,
   conditionId: PropTypes.any.isRequired,
-  selectedOutcome: PropTypes.string,
+  selectedOutcome: PropTypes.string.isRequired,
   handleSelectOutcome: PropTypes.any.isRequired,
-  handleBuyOutcomes: PropTypes.any,
+  handleBuyOutcomes: PropTypes.any.isRequired,
   disabled: PropTypes.bool.isRequired,
   isResolved: PropTypes.bool.isRequired,
   result: PropTypes.number.isRequired,
   assumed: PropTypes.bool.isRequired,
   marketIndex: PropTypes.number.isRequired,
   handleSelectAssumption: PropTypes.any.isRequired,
-  predictionProbabilities: PropTypes.array.isRequired
+  predictionProbabilities: PropTypes.arrayOf(PropTypes.array.isRequired)
+    .isRequired
 };
 
 Market.defaultProps = {

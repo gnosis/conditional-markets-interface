@@ -95,8 +95,4 @@ OutcomesBinary.propTypes = {
   ).isRequired
 };
 
-OutcomesBinary.defaultProps = {
-  predictionProbabilities: []
-};
-
 export default OutcomesBinary;

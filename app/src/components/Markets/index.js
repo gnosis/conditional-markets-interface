@@ -10,7 +10,6 @@ const Markets = ({
   handleSellOutcome,
   handleSelectAssumption,
   handleBuyOutcomes,
-  sellAmounts,
   predictionProbabilities
 }) => (
   <div>
@@ -23,7 +22,6 @@ const Markets = ({
         handleSelectOutcome={handleSelectOutcome}
         selectedOutcome={selectedOutcomes[market.conditionId]}
         disabled={!!assumptions[market.conditionId]}
-        sellAmounts={sellAmounts}
         handleSellOutcome={handleSellOutcome}
         handleSelectAssumption={handleSelectAssumption}
         handleBuyOutcomes={handleBuyOutcomes}
@@ -42,10 +40,9 @@ Markets.propTypes = {
   assumptions: PropTypes.arrayOf(PropTypes.string.isRequired).isRequired,
   selectedOutcomes: PropTypes.object.isRequired,
   handleSelectOutcome: PropTypes.any.isRequired,
-  handleSellOutcome: PropTypes.any,
+  handleSellOutcome: PropTypes.any.isRequired,
   handleSelectAssumption: PropTypes.any.isRequired,
-  handleBuyOutcomes: PropTypes.any,
-  sellAmounts: PropTypes.any,
+  handleBuyOutcomes: PropTypes.any.isRequired,
   predictionProbabilities: PropTypes.any.isRequired
 };
 

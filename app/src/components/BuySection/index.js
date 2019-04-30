@@ -120,13 +120,4 @@ BuySection.propTypes = {
   hasAllowance: PropTypes.bool.isRequired
 };
 
-BuySection.defaultProps = {
-  invest: "",
-  selectionPrice: 0,
-  outcomeTokenBuyAmounts: [],
-  isBuying: false,
-  buyError: "",
-  hasAllowance: false
-};
-
 export default BuySection;

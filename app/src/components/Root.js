@@ -20,7 +20,6 @@ import {
   generatePositionList,
   listOutcomePairsMatchingOutcomeId,
   calcOutcomeTokenCounts,
-  sumPricePerShare,
   getCollateralBalance,
   setAllowanceInsanelyHigh,
   calcProfitForSale
@@ -189,9 +188,7 @@ const RootComponent = () => {
     await updateOutcomeTokenCounts(invest || "0");
   }
 
-  const [, /*outcomesToBuy*/ setOutcomesToBuy] = useState([]);
   const [validPosition, setValidPosition] = useState(false);
-  const [, /*selectionPrice*/ setSelectionPrice] = useState(0);
   async function handleSelectOutcome(e) {
     const [conditionId, outcomeIndex] = e.target.name.split(/[-\]]/g);
     setSelectedOutcomes({
@@ -230,15 +227,11 @@ const RootComponent = () => {
     const outcomePairs = await listOutcomePairsMatchingOutcomeId(
       outcomeIndexes
     );
-    setOutcomesToBuy(outcomePairs);
 
     // sets if the selected position is valid (ie not all positions and not no positions)
     setValidPosition(
       outcomePairs.length > 0 && outcomePairs.length < totalOutcomeIndex + 1
     );
-
-    // update the price for the selected outcomes the user would buy
-    setSelectionPrice(await sumPricePerShare(outcomePairs));
 
     await updateMarkets();
     await updateOutcomeTokenCounts(invest || "0");
