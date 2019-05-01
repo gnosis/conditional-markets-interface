@@ -390,38 +390,51 @@ const RootComponent = () => {
         <section className={cx("section", "market-section")}>
           <h1 className={cx("page-title")}>Gnosis PM 2.0 Experiments</h1>
           <Markets
-            markets={markets}
-            assumptions={assumptions}
-            selectedOutcomes={selectedOutcomes}
-            predictionProbabilities={predictionProbabilities}
-            handleSelectAssumption={handleSelectAssumption}
-            handleSelectOutcome={handleSelectOutcome}
+            {...{
+              markets,
+              assumptions,
+              selectedOutcomes,
+
+              predictionProbabilities,
+
+              handleSelectAssumption,
+              handleSelectOutcome
+            }}
           />
         </section>
         <div className={cx("seperator")} />
         <section className={cx("section", "position-section")}>
           <h2 className={cx("heading")}>Manage Positions</h2>
           <BuySection
-            collateral={collateral}
-            stagedPositions={stagedPositions}
-            validPosition={validPosition}
-            hasAllowance={allowanceAvailable > 0}
-            invest={invest}
-            isBuying={isBuying}
-            buyError={buyError}
-            handleSelectInvest={handleSelectInvest}
-            handleSetAllowance={handleSetAllowance}
-            handleBuyOutcomes={handleBuyOutcomes}
+            {...{
+              collateral,
+
+              stagedPositions,
+
+              validPosition,
+              hasAllowance: allowanceAvailable > 0,
+              invest,
+              isBuying,
+              buyError,
+
+              handleSelectInvest,
+              handleSetAllowance,
+              handleBuyOutcomes
+            }}
           />
           <YourPositions
-            positions={positions}
-            collateral={collateral}
-            selectedSell={selectedSell}
-            selectedSellAmount={selectedSellAmount}
-            predictedSellProfit={predictedSellProfit}
-            handleSelectSell={handleSelectSell}
-            handleSellPosition={handleSellPosition}
-            handleSelectSellAmount={handleSelectSellAmount}
+            {...{
+              positions,
+              collateral,
+
+              selectedSell,
+              selectedSellAmount,
+              predictedSellProfit,
+
+              handleSelectSell,
+              handleSellPosition,
+              handleSelectSellAmount
+            }}
           />
         </section>
       </div>

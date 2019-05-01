@@ -35,7 +35,7 @@ const Market = ({
     );
   }
 
-  let outcomesWithAssumation = outcomes.map((outcome, index) => ({
+  let outcomesWithProbabilities = outcomes.map((outcome, index) => ({
     ...outcome,
     probability: probabilities[index]
   }));
@@ -79,23 +79,27 @@ const Market = ({
       </section>
       <section className={cx("outcomes-section")}>
         <OutcomesBinary
-          outcomes={outcomesWithAssumation}
-          isResolved={isResolved}
-          predictionProbabilities={
-            assumed ? [] : predictionProbabilities[marketIndex] || []
-          }
+          {...{
+            outcomes: outcomesWithProbabilities,
+            isResolved,
+            predictionProbabilities: assumed
+              ? []
+              : predictionProbabilities[marketIndex] || []
+          }}
         />
       </section>
 
       {!isResolved && (
         <section className={cx("selection-section")}>
           <OutcomeSelection
-            outcomes={outcomesWithAssumation}
-            conditionId={conditionId}
-            assumed={assumed}
-            selectedOutcome={selectedOutcome}
-            handleSelectAssumption={handleSelectAssumption}
-            handleSelectOutcome={handleSelectOutcome}
+            {...{
+              outcomes,
+              conditionId,
+              assumed,
+              selectedOutcome,
+              handleSelectAssumption,
+              handleSelectOutcome
+            }}
           />
         </section>
       )}

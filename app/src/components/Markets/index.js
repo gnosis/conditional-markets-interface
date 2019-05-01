@@ -16,14 +16,20 @@ const Markets = ({
     {markets.map((market, index) => (
       <Market
         key={market.conditionId}
-        {...market}
-        assumed={assumptions.indexOf(market.conditionId) > -1}
-        disabled={!!assumptions[market.conditionId]}
-        selectedOutcome={selectedOutcomes[market.conditionId]}
-        predictionProbabilities={predictionProbabilities}
-        marketIndex={index}
-        handleSelectOutcome={handleSelectOutcome}
-        handleSelectAssumption={handleSelectAssumption}
+        {...{
+          ...market,
+
+          assumed: assumptions.indexOf(market.conditionId) > -1,
+          disabled: !!assumptions[market.conditionId],
+          selectedOutcome: selectedOutcomes[market.conditionId],
+
+          predictionProbabilities: predictionProbabilities,
+
+          marketIndex: index,
+
+          handleSelectOutcome,
+          handleSelectAssumption
+        }}
       />
     ))}
   </div>
