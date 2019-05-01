@@ -32,8 +32,10 @@ import css from "./style.scss";
 import cn from "classnames/bind";
 const cx = cn.bind(css);
 
+const moduleLoadTime = Date.now();
 const RootComponent = () => {
   const [loading, setLoading] = useState("LOADING");
+  const [syncTime, setSyncTime] = useState(moduleLoadTime);
 
   const [prices, setPrices] = useState(null);
   const [markets, setMarkets] = useState(null);
@@ -44,12 +46,12 @@ const RootComponent = () => {
   const [allowanceAvailable, setAllowanceAvailable] = useState(null);
 
   for (const [loader, dependentParams, setter] of [
+    [loadCollateral, [], setCollateral],
     [loadMarginalPrices, [], setPrices],
     [loadMarkets, [prices], setMarkets],
     [loadPositions, [], setPositionIds],
     [loadBalances, [positionIds], setBalances],
     [generatePositionList, [markets, balances], setPositions],
-    [loadCollateral, [], setCollateral],
     [loadAllowance, [], setAllowanceAvailable],
     [
       () => Promise.resolve("SUCCESS"),
@@ -73,7 +75,7 @@ const RootComponent = () => {
             setLoading("FAILURE");
             throw err;
           });
-    }, dependentParams);
+    }, [...dependentParams, syncTime]);
 
   const [assumptions, setAssumptions] = useState([]);
   function removeAssumption(conditionIdToRemove) {
@@ -88,95 +90,103 @@ const RootComponent = () => {
 
   const [selectedOutcomes, setSelectedOutcomes] = useState({});
 
-  async function updateMarkets() {
-    const assumedOutcomeIndexes = [];
+  useEffect(() => {
+    (async function updatedMarkets() {
+      if (prices == null) return;
 
-    Object.keys(selectedOutcomes).forEach(targetConditionId => {
-      if (assumptions.includes(targetConditionId)) {
-        const marketIndex = markets.findIndex(
-          ({ conditionId }) => conditionId == targetConditionId
-        );
-        let lmsrOutcomeIndex = 0;
-        for (let i = 0; i < marketIndex; i++)
-          lmsrOutcomeIndex += markets[marketIndex].outcomes.length;
+      const assumedOutcomeIndexes = [];
 
-        const selectedOutcome = parseInt(
-          selectedOutcomes[targetConditionId],
-          10
-        );
-        assumedOutcomeIndexes.push(lmsrOutcomeIndex + selectedOutcome);
-      }
-    });
-    const marketsWithAssumptions = await loadMarkets(
-      prices,
-      assumedOutcomeIndexes
-    );
-    setMarkets(marketsWithAssumptions);
-  }
+      Object.keys(selectedOutcomes).forEach(targetConditionId => {
+        if (assumptions.includes(targetConditionId)) {
+          const marketIndex = markets.findIndex(
+            ({ conditionId }) => conditionId == targetConditionId
+          );
+          let lmsrOutcomeIndex = 0;
+          for (let i = 0; i < marketIndex; i++)
+            lmsrOutcomeIndex += markets[marketIndex].outcomes.length;
 
+          const selectedOutcome = parseInt(
+            selectedOutcomes[targetConditionId],
+            10
+          );
+          assumedOutcomeIndexes.push(lmsrOutcomeIndex + selectedOutcome);
+        }
+      });
+      const marketsWithAssumptions = await loadMarkets(
+        prices,
+        assumedOutcomeIndexes
+      );
+      setMarkets(marketsWithAssumptions);
+    })();
+  }, [prices, selectedOutcomes, assumptions]);
+
+  const [invest, setInvest] = useState("");
   const [outcomeTokenBuyAmounts, setOutcomeTokenBuyAmounts] = useState([]);
   const [predictionProbabilities, setPredictionProbabilities] = useState([]);
   const [stagedPositions, setStagedPositions] = useState([]);
-  const [invest, setInvest] = useState("");
 
-  async function updateOutcomeTokenCounts(amount) {
-    const amountValid = !isNaN(parseFloat(amount)) && parseFloat(amount) > 0;
+  useEffect(() => {
+    (async function updateOutcomeTokenCounts() {
+      const amount = invest || "0";
 
-    if (!amountValid) return;
+      const amountValid = !isNaN(parseFloat(amount)) && parseFloat(amount) > 0;
 
-    const outcomeIndexes = [];
-    const assumedIndexes = [];
+      if (!amountValid) return;
 
-    // transform selectedOutcomes into outcomeIndex array, filtering all assumptions
-    let totalOutcomeIndex = 0;
-    markets.forEach(market => {
-      if (selectedOutcomes[market.conditionId] != null) {
-        const selectedOutcome = parseInt(
-          selectedOutcomes[market.conditionId],
-          10
-        );
+      const outcomeIndexes = [];
+      const assumedIndexes = [];
 
-        if (assumptions.includes(market.conditionId)) {
-          assumedIndexes.push(totalOutcomeIndex + selectedOutcome);
-        } else {
-          outcomeIndexes.push(totalOutcomeIndex + selectedOutcome);
+      // transform selectedOutcomes into outcomeIndex array, filtering all assumptions
+      let totalOutcomeIndex = 0;
+      markets.forEach(market => {
+        if (selectedOutcomes[market.conditionId] != null) {
+          const selectedOutcome = parseInt(
+            selectedOutcomes[market.conditionId],
+            10
+          );
+
+          if (assumptions.includes(market.conditionId)) {
+            assumedIndexes.push(totalOutcomeIndex + selectedOutcome);
+          } else {
+            outcomeIndexes.push(totalOutcomeIndex + selectedOutcome);
+          }
         }
-      }
 
-      totalOutcomeIndex += market.outcomes.length;
-    });
+        totalOutcomeIndex += market.outcomes.length;
+      });
 
-    // outcome ids:   Ay, .... By, ... Bn
-    // atomic outcomes: AyByCn "outcomePairs"
+      // outcome ids:   Ay, .... By, ... Bn
+      // atomic outcomes: AyByCn "outcomePairs"
 
-    const outcomePairs = await listOutcomePairsMatchingOutcomeId([
-      ...outcomeIndexes,
-      ...assumedIndexes
-    ]);
-    const assumedPairs =
-      assumedIndexes.length > 0
-        ? await listOutcomePairsMatchingOutcomeId(assumedIndexes, true)
-        : [];
+      const outcomePairs = await listOutcomePairsMatchingOutcomeId([
+        ...outcomeIndexes,
+        ...assumedIndexes
+      ]);
+      const assumedPairs =
+        assumedIndexes.length > 0
+          ? await listOutcomePairsMatchingOutcomeId(assumedIndexes, true)
+          : [];
 
-    const outcomeTokenCounts = await calcOutcomeTokenCounts(
-      outcomePairs,
-      assumedPairs,
-      amount
-    );
-    setOutcomeTokenBuyAmounts(outcomeTokenCounts);
+      const outcomeTokenCounts = await calcOutcomeTokenCounts(
+        outcomePairs,
+        assumedPairs,
+        amount
+      );
+      setOutcomeTokenBuyAmounts(outcomeTokenCounts);
 
-    const newPrices = await loadMarginalPrices(outcomeTokenCounts);
-    const predictionProbabilities = await loadProbabilitiesForPredictions(
-      newPrices
-    );
+      const newPrices = await loadMarginalPrices(outcomeTokenCounts);
+      const predictionProbabilities = await loadProbabilitiesForPredictions(
+        newPrices
+      );
 
-    setPredictionProbabilities(predictionProbabilities);
-    const stagedPositions = await generatePositionList(
-      markets,
-      outcomeTokenCounts
-    );
-    setStagedPositions(stagedPositions);
-  }
+      setPredictionProbabilities(predictionProbabilities);
+      const stagedPositions = await generatePositionList(
+        markets,
+        outcomeTokenCounts
+      );
+      setStagedPositions(stagedPositions);
+    })();
+  }, [markets, assumptions, selectedOutcomes, invest]);
 
   async function handleSelectAssumption(conditionId) {
     if (assumptions.includes(conditionId)) {
@@ -190,12 +200,47 @@ const RootComponent = () => {
         );
       }
     }
-
-    await updateMarkets();
-    await updateOutcomeTokenCounts(invest || "0");
   }
 
   const [validPosition, setValidPosition] = useState(false);
+  useEffect(() => {
+    (async function updateAffectedOutcomes() {
+      if (markets == null || assumptions == null) return;
+
+      const outcomeIndexes = [];
+      const assumedIndexes = [];
+
+      // transform selectedOutcomes into outcomeIndex array, filtering all assumptions
+      let totalOutcomeIndex = 0;
+      markets.forEach(market => {
+        if (selectedOutcomes[market.conditionId] != null) {
+          const selectedOutcome = parseInt(
+            selectedOutcomes[market.conditionId],
+            10
+          );
+
+          if (assumptions.includes(market.conditionId)) {
+            assumedIndexes.push(totalOutcomeIndex + selectedOutcome);
+          } else {
+            outcomeIndexes.push(totalOutcomeIndex + selectedOutcome);
+          }
+        }
+
+        totalOutcomeIndex += market.outcomes.length;
+      });
+
+      // sets which outcome combinations will be bought
+      const outcomePairs = await listOutcomePairsMatchingOutcomeId(
+        outcomeIndexes
+      );
+
+      // sets if the selected position is valid (ie not all positions and not no positions)
+      setValidPosition(
+        outcomePairs.length > 0 && outcomePairs.length < totalOutcomeIndex + 1
+      );
+    })();
+  }, [markets, assumptions, selectedOutcomes]);
+
   async function handleSelectOutcome(e) {
     const [conditionId, outcomeIndex] = e.target.name.split(/[-\]]/g);
     setSelectedOutcomes({
@@ -206,92 +251,51 @@ const RootComponent = () => {
     if (outcomeIndex === undefined) {
       removeAssumption(conditionId);
     }
-
-    // update affected outcomes
-    const outcomeIndexes = [];
-    const assumedIndexes = [];
-
-    // transform selectedOutcomes into outcomeIndex array, filtering all assumptions
-    let totalOutcomeIndex = 0;
-    markets.forEach(market => {
-      if (selectedOutcomes[market.conditionId] != null) {
-        const selectedOutcome = parseInt(
-          selectedOutcomes[market.conditionId],
-          10
-        );
-
-        if (assumptions.includes(market.conditionId)) {
-          assumedIndexes.push(totalOutcomeIndex + selectedOutcome);
-        } else {
-          outcomeIndexes.push(totalOutcomeIndex + selectedOutcome);
-        }
-      }
-
-      totalOutcomeIndex += market.outcomes.length;
-    });
-
-    // sets which outcome combinations will be bought
-    const outcomePairs = await listOutcomePairsMatchingOutcomeId(
-      outcomeIndexes
-    );
-
-    // sets if the selected position is valid (ie not all positions and not no positions)
-    setValidPosition(
-      outcomePairs.length > 0 && outcomePairs.length < totalOutcomeIndex + 1
-    );
-
-    await updateMarkets();
-    await updateOutcomeTokenCounts(invest || "0");
   }
 
   const [buyError, setBuyError] = useState("");
   async function handleSelectInvest(e) {
-    const invest = e.target.value;
-    const asNum = parseFloat(invest);
-
-    const isEmpty = invest === "";
-    const validNum = !isNaN(asNum) && isFinite(asNum) && asNum > 0;
-
-    setInvest(invest);
-
-    if (!isEmpty && validNum) {
-      await Promise.all([
-        updateOutcomeTokenCounts(invest || "0"),
-        (async () => {
-          const collateralDecimalDenominator = new Decimal(10).pow(
-            collateral.decimals || 18
-          );
-
-          const investWei = new Decimal(invest).mul(
-            collateralDecimalDenominator
-          );
-          // only needed for WETH? todo
-          //const gasEstimate = new Decimal(500000).mul(1e10) // 500.000 gas * 10 gwei gasprice as buffer for invest
-
-          const collateralBalance = await getCollateralBalance();
-          const collateralBalanceDecimal = new Decimal(
-            collateralBalance.toString()
-          );
-
-          const hasEnough = investWei.lte(collateralBalanceDecimal);
-
-          if (!hasEnough) {
-            setBuyError(
-              `Sorry, you don't have enough balance of ${
-                collateral.name
-              }. You're missing ${investWei
-                .sub(collateralBalanceDecimal)
-                .dividedBy(collateralDecimalDenominator)
-                .toSD(4)
-                .toString()} ${collateral.symbol}`
-            );
-          } else {
-            setBuyError(false);
-          }
-        })()
-      ]);
-    }
+    setInvest(e.target.value);
   }
+
+  useEffect(() => {
+    (async function updateBuyError() {
+      const asNum = parseFloat(invest);
+      const isEmpty = invest === "";
+      const validNum = !isNaN(asNum) && isFinite(asNum) && asNum > 0;
+
+      if (!isEmpty && validNum) {
+        const collateralDecimalDenominator = new Decimal(10).pow(
+          collateral.decimals || 18
+        );
+
+        const investWei = new Decimal(invest).mul(collateralDecimalDenominator);
+        // only needed for WETH? todo
+        //const gasEstimate = new Decimal(500000).mul(1e10) // 500.000 gas * 10 gwei gasprice as buffer for invest
+
+        const collateralBalance = await getCollateralBalance();
+        const collateralBalanceDecimal = new Decimal(
+          collateralBalance.toString()
+        );
+
+        const hasEnough = investWei.lte(collateralBalanceDecimal);
+
+        if (!hasEnough) {
+          setBuyError(
+            `Sorry, you don't have enough balance of ${
+              collateral.name
+            }. You're missing ${investWei
+              .sub(collateralBalanceDecimal)
+              .dividedBy(collateralDecimalDenominator)
+              .toSD(4)
+              .toString()} ${collateral.symbol}`
+          );
+        } else {
+          setBuyError(false);
+        }
+      }
+    })();
+  }, [collateral, invest]);
 
   const [isBuying, setIsBuying] = useState(false);
   async function handleSetAllowance() {
@@ -315,97 +319,69 @@ const RootComponent = () => {
     setBuyError("");
     try {
       await buyOutcomes(outcomeTokenBuyAmounts);
-
-      const newPrices = await loadMarginalPrices();
-      setPrices(newPrices);
-      const positionIds = await loadPositions();
-      setPositionIds(positionIds);
-      const balances = await loadBalances(positionIds);
-      setBalances(balances);
-      const newMarkets = await loadMarkets(newPrices);
-      setMarkets(newMarkets);
-      const positions = await generatePositionList(newMarkets, balances);
-      setPositions(positions);
-
-      await updateOutcomeTokenCounts(invest || "0");
     } catch (err) {
       setBuyError(err.message);
       throw err;
     } finally {
       setIsBuying(false);
-    }
-  }
-
-  const [selectedSellAmount, setSelectedSellAmount] = useState("");
-  const [predictedSellProfit, setPredictedSellProfit] = useState(null);
-  async function updateSellProfit(positionOutcomeGrouping) {
-    const asNum = parseFloat(selectedSellAmount);
-
-    const isEmpty = selectedSellAmount === "";
-    const validNum = !isNaN(asNum) && isFinite(asNum) && asNum > 0;
-    if (isEmpty || !validNum) return;
-
-    const targetPosition = positions.find(
-      ({ outcomeIds }) => outcomeIds === positionOutcomeGrouping
-    );
-    const sellAmountDecimal = new Decimal(selectedSellAmount)
-      .mul(new Decimal(10).pow(18))
-      .floor();
-    if (targetPosition && targetPosition.outcomes.length > 0) {
-      const estimatedProfit = await calcProfitForSale(
-        targetPosition.outcomes.map(positionOutcomeIds => [
-          positionOutcomeIds,
-          sellAmountDecimal.toString()
-        ])
-      );
-      setPredictedSellProfit(estimatedProfit);
+      setSyncTime(Date.now());
     }
   }
 
   const [selectedSell, setSelectedSell] = useState(null);
+  const [selectedSellAmount, setSelectedSellAmount] = useState("");
+  const [predictedSellProfit, setPredictedSellProfit] = useState(null);
+  useEffect(() => {
+    (async function updateSellProfit() {
+      const asNum = parseFloat(selectedSellAmount);
+
+      const isEmpty = selectedSellAmount === "";
+      const validNum = !isNaN(asNum) && isFinite(asNum) && asNum > 0;
+      if (isEmpty || !validNum) return;
+
+      const targetPosition = positions.find(
+        ({ outcomeIds }) => outcomeIds === selectedSell
+      );
+      const sellAmountDecimal = new Decimal(selectedSellAmount)
+        .mul(new Decimal(10).pow(18))
+        .floor();
+      if (targetPosition && targetPosition.outcomes.length > 0) {
+        const estimatedProfit = await calcProfitForSale(
+          targetPosition.outcomes.map(positionOutcomeIds => [
+            positionOutcomeIds,
+            sellAmountDecimal.toString()
+          ])
+        );
+        setPredictedSellProfit(estimatedProfit);
+      }
+    })();
+  }, [positions, selectedSell, selectedSellAmount]);
+
   async function handleSelectSell(positionOutcomeGrouping) {
     setSelectedSellAmount("");
     setPredictedSellProfit(null);
     setSelectedSell(
       positionOutcomeGrouping === selectedSell ? null : positionOutcomeGrouping
     );
-    await updateSellProfit(positionOutcomeGrouping);
   }
 
   async function handleSelectSellAmount(e) {
     if (typeof e !== "string") {
-      const asNum = parseFloat(e.target.value);
-      const isEmpty = e.target.value === "";
-      const validNum = !isNaN(asNum) && isFinite(asNum) && asNum > 0;
-
       setSelectedSellAmount(e.target.value);
-      if (!isEmpty && validNum) {
-        await updateSellProfit(selectedSell);
-      }
     } else {
       setSelectedSellAmount(e);
-      await updateSellProfit(selectedSell);
     }
   }
 
   async function handleSellPosition(atomicOutcomes, amount) {
-    await sellOutcomes(atomicOutcomes, amount);
-    const prices = await loadMarginalPrices();
-    const updatedMarkets = await loadMarkets(prices);
-    setMarkets(updatedMarkets);
-
-    const positionIds = await loadPositions();
-    setPositionIds(positionIds);
-
-    const balances = await loadBalances(positionIds);
-    setBalances(balances);
-
-    const positions = await generatePositionList(updatedMarkets, balances);
-    setPositions(positions);
-
-    setSelectedSell(null);
-    setSelectedSellAmount("");
-    setPredictedSellProfit(null);
+    try {
+      await sellOutcomes(atomicOutcomes, amount);
+    } finally {
+      setSelectedSell(null);
+      setSelectedSellAmount("");
+      setPredictedSellProfit(null);
+      setSyncTime(Date.now());
+    }
   }
 
   if (loading === "SUCCESS")
