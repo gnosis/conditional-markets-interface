@@ -89,5 +89,8 @@
       "eslint --fix",
       "git add"
     ]
-  }
+  },
+  "browserslist": [
+    "since 2017-06"
+  ]
 }
