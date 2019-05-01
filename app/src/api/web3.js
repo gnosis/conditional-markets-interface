@@ -22,18 +22,25 @@ if (process.env.NODE_ENV === "development" || process.env.NODE_ENV === "test") {
 
 const contracts = {};
 
+import ERC20DetailedArtifact from "../../../build/contracts/ERC20Detailed.json";
+import LMSRMarketMakerArtifact from "../../../build/contracts/LMSRMarketMaker.json";
+import PredictionMarketSystemArtifact from "../../../build/contracts/PredictionMarketSystem.json";
+import WETH9Artifact from "../../../build/contracts/WETH9.json";
+
+const artifacts = {
+  ERC20Detailed: ERC20DetailedArtifact,
+  LMSRMarketMaker: LMSRMarketMakerArtifact,
+  PredictionMarketSystem: PredictionMarketSystemArtifact,
+  WETH9: WETH9Artifact
+};
+
 export const loadContract = async (contractName, address) => {
   const path = `${contractName}}${address}`;
   if (!contracts[path]) {
-    const artifact = await import(
-      /* webpackInclude: /.*\/build\/contracts\/.*\.json$/g */
-      /* webpackChunkName: "contracts" */
-      /* webpackMode: "lazy" */
-      /* webpackPrefetch: true */
+    const artifact = artifacts[contractName];
+    if (artifact == null)
+      throw new Error(`could not get artifact for contract ${contractName}`);
 
-      /* webpackPreload: true */
-      `../../../build/contracts/${contractName}.json`
-    );
     const contract = TC(artifact);
     contract.setProvider(provider.currentProvider);
 
