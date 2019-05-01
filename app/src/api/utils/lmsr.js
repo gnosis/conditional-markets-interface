@@ -19,38 +19,6 @@ export const lmsrMarginalPrice = (funding, lmsrTokenBalances, outcomeIndex) => {
     .exp();
 };
 
-export const lmsrTradeCost = (_funding, balances, outcomeTokenAmounts) => {
-  // markets funding
-  const funding = new Decimal(_funding);
-  let sumBefore = new Decimal(0);
-
-  // balance before trade
-  balances.forEach(balance => {
-    sumBefore = sumBefore.add(
-      Decimal(balance)
-        .div(funding)
-        .exp()
-    );
-  });
-  const costBefore = funding.log(sumBefore);
-
-  let sumAfter = new Decimal(0);
-
-  // balance after trade
-  balances.forEach((balance, tokenIndex) => {
-    sumAfter = sumAfter.add(
-      new Decimal(balance)
-        .add(outcomeTokenAmounts[tokenIndex])
-        .div(funding)
-        .exp()
-    );
-  });
-  const costAfter = funding.log(sumAfter);
-
-  // sum of both equals cost of trade
-  return costBefore.sub(costAfter);
-};
-
 export const lmsrNetCost = (funding, tokenAmounts, lmsrTokenBalances) => {
   // netCost = Funding * log2(2**((tokenAmounts[0]-lmsrTokenBalances[0])/F) + 2**((tokenAmounts[1]-lmsrTokenBalances[1])/F)) + ...
   const decimalFunding = new Decimal(funding.toString());
@@ -142,4 +110,3 @@ export const lmsrCalcOutcomeTokenCount = (
     return "0";
   });
 };
-window.lmsrCalcOutcomeTokenCount = lmsrCalcOutcomeTokenCount;

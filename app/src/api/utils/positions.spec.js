@@ -5,7 +5,7 @@ const {
 } = require("./positions");
 const web3 = require("web3");
 
-const { asBytes32, asAddress, normHex } = require("../../utils/solidity");
+const { asBytes32, asAddress, normHex } = require("./solidity");
 
 const { toHex } = web3.utils;
 

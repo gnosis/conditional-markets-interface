@@ -1,5 +1,5 @@
 import web3 from "web3";
-import { asAddress, asBytes32, addWithOverflow } from "../../utils/solidity";
+import { asAddress, asBytes32, addWithOverflow } from "./solidity";
 const { BN, soliditySha3 } = web3.utils;
 
 function* positionListGenerator(markets, parentCollectionId) {
@@ -36,50 +36,6 @@ function* positionListGenerator(markets, parentCollectionId) {
   }
 }
 
-function* collectionIdGeneratorForRedeem(
-  markets,
-  parentCollectionId,
-  targetDepth,
-  targetOutcomes
-) {
-  if (!markets.length) return;
-  const newMarkets = [...markets];
-  const market = newMarkets.pop();
-
-  for (
-    let outcomeIndex = 0;
-    outcomeIndex < market.outcomes.length;
-    outcomeIndex++
-  ) {
-    const marketCollectionId = new BN(
-      soliditySha3(
-        {
-          t: "bytes32",
-          v: asBytes32(market.conditionId)
-        },
-        {
-          t: "bytes32",
-          v: asBytes32(1 << outcomeIndex)
-        }
-      ).slice(2),
-      16
-    );
-
-    const collectionId = addWithOverflow(
-      parentCollectionId,
-      marketCollectionId
-    );
-    // used to generate a debug-tree of all position id steps
-    yield collectionId.toString(16);
-    yield* collectionIdGeneratorForRedeem(
-      newMarkets,
-      collectionId,
-      targetDepth,
-      targetOutcomes
-    );
-  }
-}
-
 export const generateCollectionIdList = markets => {
   const gen = positionListGenerator(markets, new BN(0));
   const positionIds = [];
@@ -101,19 +57,6 @@ export const generatePositionIdList = (markets, collateral) => {
       { t: "bytes32", v: asBytes32(collectionId) }
     );
   });
-};
-
-export const findCollectionIdsForConditionsAndSelections = markets => {
-  const targetOutcomes = markets.map(
-    market => market.outcomes[market.selectedOutcome].lmsrIndex
-  );
-  // format from collectionIdGeneratorForRedeem is [collectionId, lmsrIndexOfTargetOutcome]
-  const targetCollectionIds = [
-    ...collectionIdGeneratorForRedeem(markets, new BN(0), 0, targetOutcomes)
-  ];
-  targetCollectionIds.push([0, undefined]);
-
-  return targetCollectionIds;
 };
 
 /**

@@ -3,7 +3,6 @@ import React from "react";
 
 import "normalize.css/normalize.css";
 import "./style/index.scss";
-import "rc-collapse/assets/index.css";
 
 import RootComponent from "./components/Root";
 

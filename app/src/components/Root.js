@@ -54,7 +54,7 @@ const RootComponent = () => {
     [generatePositionList, [markets, balances], setPositions],
     [loadAllowance, [], setAllowanceAvailable],
     [
-      () => Promise.resolve("SUCCESS"),
+      () => Promise.resolve(loading === "LOADING" ? "SUCCESS" : loading),
       [
         prices,
         markets,

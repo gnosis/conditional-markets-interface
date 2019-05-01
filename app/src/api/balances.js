@@ -12,11 +12,9 @@ import {
   nameOutcomePairs,
   listAffectedMarketsForOutcomeIds
 } from "./utils/probabilities";
-import { lmsrTradeCost, lmsrCalcOutcomeTokenCount } from "./utils/lmsr";
+import { lmsrCalcOutcomeTokenCount } from "./utils/lmsr";
 import { resolvePositionGrouping } from "./utils/positionGrouping";
 import Decimal from "decimal.js";
-
-window.Decimal = Decimal;
 
 export const loadPositions = async () => {
   const { lmsr, markets, collateral: collateralAddress } = await loadConfig();
@@ -143,27 +141,6 @@ export const loadAllowance = async () => {
   const owner = await getDefaultAccount();
   const collateralContract = await loadContract("ERC20Detailed", collateral);
 
-  // DEBUG: sets a window func to deposit to collateral, if possible
-  if (!window.deposit) {
-    window.deposit = async amount => {
-      const collateralContractForDeposit = await loadContract(
-        "WETH9",
-        collateral
-      );
-
-      if (!collateralContractForDeposit.deposit) {
-        throw new Error(
-          "No deposit function on this collateral token instance"
-        );
-      }
-
-      await collateralContractForDeposit.deposit({
-        value: amount,
-        from: owner
-      });
-    };
-  }
-
   return (await collateralContract.allowance(owner, lmsr)).toString();
 };
 
@@ -220,22 +197,6 @@ export const getCollateralBalance = async () => {
 
   return amount;
 };
-window.getCollateralBalance = getCollateralBalance;
-
-export const listAffectedOutcomesForIds = async outcomeIds => {
-  const marketOutcomeCounts = await loadMarketOutcomeCounts();
-  const outcomeIdNames = nameMarketOutcomes(marketOutcomeCounts);
-  const outcomePairNames = nameOutcomePairs(outcomeIdNames);
-
-  let outcomeIdArray = outcomeIds;
-  if (typeof outcomeIds === "string") {
-    outcomeIdArray = outcomeIds.split(/&/g);
-  }
-
-  return outcomePairNames.filter(outcomes =>
-    outcomeIdArray.every(id => outcomes.split(/&/g).includes(id))
-  );
-};
 
 export const listOutcomePairsMatchingOutcomeId = async (
   outcomeIndexes,
@@ -260,40 +221,6 @@ export const listOutcomePairsMatchingOutcomeId = async (
       pair.split(/&/g).includes(outcomeIdNames.flat()[index])
     )
   );
-};
-
-export const indexesForOutcomePairs = async outcomePairs => {
-  const marketOutcomeCounts = await loadMarketOutcomeCounts();
-  const outcomeIdNames = nameMarketOutcomes(marketOutcomeCounts);
-  const outcomePairNames = nameOutcomePairs(outcomeIdNames);
-
-  return outcomePairNames
-    .map((_, index) => index)
-    .filter(outcomePairIndex =>
-      outcomePairs.includes(outcomePairNames[outcomePairIndex])
-    );
-};
-
-export const sumPricePerShare = async outcomePairs => {
-  const { lmsr } = await loadConfig();
-
-  const marketOutcomeCounts = await loadMarketOutcomeCounts();
-  const outcomeIdNames = nameMarketOutcomes(marketOutcomeCounts);
-  const outcomePairNames = nameOutcomePairs(outcomeIdNames);
-
-  const outcomePairsAsIndexes = outcomePairs.map(outcomePair =>
-    outcomePairNames.indexOf(outcomePair)
-  );
-  const LMSR = await loadContract("LMSRMarketMaker", lmsr);
-
-  const funding = (await LMSR.funding()).toString();
-  const balances = await loadLmsrTokenBalances(lmsr);
-
-  const tokenAmounts = Array(outcomePairNames.length)
-    .fill()
-    .map((_, index) => (outcomePairsAsIndexes.includes(index) ? 1 : 0));
-
-  return lmsrTradeCost(funding, balances, tokenAmounts);
 };
 
 export const calcOutcomeTokenCounts = async (
