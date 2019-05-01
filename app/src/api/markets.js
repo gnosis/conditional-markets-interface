@@ -88,8 +88,8 @@ export const loadMarkets = async (atomicOutcomePrices, assumptions = []) => {
 
       return {
         ...market,
-        isResolved: resolved, // TODO: Replace with actual values
-        result, // TODO: Replace with actual values
+        isResolved: resolved,
+        result,
         outcomes: market.outcomes.map((outcome, outcomeIndex) => ({
           ...outcome,
           outcomeIndex,
