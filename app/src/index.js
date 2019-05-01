@@ -1,8 +1,8 @@
 import { render } from "react-dom";
 import React from "react";
 
-import "normalize.css/normalize.css";
-import "./style/index.scss";
+// import "normalize.css/normalize.css";
+// import "./style/index.scss";
 
 import RootComponent from "./components/Root";
 

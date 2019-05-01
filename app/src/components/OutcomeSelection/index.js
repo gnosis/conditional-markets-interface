@@ -1,9 +1,10 @@
 import React from "react";
 import PropTypes from "prop-types";
-import cn from "classnames/bind";
-import style from "./style.scss";
 
-const cx = cn.bind(style);
+// import cn from "classnames/bind";
+// import style from "./style.scss";
+// const cx = cn.bind(style);
+import cx from "classnames";
 
 const OutcomeSelection = ({
   outcomes,

@@ -1,10 +1,10 @@
 import React from "react";
 import PropTypes from "prop-types";
-import classNames from "classnames/bind";
 
-import css from "./Spinner.scss";
-
-const cx = classNames.bind(css);
+// import classNames from "classnames/bind";
+// import css from "./Spinner.scss";
+// const cx = classNames.bind(css);
+import cx from "classnames";
 
 const Spinner = ({ centered, inverted, width, height }) => (
   <svg

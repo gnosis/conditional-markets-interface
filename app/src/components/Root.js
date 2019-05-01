@@ -28,9 +28,10 @@ import {
   calcProfitForSale
 } from "../api/balances";
 
-import css from "./style.scss";
-import cn from "classnames/bind";
-const cx = cn.bind(css);
+// import css from "./style.scss";
+// import cn from "classnames/bind";
+// const cx = cn.bind(css);
+import cx from "classnames";
 
 const moduleLoadTime = Date.now();
 const RootComponent = () => {
@@ -442,20 +443,20 @@ const RootComponent = () => {
 
   if (loading === "LOADING")
     return (
-      <div style={{ height: "100%", width: "100%" }}>
+      <div /* style={{ height: "100%", width: "100%" }} */>
         <Spinner centered inverted width={100} height={100} />
       </div>
     );
   if (loading === "FAILURE")
     return (
       <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          flexDirection: "column",
-          height: "100vh"
-        }}
+      // style={{
+      //   display: "flex",
+      //   justifyContent: "center",
+      //   alignItems: "center",
+      //   flexDirection: "column",
+      //   height: "100vh"
+      // }}
       >
         <h2>Failed to load 😞</h2>
         <h3>Please check the following:</h3>

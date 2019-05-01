@@ -1,6 +1,5 @@
 import React from "react";
 import PropTypes from "prop-types";
-import classnames from "classnames/bind";
 import Spinner from "../Spinner";
 
 import { arrayToHumanReadableList } from "../YourPositions/utils/list";
@@ -9,9 +8,10 @@ import {
   pseudoMarkdown
 } from "../YourPositions/utils/formatting";
 
-import style from "./style.scss";
-
-const cx = classnames.bind(style);
+// import classnames from "classnames/bind";
+// import style from "./style.scss";
+// const cx = classnames.bind(style);
+import cx from "classnames";
 
 const BuySection = ({
   collateral,

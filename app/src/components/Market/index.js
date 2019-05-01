@@ -2,11 +2,11 @@ import React from "react";
 import PropTypes from "prop-types";
 import OutcomesBinary from "../OutcomesBinary";
 import OutcomeSelection from "../OutcomeSelection";
-import cn from "classnames/bind";
 
-import css from "./style.scss";
-
-const cx = cn.bind(css);
+// import cn from "classnames/bind";
+// import css from "./style.scss";
+// const cx = cn.bind(css);
+import cx from "classnames";
 
 const Market = ({
   title,
