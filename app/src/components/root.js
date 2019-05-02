@@ -125,11 +125,16 @@ const RootComponent = () => {
 
   useEffect(() => {
     (async function updateOutcomeTokenCounts() {
-      const amount = invest || "0";
+      const amount = invest || "";
 
       const amountValid = !isNaN(parseFloat(amount)) && parseFloat(amount) > 0;
 
-      if (!amountValid) return;
+      if (!amountValid) {
+        setOutcomeTokenBuyAmounts([]);
+        setPredictionProbabilities([]);
+        setStagedPositions([]);
+        return;
+      }
 
       const outcomeIndexes = [];
       const assumedIndexes = [];
@@ -331,18 +336,24 @@ const RootComponent = () => {
   const [predictedSellProfit, setPredictedSellProfit] = useState(null);
   useEffect(() => {
     (async function updateSellProfit() {
-      const asNum = parseFloat(selectedSellAmount);
+      let sellAmountDecimal = null;
 
-      const isEmpty = selectedSellAmount === "";
-      const validNum = !isNaN(asNum) && isFinite(asNum) && asNum > 0;
-      if (isEmpty || !validNum) return;
+      try {
+        sellAmountDecimal = new Decimal(selectedSellAmount)
+          .mul(new Decimal(10).pow(collateral.decimals))
+          .floor();
+      } catch (e) {
+        // empty
+      }
+
+      if (sellAmountDecimal == null || sellAmountDecimal.lte(0)) {
+        setPredictedSellProfit(null);
+        return;
+      }
 
       const targetPosition = positions.find(
         ({ outcomeIds }) => outcomeIds === selectedSell
       );
-      const sellAmountDecimal = new Decimal(selectedSellAmount)
-        .mul(new Decimal(10).pow(18))
-        .floor();
       if (targetPosition && targetPosition.outcomes.length > 0) {
         const estimatedProfit = await calcProfitForSale(
           targetPosition.outcomes.map(positionOutcomeIds => [
@@ -353,7 +364,7 @@ const RootComponent = () => {
         setPredictedSellProfit(estimatedProfit);
       }
     })();
-  }, [positions, selectedSell, selectedSellAmount]);
+  }, [collateral, positions, selectedSell, selectedSellAmount]);
 
   async function handleSelectSell(positionOutcomeGrouping) {
     setSelectedSellAmount("");
