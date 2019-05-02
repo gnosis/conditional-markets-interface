@@ -5,10 +5,7 @@ import Decimal from "decimal.js";
 import { arrayToHumanReadableList } from "./utils/list";
 import { formatFromWei, pseudoMarkdown } from "./utils/formatting";
 
-// import cn from "classnames/bind";
-// import style from "./style.scss";
-// const cx = cn.bind(style);
-import cx from "classnames";
+import cn from "classnames";
 
 const YourPositions = ({
   positions,
@@ -22,7 +19,7 @@ const YourPositions = ({
   handleSellPosition,
   handleSelectSellAmount
 }) => (
-  <div className={cx("your-positions")}>
+  <div className={cn("your-positions")}>
     <h2>Positions</h2>
     {!positions.length && <em>{"You don't hold any positions yet."}</em>}
     {positions.map((position, index) => {
@@ -55,15 +52,15 @@ const YourPositions = ({
       if (position.value == "0") return null;
 
       return (
-        <div key={index} className={cx("position")}>
-          <div className={cx("row", "details")}>
-            <div className={cx("value")}>
+        <div key={index} className={cn("position")}>
+          <div className={cn("row", "details")}>
+            <div className={cn("value")}>
               <strong>
                 {formatFromWei(position.value, collateral.symbol)}
               </strong>
               &nbsp;
             </div>
-            <div className={cx("description")}>
+            <div className={cn("description")}>
               {position.outcomeIds === "" ? (
                 position.value > 0 && <span>In any Case</span>
               ) : (
@@ -79,7 +76,7 @@ const YourPositions = ({
                 </span>
               )}
             </div>
-            <div className={cx("controls")}>
+            <div className={cn("controls")}>
               <button
                 type="button"
                 onClick={() => handleSelectSell(position.outcomeIds)}
@@ -89,12 +86,12 @@ const YourPositions = ({
             </div>
           </div>
           {selectedSell === position.outcomeIds && (
-            <div className={cx("row", "sell")}>
+            <div className={cn("row", "sell")}>
               <p>
                 You can sell a maximum amount of{" "}
                 {formatFromWei(position.value, "Tokens")} of this position.
               </p>
-              <div className={cx("controls")}>
+              <div className={cn("controls")}>
                 <input
                   type="text"
                   value={selectedSellAmount}
@@ -128,7 +125,7 @@ const YourPositions = ({
                   Confirm
                 </button>
               </div>
-              <div className={cx("row", "messages")}>
+              <div className={cn("row", "messages")}>
                 <>
                   {predictedSellProfit && predictedSellProfit > 0 && (
                     <span>
@@ -139,7 +136,7 @@ const YourPositions = ({
                 </>
                 <>
                   {!empty && !canSellThisPosition && (
-                    <span className={cx("error")}>{sellErrorReason}</span>
+                    <span className={cn("error")}>{sellErrorReason}</span>
                   )}
                 </>
               </div>
@@ -171,9 +168,9 @@ YourPositions.propTypes = {
     symbol: PropTypes.string.isRequired
   }).isRequired,
 
-  selectedSell: PropTypes.string.isRequired,
+  selectedSell: PropTypes.string,
   selectedSellAmount: PropTypes.string.isRequired,
-  predictedSellProfit: PropTypes.instanceOf(Decimal).isRequired,
+  predictedSellProfit: PropTypes.instanceOf(Decimal),
 
   handleSelectSell: PropTypes.func.isRequired,
   handleSellPosition: PropTypes.func.isRequired,

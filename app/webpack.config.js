@@ -49,18 +49,7 @@ module.exports = {
       },
       {
         test: /\.scss$/,
-        use: [
-          "style-loader",
-          {
-            loader: "css-loader",
-            options: {
-              modules: true,
-              localIdentName: "[name]__[local]__[hash:base64:5]",
-              importLoaders: 1
-            }
-          },
-          "sass-loader"
-        ]
+        use: ["style-loader", "css-loader", "sass-loader"]
       },
       {
         test: /build\/contracts\/\w+\.json$/,
@@ -74,7 +63,7 @@ module.exports = {
     new CommonShakePlugin(),
     new HtmlWebpackPlugin({
       filename: "index.html",
-      template: __dirname + "/src/html/index.html"
+      template: __dirname + "/src/index.html"
     }),
     new BundleAnalyzerPlugin({
       analyzerPort: process.env.NODE_ENV !== "production" ? 8888 : 8889

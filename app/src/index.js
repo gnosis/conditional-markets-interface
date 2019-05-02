@@ -1,9 +1,9 @@
 import React from "react";
 
-// import "normalize.css/normalize.css";
-// import "./style/index.scss";
+import "normalize.css/normalize.css";
+import "./style.scss";
 
-import RootComponent from "./components/Root";
+import RootComponent from "./components/root";
 
 /* global document */
 import("react-dom").then(({ render }) => {

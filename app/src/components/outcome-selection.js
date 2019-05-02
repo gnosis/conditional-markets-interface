@@ -1,10 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 
-// import cn from "classnames/bind";
-// import style from "./style.scss";
-// const cx = cn.bind(style);
-import cx from "classnames";
+import cn from "classnames";
 
 const OutcomeSelection = ({
   outcomes,
@@ -14,12 +11,12 @@ const OutcomeSelection = ({
   handleSelectAssumption,
   handleSelectOutcome
 }) => (
-  <div className={cx("outcome-selection")}>
-    <div className={cx("row-outcomes")}>
+  <div className={cn("outcome-selection")}>
+    <div className={cn("row-outcomes")}>
       {outcomes.map((outcome, index) => (
         <button
           key={`${conditionId}-${index}`}
-          className={cx("selection", { selected: selectedOutcome == index })}
+          className={cn("selection", { selected: selectedOutcome == index })}
           type="button"
           name={`${conditionId}-${index}`}
           onClick={handleSelectOutcome}
@@ -28,7 +25,7 @@ const OutcomeSelection = ({
         </button>
       ))}
       <button
-        className={cx("selection", { selected: !selectedOutcome })}
+        className={cn("selection", { selected: !selectedOutcome })}
         type="button"
         name={`${conditionId}`}
         onClick={handleSelectOutcome}
@@ -36,11 +33,11 @@ const OutcomeSelection = ({
         {"I don't know"}
       </button>
     </div>
-    <div className={cx("row-assume")}>
+    <div className={cn("row-assume")}>
       <button
         type="button"
         disabled={selectedOutcome == null}
-        className={cx("assume", {
+        className={cn("assume", {
           selected: assumed
         })}
         onClick={() => handleSelectAssumption(conditionId)}

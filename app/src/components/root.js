@@ -2,11 +2,11 @@ import React, { useState, useEffect } from "react";
 import { hot } from "react-hot-loader";
 import Decimal from "decimal.js";
 
-import Markets from "./Markets";
-import BuySection from "./BuySection";
-import YourPositions from "./YourPositions";
+import Markets from "./markets";
+import BuySection from "./buy-section";
+import YourPositions from "./your-positions";
 
-import Spinner from "./Spinner";
+import Spinner from "./spinner";
 
 import {
   loadMarkets,
@@ -28,10 +28,7 @@ import {
   calcProfitForSale
 } from "../api/balances";
 
-// import css from "./style.scss";
-// import cn from "classnames/bind";
-// const cx = cn.bind(css);
-import cx from "classnames";
+import cn from "classnames";
 
 const moduleLoadTime = Date.now();
 const RootComponent = () => {
@@ -387,9 +384,9 @@ const RootComponent = () => {
 
   if (loading === "SUCCESS")
     return (
-      <div className={cx("page")}>
-        <section className={cx("section", "market-section")}>
-          <h1 className={cx("page-title")}>Gnosis PM 2.0 Experiments</h1>
+      <div className={cn("page")}>
+        <section className={cn("section", "market-section")}>
+          <h1 className={cn("page-title")}>Gnosis PM 2.0 Experiments</h1>
           <Markets
             {...{
               markets,
@@ -403,9 +400,9 @@ const RootComponent = () => {
             }}
           />
         </section>
-        <div className={cx("seperator")} />
-        <section className={cx("section", "position-section")}>
-          <h2 className={cx("heading")}>Manage Positions</h2>
+        <div className={cn("seperator")} />
+        <section className={cn("section", "position-section")}>
+          <h2 className={cn("heading")}>Manage Positions</h2>
           <BuySection
             {...{
               collateral,
@@ -443,21 +440,13 @@ const RootComponent = () => {
 
   if (loading === "LOADING")
     return (
-      <div /* style={{ height: "100%", width: "100%" }} */>
+      <div className={cn("loading-page")}>
         <Spinner centered inverted width={100} height={100} />
       </div>
     );
   if (loading === "FAILURE")
     return (
-      <div
-      // style={{
-      //   display: "flex",
-      //   justifyContent: "center",
-      //   alignItems: "center",
-      //   flexDirection: "column",
-      //   height: "100vh"
-      // }}
-      >
+      <div className={cn("failure-page")}>
         <h2>Failed to load 😞</h2>
         <h3>Please check the following:</h3>
         <ul>

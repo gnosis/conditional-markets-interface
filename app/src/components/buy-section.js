@@ -1,17 +1,11 @@
 import React from "react";
 import PropTypes from "prop-types";
-import Spinner from "../Spinner";
+import Spinner from "./spinner";
 
-import { arrayToHumanReadableList } from "../YourPositions/utils/list";
-import {
-  formatFromWei,
-  pseudoMarkdown
-} from "../YourPositions/utils/formatting";
+import { arrayToHumanReadableList } from "./utils/list";
+import { formatFromWei, pseudoMarkdown } from "./utils/formatting";
 
-// import classnames from "classnames/bind";
-// import style from "./style.scss";
-// const cx = classnames.bind(style);
-import cx from "classnames";
+import cn from "classnames";
 
 const BuySection = ({
   collateral,
@@ -28,7 +22,7 @@ const BuySection = ({
   handleSetAllowance,
   handleBuyOutcomes
 }) => (
-  <div className={cx("positions")}>
+  <div className={cn("positions")}>
     <input
       type="text"
       placeholder={`Your Invest in ${collateral.name}`}
@@ -56,7 +50,7 @@ const BuySection = ({
       </button>
     )}
     {buyError && (
-      <span className={cx("error")}>
+      <span className={cn("error")}>
         {buyError === true ? "An error has occured" : buyError}
       </span>
     )}
@@ -65,14 +59,14 @@ const BuySection = ({
       <div>
         <div>You will receive:</div>
         {stagedPositions.map((position, index) => (
-          <div key={index} className={cx("position")}>
-            <div className={cx("value")}>
+          <div key={index} className={cn("position")}>
+            <div className={cn("value")}>
               <strong>
                 {formatFromWei(position.value, collateral.symbol)}
               </strong>
               &nbsp;
             </div>
-            <div className={cx("description")}>
+            <div className={cn("description")}>
               {position.outcomeIds === "" ? (
                 position.value > 0 && <span>In any Case</span>
               ) : (

@@ -1,12 +1,9 @@
 import React from "react";
 import PropTypes from "prop-types";
-import OutcomesBinary from "../OutcomesBinary";
-import OutcomeSelection from "../OutcomeSelection";
+import OutcomesBinary from "./outcomes-binary";
+import OutcomeSelection from "./outcome-selection";
 
-// import cn from "classnames/bind";
-// import css from "./style.scss";
-// const cx = cn.bind(css);
-import cx from "classnames";
+import cn from "classnames";
 
 const Market = ({
   title,
@@ -41,43 +38,43 @@ const Market = ({
   }));
 
   return (
-    <article className={cx("market", { disabled })}>
-      <section className={cx("title-section")}>
-        <h1 className={cx("title")}>{title}</h1>
-        <div className={cx("title-infos")}>
-          <div className={cx("title-info")}>
+    <article className={cn("market", { disabled })}>
+      <section className={cn("title-section")}>
+        <h1 className={cn("title")}>{title}</h1>
+        <div className={cn("title-infos")}>
+          <div className={cn("title-info")}>
             {isResolved ? (
               <>
-                <h2 className={cx("label")}>winning outcome</h2>
-                <h2 className={cx("value", "centered")}>
+                <h2 className={cn("label")}>winning outcome</h2>
+                <h2 className={cn("value", "centered")}>
                   {outcomes[result].title}
                 </h2>
               </>
             ) : (
               <>
-                <h2 className={cx("label")}>probability</h2>
-                <h2 className={cx("value")}>
+                <h2 className={cn("label")}>probability</h2>
+                <h2 className={cn("value")}>
                   {(probabilities[0] * 100).toFixed(2)}%
                 </h2>
               </>
             )}
           </div>
           {isResolved ? (
-            <div className={cx("title-info")}>
-              <h2 className={cx("label")}>market closed</h2>
-              <h2 className={cx("value")} />
+            <div className={cn("title-info")}>
+              <h2 className={cn("label")}>market closed</h2>
+              <h2 className={cn("value")} />
             </div>
           ) : (
-            <div className={cx("title-info")}>
-              <h2 className={cx("label")}>resolves</h2>
-              <h2 className={cx("value")}>
+            <div className={cn("title-info")}>
+              <h2 className={cn("label")}>resolves</h2>
+              <h2 className={cn("value")}>
                 {new Date(resolutionDate).toLocaleString()}
               </h2>
             </div>
           )}
         </div>
       </section>
-      <section className={cx("outcomes-section")}>
+      <section className={cn("outcomes-section")}>
         <OutcomesBinary
           {...{
             outcomes: outcomesWithProbabilities,
@@ -90,7 +87,7 @@ const Market = ({
       </section>
 
       {!isResolved && (
-        <section className={cx("selection-section")}>
+        <section className={cn("selection-section")}>
           <OutcomeSelection
             {...{
               outcomes,
@@ -122,7 +119,7 @@ Market.propTypes = {
 
   assumed: PropTypes.bool.isRequired,
   disabled: PropTypes.bool.isRequired,
-  selectedOutcome: PropTypes.string.isRequired,
+  selectedOutcome: PropTypes.string,
 
   predictionProbabilities: PropTypes.arrayOf(PropTypes.array.isRequired)
     .isRequired,
