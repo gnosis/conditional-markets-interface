@@ -41,11 +41,13 @@ const RootComponent = () => {
   const [balances, setBalances] = useState(null);
   const [positions, setPositions] = useState(null);
   const [collateral, setCollateral] = useState(null);
+  const [collateralBalance, setCollateralBalance] = useState(new Decimal(0));
   const [allowanceAvailable, setAllowanceAvailable] = useState(null);
 
   for (const [loader, dependentParams, setter] of [
     [loadCollateral, [], setCollateral],
     [loadMarginalPrices, [], setPrices],
+    [getCollateralBalance, [], setCollateralBalance],
     [loadMarkets, [prices], setMarkets],
     [loadPositions, [], setPositionIds],
     [loadBalances, [positionIds], setBalances],
@@ -263,55 +265,45 @@ const RootComponent = () => {
 
   useEffect(() => {
     (async function updateBuyError() {
-      const asNum = parseFloat(invest);
-      const isEmpty = invest === "";
-      const validNum = !isNaN(asNum) && isFinite(asNum) && asNum > 0;
+      if (collateral == null) return;
 
-      if (!isEmpty && validNum) {
-        const collateralDecimalDenominator = new Decimal(10).pow(
-          collateral.decimals || 18
+      const collateralDecimalDenominator = new Decimal(10).pow(
+        collateral.decimals || 18
+      );
+      let investUnits;
+      try {
+        investUnits = new Decimal(invest).mul(collateralDecimalDenominator);
+      } catch (e) {
+        // empty
+      }
+
+      if (investUnits == null || investUnits.lt(collateralBalance)) {
+        setBuyError(false);
+      } else {
+        setBuyError(
+          `Sorry, you don't have enough balance of ${
+            collateral.name
+          }. You're missing ${investUnits
+            .sub(collateralBalance)
+            .dividedBy(collateralDecimalDenominator)
+            .toSD(4)
+            .toString()} ${collateral.symbol}`
         );
-
-        const investWei = new Decimal(invest).mul(collateralDecimalDenominator);
-        // only needed for WETH? todo
-        //const gasEstimate = new Decimal(500000).mul(1e10) // 500.000 gas * 10 gwei gasprice as buffer for invest
-
-        const collateralBalance = await getCollateralBalance();
-        const collateralBalanceDecimal = new Decimal(
-          collateralBalance.toString()
-        );
-
-        const hasEnough = investWei.lte(collateralBalanceDecimal);
-
-        if (!hasEnough) {
-          setBuyError(
-            `Sorry, you don't have enough balance of ${
-              collateral.name
-            }. You're missing ${investWei
-              .sub(collateralBalanceDecimal)
-              .dividedBy(collateralDecimalDenominator)
-              .toSD(4)
-              .toString()} ${collateral.symbol}`
-          );
-        } else {
-          setBuyError(false);
-        }
       }
     })();
-  }, [collateral, invest]);
+  }, [collateral, collateralBalance, invest]);
 
   const [isBuying, setIsBuying] = useState(false);
   async function handleSetAllowance() {
     setIsBuying(true);
     try {
       await setAllowanceInsanelyHigh();
-      const allowance = await loadAllowance();
-      setAllowanceAvailable(allowance);
     } catch (err) {
       setBuyError("Could not set allowance. Please try again");
       throw err;
     } finally {
       setIsBuying(false);
+      setSyncTime(Date.now());
     }
   }
 
