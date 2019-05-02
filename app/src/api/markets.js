@@ -1,4 +1,4 @@
-import web3 from "web3";
+import Web3 from "web3";
 import Decimal from "decimal.js";
 
 import { lmsrMarginalPrice, lmsrNetCost } from "./utils/lmsr";
@@ -9,13 +9,9 @@ import {
   nameOutcomePairs,
   getIndividualProbabilities
 } from "./utils/probabilities";
-import {
-  loadMarketOutcomeCounts,
-  loadLmsrTokenBalances,
-  tryToDepositCollateral
-} from "./balances";
+import { loadMarketOutcomeCounts, loadLmsrTokenBalances } from "./balances";
 
-const { toBN } = web3.utils;
+const { toBN } = Web3.utils;
 
 const OUTCOME_COLORS = [
   "#fbb4ae",
@@ -140,9 +136,9 @@ export const loadCollateral = async () => {
 
   if (!collateral) {
     return {
-      symbol: "E",
+      symbol: "?",
       decimals: 18,
-      name: "ETH"
+      name: "???"
     };
   }
 
@@ -150,7 +146,7 @@ export const loadCollateral = async () => {
     collateral.toLowerCase() === "0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359"
   ) {
     return {
-      symbol: "DAI",
+      symbol: "\u25C8",
       decimals: 18,
       name: "MakerDAO Dai Stablecoin"
     };
@@ -166,7 +162,8 @@ export const loadCollateral = async () => {
     return {
       symbol: "\u039E",
       decimals: 18,
-      name: "ETH (Wrapped)"
+      name: "ETH (Wrapped)",
+      isWETH: true
     };
   }
 
@@ -177,21 +174,44 @@ export const loadCollateral = async () => {
   };
 };
 
-export const buyOutcomes = async buyList => {
-  // load all outcome prices
+export const buyOutcomes = async (
+  collateralInfo,
+  collateralBalance,
+  buyList
+) => {
   const { lmsr, collateral } = await loadConfig();
   const LMSR = await loadContract("LMSRMarketMaker", lmsr);
-  // get market maker instance
-  // console.log("buy: ", buyList)
   const cost = await LMSR.calcNetCost.call(buyList);
-  // console.log("cost: ", cost.toString())
 
   const defaultAccount = await getDefaultAccount();
 
-  // deposit and approve collateral, depositing only if collateral is wrapped eth
-  await tryToDepositCollateral(collateral, LMSR.address, cost);
-  const collateralContract = await loadContract("ERC20Detailed", collateral);
-  await collateralContract.approve(lmsr, cost, { from: defaultAccount });
+  const collateralContract = await loadContract("WETH9", collateral);
+  const balance = collateralBalance.amount;
+  let ethBalance = await LMSR.constructor.web3.eth.getBalance(defaultAccount);
+  if (collateralInfo.isWETH) {
+    if (balance.lt(cost.toString())) {
+      await collateralContract.deposit({
+        value: cost.sub(toBN(balance.toString())),
+        from: defaultAccount
+      });
+      ethBalance = await LMSR.constructor.web3.eth.getBalance(defaultAccount);
+    }
+    const gasPrice = toBN(
+      LMSR.constructor.defaults().gasPrice ||
+        (await LMSR.constructor.web3.eth.getGasPrice())
+    );
+    const gasEstimate = await LMSR.trade.estimateGas(buyList, cost, {
+      from: defaultAccount
+    });
+    const estimatedGasCost = gasPrice.muln(gasEstimate);
+    if (estimatedGasCost.gt(ethBalance)) {
+      if (balance.gt(cost.toString()))
+        await collateralContract.withdraw(
+          balance.sub(cost.toString()).toString(),
+          { from: defaultAccount }
+        );
+    }
+  }
 
   // run trade
   await LMSR.trade(buyList, cost, { from: defaultAccount });

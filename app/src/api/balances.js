@@ -149,7 +149,7 @@ export const setAllowanceInsanelyHigh = async () => {
   const owner = await getDefaultAccount();
   const collateralContract = await loadContract("ERC20Detailed", collateral);
 
-  await collateralContract.approve(lmsr, new Decimal(10).pow(19).toString(), {
+  await collateralContract.approve(lmsr, `0x${"ff".repeat(32)}`, {
     from: owner
   });
 
@@ -176,25 +176,25 @@ export const calcProfitForSale = async sellAmounts => {
   ).neg();
 };
 
-export const getCollateralBalance = async () => {
+export const getCollateralBalance = async ({ isWETH }) => {
   const { collateral } = await loadConfig();
 
-  let collateralContract;
-  let amount = new Decimal("0");
-  try {
-    collateralContract = await loadContract("WETH9", collateral);
-
-    const ethBalance = await getETHBalance();
-    amount = amount.add(ethBalance);
-  } catch (err) {
-    collateralContract = await loadContract("ERC20Detailed", collateral);
+  const collateralContract = await loadContract("ERC20Detailed", collateral);
+  const owner = await getDefaultAccount();
+  const collateralBalance = {};
+  collateralBalance.amount = new Decimal(
+    (await collateralContract.balanceOf(owner)).toString()
+  );
+  if (isWETH) {
+    collateralBalance.unwrappedAmount = await getETHBalance();
+    collateralBalance.totalAmount = collateralBalance.amount.add(
+      collateralBalance.unwrappedAmount
+    );
+  } else {
+    collateralBalance.totalAmount = collateralBalance.amount;
   }
 
-  const owner = await getDefaultAccount();
-  const collateralBalance = await collateralContract.balanceOf(owner);
-  amount = amount.add(new Decimal(collateralBalance.toString()));
-
-  return amount;
+  return collateralBalance;
 };
 
 export const listOutcomePairsMatchingOutcomeId = async (
@@ -258,24 +258,4 @@ export const calcOutcomeTokenCounts = async (
   );
 
   return outcomeTokenCounts;
-};
-
-export const tryToDepositCollateral = async (
-  collateralAddress,
-  targetAddress,
-  amount
-) => {
-  const defaultAccount = await getDefaultAccount();
-
-  const collateralContract = await loadContract("WETH9", collateralAddress);
-  const balance = await collateralContract.balanceOf(defaultAccount);
-
-  await collateralContract.deposit({
-    value: new Decimal(amount.toString())
-      .sub(new Decimal(balance.toString()))
-      .toString(),
-    from: defaultAccount
-  });
-
-  return collateralContract;
 };

@@ -1,5 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
+import Decimal from "decimal.js";
 import Spinner from "./spinner";
 
 import { arrayToHumanReadableList } from "./utils/list";
@@ -9,11 +10,12 @@ import cn from "classnames";
 
 const BuySection = ({
   collateral,
+  collateralBalance,
 
   stagedPositions,
 
   validPosition,
-  hasAllowance,
+  hasEnoughAllowance,
   invest,
   buyError,
   isBuying,
@@ -23,6 +25,13 @@ const BuySection = ({
   handleBuyOutcomes
 }) => (
   <div className={cn("positions")}>
+    <p>Your balance: {formatFromWei(collateralBalance.amount)}</p>
+    {collateral.isWETH && (
+      <p>
+        Your unwrapped balance:{" "}
+        {formatFromWei(collateralBalance.unwrappedAmount)}
+      </p>
+    )}
     <input
       type="text"
       placeholder={`Your Invest in ${collateral.name}`}
@@ -31,15 +40,15 @@ const BuySection = ({
     />
     <button
       type="button"
-      disabled={!hasAllowance || !validPosition || isBuying || !!buyError}
+      disabled={!hasEnoughAllowance || !validPosition || isBuying || !!buyError}
       onClick={handleBuyOutcomes}
     >
       {isBuying ? <Spinner centered inverted width={25} height={25} /> : "Buy"}
     </button>
-    {!hasAllowance && (
+    {!hasEnoughAllowance && (
       <button
         type="button"
-        disabled={hasAllowance}
+        disabled={hasEnoughAllowance}
         onClick={handleSetAllowance}
       >
         {isBuying ? (
@@ -94,6 +103,11 @@ BuySection.propTypes = {
     name: PropTypes.string.isRequired,
     symbol: PropTypes.string.isRequired
   }).isRequired,
+  collateralBalance: PropTypes.shape({
+    amount: PropTypes.instanceOf(Decimal).isRequired,
+    isWETH: PropTypes.bool,
+    unwrappedAmount: PropTypes.string
+  }).isRequired,
 
   stagedPositions: PropTypes.arrayOf(
     PropTypes.shape({
@@ -110,7 +124,7 @@ BuySection.propTypes = {
   ).isRequired,
 
   validPosition: PropTypes.bool.isRequired,
-  hasAllowance: PropTypes.bool.isRequired,
+  hasEnoughAllowance: PropTypes.bool.isRequired,
   invest: PropTypes.string.isRequired,
   buyError: PropTypes.oneOfType([PropTypes.string, PropTypes.bool]).isRequired,
   isBuying: PropTypes.bool.isRequired,

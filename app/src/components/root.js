@@ -41,13 +41,13 @@ const RootComponent = () => {
   const [balances, setBalances] = useState(null);
   const [positions, setPositions] = useState(null);
   const [collateral, setCollateral] = useState(null);
-  const [collateralBalance, setCollateralBalance] = useState(new Decimal(0));
+  const [collateralBalance, setCollateralBalance] = useState(null);
   const [allowanceAvailable, setAllowanceAvailable] = useState(null);
 
   for (const [loader, dependentParams, setter] of [
     [loadCollateral, [], setCollateral],
     [loadMarginalPrices, [], setPrices],
-    [getCollateralBalance, [], setCollateralBalance],
+    [getCollateralBalance, [collateral], setCollateralBalance],
     [loadMarkets, [prices], setMarkets],
     [loadPositions, [], setPositionIds],
     [loadBalances, [positionIds], setBalances],
@@ -265,7 +265,7 @@ const RootComponent = () => {
 
   useEffect(() => {
     (async function updateBuyError() {
-      if (collateral == null) return;
+      if (collateral == null || collateralBalance == null) return;
 
       const collateralDecimalDenominator = new Decimal(10).pow(
         collateral.decimals || 18
@@ -277,14 +277,16 @@ const RootComponent = () => {
         // empty
       }
 
-      if (investUnits == null || investUnits.lt(collateralBalance)) {
+      const amount = collateralBalance.totalAmount;
+
+      if (investUnits == null || investUnits.lt(amount)) {
         setBuyError(false);
       } else {
         setBuyError(
           `Sorry, you don't have enough balance of ${
             collateral.name
           }. You're missing ${investUnits
-            .sub(collateralBalance)
+            .sub(amount)
             .dividedBy(collateralDecimalDenominator)
             .toSD(4)
             .toString()} ${collateral.symbol}`
@@ -313,7 +315,7 @@ const RootComponent = () => {
     setIsBuying(true);
     setBuyError("");
     try {
-      await buyOutcomes(outcomeTokenBuyAmounts);
+      await buyOutcomes(collateral, collateralBalance, outcomeTokenBuyAmounts);
     } catch (err) {
       setBuyError(err.message);
       throw err;
@@ -409,11 +411,15 @@ const RootComponent = () => {
           <BuySection
             {...{
               collateral,
+              collateralBalance,
 
               stagedPositions,
 
               validPosition,
-              hasAllowance: allowanceAvailable > 0,
+              hasEnoughAllowance:
+                allowanceAvailable != null &&
+                collateralBalance != null &&
+                collateralBalance.totalAmount.lte(allowanceAvailable),
               invest,
               isBuying,
               buyError,
