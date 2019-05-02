@@ -1,11 +1,19 @@
 const ERC20Detailed = artifacts.require("ERC20Detailed");
 const WETH9 = artifacts.require("WETH9");
+const PredictionMarketSystem = artifacts.require("PredictionMarketSystem");
 const LMSRMarketMaker = artifacts.require("LMSRMarketMaker");
 
 const fs = require("fs");
 const path = require("path");
 const inquirer = require("inquirer");
 const { stripIndent } = require("common-tags");
+
+function* product(head = [], ...tail) {
+  for (const h of head) {
+    const remainder = tail.length > 0 ? product(...tail) : [[]];
+    for (const r of remainder) yield [h, ...r];
+  }
+}
 
 module.exports = function(callback) {
   (async function() {
@@ -23,6 +31,7 @@ module.exports = function(callback) {
       );
 
     const lmsrMarketMaker = await LMSRMarketMaker.at(networkConfig.lmsr);
+    const pmSystem = await PredictionMarketSystem.deployed();
 
     const owner = await lmsrMarketMaker.owner();
     const defaultAccount = LMSRMarketMaker.defaults().from;
@@ -63,17 +72,68 @@ module.exports = function(callback) {
         lmsrMarketMaker.address
       );
 
+      const atomicOutcomeSlotCount = (await lmsrMarketMaker.atomicOutcomeSlotCount()).toNumber();
+      const conditions = [];
+
+      let curAtomicOutcomeSlotCount = 1;
+      while (curAtomicOutcomeSlotCount < atomicOutcomeSlotCount) {
+        const id = await lmsrMarketMaker.conditionIds(conditions.length);
+        const numSlots = (await pmSystem.getOutcomeSlotCount(id)).toNumber();
+        const collectionIds = Array.from({ length: numSlots }, (_, i) =>
+          web3.utils.soliditySha3(
+            { t: "bytes32", v: id },
+            { t: "uint", v: 1 << i }
+          )
+        );
+        conditions.push({ id, numSlots, collectionIds });
+        curAtomicOutcomeSlotCount *= numSlots;
+      }
+
+      const positionIds = [];
+      for (const collectionIdTuple of product(
+        ...conditions.map(({ collectionIds }) => collectionIds)
+      )) {
+        positionIds.push(
+          web3.utils.soliditySha3(
+            { t: "address", v: collateral.address },
+            {
+              t: "bytes32",
+              v: web3.utils.toHex(
+                collectionIdTuple
+                  .map(id => web3.utils.toBN(id))
+                  .reduce((a, b) => a.add(b))
+                  .maskn(256)
+              )
+            }
+          )
+        );
+      }
+
       console.log("_".repeat(process.stdout.columns));
       console.log("");
       console.log(stripIndent`
-              LMSR @ ${lmsrMarketMaker.address}
-                Owner: ${owner}
-                Collateral: ${collateral.name} @ ${collateral.address}
-                Funding: ${formatCollateralAmount(funding)}
-                Fee: ${fee * 100}%
-                Stage: ${stage}
-                Fees collected: ${formatCollateralAmount(feesCollected)}
-          `);
+        LMSR @ ${lmsrMarketMaker.address}
+          Owner: ${owner}
+          Collateral: ${collateral.name} @ ${collateral.address}
+          Funding: ${formatCollateralAmount(funding)}
+          Fee: ${fee * 100}%
+          Stage: ${stage}
+          Fees collected: ${formatCollateralAmount(feesCollected)}
+      `);
+      console.log("");
+      console.log(
+        "LMSR balance:",
+        (await Promise.all(
+          positionIds.map(id => pmSystem.balanceOf(lmsrMarketMaker.address, id))
+        )).map(formatCollateralAmount)
+      );
+      console.log("");
+      console.log(
+        "User balance:",
+        (await Promise.all(
+          positionIds.map(id => pmSystem.balanceOf(defaultAccount, id))
+        )).map(formatCollateralAmount)
+      );
       console.log("");
 
       const actions = [{ name: "Refresh", async value() {} }];
