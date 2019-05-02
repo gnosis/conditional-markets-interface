@@ -101,13 +101,11 @@ module.exports = function(callback) {
           web3.utils.soliditySha3(
             { t: "address", v: collateral.address },
             {
-              t: "bytes32",
-              v: web3.utils.toHex(
-                collectionIdTuple
-                  .map(id => web3.utils.toBN(id))
-                  .reduce((a, b) => a.add(b))
-                  .maskn(256)
-              )
+              t: "uint",
+              v: collectionIdTuple
+                .map(id => web3.utils.toBN(id))
+                .reduce((a, b) => a.add(b))
+                .maskn(256)
             }
           )
         );
@@ -127,9 +125,13 @@ module.exports = function(callback) {
       console.log("");
       console.log("LMSR balances:");
       console.log(
-        (await Promise.all(
-          positionIds.map(id => pmSystem.balanceOf(lmsrMarketMaker.address, id))
-        )).map(formatCollateralAmount)
+        await Promise.all(
+          positionIds.map(id =>
+            pmSystem
+              .balanceOf(lmsrMarketMaker.address, id)
+              .then(formatCollateralAmount)
+          )
+        )
       );
       console.log("");
       console.log(stripIndent`
@@ -146,98 +148,109 @@ module.exports = function(callback) {
 
       const actions = [{ name: "Refresh", async value() {} }];
 
-      if (defaultAccount === owner) {
-        if (stage === "Running") {
-          actions.push({
-            name: "Pause market",
-            value: lmsrMarketMaker.pause
-          });
-        }
-        if (stage === "Paused") {
-          actions.push(
-            {
-              name: "Resume market",
-              value: lmsrMarketMaker.resume
-            },
-            {
-              name: "Change funding level",
-              async value() {
-                const { fundingChangeStr } = await inquirer.prompt([
-                  {
-                    type: "string",
-                    name: "fundingChangeStr",
-                    message: `How much ${
-                      collateral.symbol
-                    } would you like to change the funding by?`
-                  }
-                ]);
-
-                let fundingChange;
-
-                if (collateral.decimals === 18) {
-                  fundingChange = web3.utils.toBN(
-                    web3.utils.toWei(fundingChangeStr)
-                  );
-                } else {
-                  fundingChange = web3.utils
-                    .toBN(10)
-                    .pown(collateral.decimals)
-                    .muln(parseFloat(fundingChangeStr));
-                }
-
-                if (fundingChange.gtn(0)) {
-                  const currentBalance = await collateral.contract.balanceOf(
-                    defaultAccount
-                  );
-                  if (collateral.isWETH && currentBalance.lt(fundingChange))
-                    await collateral.contract.deposit({
-                      value: fundingChange.sub(currentBalance)
-                    });
-
-                  const currentAllowance = await collateral.contract.allowance(
-                    defaultAccount,
-                    lmsrMarketMaker.address
-                  );
-                  if (currentAllowance.lt(fundingChange))
-                    await collateral.contract.approve(
-                      lmsrMarketMaker.address,
-                      fundingChange
-                    );
-                }
-
-                await lmsrMarketMaker.changeFunding(fundingChange);
-              }
-            },
-            {
-              name: "Change fee amount",
-              async value() {
-                const { newFeePercentage } = await inquirer.prompt([
-                  {
-                    type: "string",
-                    name: "newFeePercentage",
-                    message: "What percent of fees would you like to set?"
-                  }
-                ]);
-                await lmsrMarketMaker.changeFee(
-                  web3.utils.toBN(web3.utils.toWei(newFeePercentage)).divn(100)
-                );
-              }
+      if (stage === "Running") {
+        actions.push({
+          name: "Pause market",
+          async value() {
+            await lmsrMarketMaker.pause({ from: owner });
+          }
+        });
+      }
+      if (stage === "Paused") {
+        actions.push(
+          {
+            name: "Resume market",
+            async value() {
+              await lmsrMarketMaker.resume({ from: owner });
             }
-          );
-        }
-        if (stage !== "Closed") {
-          actions.push({
-            name: "Close market",
-            value: lmsrMarketMaker.close
-          });
-        }
+          },
+          {
+            name: "Change funding level",
+            async value() {
+              const { fundingChangeStr } = await inquirer.prompt([
+                {
+                  type: "string",
+                  name: "fundingChangeStr",
+                  message: `How much ${
+                    collateral.symbol
+                  } would you like to change the funding by?`
+                }
+              ]);
 
-        if (feesCollected.gtn(0)) {
-          actions.push({
-            name: "Withdraw fees",
-            value: lmsrMarketMaker.withdrawFees
-          });
-        }
+              let fundingChange;
+
+              if (collateral.decimals === 18) {
+                fundingChange = web3.utils.toBN(
+                  web3.utils.toWei(fundingChangeStr)
+                );
+              } else {
+                fundingChange = web3.utils
+                  .toBN(10)
+                  .pown(collateral.decimals)
+                  .muln(parseFloat(fundingChangeStr));
+              }
+
+              if (fundingChange.gtn(0)) {
+                const currentBalance = await collateral.contract.balanceOf(
+                  owner
+                );
+                if (collateral.isWETH && currentBalance.lt(fundingChange))
+                  await collateral.contract.deposit({
+                    value: fundingChange.sub(currentBalance),
+                    from: owner
+                  });
+
+                const currentAllowance = await collateral.contract.allowance(
+                  owner,
+                  lmsrMarketMaker.address
+                );
+                if (currentAllowance.lt(fundingChange))
+                  await collateral.contract.approve(
+                    lmsrMarketMaker.address,
+                    fundingChange,
+                    { from: owner }
+                  );
+              }
+
+              await lmsrMarketMaker.changeFunding(fundingChange, {
+                from: owner
+              });
+            }
+          },
+          {
+            name: "Change fee amount",
+            async value() {
+              const { newFeePercentage } = await inquirer.prompt([
+                {
+                  type: "string",
+                  name: "newFeePercentage",
+                  message: "What percent of fees would you like to set?"
+                }
+              ]);
+              await lmsrMarketMaker.changeFee(
+                web3.utils.toBN(web3.utils.toWei(newFeePercentage)).divn(100),
+                { from: owner }
+              );
+            }
+          }
+        );
+      }
+      if (stage !== "Closed") {
+        actions.push({
+          name: "Close market",
+          async value() {
+            await lmsrMarketMaker.close({ from: owner });
+          }
+        });
+      }
+
+      if (feesCollected.gtn(0)) {
+        actions.push({
+          name: "Withdraw fees",
+          async value() {
+            await lmsrMarketMaker.withdrawFees({ from: owner });
+          }
+        });
       }
 
       actions.push({
