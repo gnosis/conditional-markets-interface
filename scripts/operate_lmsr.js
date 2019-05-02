@@ -50,12 +50,12 @@ module.exports = function(callback) {
       collateral.contract = await WETH9.at(collateral.address);
     }
 
-    const feeRange = await lmsrMarketMaker.FEE_RANGE();
-
     const formatCollateralAmount = amount =>
-      `${Number(amount.toString()) * 10 ** -collateral.decimals} ${
-        collateral.symbol
-      }`;
+      `${
+        collateral.decimals === 18
+          ? web3.utils.fromWei(amount)
+          : Number(amount.toString()) * 10 ** -collateral.decimals
+      } ${collateral.symbol}`;
 
     console.log(`Using config ${networkName} (id ${currentNetworkId})`);
 
@@ -65,11 +65,15 @@ module.exports = function(callback) {
       let stage = ["Running", "Paused", "Closed"][
         (await lmsrMarketMaker.stage()).toNumber()
       ];
-      let fee =
-        Number((await lmsrMarketMaker.fee()).toString()) /
-        Number(feeRange.toString());
+      let feePercentage = web3.utils.fromWei(
+        (await lmsrMarketMaker.fee()).imuln(100)
+      );
+
       let feesCollected = await collateral.contract.balanceOf(
         lmsrMarketMaker.address
+      );
+      let userCollateralBalance = await collateral.contract.balanceOf(
+        defaultAccount
       );
 
       const atomicOutcomeSlotCount = (await lmsrMarketMaker.atomicOutcomeSlotCount()).toNumber();
@@ -116,20 +120,24 @@ module.exports = function(callback) {
           Owner: ${owner}
           Collateral: ${collateral.name} @ ${collateral.address}
           Funding: ${formatCollateralAmount(funding)}
-          Fee: ${fee * 100}%
+          Fee: ${feePercentage}%
           Stage: ${stage}
           Fees collected: ${formatCollateralAmount(feesCollected)}
       `);
       console.log("");
+      console.log("LMSR balances:");
       console.log(
-        "LMSR balance:",
         (await Promise.all(
           positionIds.map(id => pmSystem.balanceOf(lmsrMarketMaker.address, id))
         )).map(formatCollateralAmount)
       );
       console.log("");
+      console.log(stripIndent`
+        User balances:
+          Collateral: ${formatCollateralAmount(userCollateralBalance)}
+          PM System:
+      `);
       console.log(
-        "User balance:",
         (await Promise.all(
           positionIds.map(id => pmSystem.balanceOf(defaultAccount, id))
         )).map(formatCollateralAmount)
@@ -163,6 +171,7 @@ module.exports = function(callback) {
                     } would you like to change the funding by?`
                   }
                 ]);
+
                 let fundingChange;
 
                 if (collateral.decimals === 18) {
@@ -202,15 +211,15 @@ module.exports = function(callback) {
             {
               name: "Change fee amount",
               async value() {
-                const { feePercentage } = await inquirer.prompt([
+                const { newFeePercentage } = await inquirer.prompt([
                   {
-                    type: "number",
-                    name: "feePercentage",
+                    type: "string",
+                    name: "newFeePercentage",
                     message: "What percent of fees would you like to set?"
                   }
                 ]);
                 await lmsrMarketMaker.changeFee(
-                  feeRange.muln(feePercentage).divn(100)
+                  web3.utils.toBN(web3.utils.toWei(newFeePercentage)).divn(100)
                 );
               }
             }
