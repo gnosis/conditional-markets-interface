@@ -1,10 +1,23 @@
-import "lodash.combinations";
-import { combinations } from "lodash";
-
 import { cartesian } from "./probabilities";
 import Web3 from "web3";
 
 const { toBN } = Web3.utils;
+
+function* combinations(arr, n) {
+  if (!Number.isSafeInteger(n) || n < 0)
+    throw new Error(`invalid combination size ${n}`);
+
+  if (n === 0 || arr.length < n) {
+    return;
+  }
+  if (n === 1) {
+    yield* arr.map(el => [el]);
+  }
+  for (let i = 0; i < arr.length - n + 1; i++) {
+    for (const subTuple of combinations(arr.slice(i + 1), n - 1))
+      yield [arr[i], ...subTuple];
+  }
+}
 
 /**
  * Generates a grouping of positions to state specific conditions correlation or independance of one-another

@@ -1,5 +1,3 @@
-import { sortBy } from "lodash";
-
 import {
   getDefaultAccount,
   getETHBalance,
@@ -111,13 +109,14 @@ export const generatePositionList = async (markets, balances) => {
     outcomeIdNames,
     balances.map((balance, index) => [outcomePairNames[index], balance])
   );
-  const positionGroupingsSorted = sortBy(positionGroupings, [
-    ([outcomeIds]) => outcomeIds.length,
-    ([, value]) => value
-  ]);
+
+  positionGroupings.sort(
+    ([outcomeIds1, value1], [outcomeIds2, value2]) =>
+      outcomeIds1.length - outcomeIds2.length || value2 - value1
+  );
 
   return await Promise.all(
-    positionGroupingsSorted.map(
+    positionGroupings.map(
       async ([outcomeIds, value, affectedAtomicOutcomes]) => {
         const affectedMarkets = listAffectedMarketsForOutcomeIds(
           markets,
