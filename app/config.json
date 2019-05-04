@@ -1,4 +1,55 @@
 {
+  "lmsrAddress": "0x272Acec78180902CDd3e4D2D76E3B3604Eb5F86E",
+  "markets": [
+    {
+      "title": "Will be the block difficulty for Ethereum Mainnet be higher than 3000?",
+      "when": "the block difficulty is _higher_ than 3000",
+      "whenNot": "the block difficulty is _lower_ (or equal) than 3000",
+      "resolutionDate": "2020-01-01T09:00:00.000Z",
+      "outcomes": [
+        {
+          "title": "Yes",
+          "short": "Yes"
+        },
+        {
+          "title": "No",
+          "short": "No"
+        }
+      ]
+    },
+    {
+      "title": "Will be the Ethereum Mainnet block gas limit be greater than 8.000.500?",
+      "when": "the block gas limit is _higher_ than 8.000.500",
+      "whenNot": "the block gas limit is _lower_ (or equal) than 8.000.500",
+      "resolutionDate": "2020-01-05T09:00:00.000Z",
+      "outcomes": [
+        {
+          "title": "Yes",
+          "short": "Yes"
+        },
+        {
+          "title": "No",
+          "short": "No"
+        }
+      ]
+    },
+    {
+      "title": "Will the Ethereum USD value be higher than 200?",
+      "when": "the value of ethereum in USD is _higher_ than 200",
+      "whenNot": "the value of ethereum in USD is _lower_ (or equal) than 200",
+      "resolutionDate": "2019-03-01T09:00:00.000Z",
+      "outcomes": [
+        {
+          "title": "Yes",
+          "short": "Yes"
+        },
+        {
+          "title": "No",
+          "short": "No"
+        }
+      ]
+    }
+  ],
   "GANACHE": {
     "lmsr": "0x272Acec78180902CDd3e4D2D76E3B3604Eb5F86E",
     "collateral": "0x9e2C43153aa0007E6172af3733021A227480f008",
@@ -55,7 +106,7 @@
         ]
       }
     ],
-    "networkId": 1556819594389
+    "networkId": 1557001874106
   },
   "RINKEBY": {
     "lmsr": "0xeE4642e53d5a45566BEFc7f6b2Af69b1213e2487",

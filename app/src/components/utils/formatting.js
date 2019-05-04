@@ -1,22 +1,16 @@
 import React from "react";
-import Decimal from "decimal.js";
+import Web3 from "web3";
+import Decimal from "decimal.js-light";
 
-const ONE_ETH = new Decimal(10).pow(18);
-const MIN_VAL_DIGITS = 4;
-const MIN_VAL = new Decimal(10).pow(-MIN_VAL_DIGITS);
-
-export const formatFromWei = (inWei, symbol = "\u039E") => {
-  const dInWei = new Decimal(inWei);
-  const dInEthTruncated = dInWei
-    .dividedBy(ONE_ETH)
-    .toSignificantDigits(MIN_VAL_DIGITS);
-  const inEth = dInEthTruncated.lte(MIN_VAL)
-    ? `<${MIN_VAL.toFixed(MIN_VAL_DIGITS)}`
-    : `${dInEthTruncated.toSD(MIN_VAL_DIGITS).toString()}`;
-
+export const formatCollateral = (amount, collateral) => {
   return (
     <>
-      {inEth} {symbol}
+      {collateral.decimals === 18
+        ? Web3.utils.fromWei(amount || "0")
+        : new Decimal(amount.toString())
+            .mul(new Decimal(10).pow(-collateral.decimals))
+            .toString()}{" "}
+      {collateral.symbol}
     </>
   );
 };

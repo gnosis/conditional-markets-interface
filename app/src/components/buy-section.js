@@ -1,10 +1,10 @@
 import React from "react";
 import PropTypes from "prop-types";
-import Decimal from "decimal.js";
+import Decimal from "decimal.js-light";
 import Spinner from "./spinner";
 
 import { arrayToHumanReadableList } from "./utils/list";
-import { formatFromWei, pseudoMarkdown } from "./utils/formatting";
+import { formatCollateral, pseudoMarkdown } from "./utils/formatting";
 
 import cn from "classnames";
 
@@ -25,11 +25,22 @@ const BuySection = ({
   handleBuyOutcomes
 }) => (
   <div className={cn("positions")}>
-    <p>Your balance: {formatFromWei(collateralBalance.amount)}</p>
-    {collateral.isWETH && (
+    {collateralBalance != null && (
+      <p>
+        Your balance:{" "}
+        {formatCollateral(
+          collateralBalance && collateralBalance.amount,
+          collateral
+        )}
+      </p>
+    )}
+    {collateralBalance != null && collateral.isWETH && (
       <p>
         Your unwrapped balance:{" "}
-        {formatFromWei(collateralBalance.unwrappedAmount)}
+        {formatCollateral(
+          collateralBalance && collateralBalance.unwrappedAmount,
+          collateral
+        )}
       </p>
     )}
     <input
@@ -71,7 +82,7 @@ const BuySection = ({
           <div key={index} className={cn("position")}>
             <div className={cn("value")}>
               <strong>
-                {formatFromWei(position.value, collateral.symbol)}
+                {formatCollateral(position.value, collateral.symbol)}
               </strong>
               &nbsp;
             </div>

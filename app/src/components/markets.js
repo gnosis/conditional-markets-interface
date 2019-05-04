@@ -2,33 +2,27 @@ import React from "react";
 import PropTypes from "prop-types";
 import Market from "./market";
 
-const Markets = ({
-  markets,
-  assumptions,
-  selectedOutcomes,
+// async function loadMarginalPrices(lmsrState) {
+//   const { funding, positionBalances } = lmsrState;
+//   const invB = new Decimal(positionBalances.length)
+//     .ln()
+//     .div(funding.toString());
 
-  predictionProbabilities,
+//   return positionBalances.map(balance =>
+//     invB
+//       .mul(balance.toString())
+//       .neg()
+//       .exp()
+//   );
+// }
 
-  handleSelectAssumption,
-  handleSelectOutcome
-}) => (
+const Markets = ({ markets }) => (
   <div>
-    {markets.map((market, index) => (
+    {markets.map(market => (
       <Market
         key={market.conditionId}
         {...{
-          ...market,
-
-          assumed: assumptions.indexOf(market.conditionId) > -1,
-          disabled: !!assumptions[market.conditionId],
-          selectedOutcome: selectedOutcomes[market.conditionId],
-
-          predictionProbabilities: predictionProbabilities,
-
-          marketIndex: index,
-
-          handleSelectOutcome,
-          handleSelectAssumption
+          ...market
         }}
       />
     ))}

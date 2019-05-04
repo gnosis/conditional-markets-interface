@@ -17,10 +17,6 @@ const Market = ({
   disabled,
   selectedOutcome,
 
-  predictionProbabilities,
-
-  marketIndex,
-
   handleSelectAssumption,
   handleSelectOutcome
 }) => {
@@ -79,9 +75,7 @@ const Market = ({
           {...{
             outcomes: outcomesWithProbabilities,
             isResolved,
-            predictionProbabilities: assumed
-              ? []
-              : predictionProbabilities[marketIndex] || []
+            predictionProbabilities: []
           }}
         />
       </section>

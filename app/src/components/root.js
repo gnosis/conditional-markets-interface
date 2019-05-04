@@ -1,391 +1,262 @@
 import React, { useState, useEffect } from "react";
 import { hot } from "react-hot-loader";
-import Decimal from "decimal.js";
+import cn from "classnames";
+import Decimal from "decimal.js-light";
+Decimal.set({
+  precision: 80,
+  toExpNeg: -20,
+  toExpPos: 80
+});
 
 import Markets from "./markets";
 import BuySection from "./buy-section";
 import YourPositions from "./your-positions";
-
 import Spinner from "./spinner";
 
-import {
-  loadMarkets,
-  loadCollateral,
-  loadMarginalPrices,
-  loadProbabilitiesForPredictions,
-  buyOutcomes,
-  sellOutcomes
-} from "../api/markets";
-import {
-  loadBalances,
-  loadPositions,
-  loadAllowance,
-  generatePositionList,
-  listOutcomePairsMatchingOutcomeId,
-  calcOutcomeTokenCounts,
-  getCollateralBalance,
-  setAllowanceInsanelyHigh,
-  calcProfitForSale
-} from "../api/balances";
+import Web3 from "web3";
+const { fromWei, soliditySha3 } = Web3.utils;
+const web3 =
+  process.env.NODE_ENV === "development" || process.env.NODE_ENV === "test"
+    ? new Web3("http://localhost:8545")
+    : typeof window.ethereum !== "undefined"
+    ? (window.ethereum.enable(), new Web3(window.ethereum))
+    : new Web3(window.web3.currentProvider);
 
-import cn from "classnames";
+import config from "../../config.json";
+
+import ERC20DetailedArtifact from "../../../build/contracts/ERC20Detailed.json";
+import WETH9Artifact from "../../../build/contracts/WETH9.json";
+import PredictionMarketSystemArtifact from "../../../build/contracts/PredictionMarketSystem.json";
+import LMSRMarketMakerArtifact from "../../../build/contracts/LMSRMarketMaker.json";
+import TruffleContract from "truffle-contract";
+
+const ERC20Detailed = TruffleContract(ERC20DetailedArtifact);
+const WETH9 = TruffleContract(WETH9Artifact);
+const PredictionMarketSystem = TruffleContract(PredictionMarketSystemArtifact);
+const LMSRMarketMaker = TruffleContract(LMSRMarketMakerArtifact);
+for (const Contract of [
+  ERC20Detailed,
+  WETH9,
+  PredictionMarketSystem,
+  LMSRMarketMaker
+]) {
+  Contract.setProvider(web3.currentProvider);
+}
+
+function* product(head = [], ...tail) {
+  for (const h of head) {
+    const remainder = tail.length > 0 ? product(...tail) : [[]];
+    for (const r of remainder) yield [h, ...r];
+  }
+}
+
+async function loadBasicData() {
+  const { lmsrAddress, markets } = config;
+
+  const lmsrMarketMaker = await LMSRMarketMaker.at(lmsrAddress);
+
+  const collateral = {};
+  collateral.address = await lmsrMarketMaker.collateralToken();
+  collateral.contract = await ERC20Detailed.at(collateral.address);
+  collateral.name = await collateral.contract.name();
+  collateral.symbol = await collateral.contract.symbol();
+  collateral.decimals = (await collateral.contract.decimals()).toNumber();
+
+  collateral.isWETH =
+    collateral.name === "Wrapped Ether" &&
+    collateral.symbol === "WETH" &&
+    collateral.decimals === 18;
+
+  // TODO: DAI: \u25C8
+  if (collateral.isWETH) {
+    collateral.symbol = "\u039E";
+    collateral.contract = await WETH9.at(collateral.address);
+  }
+
+  const pmSystem = await PredictionMarketSystem.deployed();
+  const atomicOutcomeSlotCount = (await lmsrMarketMaker.atomicOutcomeSlotCount()).toNumber();
+
+  let curAtomicOutcomeSlotCount = 1;
+  for (let i = 0; i < markets.length; i++) {
+    const market = markets[i];
+    const conditionId = await lmsrMarketMaker.conditionIds(i);
+    const numSlots = (await pmSystem.getOutcomeSlotCount(
+      conditionId
+    )).toNumber();
+
+    if (numSlots === 0)
+      throw new Error(`condition ${conditionId} not set up yet`);
+    if (numSlots !== market.outcomes.length)
+      throw new Error(
+        `condition ${conditionId} outcome slot count ${numSlots} does not match market outcome descriptions array with length ${
+          market.outcomes.length
+        }`
+      );
+
+    market.conditionId = conditionId;
+    market.outcomes.forEach((outcome, i) => {
+      outcome.collectionId = soliditySha3(
+        { t: "bytes32", v: conditionId },
+        { t: "uint", v: 1 << i }
+      );
+    });
+
+    curAtomicOutcomeSlotCount *= numSlots;
+  }
+  if (curAtomicOutcomeSlotCount !== atomicOutcomeSlotCount) {
+    throw new Error(
+      `mismatch in counted atomic outcome slot ${curAtomicOutcomeSlotCount} and contract reported value ${atomicOutcomeSlotCount}`
+    );
+  }
+
+  const positions = [];
+  for (const outcomes of product(
+    ...markets.map(({ conditionId, outcomes }, marketIndex) =>
+      outcomes.map((outcome, outcomeIndex) => ({
+        ...outcome,
+        conditionId,
+        marketIndex,
+        outcomeIndex
+      }))
+    )
+  )) {
+    const positionId = web3.utils.soliditySha3(
+      { t: "address", v: collateral.address },
+      {
+        t: "uint",
+        v: outcomes
+          .map(({ collectionId }) => collectionId)
+          .map(id => web3.utils.toBN(id))
+          .reduce((a, b) => a.add(b))
+          .maskn(256)
+      }
+    );
+    positions.push({
+      id: positionId,
+      outcomes
+    });
+  }
+
+  positions.forEach((position, i) => {
+    position.positionIndex = i;
+  });
+
+  for (const market of markets) {
+    for (const outcome of market.outcomes) {
+      outcome.positions = [];
+    }
+  }
+  for (const position of positions) {
+    for (const outcome of position.outcomes) {
+      markets[outcome.marketIndex].outcomes[
+        outcome.outcomeIndex
+      ].positions.push(position);
+    }
+  }
+
+  return { pmSystem, lmsrMarketMaker, collateral, markets, positions };
+}
+
+async function getAccount() {
+  if (web3.defaultAccount == null) {
+    const accounts = await web3.eth.getAccounts();
+    if (accounts.length === 0) {
+      throw new Error(`got no accounts from ethereum provider`);
+    }
+    return accounts[0];
+  }
+  return web3.defaultAccount;
+}
+
+async function getCollateralBalance(collateral, account) {
+  const collateralBalance = {};
+  collateralBalance.amount = await collateral.contract.balanceOf(account);
+  if (collateral.isWETH) {
+    collateralBalance.unwrappedAmount = web3.utils.toBN(
+      await web3.eth.getBalance(account)
+    );
+    collateralBalance.totalAmount = collateralBalance.amount.add(
+      collateralBalance.unwrappedAmount
+    );
+  } else {
+    collateralBalance.totalAmount = collateralBalance.amount;
+  }
+
+  return collateralBalance;
+}
+
+async function getLMSRState(pmSystem, lmsrMarketMaker, positions) {
+  const [owner, funding, stage, fee, positionBalances] = await Promise.all([
+    lmsrMarketMaker.owner(),
+    lmsrMarketMaker.funding(),
+    lmsrMarketMaker
+      .stage()
+      .then(stage => ["Running", "Paused", "Closed"][stage.toNumber()]),
+    lmsrMarketMaker.fee().then(fee => fromWei(fee)),
+    getPositionBalances(pmSystem, positions, lmsrMarketMaker.address)
+  ]);
+  return { owner, funding, stage, fee, positionBalances };
+}
+
+async function getPositionBalances(pmSystem, positions, account) {
+  await Promise.all(
+    positions.map(position => pmSystem.balanceOf(account, position.id))
+  );
+}
+
+async function getLMSRAllowance(collateral, lmsrMarketMaker, account) {
+  return await collateral.contract.allowance(account, lmsrMarketMaker.address);
+}
 
 const moduleLoadTime = Date.now();
+
 const RootComponent = () => {
   const [loading, setLoading] = useState("LOADING");
-  const [syncTime, setSyncTime] = useState(moduleLoadTime);
+  const [syncTime /*, setSyncTime*/] = useState(moduleLoadTime);
 
-  const [prices, setPrices] = useState(null);
-  const [markets, setMarkets] = useState(null);
-  const [positionIds, setPositionIds] = useState(null);
-  const [balances, setBalances] = useState(null);
-  const [positions, setPositions] = useState(null);
+  const [pmSystem, setPMSystem] = useState(null);
+  const [lmsrMarketMaker, setLMSRMarketMaker] = useState(null);
   const [collateral, setCollateral] = useState(null);
+  const [markets, setMarkets] = useState(null);
+  const [positions, setPositions] = useState(null);
+
+  useEffect(() => {
+    loadBasicData()
+      .then(({ pmSystem, lmsrMarketMaker, collateral, markets, positions }) => {
+        setPMSystem(pmSystem);
+        setLMSRMarketMaker(lmsrMarketMaker);
+        setCollateral(collateral);
+        setMarkets(markets);
+        setPositions(positions);
+        setLoading("SUCCESS");
+      })
+      .catch(err => {
+        setLoading("FAILURE");
+        throw err;
+      });
+  }, []);
+
+  const [account, setAccount] = useState(null);
+  const [, /* lmsrState */ setLMSRState] = useState(null);
   const [collateralBalance, setCollateralBalance] = useState(null);
-  const [allowanceAvailable, setAllowanceAvailable] = useState(null);
+  const [, /* positionBalances */ setPositionBalances] = useState(null);
+  const [, /* lmsrAllowance */ setLMSRAllowance] = useState(null);
 
   for (const [loader, dependentParams, setter] of [
-    [loadCollateral, [], setCollateral],
-    [loadMarginalPrices, [], setPrices],
-    [getCollateralBalance, [collateral], setCollateralBalance],
-    [loadMarkets, [prices], setMarkets],
-    [loadPositions, [], setPositionIds],
-    [loadBalances, [positionIds], setBalances],
-    [generatePositionList, [markets, balances], setPositions],
-    [loadAllowance, [], setAllowanceAvailable],
-    [
-      () => Promise.resolve(loading === "LOADING" ? "SUCCESS" : loading),
-      [
-        prices,
-        markets,
-        positionIds,
-        balances,
-        positions,
-        collateral,
-        allowanceAvailable
-      ],
-      setLoading
-    ]
+    [getAccount, [], setAccount],
+    [getLMSRState, [pmSystem, lmsrMarketMaker, positions], setLMSRState],
+    [getCollateralBalance, [collateral, account], setCollateralBalance],
+    [getPositionBalances, [pmSystem, positions, account], setPositionBalances],
+    [getLMSRAllowance, [collateral, lmsrMarketMaker, account], setLMSRAllowance]
   ])
     useEffect(() => {
       if (dependentParams.every(p => p != null))
         loader(...dependentParams)
           .then(setter)
           .catch(err => {
-            setLoading("FAILURE");
             throw err;
           });
     }, [...dependentParams, syncTime]);
-
-  const [assumptions, setAssumptions] = useState([]);
-  function removeAssumption(conditionIdToRemove) {
-    // no error will be thrown if condition is not found
-    // because this may be called with an unassumed condition
-    // (when user switches to "I don't know" from "Yes" or "No")
-    if (assumptions.includes(conditionIdToRemove))
-      setAssumptions(
-        assumptions.filter(conditionId => conditionId !== conditionIdToRemove)
-      );
-  }
-
-  const [selectedOutcomes, setSelectedOutcomes] = useState({});
-
-  useEffect(() => {
-    (async function updatedMarkets() {
-      if (prices == null) return;
-
-      const assumedOutcomeIndexes = [];
-
-      Object.keys(selectedOutcomes).forEach(targetConditionId => {
-        if (assumptions.includes(targetConditionId)) {
-          const marketIndex = markets.findIndex(
-            ({ conditionId }) => conditionId == targetConditionId
-          );
-          let lmsrOutcomeIndex = 0;
-          for (let i = 0; i < marketIndex; i++)
-            lmsrOutcomeIndex += markets[marketIndex].outcomes.length;
-
-          const selectedOutcome = parseInt(
-            selectedOutcomes[targetConditionId],
-            10
-          );
-          assumedOutcomeIndexes.push(lmsrOutcomeIndex + selectedOutcome);
-        }
-      });
-      const marketsWithAssumptions = await loadMarkets(
-        prices,
-        assumedOutcomeIndexes
-      );
-      setMarkets(marketsWithAssumptions);
-    })();
-  }, [prices, selectedOutcomes, assumptions]);
-
-  const [invest, setInvest] = useState("");
-  const [outcomeTokenBuyAmounts, setOutcomeTokenBuyAmounts] = useState([]);
-  const [predictionProbabilities, setPredictionProbabilities] = useState([]);
-  const [stagedPositions, setStagedPositions] = useState([]);
-
-  useEffect(() => {
-    (async function updateOutcomeTokenCounts() {
-      const amount = invest || "";
-
-      const amountValid = !isNaN(parseFloat(amount)) && parseFloat(amount) > 0;
-
-      if (!amountValid) {
-        setOutcomeTokenBuyAmounts([]);
-        setPredictionProbabilities([]);
-        setStagedPositions([]);
-        return;
-      }
-
-      const outcomeIndexes = [];
-      const assumedIndexes = [];
-
-      // transform selectedOutcomes into outcomeIndex array, filtering all assumptions
-      let totalOutcomeIndex = 0;
-      markets.forEach(market => {
-        if (selectedOutcomes[market.conditionId] != null) {
-          const selectedOutcome = parseInt(
-            selectedOutcomes[market.conditionId],
-            10
-          );
-
-          if (assumptions.includes(market.conditionId)) {
-            assumedIndexes.push(totalOutcomeIndex + selectedOutcome);
-          } else {
-            outcomeIndexes.push(totalOutcomeIndex + selectedOutcome);
-          }
-        }
-
-        totalOutcomeIndex += market.outcomes.length;
-      });
-
-      // outcome ids:   Ay, .... By, ... Bn
-      // atomic outcomes: AyByCn "outcomePairs"
-
-      const outcomePairs = await listOutcomePairsMatchingOutcomeId([
-        ...outcomeIndexes,
-        ...assumedIndexes
-      ]);
-      const assumedPairs =
-        assumedIndexes.length > 0
-          ? await listOutcomePairsMatchingOutcomeId(assumedIndexes, true)
-          : [];
-
-      const outcomeTokenCounts = await calcOutcomeTokenCounts(
-        outcomePairs,
-        assumedPairs,
-        amount
-      );
-      setOutcomeTokenBuyAmounts(outcomeTokenCounts);
-
-      const newPrices = await loadMarginalPrices(outcomeTokenCounts);
-      const predictionProbabilities = await loadProbabilitiesForPredictions(
-        newPrices
-      );
-
-      setPredictionProbabilities(predictionProbabilities);
-      const stagedPositions = await generatePositionList(
-        markets,
-        outcomeTokenCounts
-      );
-      setStagedPositions(stagedPositions);
-    })();
-  }, [markets, assumptions, selectedOutcomes, invest]);
-
-  async function handleSelectAssumption(conditionId) {
-    if (assumptions.includes(conditionId)) {
-      removeAssumption(conditionId);
-    } else {
-      if (assumptions.length < markets.length - 1) {
-        setAssumptions([...assumptions, conditionId]);
-      } else {
-        alert(
-          "You can't make assumptions on all markets at once. You need to make at least one prediction."
-        );
-      }
-    }
-  }
-
-  const [validPosition, setValidPosition] = useState(false);
-  useEffect(() => {
-    (async function updateAffectedOutcomes() {
-      if (markets == null || assumptions == null) return;
-
-      const outcomeIndexes = [];
-      const assumedIndexes = [];
-
-      // transform selectedOutcomes into outcomeIndex array, filtering all assumptions
-      let totalOutcomeIndex = 0;
-      markets.forEach(market => {
-        if (selectedOutcomes[market.conditionId] != null) {
-          const selectedOutcome = parseInt(
-            selectedOutcomes[market.conditionId],
-            10
-          );
-
-          if (assumptions.includes(market.conditionId)) {
-            assumedIndexes.push(totalOutcomeIndex + selectedOutcome);
-          } else {
-            outcomeIndexes.push(totalOutcomeIndex + selectedOutcome);
-          }
-        }
-
-        totalOutcomeIndex += market.outcomes.length;
-      });
-
-      // sets which outcome combinations will be bought
-      const outcomePairs = await listOutcomePairsMatchingOutcomeId(
-        outcomeIndexes
-      );
-
-      // sets if the selected position is valid (ie not all positions and not no positions)
-      setValidPosition(
-        outcomePairs.length > 0 && outcomePairs.length < totalOutcomeIndex + 1
-      );
-    })();
-  }, [markets, assumptions, selectedOutcomes]);
-
-  async function handleSelectOutcome(e) {
-    const [conditionId, outcomeIndex] = e.target.name.split(/[-\]]/g);
-    setSelectedOutcomes({
-      ...selectedOutcomes,
-      [conditionId]: outcomeIndex
-    });
-
-    if (outcomeIndex === undefined) {
-      removeAssumption(conditionId);
-    }
-  }
-
-  const [buyError, setBuyError] = useState("");
-  async function handleSelectInvest(e) {
-    setInvest(e.target.value);
-  }
-
-  useEffect(() => {
-    (async function updateBuyError() {
-      if (collateral == null || collateralBalance == null) return;
-
-      const collateralDecimalDenominator = new Decimal(10).pow(
-        collateral.decimals || 18
-      );
-      let investUnits;
-      try {
-        investUnits = new Decimal(invest).mul(collateralDecimalDenominator);
-      } catch (e) {
-        // empty
-      }
-
-      const amount = collateralBalance.totalAmount;
-
-      if (investUnits == null || investUnits.lt(amount)) {
-        setBuyError(false);
-      } else {
-        setBuyError(
-          `Sorry, you don't have enough balance of ${
-            collateral.name
-          }. You're missing ${investUnits
-            .sub(amount)
-            .dividedBy(collateralDecimalDenominator)
-            .toSD(4)
-            .toString()} ${collateral.symbol}`
-        );
-      }
-    })();
-  }, [collateral, collateralBalance, invest]);
-
-  const [isBuying, setIsBuying] = useState(false);
-  async function handleSetAllowance() {
-    setIsBuying(true);
-    try {
-      await setAllowanceInsanelyHigh();
-    } catch (err) {
-      setBuyError("Could not set allowance. Please try again");
-      throw err;
-    } finally {
-      setIsBuying(false);
-      setSyncTime(Date.now());
-    }
-  }
-
-  async function handleBuyOutcomes() {
-    if (isBuying) throw new Error(`attempting to buy while already buying`);
-
-    setIsBuying(true);
-    setBuyError("");
-    try {
-      await buyOutcomes(collateral, collateralBalance, outcomeTokenBuyAmounts);
-    } catch (err) {
-      setBuyError(err.message);
-      throw err;
-    } finally {
-      setIsBuying(false);
-      setSyncTime(Date.now());
-    }
-  }
-
-  const [selectedSell, setSelectedSell] = useState(null);
-  const [selectedSellAmount, setSelectedSellAmount] = useState("");
-  const [predictedSellProfit, setPredictedSellProfit] = useState(null);
-  useEffect(() => {
-    (async function updateSellProfit() {
-      let sellAmountDecimal = null;
-
-      try {
-        sellAmountDecimal = new Decimal(selectedSellAmount)
-          .mul(new Decimal(10).pow(collateral.decimals))
-          .floor();
-      } catch (e) {
-        // empty
-      }
-
-      if (sellAmountDecimal == null || sellAmountDecimal.lte(0)) {
-        setPredictedSellProfit(null);
-        return;
-      }
-
-      const targetPosition = positions.find(
-        ({ outcomeIds }) => outcomeIds === selectedSell
-      );
-      if (targetPosition && targetPosition.outcomes.length > 0) {
-        const estimatedProfit = await calcProfitForSale(
-          targetPosition.outcomes.map(positionOutcomeIds => [
-            positionOutcomeIds,
-            sellAmountDecimal.toString()
-          ])
-        );
-        setPredictedSellProfit(estimatedProfit);
-      }
-    })();
-  }, [collateral, positions, selectedSell, selectedSellAmount]);
-
-  async function handleSelectSell(positionOutcomeGrouping) {
-    setSelectedSellAmount("");
-    setPredictedSellProfit(null);
-    setSelectedSell(
-      positionOutcomeGrouping === selectedSell ? null : positionOutcomeGrouping
-    );
-  }
-
-  async function handleSelectSellAmount(e) {
-    if (typeof e !== "string") {
-      setSelectedSellAmount(e.target.value);
-    } else {
-      setSelectedSellAmount(e);
-    }
-  }
-
-  async function handleSellPosition(atomicOutcomes, amount) {
-    try {
-      await sellOutcomes(atomicOutcomes, amount);
-    } finally {
-      setSelectedSell(null);
-      setSelectedSellAmount("");
-      setPredictedSellProfit(null);
-      setSyncTime(Date.now());
-    }
-  }
 
   if (loading === "SUCCESS")
     return (
@@ -394,14 +265,7 @@ const RootComponent = () => {
           <h1 className={cn("page-title")}>Gnosis PM 2.0 Experiments</h1>
           <Markets
             {...{
-              markets,
-              assumptions,
-              selectedOutcomes,
-
-              predictionProbabilities,
-
-              handleSelectAssumption,
-              handleSelectOutcome
+              markets
             }}
           />
         </section>
@@ -411,36 +275,13 @@ const RootComponent = () => {
           <BuySection
             {...{
               collateral,
-              collateralBalance,
-
-              stagedPositions,
-
-              validPosition,
-              hasEnoughAllowance:
-                allowanceAvailable != null &&
-                collateralBalance != null &&
-                collateralBalance.totalAmount.lte(allowanceAvailable),
-              invest,
-              isBuying,
-              buyError,
-
-              handleSelectInvest,
-              handleSetAllowance,
-              handleBuyOutcomes
+              collateralBalance
             }}
           />
           <YourPositions
             {...{
               positions,
-              collateral,
-
-              selectedSell,
-              selectedSellAmount,
-              predictedSellProfit,
-
-              handleSelectSell,
-              handleSellPosition,
-              handleSelectSellAmount
+              collateral
             }}
           />
         </section>
