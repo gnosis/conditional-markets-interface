@@ -5,30 +5,42 @@ import cn from "classnames";
 
 const OutcomeSelection = ({
   outcomes,
-  conditionId,
-  assumed,
-  selectedOutcome,
-  handleSelectAssumption,
-  handleSelectOutcome
+  marketSelection,
+  setMarketSelection
 }) => (
   <div className={cn("outcome-selection")}>
     <div className={cn("row-outcomes")}>
       {outcomes.map((outcome, index) => (
         <button
-          key={`${conditionId}-${index}`}
-          className={cn("selection", { selected: selectedOutcome == index })}
           type="button"
-          name={`${conditionId}-${index}`}
-          onClick={handleSelectOutcome}
+          disabled={marketSelection == null}
+          key={outcome.collectionId}
+          className={cn("selection", {
+            selected:
+              marketSelection != null &&
+              marketSelection.selectedOutcomeIndex == index
+          })}
+          onClick={() =>
+            setMarketSelection({
+              selectedOutcomeIndex: index,
+              isAssumed: marketSelection.isAssumed
+            })
+          }
         >
           {outcome.short}
         </button>
       ))}
       <button
-        className={cn("selection", { selected: !selectedOutcome })}
         type="button"
-        name={`${conditionId}`}
-        onClick={handleSelectOutcome}
+        disabled={marketSelection == null}
+        className={cn("selection", {
+          selected:
+            marketSelection != null &&
+            marketSelection.selectedOutcomeIndex == null
+        })}
+        onClick={() =>
+          setMarketSelection({ selectedOutcomeIndex: null, isAssumed: false })
+        }
       >
         {"I don't know"}
       </button>
@@ -36,20 +48,37 @@ const OutcomeSelection = ({
     <div className={cn("row-assume")}>
       <button
         type="button"
-        disabled={selectedOutcome == null}
+        disabled={
+          marketSelection == null ||
+          marketSelection.selectedOutcomeIndex == null
+        }
         className={cn("assume", {
-          selected: assumed
+          selected: marketSelection != null && marketSelection.isAssumed
         })}
-        onClick={() => handleSelectAssumption(conditionId)}
+        onClick={() =>
+          setMarketSelection({
+            selectedOutcomeIndex: marketSelection.selectedOutcomeIndex,
+            isAssumed: !marketSelection.isAssumed
+          })
+        }
       >
         <div>
-          {selectedOutcome != null && (
-            <input type="checkbox" readOnly checked={assumed} />
-          )}
+          {marketSelection != null &&
+            marketSelection.selectedOutcomeIndex != null && (
+              <input
+                type="checkbox"
+                readOnly
+                checked={marketSelection.isAssumed}
+              />
+            )}
           <label>
-            {selectedOutcome == null
-              ? "To select an assumption, make a selection above"
-              : `Assuming "${outcomes[selectedOutcome].short}" occurred`}
+            {marketSelection != null
+              ? marketSelection.selectedOutcomeIndex == null
+                ? "To select an assumption, make a selection above"
+                : `Assuming "${
+                    outcomes[marketSelection.selectedOutcomeIndex].short
+                  }" occurred`
+              : "Loading..."}
           </label>
         </div>
       </button>
@@ -63,11 +92,11 @@ OutcomeSelection.propTypes = {
       short: PropTypes.string.isRequired
     }).isRequired
   ).isRequired,
-  conditionId: PropTypes.string.isRequired,
-  assumed: PropTypes.bool.isRequired,
-  selectedOutcome: PropTypes.string,
-  handleSelectAssumption: PropTypes.func.isRequired,
-  handleSelectOutcome: PropTypes.func.isRequired
+  marketSelection: PropTypes.shape({
+    selectedOutcomeIndex: PropTypes.number,
+    isAssumed: PropTypes.bool.isRequired
+  }),
+  setMarketSelection: PropTypes.func.isRequired
 };
 
 export default OutcomeSelection;

@@ -1,15 +1,17 @@
 import React from "react";
 import PropTypes from "prop-types";
+import Decimal from "decimal.js-light";
+import { formatProbability } from "./utils/formatting";
 
 import cn from "classnames";
 
 const clamp = (val, min, max) => (val < min ? min : val > max ? max : val);
 
-const OutcomesBinary = ({
-  outcomes: [{ probability, color } /*, negativeOutcome */],
-  isResolved,
-  predictionProbabilities: [predictionProbability /*, negativeProbability */]
-}) => {
+const OutcomesBinary = ({ probabilities, isResolved }) => {
+  const color = "lightblue";
+  const probability = probabilities != null ? probabilities[0] : null;
+
+  const predictionProbability = null;
   const predictedProbabilityDifference = clamp(
     predictionProbability - probability,
     -1,
@@ -31,12 +33,12 @@ const OutcomesBinary = ({
           style={{
             backgroundColor: color,
             borderColor: color,
-            width: `${probability * 100}%`
+            width: probability != null ? formatProbability(probability) : "50%"
           }}
         >
           <div className={cn("hint")}>
             <span className={cn("text")}>
-              {(probability * 100).toFixed(2)}%
+              {probability != null ? formatProbability(probability) : "?"}
             </span>
           </div>
         </div>
@@ -88,6 +90,7 @@ OutcomesBinary.propTypes = {
       color: PropTypes.string.isRequired
     }).isRequired
   ).isRequired,
+  probabilities: PropTypes.arrayOf(PropTypes.instanceOf(Decimal).isRequired),
   isResolved: PropTypes.bool.isRequired,
   predictionProbabilities: PropTypes.arrayOf(PropTypes.number.isRequired)
     .isRequired

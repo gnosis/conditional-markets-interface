@@ -2,6 +2,8 @@ import React from "react";
 import Web3 from "web3";
 import Decimal from "decimal.js-light";
 
+export const formatProbability = probability => `${probability.mul(100)}%`;
+
 export const formatCollateral = (amount, collateral) => {
   return (
     <>

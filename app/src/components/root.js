@@ -199,7 +199,7 @@ async function getLMSRState(pmSystem, lmsrMarketMaker, positions) {
 }
 
 async function getPositionBalances(pmSystem, positions, account) {
-  await Promise.all(
+  return await Promise.all(
     positions.map(position => pmSystem.balanceOf(account, position.id))
   );
 }
@@ -237,7 +237,7 @@ const RootComponent = () => {
   }, []);
 
   const [account, setAccount] = useState(null);
-  const [, /* lmsrState */ setLMSRState] = useState(null);
+  const [lmsrState, setLMSRState] = useState(null);
   const [collateralBalance, setCollateralBalance] = useState(null);
   const [, /* positionBalances */ setPositionBalances] = useState(null);
   const [, /* lmsrAllowance */ setLMSRAllowance] = useState(null);
@@ -258,6 +258,8 @@ const RootComponent = () => {
           });
     }, [...dependentParams, syncTime]);
 
+  const [marketSelections, setMarketSelections] = useState(null);
+
   if (loading === "SUCCESS")
     return (
       <div className={cn("page")}>
@@ -265,7 +267,10 @@ const RootComponent = () => {
           <h1 className={cn("page-title")}>Gnosis PM 2.0 Experiments</h1>
           <Markets
             {...{
-              markets
+              markets,
+              lmsrState,
+              marketSelections,
+              setMarketSelections
             }}
           />
         </section>

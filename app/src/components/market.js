@@ -1,37 +1,28 @@
 import React from "react";
 import PropTypes from "prop-types";
+import Decimal from "decimal.js-light";
 import OutcomesBinary from "./outcomes-binary";
 import OutcomeSelection from "./outcome-selection";
+import Spinner from "./spinner";
+import { formatProbability } from "./utils/formatting";
 
 import cn from "classnames";
 
 const Market = ({
+  conditionId,
+
   title,
   resolutionDate,
   outcomes,
-  conditionId,
-  isResolved,
-  result,
 
-  assumed,
-  disabled,
-  selectedOutcome,
+  probabilities,
 
-  handleSelectAssumption,
-  handleSelectOutcome
+  marketSelection,
+  setMarketSelection
 }) => {
-  let probabilities = outcomes.map(outcome => outcome.probability);
-
-  if (assumed) {
-    probabilities = outcomes.map((outcome, outcomeIndex) =>
-      parseInt(selectedOutcome, 10) === outcomeIndex ? 1 : 0
-    );
-  }
-
-  let outcomesWithProbabilities = outcomes.map((outcome, index) => ({
-    ...outcome,
-    probability: probabilities[index]
-  }));
+  const isResolved = false;
+  const disabled = false;
+  const result = null;
 
   return (
     <article className={cn("market", { disabled })}>
@@ -50,7 +41,11 @@ const Market = ({
               <>
                 <h2 className={cn("label")}>probability</h2>
                 <h2 className={cn("value")}>
-                  {(probabilities[0] * 100).toFixed(2)}%
+                  {probabilities == null ? (
+                    <Spinner width={25} height={25} />
+                  ) : (
+                    formatProbability(probabilities[0])
+                  )}
                 </h2>
               </>
             )}
@@ -73,9 +68,9 @@ const Market = ({
       <section className={cn("outcomes-section")}>
         <OutcomesBinary
           {...{
-            outcomes: outcomesWithProbabilities,
-            isResolved,
-            predictionProbabilities: []
+            outcomes,
+            probabilities,
+            isResolved
           }}
         />
       </section>
@@ -86,10 +81,8 @@ const Market = ({
             {...{
               outcomes,
               conditionId,
-              assumed,
-              selectedOutcome,
-              handleSelectAssumption,
-              handleSelectOutcome
+              marketSelection,
+              setMarketSelection
             }}
           />
         </section>
@@ -99,6 +92,8 @@ const Market = ({
 };
 
 Market.propTypes = {
+  conditionId: PropTypes.any.isRequired,
+
   title: PropTypes.string.isRequired,
   resolutionDate: PropTypes.string.isRequired,
   outcomes: PropTypes.arrayOf(
@@ -107,21 +102,11 @@ Market.propTypes = {
       probability: PropTypes.number.isRequired
     }).isRequired
   ).isRequired,
-  conditionId: PropTypes.any.isRequired,
-  isResolved: PropTypes.bool.isRequired,
-  result: PropTypes.number.isRequired,
 
-  assumed: PropTypes.bool.isRequired,
-  disabled: PropTypes.bool.isRequired,
-  selectedOutcome: PropTypes.string,
+  probabilities: PropTypes.arrayOf(PropTypes.instanceOf(Decimal)),
 
-  predictionProbabilities: PropTypes.arrayOf(PropTypes.array.isRequired)
-    .isRequired,
-
-  marketIndex: PropTypes.number.isRequired,
-
-  handleSelectAssumption: PropTypes.any.isRequired,
-  handleSelectOutcome: PropTypes.any.isRequired
+  marketSelection: PropTypes.any,
+  setMarketSelection: PropTypes.any.isRequired
 };
 
 Market.defaultProps = {
