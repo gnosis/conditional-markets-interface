@@ -5,25 +5,24 @@ import { formatProbability } from "./utils/formatting";
 
 import cn from "classnames";
 
-const clamp = (val, min, max) => (val < min ? min : val > max ? max : val);
-
-const OutcomesBinary = ({ probabilities, isResolved }) => {
+const OutcomesBinary = ({ probabilities, stagedProbabilities, isResolved }) => {
   const color = "lightblue";
   const probability = probabilities != null ? probabilities[0] : null;
 
-  const predictionProbability = null;
-  const predictedProbabilityDifference = clamp(
-    predictionProbability - probability,
-    -1,
-    1
-  );
-  const displayPredictionProbability =
-    predictionProbability != null &&
-    predictionProbability != probability &&
-    !isResolved;
+  let stagedProbability;
+  let predictedProbabilityDifference;
+  let absPredictedProbabilityDifference;
+  let displayPredictionProbability;
+  let estimatedHintPosition;
+  if (stagedProbabilities != null) {
+    stagedProbability = stagedProbabilities[0];
+    predictedProbabilityDifference = stagedProbability.sub(probability);
+    absPredictedProbabilityDifference = predictedProbabilityDifference.abs();
+    displayPredictionProbability =
+      absPredictedProbabilityDifference.gte("0.01") && !isResolved;
 
-  const estimatedHintPosition =
-    Math.abs(probability) + predictionProbability / 2;
+    estimatedHintPosition = probability.add(stagedProbability).mul(0.5);
+  }
 
   return (
     <div className={cn("binary-outcome", { closed: isResolved })}>
@@ -45,29 +44,27 @@ const OutcomesBinary = ({ probabilities, isResolved }) => {
         {displayPredictionProbability && (
           <div
             className={cn("prediction", {
-              inverted: predictionProbability < probability,
-              shiftLeft: estimatedHintPosition < 0.2,
-              shiftRight: estimatedHintPosition > 0.8
+              inverted: stagedProbability.lt(probability),
+              shiftLeft: estimatedHintPosition.lt(".2"),
+              shiftRight: estimatedHintPosition.gt(".8")
             })}
             style={{
               backgroundColor: color,
               borderColor: color,
-              left:
-                predictionProbability > probability
-                  ? `${probability * 100}%`
-                  : "auto",
-              right:
-                predictionProbability <= probability
-                  ? `${(1 - probability) * 100}%`
-                  : "auto",
-              width: `${Math.abs(predictedProbabilityDifference) * 100}%`
+              left: stagedProbability.gt(probability)
+                ? formatProbability(probability)
+                : "auto",
+              right: stagedProbability.lt(probability)
+                ? formatProbability(new Decimal(1).sub(probability))
+                : "auto",
+              width: formatProbability(absPredictedProbabilityDifference)
             }}
           >
             {displayPredictionProbability && (
               <div className={cn("hint")}>
                 <span className={cn("text")}>
                   <small>PREDICTED CHANGE</small>{" "}
-                  {(predictedProbabilityDifference * 100).toFixed(2)}%
+                  {formatProbability(predictedProbabilityDifference)}
                 </span>
               </div>
             )}

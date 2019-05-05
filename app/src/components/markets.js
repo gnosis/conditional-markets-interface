@@ -6,25 +6,32 @@ import Market from "./market";
 
 const { BN } = Web3.utils;
 
-function calcMarginalPrices(lmsrState) {
-  const { funding, positionBalances } = lmsrState;
-  const invB = new Decimal(positionBalances.length)
-    .ln()
-    .div(funding.toString());
-
-  return positionBalances.map(balance =>
-    invB
-      .mul(balance.toString())
-      .neg()
-      .exp()
+const calcSelectedMarketProbabilitiesFromPositionProbabilities = (
+  markets,
+  marketSelections,
+  positionProbabilities
+) =>
+  markets.map(({ outcomes }, i) =>
+    marketSelections != null && marketSelections[i].isAssumed
+      ? outcomes.map(
+          (_, j) =>
+            new Decimal(marketSelections[i].selectedOutcomeIndex === j ? 1 : 0)
+        )
+      : outcomes.map(({ positions }) =>
+          positions.reduce(
+            (acc, { positionIndex }) =>
+              acc.add(positionProbabilities[positionIndex]),
+            new Decimal(0)
+          )
+        )
   );
-}
 
 const Markets = ({
   markets,
   lmsrState,
   marketSelections,
-  setMarketSelections
+  setMarketSelections,
+  stagedTradeAmounts
 }) => {
   useEffect(() => {
     setMarketSelections(
@@ -39,24 +46,45 @@ const Markets = ({
   }, []);
 
   let marketProbabilities = null;
+  let marketProbabilitiesAfterStagedTrade = null;
   if (lmsrState != null) {
-    const positionProbabilities = calcMarginalPrices(lmsrState);
-    marketProbabilities = markets.map(({ outcomes }, i) =>
-      marketSelections != null && marketSelections[i].isAssumed
-        ? outcomes.map(
-            (_, j) =>
-              new Decimal(
-                marketSelections[i].selectedOutcomeIndex === j ? 1 : 0
-              )
-          )
-        : outcomes.map(({ positions }) =>
-            positions.reduce(
-              (acc, { positionIndex }) =>
-                acc.add(positionProbabilities[positionIndex]),
-              new Decimal(0)
-            )
-          )
+    const { funding, positionBalances } = lmsrState;
+    const invB = new Decimal(positionBalances.length)
+      .ln()
+      .div(funding.toString());
+
+    const positionProbabilities = positionBalances.map(balance =>
+      invB
+        .mul(balance.toString())
+        .neg()
+        .exp()
     );
+    marketProbabilities = calcSelectedMarketProbabilitiesFromPositionProbabilities(
+      markets,
+      marketSelections,
+      positionProbabilities
+    );
+
+    if (stagedTradeAmounts != null) {
+      const unnormalizedPositionProbabilitiesAfterStagedTrade = positionProbabilities.map(
+        (probability, i) =>
+          probability.mul(stagedTradeAmounts[i].mul(invB).exp())
+      );
+      const normalizer = new Decimal(1).div(
+        unnormalizedPositionProbabilitiesAfterStagedTrade.reduce((a, b) =>
+          a.add(b)
+        )
+      );
+      const positionProbabilitiesAfterStagedTrade = unnormalizedPositionProbabilitiesAfterStagedTrade.map(
+        probability => probability.mul(normalizer)
+      );
+
+      marketProbabilitiesAfterStagedTrade = calcSelectedMarketProbabilitiesFromPositionProbabilities(
+        markets,
+        marketSelections,
+        positionProbabilitiesAfterStagedTrade
+      );
+    }
   }
 
   return (
@@ -68,6 +96,10 @@ const Markets = ({
             ...market,
             probabilities:
               marketProbabilities != null ? marketProbabilities[i] : null,
+            stagedProbabilities:
+              marketProbabilitiesAfterStagedTrade != null
+                ? marketProbabilitiesAfterStagedTrade[i]
+                : null,
             marketSelection:
               marketSelections != null ? marketSelections[i] : null,
             setMarketSelection(marketSelection) {

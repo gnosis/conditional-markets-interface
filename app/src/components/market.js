@@ -16,6 +16,7 @@ const Market = ({
   outcomes,
 
   probabilities,
+  stagedProbabilities,
 
   marketSelection,
   setMarketSelection
@@ -70,6 +71,7 @@ const Market = ({
           {...{
             outcomes,
             probabilities,
+            stagedProbabilities,
             isResolved
           }}
         />

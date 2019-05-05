@@ -2,10 +2,9 @@ import React, { useState, useEffect } from "react";
 import { hot } from "react-hot-loader";
 import cn from "classnames";
 import Decimal from "decimal.js-light";
-Decimal.set({
+Decimal.config({
   precision: 80,
-  toExpNeg: -20,
-  toExpPos: 80
+  rounding: Decimal.ROUND_FLOOR
 });
 
 import Markets from "./markets";
@@ -111,14 +110,17 @@ async function loadBasicData() {
 
   const positions = [];
   for (const outcomes of product(
-    ...markets.map(({ conditionId, outcomes }, marketIndex) =>
-      outcomes.map((outcome, outcomeIndex) => ({
-        ...outcome,
-        conditionId,
-        marketIndex,
-        outcomeIndex
-      }))
-    )
+    ...markets
+      .slice()
+      .reverse()
+      .map(({ conditionId, outcomes }, marketIndex) =>
+        outcomes.map((outcome, outcomeIndex) => ({
+          ...outcome,
+          conditionId,
+          marketIndex,
+          outcomeIndex
+        }))
+      )
   )) {
     const positionId = web3.utils.soliditySha3(
       { t: "address", v: collateral.address },
@@ -209,10 +211,12 @@ async function getLMSRAllowance(collateral, lmsrMarketMaker, account) {
 }
 
 const moduleLoadTime = Date.now();
-
 const RootComponent = () => {
   const [loading, setLoading] = useState("LOADING");
-  const [syncTime /*, setSyncTime*/] = useState(moduleLoadTime);
+  const [syncTime, setSyncTime] = useState(moduleLoadTime);
+  function triggerSync() {
+    setSyncTime(Date.now());
+  }
 
   const [pmSystem, setPMSystem] = useState(null);
   const [lmsrMarketMaker, setLMSRMarketMaker] = useState(null);
@@ -240,7 +244,7 @@ const RootComponent = () => {
   const [lmsrState, setLMSRState] = useState(null);
   const [collateralBalance, setCollateralBalance] = useState(null);
   const [, /* positionBalances */ setPositionBalances] = useState(null);
-  const [, /* lmsrAllowance */ setLMSRAllowance] = useState(null);
+  const [lmsrAllowance, setLMSRAllowance] = useState(null);
 
   for (const [loader, dependentParams, setter] of [
     [getAccount, [], setAccount],
@@ -259,6 +263,9 @@ const RootComponent = () => {
     }, [...dependentParams, syncTime]);
 
   const [marketSelections, setMarketSelections] = useState(null);
+  const [stagedTradeAmounts, setStagedTradeAmounts] = useState(null);
+  const [stagedTransactionType, setStagedTransactionType] = useState(null);
+  const [ongoingTransactionType, setOngoingTransactionType] = useState(null);
 
   if (loading === "SUCCESS")
     return (
@@ -270,7 +277,8 @@ const RootComponent = () => {
               markets,
               lmsrState,
               marketSelections,
-              setMarketSelections
+              setMarketSelections,
+              stagedTradeAmounts
             }}
           />
         </section>
@@ -279,8 +287,22 @@ const RootComponent = () => {
           <h2 className={cn("heading")}>Manage Positions</h2>
           <BuySection
             {...{
+              triggerSync,
+              account,
+              markets,
+              positions,
               collateral,
-              collateralBalance
+              collateralBalance,
+              lmsrMarketMaker,
+              lmsrState,
+              lmsrAllowance,
+              marketSelections,
+              stagedTradeAmounts,
+              setStagedTradeAmounts,
+              stagedTransactionType,
+              setStagedTransactionType,
+              ongoingTransactionType,
+              setOngoingTransactionType
             }}
           />
           <YourPositions

@@ -1,20 +1,14 @@
 import React from "react";
-import Web3 from "web3";
 import Decimal from "decimal.js-light";
 
-export const formatProbability = probability => `${probability.mul(100)}%`;
+export const formatProbability = probability =>
+  `${probability.mul(100).toDecimalPlaces(2, Decimal.ROUND_HALF_UP)}%`;
 
 export const formatCollateral = (amount, collateral) => {
-  return (
-    <>
-      {collateral.decimals === 18
-        ? Web3.utils.fromWei(amount || "0")
-        : new Decimal(amount.toString())
-            .mul(new Decimal(10).pow(-collateral.decimals))
-            .toString()}{" "}
-      {collateral.symbol}
-    </>
-  );
+  return `${new Decimal((amount || "0").toString())
+    .mul(new Decimal(10).pow(-collateral.decimals))
+    .toSignificantDigits(5)
+    .toString()} ${collateral.symbol}`;
 };
 
 const REPLACEMENT_RULES = [[/_(.*)_/g, "<em>$1</em>"]];
