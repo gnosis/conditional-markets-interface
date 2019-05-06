@@ -12,6 +12,8 @@ import BuySection from "./buy-section";
 import YourPositions from "./your-positions";
 import Spinner from "./spinner";
 
+import { product } from "./utils/itertools";
+
 import Web3 from "web3";
 const { fromWei, soliditySha3 } = Web3.utils;
 const web3 =
@@ -40,13 +42,6 @@ for (const Contract of [
   LMSRMarketMaker
 ]) {
   Contract.setProvider(web3.currentProvider);
-}
-
-function* product(head = [], ...tail) {
-  for (const h of head) {
-    const remainder = tail.length > 0 ? product(...tail) : [[]];
-    for (const r of remainder) yield [h, ...r];
-  }
 }
 
 async function loadBasicData() {
@@ -243,7 +238,7 @@ const RootComponent = () => {
   const [account, setAccount] = useState(null);
   const [lmsrState, setLMSRState] = useState(null);
   const [collateralBalance, setCollateralBalance] = useState(null);
-  const [, /* positionBalances */ setPositionBalances] = useState(null);
+  const [positionBalances, setPositionBalances] = useState(null);
   const [lmsrAllowance, setLMSRAllowance] = useState(null);
 
   for (const [loader, dependentParams, setter] of [
@@ -308,8 +303,10 @@ const RootComponent = () => {
           />
           <YourPositions
             {...{
+              markets,
               positions,
-              collateral
+              collateral,
+              positionBalances
             }}
           />
         </section>
