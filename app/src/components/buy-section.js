@@ -191,10 +191,12 @@ const BuySection = ({
     marketSelections
   ]);
 
+  let hasAnyAllowance = false;
   let hasEnoughAllowance = false;
   let hasInfiniteAllowance = false;
   if (lmsrAllowance != null)
     try {
+      hasAnyAllowance = lmsrAllowance.gtn(0);
       hasEnoughAllowance = new Decimal(10)
         .pow(collateral.decimals)
         .mul(investmentAmount || "0")
@@ -288,7 +290,8 @@ const BuySection = ({
           "Buy"
         )}
       </button>
-      {!hasEnoughAllowance && (
+      {((!hasAnyAllowance && stagedTradeAmounts == null) ||
+        !hasEnoughAllowance) && (
         <button
           type="button"
           onClick={asWrappedTransaction("set allowance", setAllowance, {

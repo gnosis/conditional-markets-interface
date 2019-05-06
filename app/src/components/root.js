@@ -275,6 +275,7 @@ const RootComponent = () => {
           <Markets
             {...{
               markets,
+              positions,
               lmsrState,
               marketSelections,
               setMarketSelections,

@@ -19,7 +19,7 @@ const OutcomesBinary = ({ probabilities, stagedProbabilities, isResolved }) => {
     predictedProbabilityDifference = stagedProbability.sub(probability);
     absPredictedProbabilityDifference = predictedProbabilityDifference.abs();
     displayPredictionProbability =
-      absPredictedProbabilityDifference.gte("0.01") && !isResolved;
+      absPredictedProbabilityDifference.gte("0.0001") && !isResolved;
 
     estimatedHintPosition = probability.add(stagedProbability).mul(0.5);
   }

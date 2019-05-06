@@ -6,28 +6,47 @@ import Market from "./market";
 
 const { BN } = Web3.utils;
 
-const calcSelectedMarketProbabilitiesFromPositionProbabilities = (
+function calcSelectedMarketProbabilitiesFromPositionProbabilities(
   markets,
+  allPositions,
   marketSelections,
   positionProbabilities
-) =>
-  markets.map(({ outcomes }, i) =>
+) {
+  const sumConsideredPositionProbabilities = whichPositions =>
+    whichPositions
+      .filter(({ outcomes }) =>
+        outcomes.every(
+          ({ marketIndex, outcomeIndex }) =>
+            !marketSelections[marketIndex].isAssumed ||
+            outcomeIndex === marketSelections[marketIndex].selectedOutcomeIndex
+        )
+      )
+      .reduce(
+        (acc, { positionIndex }) =>
+          acc.add(positionProbabilities[positionIndex]),
+        new Decimal(0)
+      );
+
+  const allConsideredPositionsProbability = sumConsideredPositionProbabilities(
+    allPositions
+  );
+  return markets.map(({ outcomes }, i) =>
     marketSelections != null && marketSelections[i].isAssumed
       ? outcomes.map(
           (_, j) =>
             new Decimal(marketSelections[i].selectedOutcomeIndex === j ? 1 : 0)
         )
       : outcomes.map(({ positions }) =>
-          positions.reduce(
-            (acc, { positionIndex }) =>
-              acc.add(positionProbabilities[positionIndex]),
-            new Decimal(0)
+          sumConsideredPositionProbabilities(positions).div(
+            allConsideredPositionsProbability
           )
         )
   );
+}
 
 const Markets = ({
   markets,
+  positions,
   lmsrState,
   marketSelections,
   setMarketSelections,
@@ -61,6 +80,7 @@ const Markets = ({
     );
     marketProbabilities = calcSelectedMarketProbabilitiesFromPositionProbabilities(
       markets,
+      positions,
       marketSelections,
       positionProbabilities
     );
@@ -81,6 +101,7 @@ const Markets = ({
 
       marketProbabilitiesAfterStagedTrade = calcSelectedMarketProbabilitiesFromPositionProbabilities(
         markets,
+        positions,
         marketSelections,
         positionProbabilitiesAfterStagedTrade
       );
