@@ -7,7 +7,9 @@ export default function PositionGroupDetails({ positionGroup, collateral }) {
   return (
     <>
       <div className={cn("value")}>
-        <strong>{formatCollateral(positionGroup.amount, collateral)}</strong>
+        <strong>
+          {formatCollateral(positionGroup.runningAmount, collateral)}
+        </strong>
         &nbsp;
       </div>
       <div className={cn("description")}>

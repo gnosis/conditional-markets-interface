@@ -13,31 +13,6 @@ const { toBN } = Web3.utils;
 
 const maxUint256 = toBN(`0x${"ff".repeat(32)}`);
 
-function asWrappedTransaction(
-  wrappedTransactionType,
-  transactionFn,
-  { ongoingTransactionType, setOngoingTransactionType, setError, triggerSync }
-) {
-  return async function wrappedAction() {
-    if (ongoingTransactionType != null) {
-      throw new Error(
-        `Attempted to ${wrappedTransactionType} while transaction to ${ongoingTransactionType} is ongoing`
-      );
-    }
-
-    try {
-      setOngoingTransactionType(wrappedTransactionType);
-      await transactionFn();
-    } catch (e) {
-      setError(e);
-      throw e;
-    } finally {
-      setOngoingTransactionType(null);
-      triggerSync();
-    }
-  };
-}
-
 function calcOutcomeTokenCounts(
   markets,
   positions,
@@ -121,7 +96,6 @@ function calcOutcomeTokenCounts(
 }
 
 const BuySection = ({
-  triggerSync,
   account,
   markets,
   positions,
@@ -136,7 +110,7 @@ const BuySection = ({
   stagedTransactionType,
   setStagedTransactionType,
   ongoingTransactionType,
-  setOngoingTransactionType
+  asWrappedTransaction
 }) => {
   const [investmentAmount, setInvestmentAmount] = useState("");
   const [error, setError] = useState(null);
@@ -282,34 +256,32 @@ const BuySection = ({
       <button
         type="button"
         disabled={
-          stagedTradeAmounts == null ||
           !hasEnoughAllowance ||
+          stagedTradeAmounts == null ||
           ongoingTransactionType != null ||
-          !!error
+          error != null
         }
-        onClick={asWrappedTransaction("buy outcome tokens", buyOutcomeTokens, {
-          ongoingTransactionType,
-          setOngoingTransactionType,
-          setError,
-          triggerSync
-        })}
+        onClick={asWrappedTransaction(
+          "buy outcome tokens",
+          buyOutcomeTokens,
+          setError
+        )}
       >
         {ongoingTransactionType === "buy outcome tokens" ? (
           <Spinner centered inverted width={25} height={25} />
         ) : (
-          "Buy"
+          <>Buy</>
         )}
       </button>
       {((!hasAnyAllowance && stagedTradeAmounts == null) ||
         !hasEnoughAllowance) && (
         <button
           type="button"
-          onClick={asWrappedTransaction("set allowance", setAllowance, {
-            ongoingTransactionType,
-            setOngoingTransactionType,
-            setError,
-            triggerSync
-          })}
+          onClick={asWrappedTransaction(
+            "set allowance",
+            setAllowance,
+            setError
+          )}
         >
           {ongoingTransactionType === "set allowance" ? (
             <Spinner centered inverted width={25} height={25} />
@@ -327,8 +299,8 @@ const BuySection = ({
       {stagedTradePositionGroups != null && (
         <div>
           <div>You will receive:</div>
-          {stagedTradePositionGroups.map((positionGroup, index) => (
-            <div key={index} className={cn("position")}>
+          {stagedTradePositionGroups.map(positionGroup => (
+            <div key={positionGroup.collectionId} className={cn("position")}>
               <div className={cn("row", "details")}>
                 <PositionGroupDetails
                   {...{

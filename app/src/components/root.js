@@ -260,7 +260,32 @@ const RootComponent = () => {
   const [marketSelections, setMarketSelections] = useState(null);
   const [stagedTradeAmounts, setStagedTradeAmounts] = useState(null);
   const [stagedTransactionType, setStagedTransactionType] = useState(null);
+
   const [ongoingTransactionType, setOngoingTransactionType] = useState(null);
+  function asWrappedTransaction(
+    wrappedTransactionType,
+    transactionFn,
+    setError
+  ) {
+    return async function wrappedAction() {
+      if (ongoingTransactionType != null) {
+        throw new Error(
+          `Attempted to ${wrappedTransactionType} while transaction to ${ongoingTransactionType} is ongoing`
+        );
+      }
+
+      try {
+        setOngoingTransactionType(wrappedTransactionType);
+        await transactionFn();
+      } catch (e) {
+        setError(e);
+        throw e;
+      } finally {
+        setOngoingTransactionType(null);
+        triggerSync();
+      }
+    };
+  }
 
   if (loading === "SUCCESS")
     return (
@@ -283,7 +308,6 @@ const RootComponent = () => {
           <h2 className={cn("heading")}>Manage Positions</h2>
           <BuySection
             {...{
-              triggerSync,
               account,
               markets,
               positions,
@@ -298,15 +322,24 @@ const RootComponent = () => {
               stagedTransactionType,
               setStagedTransactionType,
               ongoingTransactionType,
-              setOngoingTransactionType
+              asWrappedTransaction
             }}
           />
           <YourPositions
             {...{
+              account,
+              pmSystem,
               markets,
               positions,
               collateral,
-              positionBalances
+              lmsrMarketMaker,
+              positionBalances,
+              stagedTradeAmounts,
+              setStagedTradeAmounts,
+              stagedTransactionType,
+              setStagedTransactionType,
+              ongoingTransactionType,
+              asWrappedTransaction
             }}
           />
         </section>

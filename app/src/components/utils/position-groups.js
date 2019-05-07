@@ -1,16 +1,17 @@
 import Web3 from "web3";
 import { product, combinations } from "./itertools";
 
-const { toBN } = Web3.utils;
+const { toBN, toHex, padLeft } = Web3.utils;
 
 const maxUint256 = Web3.utils.toBN(`0x${"ff".repeat(32)}`);
 
 export function calcPositionGroups(markets, positions, positionAmounts) {
   const positionGroups = [];
 
-  let runningPositionAmounts = positionAmounts.map(amount =>
+  let positionAmountsCopy = positionAmounts.map(amount =>
     toBN(amount.toFixed ? amount.toFixed(0) : amount.toString())
   );
+  let runningPositionAmounts = positionAmountsCopy.slice();
 
   for (let numMarkets = 0; numMarkets <= markets.length; ++numMarkets) {
     for (const outcomesTuples of combinations(
@@ -28,26 +29,39 @@ export function calcPositionGroups(markets, positions, positionAmounts) {
           positions
         );
 
-        const [groupAmount] = groupPositions.reduce(
-          ([acc], { positionIndex }) => [
-            acc.lte(runningPositionAmounts[positionIndex])
-              ? acc
+        const [groupAmount, groupRunningAmount] = groupPositions.reduce(
+          ([accAmount, accRunningAmount], { positionIndex }) => [
+            accAmount.lte(positionAmountsCopy[positionIndex])
+              ? accAmount
+              : positionAmountsCopy[positionIndex],
+            accRunningAmount.lte(runningPositionAmounts[positionIndex])
+              ? accRunningAmount
               : runningPositionAmounts[positionIndex]
           ],
-          [maxUint256]
+          [maxUint256, maxUint256]
         );
 
-        if (groupAmount.gtn(0)) {
+        if (groupRunningAmount.gtn(0)) {
           positionGroups.push({
+            collectionId: padLeft(
+              toHex(
+                outcomeSet.reduce(
+                  (acc, { collectionId }) => acc.add(toBN(collectionId)),
+                  toBN(0)
+                )
+              ),
+              64
+            ),
             outcomeSet,
             amount: groupAmount,
+            runningAmount: groupRunningAmount,
             positions: groupPositions
           });
 
           for (const { positionIndex } of groupPositions) {
             runningPositionAmounts[positionIndex] = runningPositionAmounts[
               positionIndex
-            ].sub(groupAmount);
+            ].sub(groupRunningAmount);
           }
         }
       }
