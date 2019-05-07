@@ -81,16 +81,11 @@ const OutcomesBinary = ({ probabilities, stagedProbabilities, isResolved }) => {
 };
 
 OutcomesBinary.propTypes = {
-  outcomes: PropTypes.arrayOf(
-    PropTypes.shape({
-      probability: PropTypes.number.isRequired,
-      color: PropTypes.string.isRequired
-    }).isRequired
-  ).isRequired,
   probabilities: PropTypes.arrayOf(PropTypes.instanceOf(Decimal).isRequired),
-  isResolved: PropTypes.bool.isRequired,
-  predictionProbabilities: PropTypes.arrayOf(PropTypes.number.isRequired)
-    .isRequired
+  stagedProbabilities: PropTypes.arrayOf(
+    PropTypes.instanceOf(Decimal).isRequired
+  ),
+  isResolved: PropTypes.bool.isRequired
 };
 
 export default OutcomesBinary;

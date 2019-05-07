@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
+import Web3 from "web3";
 import Decimal from "decimal.js-light";
 import PositionGroupDetails from "./position-group-details";
 import Spinner from "./spinner";
@@ -7,6 +8,8 @@ import { formatCollateral } from "./utils/formatting";
 import { calcPositionGroups } from "./utils/position-groups";
 
 import cn from "classnames";
+
+const { BN } = Web3.utils;
 
 function calcNetCost({ funding, positionBalances }, tradeAmounts) {
   const invB = new Decimal(positionBalances.length)
@@ -262,29 +265,46 @@ const YourPositions = ({
 };
 
 YourPositions.propTypes = {
-  positions: PropTypes.arrayOf(
+  account: PropTypes.string.isRequired,
+  pmSystem: PropTypes.object.isRequired,
+  markets: PropTypes.arrayOf(
     PropTypes.shape({
-      value: PropTypes.string.isRequired,
-      outcomeIds: PropTypes.string.isRequired,
-      markets: PropTypes.arrayOf(
+      outcomes: PropTypes.arrayOf(
         PropTypes.shape({
-          isResolved: PropTypes.bool.isRequired,
-          result: PropTypes.number.isRequired,
-          selectedOutcome: PropTypes.number.isRequired,
-          when: PropTypes.string.isRequired,
-          whenNot: PropTypes.string.isRequired
+          positions: PropTypes.arrayOf(
+            PropTypes.shape({
+              id: PropTypes.string.isRequired
+            }).isRequired
+          ).isRequired
         }).isRequired
       ).isRequired
     }).isRequired
   ).isRequired,
+  positions: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.string.isRequired,
+      positionIndex: PropTypes.number.isRequired
+    }).isRequired
+  ).isRequired,
   collateral: PropTypes.shape({
-    symbol: PropTypes.string.isRequired
+    symbol: PropTypes.string.isRequired,
+    decimals: PropTypes.number.isRequired
   }).isRequired,
-
-  estimatedSaleEarnings: PropTypes.instanceOf(Decimal),
-
-  handleSellPosition: PropTypes.func.isRequired,
-  handleSelectSellAmount: PropTypes.func.isRequired
+  lmsrMarketMaker: PropTypes.object.isRequired,
+  lmsrState: PropTypes.shape({
+    funding: PropTypes.instanceOf(BN).isRequired,
+    positionBalances: PropTypes.arrayOf(PropTypes.instanceOf(BN).isRequired)
+      .isRequired
+  }),
+  positionBalances: PropTypes.arrayOf(PropTypes.instanceOf(BN).isRequired),
+  stagedTradeAmounts: PropTypes.arrayOf(
+    PropTypes.instanceOf(Decimal).isRequired
+  ),
+  setStagedTradeAmounts: PropTypes.func.isRequired,
+  stagedTransactionType: PropTypes.string,
+  setStagedTransactionType: PropTypes.func.isRequired,
+  ongoingTransactionType: PropTypes.string,
+  asWrappedTransaction: PropTypes.func.isRequired
 };
 
 export default YourPositions;

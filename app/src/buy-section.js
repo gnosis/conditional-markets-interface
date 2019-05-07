@@ -9,12 +9,11 @@ import { calcPositionGroups } from "./utils/position-groups";
 
 import cn from "classnames";
 
-const { toBN } = Web3.utils;
+const { BN, toBN } = Web3.utils;
 
 const maxUint256 = toBN(`0x${"ff".repeat(32)}`);
 
 function calcOutcomeTokenCounts(
-  markets,
   positions,
   { funding, positionBalances },
   amount,
@@ -36,10 +35,10 @@ function calcOutcomeTokenCounts(
   let refundedTerm = zero;
   let takenTerm = zero;
   let refusedTerm = zero;
-  positions.forEach(position => {
-    const balance = positionBalances[position.positionIndex].toString();
+  positions.forEach(({ positionIndex, outcomes }) => {
+    const balance = positionBalances[positionIndex].toString();
     if (
-      position.outcomes.some(
+      outcomes.some(
         ({ marketIndex, outcomeIndex }) =>
           marketSelections[marketIndex].isAssumed &&
           outcomeIndex !== marketSelections[marketIndex].selectedOutcomeIndex
@@ -51,9 +50,9 @@ function calcOutcomeTokenCounts(
           .mul(invB)
           .exp()
       );
-      positionTypes[position.positionIndex] = "refunded";
+      positionTypes[positionIndex] = "refunded";
     } else if (
-      position.outcomes.every(
+      outcomes.every(
         ({ marketIndex, outcomeIndex }) =>
           marketSelections[marketIndex].selectedOutcomeIndex == null ||
           outcomeIndex === marketSelections[marketIndex].selectedOutcomeIndex
@@ -65,7 +64,7 @@ function calcOutcomeTokenCounts(
           .neg()
           .exp()
       );
-      positionTypes[position.positionIndex] = "taken";
+      positionTypes[positionIndex] = "taken";
     } else {
       refusedTerm = refusedTerm.add(
         invB
@@ -73,7 +72,7 @@ function calcOutcomeTokenCounts(
           .neg()
           .exp()
       );
-      positionTypes[position.positionIndex] = "refused";
+      positionTypes[positionIndex] = "refused";
     }
   });
 
@@ -145,7 +144,6 @@ const BuySection = ({
 
       setStagedTradeAmounts(
         calcOutcomeTokenCounts(
-          markets,
           positions,
           lmsrState,
           investmentAmountInUnits,
@@ -160,7 +158,6 @@ const BuySection = ({
       setStagedTransactionType("buy outcome tokens");
     }
   }, [
-    markets,
     positions,
     collateral,
     collateralBalance,
@@ -319,35 +316,65 @@ const BuySection = ({
 };
 
 BuySection.propTypes = {
-  collateral: PropTypes.shape({
-    name: PropTypes.string.isRequired,
-    symbol: PropTypes.string.isRequired
-  }).isRequired,
-  collateralBalance: PropTypes.shape({
-    amount: PropTypes.instanceOf(Decimal).isRequired,
-    isWETH: PropTypes.bool,
-    unwrappedAmount: PropTypes.string
-  }).isRequired,
-
-  stagedPositions: PropTypes.arrayOf(
+  account: PropTypes.string.isRequired,
+  markets: PropTypes.arrayOf(
     PropTypes.shape({
-      value: PropTypes.string.isRequired,
-      outcomeIds: PropTypes.string.isRequired,
-      markets: PropTypes.arrayOf(
+      outcomes: PropTypes.arrayOf(
         PropTypes.shape({
-          selectedOutcome: PropTypes.number.isRequired,
-          when: PropTypes.string.isRequired,
-          whenNot: PropTypes.string.isRequired
+          positions: PropTypes.arrayOf(
+            PropTypes.shape({
+              id: PropTypes.string.isRequired
+            }).isRequired
+          ).isRequired
         }).isRequired
       ).isRequired
     }).isRequired
   ).isRequired,
-
-  hasEnoughAllowance: PropTypes.bool.isRequired,
-
-  handleBuyOutcomes: PropTypes.func.isRequired,
-  handleSelectInvest: PropTypes.func.isRequired,
-  handleSetAllowance: PropTypes.func.isRequired
+  positions: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.string.isRequired,
+      positionIndex: PropTypes.number.isRequired,
+      outcomes: PropTypes.arrayOf(
+        PropTypes.shape({
+          marketIndex: PropTypes.number.isRequired,
+          outcomeIndex: PropTypes.number.isRequired
+        }).isRequired
+      ).isRequired
+    }).isRequired
+  ).isRequired,
+  collateral: PropTypes.shape({
+    contract: PropTypes.object.isRequired,
+    name: PropTypes.string.isRequired,
+    symbol: PropTypes.string.isRequired,
+    decimals: PropTypes.number.isRequired,
+    isWETH: PropTypes.bool.isRequired
+  }).isRequired,
+  collateralBalance: PropTypes.shape({
+    amount: PropTypes.instanceOf(BN).isRequired,
+    unwrappedAmount: PropTypes.instanceOf(BN).isRequired,
+    totalAmount: PropTypes.instanceOf(BN).isRequired
+  }),
+  lmsrMarketMaker: PropTypes.object.isRequired,
+  lmsrState: PropTypes.shape({
+    funding: PropTypes.instanceOf(BN).isRequired,
+    positionBalances: PropTypes.arrayOf(PropTypes.instanceOf(BN).isRequired)
+      .isRequired
+  }),
+  lmsrAllowance: PropTypes.instanceOf(BN),
+  marketSelections: PropTypes.arrayOf(
+    PropTypes.shape({
+      isAssumed: PropTypes.bool.isRequired,
+      selectedOutcomeIndex: PropTypes.number
+    }).isRequired
+  ),
+  stagedTradeAmounts: PropTypes.arrayOf(
+    PropTypes.instanceOf(Decimal).isRequired
+  ),
+  setStagedTradeAmounts: PropTypes.func.isRequired,
+  stagedTransactionType: PropTypes.string,
+  setStagedTransactionType: PropTypes.func.isRequired,
+  ongoingTransactionType: PropTypes.string,
+  asWrappedTransaction: PropTypes.func.isRequired
 };
 
 export default BuySection;

@@ -100,12 +100,15 @@ Market.propTypes = {
   resolutionDate: PropTypes.string.isRequired,
   outcomes: PropTypes.arrayOf(
     PropTypes.shape({
-      title: PropTypes.string.isRequired,
-      probability: PropTypes.number.isRequired
+      title: PropTypes.string.isRequired
     }).isRequired
   ).isRequired,
 
   probabilities: PropTypes.arrayOf(PropTypes.instanceOf(Decimal)),
+
+  stagedProbabilities: PropTypes.arrayOf(
+    PropTypes.instanceOf(Decimal).isRequired
+  ),
 
   marketSelection: PropTypes.any,
   setMarketSelection: PropTypes.any.isRequired

@@ -143,6 +143,17 @@ Markets.propTypes = {
       conditionId: PropTypes.string.isRequired
     }).isRequired
   ).isRequired,
+  positions: PropTypes.arrayOf(
+    PropTypes.shape({
+      positionIndex: PropTypes.number.isRequired,
+      outcomes: PropTypes.arrayOf(
+        PropTypes.shape({
+          marketIndex: PropTypes.number.isRequired,
+          outcomeIndex: PropTypes.number.isRequired
+        }).isRequired
+      ).isRequired
+    }).isRequired
+  ).isRequired,
   lmsrState: PropTypes.shape({
     funding: PropTypes.instanceOf(BN).isRequired,
     positionBalances: PropTypes.arrayOf(PropTypes.instanceOf(BN).isRequired)
@@ -154,7 +165,10 @@ Markets.propTypes = {
       isAssumed: PropTypes.bool.isRequired
     }).isRequired
   ),
-  setMarketSelections: PropTypes.func.isRequired
+  setMarketSelections: PropTypes.func.isRequired,
+  stagedTradeAmounts: PropTypes.arrayOf(
+    PropTypes.instanceOf(Decimal).isRequired
+  )
 };
 
 export default Markets;
