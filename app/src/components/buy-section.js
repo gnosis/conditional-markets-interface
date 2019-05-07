@@ -159,6 +159,16 @@ const BuySection = ({
           } decimals in value ${investmentAmount}`
         );
 
+      if (investmentAmountInUnits.gt(collateralBalance.totalAmount.toString()))
+        throw new Error(
+          `Not enough collateral: missing ${formatCollateral(
+            investmentAmountInUnits.sub(
+              collateralBalance.totalAmount.toString()
+            ),
+            collateral
+          )}`
+        );
+
       setStagedTradeAmounts(
         calcOutcomeTokenCounts(
           markets,
@@ -179,6 +189,7 @@ const BuySection = ({
     markets,
     positions,
     collateral,
+    collateralBalance,
     lmsrState,
     investmentAmount,
     marketSelections
