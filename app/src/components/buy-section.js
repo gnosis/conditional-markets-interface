@@ -2,10 +2,10 @@ import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import Web3 from "web3";
 import Decimal from "decimal.js-light";
+import PositionGroupDetails from "./position-group-details";
 import Spinner from "./spinner";
-
-import { arrayToHumanReadableList } from "./utils/list";
-import { formatCollateral, pseudoMarkdown } from "./utils/formatting";
+import { formatCollateral } from "./utils/formatting";
+import { calcPositionGroups } from "./utils/position-groups";
 
 import cn from "classnames";
 
@@ -138,19 +138,13 @@ const BuySection = ({
   ongoingTransactionType,
   setOngoingTransactionType
 }) => {
-  const [investmentAmountHasChanged, setInvestmentAmountHasChanged] = useState(
-    false
-  );
   const [investmentAmount, setInvestmentAmount] = useState("");
   const [error, setError] = useState(null);
   useEffect(() => {
     if (investmentAmount === "") {
       setStagedTradeAmounts(null);
-      if (investmentAmountHasChanged) {
-        setStagedTransactionType("buy outcome tokens");
-        setError(null);
-        setInvestmentAmountHasChanged(false);
-      }
+      setStagedTransactionType("buy outcome tokens");
+      setError(null);
       return;
     }
     try {
@@ -174,13 +168,12 @@ const BuySection = ({
           marketSelections
         )
       );
-      if (investmentAmountHasChanged) {
-        setStagedTransactionType("buy outcome tokens");
-        setError(null);
-        setInvestmentAmountHasChanged(false);
-      }
+      setError(null);
     } catch (e) {
+      setStagedTradeAmounts(null);
       setError(e);
+    } finally {
+      setStagedTransactionType("buy outcome tokens");
     }
   }, [
     markets,
@@ -230,13 +223,21 @@ const BuySection = ({
     });
   }
 
-  const validPosition = true;
-
   async function setAllowance() {
     await collateral.contract.approve(lmsrMarketMaker.address, maxUint256, {
       from: account
     });
   }
+
+  const [stagedTradePositionGroups, setStagedTradePositionGroups] = useState(
+    []
+  );
+  useEffect(() => {
+    setStagedTradePositionGroups(
+      stagedTradeAmounts &&
+        calcPositionGroups(markets, positions, stagedTradeAmounts)
+    );
+  }, [markets, positions, stagedTradeAmounts]);
 
   return (
     <div className={cn("positions")}>
@@ -264,7 +265,6 @@ const BuySection = ({
         placeholder={`Investment amount in ${collateral.name}`}
         value={investmentAmount}
         onChange={e => {
-          setInvestmentAmountHasChanged(true);
           setInvestmentAmount(e.target.value);
         }}
       />
@@ -273,7 +273,6 @@ const BuySection = ({
         disabled={
           stagedTradeAmounts == null ||
           !hasEnoughAllowance ||
-          !validPosition ||
           ongoingTransactionType != null ||
           !!error
         }
@@ -314,32 +313,18 @@ const BuySection = ({
         </span>
       )}
 
-      {validPosition && ongoingTransactionType == null && !error && false && (
+      {stagedTradePositionGroups != null && (
         <div>
           <div>You will receive:</div>
-          {[].map((position, index) => (
+          {stagedTradePositionGroups.map((positionGroup, index) => (
             <div key={index} className={cn("position")}>
-              <div className={cn("value")}>
-                <strong>
-                  {formatCollateral(position.value, collateral.symbol)}
-                </strong>
-                &nbsp;
-              </div>
-              <div className={cn("description")}>
-                {position.outcomeIds === "" ? (
-                  position.value > 0 && <span>In any Case</span>
-                ) : (
-                  <span>
-                    when{" "}
-                    {arrayToHumanReadableList(
-                      position.markets.map(market =>
-                        market.selectedOutcome === 0
-                          ? pseudoMarkdown(market.when)
-                          : pseudoMarkdown(market.whenNot)
-                      )
-                    )}
-                  </span>
-                )}
+              <div className={cn("row", "details")}>
+                <PositionGroupDetails
+                  {...{
+                    positionGroup,
+                    collateral
+                  }}
+                />
               </div>
             </div>
           ))}
@@ -374,7 +359,6 @@ BuySection.propTypes = {
     }).isRequired
   ).isRequired,
 
-  validPosition: PropTypes.bool.isRequired,
   hasEnoughAllowance: PropTypes.bool.isRequired,
 
   handleBuyOutcomes: PropTypes.func.isRequired,

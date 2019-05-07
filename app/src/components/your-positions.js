@@ -1,64 +1,12 @@
 import React from "react";
 import PropTypes from "prop-types";
-import Web3 from "web3";
 import Decimal from "decimal.js-light";
-
-import { product, combinations } from "./utils/itertools";
+import PositionGroupDetails from "./position-group-details";
+import Spinner from "./spinner";
 import { formatCollateral } from "./utils/formatting";
+import { calcPositionGroups } from "./utils/position-groups";
 
 import cn from "classnames";
-
-const maxUint256 = Web3.utils.toBN(`0x${"ff".repeat(32)}`);
-
-function calcPositionGroups(markets, positions, positionAmounts) {
-  const positionGroups = [];
-
-  let runningPositionAmounts = positionAmounts.slice();
-
-  for (let numMarkets = 0; numMarkets <= markets.length; ++numMarkets) {
-    for (const outcomesTuples of combinations(
-      markets.map(({ outcomes }) => outcomes),
-      numMarkets
-    )) {
-      for (const outcomeSet of product(...outcomesTuples)) {
-        const groupPositions = outcomeSet.reduce(
-          (positionsIntersection, { positions: outcomePositions }) =>
-            positionsIntersection.filter(
-              ({ id }) =>
-                outcomePositions.find(({ id: otherId }) => id === otherId) !=
-                null
-            ),
-          positions
-        );
-
-        const [groupAmount] = groupPositions.reduce(
-          ([acc], { positionIndex }) => [
-            acc.lte(runningPositionAmounts[positionIndex])
-              ? acc
-              : runningPositionAmounts[positionIndex]
-          ],
-          [maxUint256]
-        );
-
-        if (groupAmount.gtn(0)) {
-          positionGroups.push({
-            outcomeSet,
-            amount: groupAmount,
-            positions: groupPositions
-          });
-
-          for (const { positionIndex } of groupPositions) {
-            runningPositionAmounts[positionIndex] = runningPositionAmounts[
-              positionIndex
-            ].sub(groupAmount);
-          }
-        }
-      }
-    }
-  }
-
-  return positionGroups;
-}
 
 const YourPositions = ({
   markets,
@@ -73,80 +21,47 @@ const YourPositions = ({
   const handleSellPosition = null;
   const handleSelectSellAmount = null;
 
-  // const positionGroups =
-  positionBalances && calcPositionGroups(markets, positions, positionBalances);
+  const positionGroups =
+    positionBalances &&
+    calcPositionGroups(markets, positions, positionBalances);
 
   return (
     <div className={cn("your-positions")}>
       <h2>Positions</h2>
-      {positions.length === 0 ? (
+      {positionGroups == null ? (
+        <Spinner width={25} height={25} />
+      ) : positionGroups.length === 0 ? (
         <em>{"You don't hold any positions yet."}</em>
       ) : (
-        positions.map((position, index) => {
-          const empty = selectedSellAmount === "";
-          const validNum =
-            !isNaN(parseFloat(selectedSellAmount)) &&
-            selectedSellAmount > 0 &&
-            isFinite(selectedSellAmount);
-          const sellAmountLowerThanBalance =
-            validNum &&
-            !empty &&
-            new Decimal(position.value)
-              .dividedBy(new Decimal(10).pow(18))
-              .gte(new Decimal(selectedSellAmount));
-          const canSellThisPosition =
-            selectedSell === position.outcomeIds &&
-            validNum &&
-            sellAmountLowerThanBalance;
+        positionGroups.map((positionGroup, index) => {
+          const empty = null;
+          const canSellThisPosition = null;
 
-          let sellErrorReason;
-
-          if (!validNum) {
-            sellErrorReason = "Please enter a valid amount of token to sell";
-          } else if (!sellAmountLowerThanBalance) {
-            sellErrorReason = "You can't sell more than you own of this token";
-          } else {
-            sellErrorReason =
-              "Sorry, an error occurred. Please try again later";
-          }
-
-          if (position.value == "0") return null;
+          const sellErrorReason = null;
 
           return (
             <div key={index} className={cn("position")}>
               <div className={cn("row", "details")}>
-                <div className={cn("value")}>
-                  <strong>
-                    {formatCollateral(position.value, collateral)}
-                  </strong>
-                  &nbsp;
-                </div>
-                <div className={cn("description")}>
-                  {position.outcomeIds === "" ? (
-                    position.value > 0 && <span>In any Case</span>
-                  ) : (
-                    <span>
-                      when{" "}
-                      {
-                        // stub
-                      }
-                    </span>
-                  )}
-                </div>
+                <PositionGroupDetails
+                  {...{
+                    positionGroup,
+                    collateral
+                  }}
+                />
                 <div className={cn("controls")}>
                   <button
                     type="button"
-                    onClick={() => handleSelectSell(position.outcomeIds)}
+                    onClick={() => handleSelectSell(positionGroup.outcomeIds)}
                   >
                     Sell
                   </button>
                 </div>
               </div>
-              {selectedSell === position.outcomeIds && (
+              {selectedSell === positionGroup.outcomeIds && (
                 <div className={cn("row", "sell")}>
                   <p>
                     You can sell a maximum amount of{" "}
-                    {formatCollateral(position.value, collateral)} of this
+                    {formatCollateral(positionGroup.value, collateral)} of this
                     position.
                   </p>
                   <div className={cn("controls")}>
@@ -160,7 +75,7 @@ const YourPositions = ({
                       type="button"
                       onClick={() =>
                         handleSelectSellAmount(
-                          new Decimal(position.value)
+                          new Decimal(positionGroup.value)
                             .dividedBy(new Decimal(10).pow(18))
                             .toString()
                         )
@@ -173,7 +88,7 @@ const YourPositions = ({
                       disabled={!canSellThisPosition}
                       onClick={() =>
                         handleSellPosition(
-                          position.outcomes,
+                          positionGroup.outcomes,
                           new Decimal(selectedSellAmount)
                             .mul(new Decimal(10).pow(18))
                             .toString()
