@@ -1,5 +1,4 @@
 const path = require("path");
-const CommonShakePlugin = require("webpack-common-shake").Plugin;
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const { BundleAnalyzerPlugin } = require("webpack-bundle-analyzer");
 
@@ -60,7 +59,6 @@ module.exports = {
     ]
   },
   plugins: [
-    new CommonShakePlugin(),
     new HtmlWebpackPlugin({
       filename: "index.html",
       template: __dirname + "/src/index.html"
