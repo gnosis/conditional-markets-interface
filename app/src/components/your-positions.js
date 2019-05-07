@@ -8,6 +8,25 @@ import { calcPositionGroups } from "./utils/position-groups";
 
 import cn from "classnames";
 
+function calcNetCost({ funding, positionBalances }, tradeAmounts) {
+  const invB = new Decimal(positionBalances.length)
+    .ln()
+    .dividedBy(funding.toString());
+  return tradeAmounts
+    .reduce(
+      (acc, tradeAmount, i) =>
+        acc.add(
+          tradeAmount
+            .sub(positionBalances[i].toString())
+            .mul(invB)
+            .exp()
+        ),
+      new Decimal(0)
+    )
+    .ln()
+    .div(invB);
+}
+
 const YourPositions = ({
   account,
   pmSystem,
@@ -15,6 +34,7 @@ const YourPositions = ({
   positions,
   collateral,
   lmsrMarketMaker,
+  lmsrState,
   positionBalances,
   stagedTradeAmounts,
   setStagedTradeAmounts,
@@ -23,15 +43,44 @@ const YourPositions = ({
   ongoingTransactionType,
   asWrappedTransaction
 }) => {
+  const [positionGroups, setPositionGroups] = useState(null);
+
+  useEffect(() => {
+    if (positionBalances == null) {
+      setPositionGroups(null);
+    } else {
+      const positionGroups = calcPositionGroups(
+        markets,
+        positions,
+        positionBalances
+      );
+      setPositionGroups(positionGroups);
+    }
+  }, [markets, positions, positionBalances]);
+
   const [salePositionGroup, setSalePositionGroup] = useState(null);
 
+  useEffect(() => {
+    if (positionGroups == null) {
+      setSalePositionGroup(null);
+    } else if (salePositionGroup != null) {
+      setSalePositionGroup(
+        positionGroups.find(
+          ({ collectionId }) => collectionId === salePositionGroup.collectionId
+        )
+      );
+    }
+  }, [positionGroups]);
+
   const [saleAmount, setSaleAmount] = useState("");
+  const [estimatedSaleEarnings, setEstimatedSaleEarnings] = useState(null);
 
   const [error, setError] = useState(null);
 
   useEffect(() => {
     if (saleAmount === "") {
       setStagedTradeAmounts(null);
+      setEstimatedSaleEarnings(null);
       setStagedTransactionType("sell outcome tokens");
       setError(null);
       return;
@@ -55,29 +104,31 @@ const YourPositions = ({
           )}`
         );
 
-      setStagedTradeAmounts(
-        Array.from({ length: positions.length }, (_, i) =>
+      const stagedTradeAmounts = Array.from(
+        { length: positions.length },
+        (_, i) =>
           salePositionGroup.positions.find(
             ({ positionIndex }) => positionIndex === i
           ) == null
             ? new Decimal(0)
             : saleAmountInUnits.neg()
-        )
       );
+
+      setStagedTradeAmounts(stagedTradeAmounts);
+
+      setEstimatedSaleEarnings(
+        calcNetCost(lmsrState, stagedTradeAmounts).neg()
+      );
+
       setError(null);
     } catch (e) {
       setStagedTradeAmounts(null);
+      setEstimatedSaleEarnings(null);
       setError(e);
     } finally {
       setStagedTransactionType("sell outcome tokens");
     }
-  }, [collateral, positions, salePositionGroup, saleAmount]);
-
-  const predictedSellProfit = null;
-
-  const positionGroups =
-    positionBalances &&
-    calcPositionGroups(markets, positions, positionBalances);
+  }, [collateral, positions, lmsrState, salePositionGroup, saleAmount]);
 
   async function sellOutcomeTokens() {
     if (stagedTradeAmounts == null) throw new Error(`No sell set yet`);
@@ -170,6 +221,7 @@ const YourPositions = ({
                       type="button"
                       disabled={
                         stagedTradeAmounts == null ||
+                        stagedTransactionType !== "sell outcome tokens" ||
                         ongoingTransactionType != null ||
                         error != null
                       }
@@ -188,10 +240,10 @@ const YourPositions = ({
                   </div>
                   <div className={cn("row", "messages")}>
                     <>
-                      {predictedSellProfit && predictedSellProfit > 0 && (
+                      {estimatedSaleEarnings && estimatedSaleEarnings > 0 && (
                         <span>
                           Estimated earnings from sale:{" "}
-                          {formatCollateral(predictedSellProfit, collateral)}
+                          {formatCollateral(estimatedSaleEarnings, collateral)}
                         </span>
                       )}
                     </>
@@ -229,7 +281,7 @@ YourPositions.propTypes = {
     symbol: PropTypes.string.isRequired
   }).isRequired,
 
-  predictedSellProfit: PropTypes.instanceOf(Decimal),
+  estimatedSaleEarnings: PropTypes.instanceOf(Decimal),
 
   handleSellPosition: PropTypes.func.isRequired,
   handleSelectSellAmount: PropTypes.func.isRequired

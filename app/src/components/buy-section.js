@@ -257,6 +257,7 @@ const BuySection = ({
         type="button"
         disabled={
           !hasEnoughAllowance ||
+          stagedTransactionType !== "buy outcome tokens" ||
           stagedTradeAmounts == null ||
           ongoingTransactionType != null ||
           error != null

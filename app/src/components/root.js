@@ -333,6 +333,7 @@ const RootComponent = () => {
               positions,
               collateral,
               lmsrMarketMaker,
+              lmsrState,
               positionBalances,
               stagedTradeAmounts,
               setStagedTradeAmounts,
