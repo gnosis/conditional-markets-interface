@@ -17,20 +17,19 @@ function* product(head = [], ...tail) {
 
 module.exports = function(callback) {
   (async function() {
-    const fullConfig = JSON.parse(
+    const config = JSON.parse(
       fs.readFileSync(path.join(__dirname, "..", "app", "config.json"))
     );
     const currentNetworkId = await web3.eth.net.getId();
-    const [networkName, networkConfig] = Object.entries(fullConfig).find(
-      ([, { networkId }]) => networkId === currentNetworkId
-    );
 
-    if (networkName == null || networkConfig == null)
+    if (currentNetworkId !== config.networkId)
       throw new Error(
-        `could not find config with network ID ${currentNetworkId}`
+        `expected configured network ID ${
+          config.networkId
+        } but connected to network ID ${currentNetworkId}`
       );
 
-    const lmsrMarketMaker = await LMSRMarketMaker.at(networkConfig.lmsr);
+    const lmsrMarketMaker = await LMSRMarketMaker.at(config.lmsrAddress);
     const pmSystem = await PredictionMarketSystem.deployed();
 
     const owner = await lmsrMarketMaker.owner();
@@ -56,8 +55,6 @@ module.exports = function(callback) {
           ? web3.utils.fromWei(amount)
           : Number(amount.toString()) * 10 ** -collateral.decimals
       } ${collateral.symbol}`;
-
-    console.log(`Using config ${networkName} (id ${currentNetworkId})`);
 
     let cliRunning = true;
     while (cliRunning) {
