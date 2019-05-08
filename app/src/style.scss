@@ -1,0 +1,621 @@
+$break-large: 960px;
+
+$background-muted: rgb(220, 220, 220);
+$button-color-primary: #00a6c6;
+
+body {
+  font-family: 'Source Sans Pro', sans-serif;
+  background-color: #17394d;
+  color: white;
+}
+
+input {
+  box-sizing: border-box;
+}
+
+button {
+  background-color: $button-color-primary;
+  color: white;
+  max-width: none;
+  box-sizing: border-box;
+
+  // [disabled] or disabled class
+  &:disabled, &.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  } 
+
+  font-weight: lighter;
+  text-transform: uppercase;
+  padding: 8px 16px;
+  margin: 12px 0;
+  width: 100%;
+
+  border: 1px solid transparent;
+  transition: all 0.2s ease-in-out;
+
+  // remove all outlines
+  &:focus, &:active, &:visited, &:hover {
+    outline: 0;
+  }
+
+  &:hover {
+    background-color: lighten($button-color-primary, 7%);
+  }
+
+  &:active, &.selected {
+    background-color: lighten($button-color-primary, 7%);
+    box-shadow: 0px 0px 8px rgb(77, 144, 254);
+  }
+}
+
+.loading-page {
+  height: 100%;
+  width: 100%;
+}
+
+.failure-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.page {
+  margin: 0 auto;
+  padding: 20px 45px;
+  background: whitesmoke;
+  color: black;
+  display: flex;
+
+  .seperator {
+    width: 1px;
+    margin-top: 100px;
+    background: rgb(100, 100, 100);
+  }
+
+  .section {
+    padding: 28px 12px 0 12px;
+    position: relative;
+  }
+
+  .market-section {
+    flex-basis: 70%;
+  }
+
+  .position-section {
+    flex-basis: 30%;
+
+    .heading {
+      margin-top: 118px;
+    }
+  }
+}
+
+.market {
+  margin: 48px 0;
+  position: relative;
+  flex-wrap: wrap;
+  display: flex;
+
+  .title-section {
+    width: 100%;
+    padding: 0;
+    height: 50px;
+
+    margin-bottom: 8px;
+
+    display: flex;
+    justify-content: space-between;
+
+    flex-direction: column;
+
+    @media screen and (min-width: $break-large) {
+      flex-direction: row;
+    }
+  
+    .title {
+      font-size: 150%;
+    }
+
+    h1, h2 {
+      line-height: 100%;
+      margin: 0;
+    }
+
+    .title-infos {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: row; 
+      justify-content: flex-end;
+
+      .title-info {
+        text-transform: uppercase;
+        color: rgb(50, 50, 50);
+        font-size: 80%;
+        margin: 0 12px;
+        
+        .label {
+          font-weight: 200;
+        }
+  
+        .value {
+          font-weight: 800;
+        }
+
+        .centered {
+          text-align: center;
+        }
+      }
+    }
+  }
+
+  .outcomes-section {
+    width: auto;
+    padding: 0 12px;
+
+    flex-basis: 100%;
+    @media screen and (min-width: $break-large) {
+      flex-basis: 50%;
+      flex-shrink: 1;
+      flex-grow: 1;
+    }
+  }
+
+  .selection-section {
+    width: auto;
+    padding: 0 12px;
+    margin-top: 50px;
+
+    flex-shrink: 1;
+    flex-basis: 40%;
+    flex-grow: 5;
+
+    display: flex;
+    justify-content: flex-end;
+  }
+}
+
+.binary-outcome {
+  position: relative;
+
+  &.closed {
+    .hint, .bar, .inner {
+      opacity: 0.75;
+    }
+  }
+
+  .summary {
+    text-transform: uppercase;
+    text-align: center;
+    padding: 0 12px;
+  }
+
+
+  .bar {
+    outline: none;
+    margin-top: 50px;
+    width: 100%;
+    height: 36px;
+    position: relative;
+    display: block;
+    appearance: none;
+    border: 0;
+    padding: 0;
+    box-sizing: border-box;
+    border: 1px solid transparent;
+
+    background-color: rgba(220, 220, 220, 0.4);
+
+
+    .inner {
+      position: relative;
+      height: 100%;
+      transition: all 1s ease-in-out;
+
+      // increase brightness dynamically
+      &::after {
+        content: '';
+        background: white;
+        position: absolute;
+        width: 100%;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+
+        transition: opacity ease 0.2s;
+
+        opacity: 0.4;
+      }
+    }
+
+    .prediction { 
+      position: absolute;
+
+      &.inverted {
+        right: 0;
+        left: initial;
+
+        &::after {
+          opacity: 0.2;
+        }
+      }
+
+      left: 0;
+
+      top: 0;
+      bottom: 0;
+      height: 100%;
+      transition: all 1s ease-in-out;
+
+      // increase brightness dynamically
+      &::after {
+        content: '';
+        background: white;
+        position: absolute;
+        width: 100%;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+
+        transition: opacity ease 0.2s;
+
+        opacity: 0.8;
+      }
+
+      // shift left/right if we're too close to the edges of the outcome-bar
+      &.shiftLeft {
+        .hint {
+          transform: translate(100%, -100%);
+
+          &::after {
+            left: 5%;
+          }
+        }
+      }
+
+      &.shiftRight {
+        .hint {
+          transform: translate(0%, -100%);
+
+          &::after {
+            left: 95%;
+          }
+        }
+      }
+
+      .hint {
+        min-width: 170px;
+        white-space: nowrap;
+        top: calc(100% + 50px);
+        
+        &::after {
+          top: -7px;
+          bottom: auto;
+          border-width: 0px 5px 8px 5px;
+          border-bottom-color: inherit;
+          border-top-color: transparent;
+        }
+      }
+    }
+
+    .hint {
+      right: 50%;
+      transform: translate(50%, -100%);
+      top: -(8px + 2px); // 8px = arrow height, 2px = spacing
+      position: absolute;
+      color: #000;
+
+      text-align: center;
+      min-width: 70px;
+
+      background-color: inherit;
+      border-color: inherit;
+      border-radius: 4px;
+      padding: 8px 6px;
+      opacity: 0.8;
+
+      transition: all .2s ease;
+
+      .text {
+        width: 100%;
+        display: block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      &::after {
+        position: absolute;
+        bottom: -8px;
+        content: '';
+        left: 50%;
+        margin-left: -5px;
+
+        width: 0;
+        height: 0;
+        transform: rotate(360deg);
+        -webkit-transform: rotate(360deg);
+
+        border-style: inset;
+        border-style: solid;
+        border-width: 8px 5px 0 5px;
+        border-color: inherit;
+        border-left-color: transparent;
+        border-right-color: transparent;
+        border-bottom-color: transparent;
+      }
+    }
+  }
+
+  .predictions-before-close {
+    text-emphasis: italic;
+    text-transform: uppercase;
+    font-weight: 300;
+    margin: 8px 0;
+    color: rgba(90, 90, 90, 1);
+
+    text-align: center;
+  }
+}
+
+.outcome-selection {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+
+  button {
+    padding: 7px 16px;
+    margin: 0;
+  }
+
+  .assume {
+    width: 100%;
+    font-size: 18px;
+    padding: 0;
+
+    > div {
+      padding: 7px 16px;
+    }
+
+    input[type="checkbox"] {
+      pointer-events: none;
+      margin-right: 5px;
+    }
+
+    label {
+      font-size: 70%;
+    }
+  }
+
+  .row-outcomes {
+    display: flex;
+    position: relative;
+    justify-content: space-between;
+
+    button {
+      width: 45%;
+      margin: 0 0 4px 0;
+
+      &:first-child {
+        margin-right: auto;
+      }
+
+      &:last-child {
+        margin-left: auto;
+      }
+    }
+  }
+
+  .row-assume {
+    width: 100%;
+  }
+}
+
+.your-positions {
+  .position {
+    margin-bottom: 5px;
+    line-height: 1.5;
+  }
+
+  .details {
+    display: flex;
+    flex-wrap: wrap;
+  
+    .value {
+      white-space: nowrap;
+    }
+
+    .description {
+      line-height: 1.5;
+      padding: 0 4px;
+      flex-grow: 2;
+    }
+
+    .controls {
+      flex-basis: 10%;
+
+    }
+
+    .messages {
+      flex-basis: 100%;
+      text-align: right;
+    }
+  }
+
+  .error {
+    color: red;
+  }
+  
+  .sell {
+    position: relative;
+    background-color: $background-muted;
+    padding: 1px 10px 20px 10px;
+    margin-top: 15px;
+
+    .controls {
+      display: flex;
+      width: 100%;
+
+      input {
+        flex-grow: 10;
+      }
+
+      button {
+        flex-basis: 10%;
+      }
+    }
+
+    &::after {
+      position: absolute;
+      top: -9px;
+      content: '';
+      left: 50%;
+      margin-left: -16px;
+
+      width: 0;
+      height: 0;
+      transform: rotate(360deg);
+      -webkit-transform: rotate(360deg);
+
+      border-style: inset;
+      border-style: solid;
+      border-width: 0px 16px 10px 16px;
+      border-color: $background-muted;
+      border-left-color: transparent;
+      border-right-color: transparent;
+      border-top-color: transparent;
+    }
+  }
+
+  button {
+    margin: 0;
+  }
+}
+
+.positions {
+  position: relative;
+
+  input,
+  button {
+    width: 100%;
+  }
+
+  input {
+    height: 30px;
+  }
+
+  button {
+    min-height: 36px;
+    position: relative;
+  }
+
+  .error {
+    display: block;
+    color: red;
+  }
+}
+
+
+.your-positions {
+  .position {
+    margin-bottom: 5px;
+    line-height: 1.5;
+  }
+
+  .details {
+  
+    display: flex;
+    flex-wrap: wrap;
+  
+    .value {
+      white-space: nowrap;
+    }
+
+    .description {
+      line-height: 1.5;
+      padding: 0 4px;
+      flex-grow: 2;
+    }
+
+    .controls {
+      flex-basis: 10%;
+
+    }
+
+    .messages {
+      flex-basis: 100%;
+      text-align: right;
+    }
+  }
+
+  .error {
+    color: red;
+  }
+  
+  .sell {
+    position: relative;
+    background-color: $background-muted;
+    padding: 1px 10px 20px 10px;
+    margin-top: 15px;
+
+    .controls {
+      display: flex;
+      width: 100%;
+
+      input {
+        flex-grow: 10;
+      }
+
+      button {
+        flex-basis: 10%;
+      }
+    }
+
+    &::after {
+      position: absolute;
+      top: -9px;
+      content: '';
+      left: 50%;
+      margin-left: -16px;
+
+      width: 0;
+      height: 0;
+      transform: rotate(360deg);
+      -webkit-transform: rotate(360deg);
+
+      border-style: inset;
+      border-style: solid;
+      border-width: 0px 16px 10px 16px;
+      border-color: $background-muted;
+      border-left-color: transparent;
+      border-right-color: transparent;
+      border-top-color: transparent;
+    }
+  }
+
+  button {
+    margin: 0;
+  }
+}
+
+.indefiniteSpinner {
+  &.centered {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  path {
+    fill: #000;
+  }
+
+  &.inverted {
+    path {
+      fill: #fff;
+    }
+  }
+}

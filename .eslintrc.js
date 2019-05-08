@@ -1,45 +1,18 @@
 module.exports = {
   extends: [
-    "plugin:react/recommended",
     "eslint:recommended",
-    "plugin:prettier/recommended",
-    "prettier"
+    "plugin:react/recommended",
+    "plugin:prettier/recommended"
   ],
-  parserOptions: { ecmaVersion: 8, sourceType: "module" },
-  env: {
-    es6: true,
-    node: true,
-    mocha: true
-  },
-
-  root: true,
-  globals: {
-    assert: true,
-    contract: true,
-    artifacts: true,
-    web3: true
-  },
-  parserOptions: {
-    sourceType: "module",
-    ecmaFeatures: {
-      experimentalObjectRestSpread: true,
-      jsx: true
+  parser: "babel-eslint",
+  settings: {
+    react: {
+      version: "detect"
     }
   },
-  rules: {
-    "no-redeclare": 0,
-    "max-len": [
-      "error",
-      120,
-      2,
-      {
-        ignoreUrls: true,
-        ignoreComments: false,
-        ignoreRegExpLiterals: true,
-        ignoreStrings: true,
-        ignoreTemplateLiterals: true
-      }
-    ]
+  env: {
+    node: true,
+    es6: true
   },
-  plugins: ["react"]
+  plugins: ["react-hooks"]
 };

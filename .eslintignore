@@ -1,8 +1,4 @@
-# Not Code Files
-
-
-# No Javascript
-contracts/**
+contracts/
 build/
-!build/**.js
-
+docs/
+!.eslintrc.js
