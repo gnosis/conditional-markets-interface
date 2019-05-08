@@ -5,7 +5,7 @@ import { formatProbability } from "./utils/formatting";
 
 import cn from "classnames";
 
-const OutcomesBinary = ({ probabilities, stagedProbabilities, isResolved }) => {
+const OutcomesBinary = ({ probabilities, stagedProbabilities }) => {
   const color = "lightblue";
   const probability = probabilities != null ? probabilities[0] : null;
 
@@ -18,14 +18,15 @@ const OutcomesBinary = ({ probabilities, stagedProbabilities, isResolved }) => {
     stagedProbability = stagedProbabilities[0];
     predictedProbabilityDifference = stagedProbability.sub(probability);
     absPredictedProbabilityDifference = predictedProbabilityDifference.abs();
-    displayPredictionProbability =
-      absPredictedProbabilityDifference.gte("0.0001") && !isResolved;
+    displayPredictionProbability = absPredictedProbabilityDifference.gte(
+      "0.0001"
+    );
 
     estimatedHintPosition = probability.add(stagedProbability).mul(0.5);
   }
 
   return (
-    <div className={cn("binary-outcome", { closed: isResolved })}>
+    <div className={cn("binary-outcome")}>
       <div className={cn("bar")} style={{ color }}>
         <div
           className={cn("inner")}
@@ -70,11 +71,6 @@ const OutcomesBinary = ({ probabilities, stagedProbabilities, isResolved }) => {
             )}
           </div>
         )}
-        {isResolved && (
-          <div className={cn("predictions-before-close")}>
-            <em>Final Predictions before market was resolved</em>
-          </div>
-        )}
       </div>
     </div>
   );
@@ -84,8 +80,7 @@ OutcomesBinary.propTypes = {
   probabilities: PropTypes.arrayOf(PropTypes.instanceOf(Decimal).isRequired),
   stagedProbabilities: PropTypes.arrayOf(
     PropTypes.instanceOf(Decimal).isRequired
-  ),
-  isResolved: PropTypes.bool.isRequired
+  )
 };
 
 export default OutcomesBinary;

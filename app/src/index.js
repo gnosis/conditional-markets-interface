@@ -198,6 +198,27 @@ async function getLMSRState(web3, pmSystem, lmsrMarketMaker, positions) {
   return { owner, funding, stage, fee, positionBalances };
 }
 
+async function getMarketResolutionStates(pmSystem, markets) {
+  return await Promise.all(
+    markets.map(async ({ conditionId, outcomes }) => {
+      const payoutDenominator = await pmSystem.payoutDenominator(conditionId);
+      if (payoutDenominator.gtn(0)) {
+        const payoutNumerators = await Promise.all(
+          outcomes.map((_, outcomeIndex) =>
+            pmSystem.payoutNumerators(conditionId, outcomeIndex)
+          )
+        );
+
+        return {
+          isResolved: true,
+          payoutNumerators,
+          payoutDenominator
+        };
+      } else return { isResolved: false };
+    })
+  );
+}
+
 async function getPositionBalances(pmSystem, positions, account) {
   return await Promise.all(
     positions.map(position => pmSystem.balanceOf(account, position.id))
@@ -270,6 +291,9 @@ Promise.all([
 
       const [account, setAccount] = useState(null);
       const [lmsrState, setLMSRState] = useState(null);
+      const [marketResolutionStates, setMarketResolutionStates] = useState(
+        null
+      );
       const [collateralBalance, setCollateralBalance] = useState(null);
       const [positionBalances, setPositionBalances] = useState(null);
       const [lmsrAllowance, setLMSRAllowance] = useState(null);
@@ -280,6 +304,11 @@ Promise.all([
           getLMSRState,
           [web3, pmSystem, lmsrMarketMaker, positions],
           setLMSRState
+        ],
+        [
+          getMarketResolutionStates,
+          [pmSystem, markets],
+          setMarketResolutionStates
         ],
         [
           getCollateralBalance,
@@ -346,6 +375,7 @@ Promise.all([
               <Markets
                 {...{
                   markets,
+                  marketResolutionStates,
                   positions,
                   lmsrState,
                   marketSelections,

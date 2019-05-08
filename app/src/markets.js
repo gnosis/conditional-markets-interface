@@ -46,6 +46,7 @@ function calcSelectedMarketProbabilitiesFromPositionProbabilities(
 
 const Markets = ({
   markets,
+  marketResolutionStates,
   positions,
   lmsrState,
   marketSelections,
@@ -115,6 +116,8 @@ const Markets = ({
           key={market.conditionId}
           {...{
             ...market,
+            resolutionState:
+              marketResolutionStates != null ? marketResolutionStates[i] : null,
             probabilities:
               marketProbabilities != null ? marketProbabilities[i] : null,
             stagedProbabilities:
@@ -143,6 +146,7 @@ Markets.propTypes = {
       conditionId: PropTypes.string.isRequired
     }).isRequired
   ).isRequired,
+  marketResolutionStates: PropTypes.array,
   positions: PropTypes.arrayOf(
     PropTypes.shape({
       positionIndex: PropTypes.number.isRequired,
