@@ -411,6 +411,7 @@ Promise.all([
                   account,
                   pmSystem,
                   markets,
+                  marketResolutionStates,
                   positions,
                   collateral,
                   lmsrMarketMaker,
