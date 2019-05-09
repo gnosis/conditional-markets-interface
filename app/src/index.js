@@ -89,6 +89,7 @@ async function loadBasicData(web3) {
         }`
       );
 
+    market.marketIndex = i;
     market.conditionId = conditionId;
     market.outcomes.forEach((outcome, i) => {
       outcome.collectionId = soliditySha3(
@@ -110,7 +111,7 @@ async function loadBasicData(web3) {
     ...markets
       .slice()
       .reverse()
-      .map(({ conditionId, outcomes }, marketIndex) =>
+      .map(({ conditionId, outcomes, marketIndex }) =>
         outcomes.map((outcome, outcomeIndex) => ({
           ...outcome,
           conditionId,
