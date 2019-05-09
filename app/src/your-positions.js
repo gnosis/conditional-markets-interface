@@ -9,7 +9,7 @@ import { calcPositionGroups } from "./utils/position-groups";
 
 import cn from "classnames";
 
-const { BN, toBN, padLeft, toHex } = Web3.utils;
+const { BN, toBN, padLeft, soliditySha3, toHex } = Web3.utils;
 
 function calcNetCost({ funding, positionBalances }, tradeAmounts) {
   const invB = new Decimal(positionBalances.length)
@@ -199,30 +199,46 @@ const YourPositions = ({
       if (marketsLeft === 0) return;
 
       const market = markets[marketsLeft - 1];
-      const indexSets = Array.from({ length: market.outcomes.length }, (_, i) =>
-        toBN(1).shln(i)
-      );
+      const indexSets = [];
+      for (
+        let outcomeIndex = 0;
+        outcomeIndex < market.outcomes.length;
+        outcomeIndex++
+      ) {
+        const outcome = market.outcomes[outcomeIndex];
+        const childCollectionId = padLeft(
+          toHex(
+            toBN(parentCollectionId)
+              .add(toBN(outcome.collectionId))
+              .maskn(256)
+          ),
+          64
+        );
 
-      for (const outcome of market.outcomes) {
+        const childPositionId = soliditySha3(
+          { t: "address", v: collateral.address },
+          { t: "uint", v: childCollectionId }
+        );
+
         await redeemPositionsThroughAllMarkets(
           marketsLeft - 1,
-          padLeft(
-            toHex(
-              toBN(parentCollectionId)
-                .add(toBN(outcome.collectionId))
-                .maskn(256)
-            ),
-            64
-          )
+          childCollectionId
+        );
+
+        if ((await pmSystem.balanceOf(account, childPositionId)).gtn(0)) {
+          indexSets.push(toBN(1).shln(outcomeIndex));
+        }
+      }
+
+      if (indexSets.length > 0) {
+        await pmSystem.redeemPositions(
+          collateral.address,
+          parentCollectionId,
+          market.conditionId,
+          indexSets,
+          { from: account }
         );
       }
-      await pmSystem.redeemPositions(
-        collateral.address,
-        parentCollectionId,
-        market.conditionId,
-        indexSets,
-        { from: account }
-      );
     }
 
     await redeemPositionsThroughAllMarkets(
