@@ -166,6 +166,8 @@ const BuySection = ({
     marketSelections
   ]);
 
+  const marketStage = lmsrState && lmsrState.stage;
+
   let hasAnyAllowance = false;
   let hasEnoughAllowance = false;
   let hasInfiniteAllowance = false;
@@ -235,58 +237,67 @@ const BuySection = ({
           collateral
         )}`}</p>
       )}
-      {lmsrAllowance != null && (
-        <p>{`Market maker allowance: ${
-          hasInfiniteAllowance
-            ? `∞ ${collateral.symbol}`
-            : formatCollateral(lmsrAllowance, collateral)
-        }`}</p>
-      )}
-      <input
-        type="text"
-        placeholder={`Investment amount in ${collateral.name}`}
-        value={investmentAmount}
-        onChange={e => {
-          setInvestmentAmount(e.target.value);
-        }}
-      />
-      <button
-        type="button"
-        disabled={
-          !hasEnoughAllowance ||
-          stagedTransactionType !== "buy outcome tokens" ||
-          stagedTradeAmounts == null ||
-          ongoingTransactionType != null ||
-          error != null
-        }
-        onClick={asWrappedTransaction(
-          "buy outcome tokens",
-          buyOutcomeTokens,
-          setError
-        )}
-      >
-        {ongoingTransactionType === "buy outcome tokens" ? (
-          <Spinner centered inverted width={25} height={25} />
-        ) : (
-          <>Buy</>
-        )}
-      </button>
-      {((!hasAnyAllowance && stagedTradeAmounts == null) ||
-        !hasEnoughAllowance) && (
-        <button
-          type="button"
-          onClick={asWrappedTransaction(
-            "set allowance",
-            setAllowance,
-            setError
+      {marketStage === "Closed" ? (
+        <p>Market maker is closed.</p>
+      ) : (
+        <>
+          {lmsrAllowance != null && (
+            <p>{`Market maker allowance: ${
+              hasInfiniteAllowance
+                ? `∞ ${collateral.symbol}`
+                : formatCollateral(lmsrAllowance, collateral)
+            }`}</p>
           )}
-        >
-          {ongoingTransactionType === "set allowance" ? (
-            <Spinner centered inverted width={25} height={25} />
-          ) : (
-            "Approve Market Maker for Trades"
+          <input
+            type="text"
+            placeholder={`Investment amount in ${collateral.name}`}
+            value={investmentAmount}
+            onChange={e => {
+              setInvestmentAmount(e.target.value);
+            }}
+          />
+          <button
+            type="button"
+            disabled={
+              !hasEnoughAllowance ||
+              stagedTransactionType !== "buy outcome tokens" ||
+              stagedTradeAmounts == null ||
+              ongoingTransactionType != null ||
+              marketStage !== "Running" ||
+              error != null
+            }
+            onClick={asWrappedTransaction(
+              "buy outcome tokens",
+              buyOutcomeTokens,
+              setError
+            )}
+          >
+            {ongoingTransactionType === "buy outcome tokens" ? (
+              <Spinner centered inverted width={25} height={25} />
+            ) : marketStage === "Paused" ? (
+              <>[Market paused]</>
+            ) : (
+              <>Buy</>
+            )}
+          </button>
+          {((!hasAnyAllowance && stagedTradeAmounts == null) ||
+            !hasEnoughAllowance) && (
+            <button
+              type="button"
+              onClick={asWrappedTransaction(
+                "set allowance",
+                setAllowance,
+                setError
+              )}
+            >
+              {ongoingTransactionType === "set allowance" ? (
+                <Spinner centered inverted width={25} height={25} />
+              ) : (
+                "Approve Market Maker for Trades"
+              )}
+            </button>
           )}
-        </button>
+        </>
       )}
       {error && (
         <span className={cn("error")}>
@@ -358,7 +369,8 @@ BuySection.propTypes = {
   lmsrState: PropTypes.shape({
     funding: PropTypes.instanceOf(BN).isRequired,
     positionBalances: PropTypes.arrayOf(PropTypes.instanceOf(BN).isRequired)
-      .isRequired
+      .isRequired,
+    stage: PropTypes.string.isRequired
   }),
   lmsrAllowance: PropTypes.instanceOf(BN),
   marketSelections: PropTypes.arrayOf(

@@ -116,6 +116,7 @@ const Markets = ({
           key={market.conditionId}
           {...{
             ...market,
+            lmsrState,
             resolutionState:
               marketResolutionStates != null ? marketResolutionStates[i] : null,
             probabilities:

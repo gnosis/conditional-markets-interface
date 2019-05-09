@@ -155,6 +155,8 @@ const YourPositions = ({
     });
   }
 
+  const marketStage = lmsrState && lmsrState.stage;
+
   return (
     <div className={cn("your-positions")}>
       <h2>Positions</h2>
@@ -177,21 +179,23 @@ const YourPositions = ({
                     collateral
                   }}
                 />
-                <div className={cn("controls")}>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSalePositionGroup(
-                        isSalePositionGroup ? null : positionGroup
-                      );
-                      setSaleAmount("");
-                    }}
-                  >
-                    Sell
-                  </button>
-                </div>
+                {marketStage !== "Closed" && (
+                  <div className={cn("controls")}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSalePositionGroup(
+                          isSalePositionGroup ? null : positionGroup
+                        );
+                        setSaleAmount("");
+                      }}
+                    >
+                      Sell
+                    </button>
+                  </div>
+                )}
               </div>
-              {isSalePositionGroup && (
+              {isSalePositionGroup && marketStage !== "Closed" && (
                 <div className={cn("row", "sell")}>
                   <p>
                     You can sell a maximum amount of{" "}
@@ -226,6 +230,7 @@ const YourPositions = ({
                         stagedTradeAmounts == null ||
                         stagedTransactionType !== "sell outcome tokens" ||
                         ongoingTransactionType != null ||
+                        marketStage !== "Running" ||
                         error != null
                       }
                       onClick={asWrappedTransaction(
@@ -236,6 +241,8 @@ const YourPositions = ({
                     >
                       {ongoingTransactionType === "sell outcome tokens" ? (
                         <Spinner inverted width={25} height={25} />
+                      ) : marketStage === "Paused" ? (
+                        <>[Market paused]</>
                       ) : (
                         <>Confirm</>
                       )}
@@ -294,7 +301,8 @@ YourPositions.propTypes = {
   lmsrState: PropTypes.shape({
     funding: PropTypes.instanceOf(BN).isRequired,
     positionBalances: PropTypes.arrayOf(PropTypes.instanceOf(BN).isRequired)
-      .isRequired
+      .isRequired,
+    stage: PropTypes.string.isRequired
   }),
   positionBalances: PropTypes.arrayOf(PropTypes.instanceOf(BN).isRequired),
   stagedTradeAmounts: PropTypes.arrayOf(
