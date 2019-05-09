@@ -4,6 +4,8 @@ import Web3 from "web3";
 import Decimal from "decimal.js-light";
 import Market from "./market";
 
+import { zeroDecimal, oneDecimal } from "./utils/constants";
+
 const { BN } = Web3.utils;
 
 function calcSelectedMarketProbabilitiesFromPositionProbabilities(
@@ -24,7 +26,7 @@ function calcSelectedMarketProbabilitiesFromPositionProbabilities(
       .reduce(
         (acc, { positionIndex }) =>
           acc.add(positionProbabilities[positionIndex]),
-        new Decimal(0)
+        zeroDecimal
       );
 
   const allConsideredPositionsProbability = sumConsideredPositionProbabilities(
@@ -32,9 +34,10 @@ function calcSelectedMarketProbabilitiesFromPositionProbabilities(
   );
   return markets.map(({ outcomes }, i) =>
     marketSelections != null && marketSelections[i].isAssumed
-      ? outcomes.map(
-          (_, j) =>
-            new Decimal(marketSelections[i].selectedOutcomeIndex === j ? 1 : 0)
+      ? outcomes.map((_, j) =>
+          marketSelections[i].selectedOutcomeIndex === j
+            ? oneDecimal
+            : zeroDecimal
         )
       : outcomes.map(({ positions }) =>
           sumConsideredPositionProbabilities(positions).div(
@@ -91,7 +94,7 @@ const Markets = ({
         (probability, i) =>
           probability.mul(stagedTradeAmounts[i].mul(invB).exp())
       );
-      const normalizer = new Decimal(1).div(
+      const normalizer = oneDecimal.div(
         unnormalizedPositionProbabilitiesAfterStagedTrade.reduce((a, b) =>
           a.add(b)
         )

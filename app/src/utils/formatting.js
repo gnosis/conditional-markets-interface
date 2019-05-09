@@ -1,13 +1,20 @@
 import React from "react";
 import Decimal from "decimal.js-light";
 
+import {
+  probabilityDecimalPlaces,
+  collateralSignificantDigits
+} from "./constants";
+
 export const formatProbability = probability =>
-  `${probability.mul(100).toDecimalPlaces(2, Decimal.ROUND_HALF_UP)}%`;
+  `${probability
+    .mul(100)
+    .toDecimalPlaces(probabilityDecimalPlaces, Decimal.ROUND_HALF_UP)}%`;
 
 export const formatCollateral = (amount, collateral) => {
   return `${new Decimal((amount || "0").toString())
-    .mul(new Decimal(10).pow(-collateral.decimals))
-    .toSignificantDigits(5)
+    .mul(collateral.fromUnitsMultiplier)
+    .toSignificantDigits(collateralSignificantDigits)
     .toString()} ${collateral.symbol}`;
 };
 

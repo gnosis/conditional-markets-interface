@@ -13,7 +13,7 @@ async function loadWeb3() {
   return web3;
 }
 
-async function loadBasicData(web3) {
+async function loadBasicData(web3, Decimal) {
   const { soliditySha3 } = web3.utils;
 
   const [
@@ -57,6 +57,8 @@ async function loadBasicData(web3) {
   collateral.name = await collateral.contract.name();
   collateral.symbol = await collateral.contract.symbol();
   collateral.decimals = (await collateral.contract.decimals()).toNumber();
+  collateral.toUnitsMultiplier = new Decimal(10).pow(collateral.decimals);
+  collateral.fromUnitsMultiplier = new Decimal(10).pow(-collateral.decimals);
 
   collateral.isWETH =
     collateral.name === "Wrapped Ether" &&
@@ -273,7 +275,7 @@ Promise.all([
 
       useEffect(() => {
         loadWeb3()
-          .then(web3 => (setWeb3(web3), loadBasicData(web3)))
+          .then(web3 => (setWeb3(web3), loadBasicData(web3, Decimal)))
           .then(
             ({ pmSystem, lmsrMarketMaker, collateral, markets, positions }) => {
               setPMSystem(pmSystem);

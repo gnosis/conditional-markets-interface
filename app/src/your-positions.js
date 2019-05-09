@@ -4,6 +4,7 @@ import Web3 from "web3";
 import Decimal from "decimal.js-light";
 import PositionGroupDetails from "./position-group-details";
 import Spinner from "./spinner";
+import { zeroDecimal } from "./utils/constants";
 import { formatCollateral } from "./utils/formatting";
 import { calcPositionGroups } from "./utils/position-groups";
 
@@ -24,7 +25,7 @@ function calcNetCost({ funding, positionBalances }, tradeAmounts) {
             .mul(invB)
             .exp()
         ),
-      new Decimal(0)
+      zeroDecimal
     )
     .ln()
     .div(invB);
@@ -91,9 +92,7 @@ const YourPositions = ({
     }
 
     try {
-      const saleAmountInUnits = new Decimal(10)
-        .pow(collateral.decimals)
-        .mul(saleAmount);
+      const saleAmountInUnits = collateral.toUnitsMultiplier.mul(saleAmount);
 
       if (!saleAmountInUnits.isInteger())
         throw new Error(
@@ -114,7 +113,7 @@ const YourPositions = ({
           salePositionGroup.positions.find(
             ({ positionIndex }) => positionIndex === i
           ) == null
-            ? new Decimal(0)
+            ? zeroDecimal
             : saleAmountInUnits.neg()
       );
 
@@ -334,8 +333,7 @@ const YourPositions = ({
                         type="button"
                         onClick={() => {
                           setSaleAmount(
-                            new Decimal(10)
-                              .pow(-collateral.decimals)
+                            collateral.fromUnitsMultiplier
                               .mul(positionGroup.amount.toString())
                               .toFixed()
                           );
