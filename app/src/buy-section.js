@@ -4,14 +4,13 @@ import Web3 from "web3";
 import Decimal from "decimal.js-light";
 import PositionGroupDetails from "./position-group-details";
 import Spinner from "./spinner";
+import { maxUint256BN, zeroDecimal } from "./utils/constants";
 import { formatCollateral } from "./utils/formatting";
 import { calcPositionGroups } from "./utils/position-groups";
 
 import cn from "classnames";
 
-const { BN, toBN } = Web3.utils;
-
-const maxUint256 = toBN(`0x${"ff".repeat(32)}`);
+const { BN } = Web3.utils;
 
 function calcOutcomeTokenCounts(
   positions,
@@ -31,10 +30,9 @@ function calcOutcomeTokenCounts(
 
   const positionTypes = new Array(positions.length).fill(null);
 
-  const zero = new Decimal(0);
-  let refundedTerm = zero;
-  let takenTerm = zero;
-  let refusedTerm = zero;
+  let refundedTerm = zeroDecimal;
+  let takenTerm = zeroDecimal;
+  let refusedTerm = zeroDecimal;
   positions.forEach(({ positionIndex, outcomes }) => {
     const balance = positionBalances[positionIndex].toString();
     if (
@@ -89,7 +87,7 @@ function calcOutcomeTokenCounts(
   return positionTypes.map(type => {
     if (type === "taken") return takenPositionsAmountEach;
     if (type === "refunded") return amount;
-    if (type === "refused") return zero;
+    if (type === "refused") return zeroDecimal;
     throw new Error(`Position types [${positionTypes.join(", ")}] invalid`);
   });
 }
@@ -121,9 +119,9 @@ const BuySection = ({
       return;
     }
     try {
-      const investmentAmountInUnits = new Decimal(10)
-        .pow(collateral.decimals)
-        .mul(investmentAmount);
+      const investmentAmountInUnits = collateral.toUnitsMultiplier.mul(
+        investmentAmount
+      );
 
       if (!investmentAmountInUnits.isInteger())
         throw new Error(
@@ -166,18 +164,19 @@ const BuySection = ({
     marketSelections
   ]);
 
+  const marketStage = lmsrState && lmsrState.stage;
+
   let hasAnyAllowance = false;
   let hasEnoughAllowance = false;
   let hasInfiniteAllowance = false;
   if (lmsrAllowance != null)
     try {
       hasAnyAllowance = lmsrAllowance.gtn(0);
-      hasEnoughAllowance = new Decimal(10)
-        .pow(collateral.decimals)
+      hasEnoughAllowance = collateral.toUnitsMultiplier
         .mul(investmentAmount || "0")
         .lte(lmsrAllowance.toString());
 
-      hasInfiniteAllowance = lmsrAllowance.eq(maxUint256);
+      hasInfiniteAllowance = lmsrAllowance.eq(maxUint256BN);
     } catch (e) {
       // empty
     }
@@ -206,7 +205,7 @@ const BuySection = ({
   }
 
   async function setAllowance() {
-    await collateral.contract.approve(lmsrMarketMaker.address, maxUint256, {
+    await collateral.contract.approve(lmsrMarketMaker.address, maxUint256BN, {
       from: account
     });
   }
@@ -235,58 +234,67 @@ const BuySection = ({
           collateral
         )}`}</p>
       )}
-      {lmsrAllowance != null && (
-        <p>{`Market maker allowance: ${
-          hasInfiniteAllowance
-            ? `∞ ${collateral.symbol}`
-            : formatCollateral(lmsrAllowance, collateral)
-        }`}</p>
-      )}
-      <input
-        type="text"
-        placeholder={`Investment amount in ${collateral.name}`}
-        value={investmentAmount}
-        onChange={e => {
-          setInvestmentAmount(e.target.value);
-        }}
-      />
-      <button
-        type="button"
-        disabled={
-          !hasEnoughAllowance ||
-          stagedTransactionType !== "buy outcome tokens" ||
-          stagedTradeAmounts == null ||
-          ongoingTransactionType != null ||
-          error != null
-        }
-        onClick={asWrappedTransaction(
-          "buy outcome tokens",
-          buyOutcomeTokens,
-          setError
-        )}
-      >
-        {ongoingTransactionType === "buy outcome tokens" ? (
-          <Spinner centered inverted width={25} height={25} />
-        ) : (
-          <>Buy</>
-        )}
-      </button>
-      {((!hasAnyAllowance && stagedTradeAmounts == null) ||
-        !hasEnoughAllowance) && (
-        <button
-          type="button"
-          onClick={asWrappedTransaction(
-            "set allowance",
-            setAllowance,
-            setError
+      {marketStage === "Closed" ? (
+        <p>Market maker is closed.</p>
+      ) : (
+        <>
+          {lmsrAllowance != null && (
+            <p>{`Market maker allowance: ${
+              hasInfiniteAllowance
+                ? `∞ ${collateral.symbol}`
+                : formatCollateral(lmsrAllowance, collateral)
+            }`}</p>
           )}
-        >
-          {ongoingTransactionType === "set allowance" ? (
-            <Spinner centered inverted width={25} height={25} />
-          ) : (
-            "Approve Market Maker for Trades"
+          <input
+            type="text"
+            placeholder={`Investment amount in ${collateral.name}`}
+            value={investmentAmount}
+            onChange={e => {
+              setInvestmentAmount(e.target.value);
+            }}
+          />
+          <button
+            type="button"
+            disabled={
+              !hasEnoughAllowance ||
+              stagedTransactionType !== "buy outcome tokens" ||
+              stagedTradeAmounts == null ||
+              ongoingTransactionType != null ||
+              marketStage !== "Running" ||
+              error != null
+            }
+            onClick={asWrappedTransaction(
+              "buy outcome tokens",
+              buyOutcomeTokens,
+              setError
+            )}
+          >
+            {ongoingTransactionType === "buy outcome tokens" ? (
+              <Spinner centered inverted width={25} height={25} />
+            ) : marketStage === "Paused" ? (
+              <>[Market paused]</>
+            ) : (
+              <>Buy</>
+            )}
+          </button>
+          {((!hasAnyAllowance && stagedTradeAmounts == null) ||
+            !hasEnoughAllowance) && (
+            <button
+              type="button"
+              onClick={asWrappedTransaction(
+                "set allowance",
+                setAllowance,
+                setError
+              )}
+            >
+              {ongoingTransactionType === "set allowance" ? (
+                <Spinner centered inverted width={25} height={25} />
+              ) : (
+                "Approve Market Maker for Trades"
+              )}
+            </button>
           )}
-        </button>
+        </>
       )}
       {error && (
         <span className={cn("error")}>
@@ -358,7 +366,8 @@ BuySection.propTypes = {
   lmsrState: PropTypes.shape({
     funding: PropTypes.instanceOf(BN).isRequired,
     positionBalances: PropTypes.arrayOf(PropTypes.instanceOf(BN).isRequired)
-      .isRequired
+      .isRequired,
+    stage: PropTypes.string.isRequired
   }),
   lmsrAllowance: PropTypes.instanceOf(BN),
   marketSelections: PropTypes.arrayOf(

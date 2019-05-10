@@ -1,31 +1,33 @@
 import React from "react";
 import PropTypes from "prop-types";
 import Decimal from "decimal.js-light";
+import { oneDecimal, minDisplayedProbability } from "./utils/constants";
 import { formatProbability } from "./utils/formatting";
 
 import cn from "classnames";
 
-const OutcomesBinary = ({ probabilities, stagedProbabilities, isResolved }) => {
+const OutcomesBinary = ({ probabilities, stagedProbabilities }) => {
   const color = "lightblue";
   const probability = probabilities != null ? probabilities[0] : null;
 
   let stagedProbability;
-  let predictedProbabilityDifference;
-  let absPredictedProbabilityDifference;
-  let displayPredictionProbability;
+  let stagedProbabilityDifference;
+  let absStagedProbabilityDifference;
+  let shouldDisplayStagedProbability;
   let estimatedHintPosition;
   if (stagedProbabilities != null) {
     stagedProbability = stagedProbabilities[0];
-    predictedProbabilityDifference = stagedProbability.sub(probability);
-    absPredictedProbabilityDifference = predictedProbabilityDifference.abs();
-    displayPredictionProbability =
-      absPredictedProbabilityDifference.gte("0.0001") && !isResolved;
+    stagedProbabilityDifference = stagedProbability.sub(probability);
+    absStagedProbabilityDifference = stagedProbabilityDifference.abs();
+    shouldDisplayStagedProbability = absStagedProbabilityDifference.gte(
+      minDisplayedProbability
+    );
 
     estimatedHintPosition = probability.add(stagedProbability).mul(0.5);
   }
 
   return (
-    <div className={cn("binary-outcome", { closed: isResolved })}>
+    <div className={cn("binary-outcome")}>
       <div className={cn("bar")} style={{ color }}>
         <div
           className={cn("inner")}
@@ -41,7 +43,7 @@ const OutcomesBinary = ({ probabilities, stagedProbabilities, isResolved }) => {
             </span>
           </div>
         </div>
-        {displayPredictionProbability && (
+        {shouldDisplayStagedProbability && (
           <div
             className={cn("prediction", {
               inverted: stagedProbability.lt(probability),
@@ -55,24 +57,19 @@ const OutcomesBinary = ({ probabilities, stagedProbabilities, isResolved }) => {
                 ? formatProbability(probability)
                 : "auto",
               right: stagedProbability.lt(probability)
-                ? formatProbability(new Decimal(1).sub(probability))
+                ? formatProbability(oneDecimal.sub(probability))
                 : "auto",
-              width: formatProbability(absPredictedProbabilityDifference)
+              width: formatProbability(absStagedProbabilityDifference)
             }}
           >
-            {displayPredictionProbability && (
+            {shouldDisplayStagedProbability && (
               <div className={cn("hint")}>
                 <span className={cn("text")}>
                   <small>PREDICTED CHANGE</small>{" "}
-                  {formatProbability(predictedProbabilityDifference)}
+                  {formatProbability(stagedProbabilityDifference)}
                 </span>
               </div>
             )}
-          </div>
-        )}
-        {isResolved && (
-          <div className={cn("predictions-before-close")}>
-            <em>Final Predictions before market was resolved</em>
           </div>
         )}
       </div>
@@ -84,8 +81,7 @@ OutcomesBinary.propTypes = {
   probabilities: PropTypes.arrayOf(PropTypes.instanceOf(Decimal).isRequired),
   stagedProbabilities: PropTypes.arrayOf(
     PropTypes.instanceOf(Decimal).isRequired
-  ),
-  isResolved: PropTypes.bool.isRequired
+  )
 };
 
 export default OutcomesBinary;

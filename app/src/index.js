@@ -13,7 +13,7 @@ async function loadWeb3() {
   return web3;
 }
 
-async function loadBasicData(web3) {
+async function loadBasicData(web3, Decimal) {
   const { soliditySha3 } = web3.utils;
 
   const [
@@ -57,6 +57,8 @@ async function loadBasicData(web3) {
   collateral.name = await collateral.contract.name();
   collateral.symbol = await collateral.contract.symbol();
   collateral.decimals = (await collateral.contract.decimals()).toNumber();
+  collateral.toUnitsMultiplier = new Decimal(10).pow(collateral.decimals);
+  collateral.fromUnitsMultiplier = new Decimal(10).pow(-collateral.decimals);
 
   collateral.isWETH =
     collateral.name === "Wrapped Ether" &&
@@ -89,6 +91,7 @@ async function loadBasicData(web3) {
         }`
       );
 
+    market.marketIndex = i;
     market.conditionId = conditionId;
     market.outcomes.forEach((outcome, i) => {
       outcome.collectionId = soliditySha3(
@@ -110,7 +113,7 @@ async function loadBasicData(web3) {
     ...markets
       .slice()
       .reverse()
-      .map(({ conditionId, outcomes }, marketIndex) =>
+      .map(({ conditionId, outcomes, marketIndex }) =>
         outcomes.map((outcome, outcomeIndex) => ({
           ...outcome,
           conditionId,
@@ -198,6 +201,27 @@ async function getLMSRState(web3, pmSystem, lmsrMarketMaker, positions) {
   return { owner, funding, stage, fee, positionBalances };
 }
 
+async function getMarketResolutionStates(pmSystem, markets) {
+  return await Promise.all(
+    markets.map(async ({ conditionId, outcomes }) => {
+      const payoutDenominator = await pmSystem.payoutDenominator(conditionId);
+      if (payoutDenominator.gtn(0)) {
+        const payoutNumerators = await Promise.all(
+          outcomes.map((_, outcomeIndex) =>
+            pmSystem.payoutNumerators(conditionId, outcomeIndex)
+          )
+        );
+
+        return {
+          isResolved: true,
+          payoutNumerators,
+          payoutDenominator
+        };
+      } else return { isResolved: false };
+    })
+  );
+}
+
 async function getPositionBalances(pmSystem, positions, account) {
   return await Promise.all(
     positions.map(position => pmSystem.balanceOf(account, position.id))
@@ -251,7 +275,7 @@ Promise.all([
 
       useEffect(() => {
         loadWeb3()
-          .then(web3 => (setWeb3(web3), loadBasicData(web3)))
+          .then(web3 => (setWeb3(web3), loadBasicData(web3, Decimal)))
           .then(
             ({ pmSystem, lmsrMarketMaker, collateral, markets, positions }) => {
               setPMSystem(pmSystem);
@@ -270,6 +294,9 @@ Promise.all([
 
       const [account, setAccount] = useState(null);
       const [lmsrState, setLMSRState] = useState(null);
+      const [marketResolutionStates, setMarketResolutionStates] = useState(
+        null
+      );
       const [collateralBalance, setCollateralBalance] = useState(null);
       const [positionBalances, setPositionBalances] = useState(null);
       const [lmsrAllowance, setLMSRAllowance] = useState(null);
@@ -280,6 +307,11 @@ Promise.all([
           getLMSRState,
           [web3, pmSystem, lmsrMarketMaker, positions],
           setLMSRState
+        ],
+        [
+          getMarketResolutionStates,
+          [pmSystem, markets],
+          setMarketResolutionStates
         ],
         [
           getCollateralBalance,
@@ -346,6 +378,7 @@ Promise.all([
               <Markets
                 {...{
                   markets,
+                  marketResolutionStates,
                   positions,
                   lmsrState,
                   marketSelections,
@@ -381,6 +414,7 @@ Promise.all([
                   account,
                   pmSystem,
                   markets,
+                  marketResolutionStates,
                   positions,
                   collateral,
                   lmsrMarketMaker,

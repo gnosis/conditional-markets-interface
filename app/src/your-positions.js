@@ -4,12 +4,13 @@ import Web3 from "web3";
 import Decimal from "decimal.js-light";
 import PositionGroupDetails from "./position-group-details";
 import Spinner from "./spinner";
+import { zeroDecimal } from "./utils/constants";
 import { formatCollateral } from "./utils/formatting";
 import { calcPositionGroups } from "./utils/position-groups";
 
 import cn from "classnames";
 
-const { BN } = Web3.utils;
+const { BN, toBN, padLeft, soliditySha3, toHex } = Web3.utils;
 
 function calcNetCost({ funding, positionBalances }, tradeAmounts) {
   const invB = new Decimal(positionBalances.length)
@@ -24,7 +25,7 @@ function calcNetCost({ funding, positionBalances }, tradeAmounts) {
             .mul(invB)
             .exp()
         ),
-      new Decimal(0)
+      zeroDecimal
     )
     .ln()
     .div(invB);
@@ -34,6 +35,7 @@ const YourPositions = ({
   account,
   pmSystem,
   markets,
+  marketResolutionStates,
   positions,
   collateral,
   lmsrMarketMaker,
@@ -90,9 +92,7 @@ const YourPositions = ({
     }
 
     try {
-      const saleAmountInUnits = new Decimal(10)
-        .pow(collateral.decimals)
-        .mul(saleAmount);
+      const saleAmountInUnits = collateral.toUnitsMultiplier.mul(saleAmount);
 
       if (!saleAmountInUnits.isInteger())
         throw new Error(
@@ -113,7 +113,7 @@ const YourPositions = ({
           salePositionGroup.positions.find(
             ({ positionIndex }) => positionIndex === i
           ) == null
-            ? new Decimal(0)
+            ? zeroDecimal
             : saleAmountInUnits.neg()
       );
 
@@ -155,110 +155,238 @@ const YourPositions = ({
     });
   }
 
+  const marketStage = lmsrState && lmsrState.stage;
+
+  const allMarketsResolved =
+    marketResolutionStates &&
+    marketResolutionStates.every(({ isResolved }) => isResolved);
+  const [redemptionAmount, setRedemptionAmount] = useState(null);
+  useEffect(() => {
+    setRedemptionAmount(
+      allMarketsResolved
+        ? positionBalances.reduce(
+            (payoutSum, balance, positionIndex) =>
+              payoutSum.add(
+                positions[positionIndex].outcomes.reduce(
+                  (payoutProduct, { marketIndex, outcomeIndex }) =>
+                    payoutProduct
+                      .mul(
+                        marketResolutionStates[marketIndex].payoutNumerators[
+                          outcomeIndex
+                        ]
+                      )
+                      .div(
+                        marketResolutionStates[marketIndex].payoutDenominator
+                      ),
+                  balance
+                )
+              ),
+            toBN(0)
+          )
+        : null
+    );
+  }, [positions, positionBalances, marketResolutionStates]);
+
+  async function redeemPositions() {
+    if (!allMarketsResolved)
+      throw new Error("Can't redeem until all markets resolved");
+
+    async function redeemPositionsThroughAllMarkets(
+      marketsLeft,
+      parentCollectionId
+    ) {
+      if (marketsLeft === 0) return;
+
+      const market = markets[marketsLeft - 1];
+      const indexSets = [];
+      for (
+        let outcomeIndex = 0;
+        outcomeIndex < market.outcomes.length;
+        outcomeIndex++
+      ) {
+        const outcome = market.outcomes[outcomeIndex];
+        const childCollectionId = padLeft(
+          toHex(
+            toBN(parentCollectionId)
+              .add(toBN(outcome.collectionId))
+              .maskn(256)
+          ),
+          64
+        );
+
+        const childPositionId = soliditySha3(
+          { t: "address", v: collateral.address },
+          { t: "uint", v: childCollectionId }
+        );
+
+        await redeemPositionsThroughAllMarkets(
+          marketsLeft - 1,
+          childCollectionId
+        );
+
+        if ((await pmSystem.balanceOf(account, childPositionId)).gtn(0)) {
+          indexSets.push(toBN(1).shln(outcomeIndex));
+        }
+      }
+
+      if (indexSets.length > 0) {
+        await pmSystem.redeemPositions(
+          collateral.address,
+          parentCollectionId,
+          market.conditionId,
+          indexSets,
+          { from: account }
+        );
+      }
+    }
+
+    await redeemPositionsThroughAllMarkets(
+      markets.length,
+      `0x${"0".repeat(64)}`
+    );
+  }
+
   return (
     <div className={cn("your-positions")}>
       <h2>Positions</h2>
       {positionGroups == null ? (
         <Spinner width={25} height={25} />
       ) : positionGroups.length === 0 ? (
-        <em>{"You don't hold any positions yet."}</em>
+        <em>{"You don't hold any positions."}</em>
       ) : (
-        positionGroups.map(positionGroup => {
-          const isSalePositionGroup =
-            salePositionGroup != null &&
-            salePositionGroup.collectionId === positionGroup.collectionId;
-
-          return (
-            <div key={positionGroup.collectionId} className={cn("position")}>
-              <div className={cn("row", "details")}>
-                <PositionGroupDetails
-                  {...{
-                    positionGroup,
-                    collateral
-                  }}
-                />
-                <div className={cn("controls")}>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSalePositionGroup(
-                        isSalePositionGroup ? null : positionGroup
-                      );
-                      setSaleAmount("");
-                    }}
-                  >
-                    Sell
-                  </button>
-                </div>
+        <>
+          {allMarketsResolved && (
+            <>
+              <p>
+                Redeeming your positions will net you a total of{" "}
+                {formatCollateral(redemptionAmount, collateral)}
+              </p>
+              <div className={cn("controls")}>
+                <button
+                  type="button"
+                  disabled={ongoingTransactionType != null}
+                  onClick={asWrappedTransaction(
+                    "redeem positions",
+                    redeemPositions,
+                    setError
+                  )}
+                >
+                  {ongoingTransactionType === "redeem positions" ? (
+                    <Spinner inverted width={25} height={25} />
+                  ) : (
+                    <>Redeem Positions</>
+                  )}
+                </button>
               </div>
-              {isSalePositionGroup && (
-                <div className={cn("row", "sell")}>
-                  <p>
-                    You can sell a maximum amount of{" "}
-                    {formatCollateral(positionGroup.amount, collateral)} of this
-                    position.
-                  </p>
-                  <div className={cn("controls")}>
-                    <input
-                      type="text"
-                      value={saleAmount}
-                      placeholder="Amount of tokens to sell"
-                      onChange={e => {
-                        setSaleAmount(e.target.value);
-                      }}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setSaleAmount(
-                          new Decimal(10)
-                            .pow(-collateral.decimals)
-                            .mul(positionGroup.amount.toString())
-                            .toFixed()
-                        );
-                      }}
-                    >
-                      Max Amount
-                    </button>
-                    <button
-                      type="button"
-                      disabled={
-                        stagedTradeAmounts == null ||
-                        stagedTransactionType !== "sell outcome tokens" ||
-                        ongoingTransactionType != null ||
-                        error != null
-                      }
-                      onClick={asWrappedTransaction(
-                        "sell outcome tokens",
-                        sellOutcomeTokens,
-                        setError
-                      )}
-                    >
-                      {ongoingTransactionType === "sell outcome tokens" ? (
-                        <Spinner inverted width={25} height={25} />
-                      ) : (
-                        <>Confirm</>
-                      )}
-                    </button>
-                  </div>
-                  <div className={cn("row", "messages")}>
-                    <>
-                      {estimatedSaleEarnings && estimatedSaleEarnings > 0 && (
-                        <span>
-                          Estimated earnings from sale:{" "}
-                          {formatCollateral(estimatedSaleEarnings, collateral)}
-                        </span>
-                      )}
-                    </>
-                    {error != null && (
-                      <span className={cn("error")}>{error.message}</span>
-                    )}
-                  </div>
-                </div>
+              {error != null && (
+                <span className={cn("error")}>{error.message}</span>
               )}
-            </div>
-          );
-        })
+            </>
+          )}
+          {positionGroups.map(positionGroup => {
+            const isSalePositionGroup =
+              salePositionGroup != null &&
+              salePositionGroup.collectionId === positionGroup.collectionId;
+
+            return (
+              <div key={positionGroup.collectionId} className={cn("position")}>
+                <div className={cn("row", "details")}>
+                  <PositionGroupDetails
+                    {...{
+                      positionGroup,
+                      collateral
+                    }}
+                  />
+                  {marketStage !== "Closed" && (
+                    <div className={cn("controls")}>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSalePositionGroup(
+                            isSalePositionGroup ? null : positionGroup
+                          );
+                          setSaleAmount("");
+                        }}
+                      >
+                        Sell
+                      </button>
+                    </div>
+                  )}
+                </div>
+                {isSalePositionGroup && marketStage !== "Closed" && (
+                  <div className={cn("row", "sell")}>
+                    <p>
+                      You can sell a maximum amount of{" "}
+                      {formatCollateral(positionGroup.amount, collateral)} of
+                      this position.
+                    </p>
+                    <div className={cn("controls")}>
+                      <input
+                        type="text"
+                        value={saleAmount}
+                        placeholder="Amount of tokens to sell"
+                        onChange={e => {
+                          setSaleAmount(e.target.value);
+                        }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSaleAmount(
+                            collateral.fromUnitsMultiplier
+                              .mul(positionGroup.amount.toString())
+                              .toFixed()
+                          );
+                        }}
+                      >
+                        Max Amount
+                      </button>
+                      <button
+                        type="button"
+                        disabled={
+                          stagedTradeAmounts == null ||
+                          stagedTransactionType !== "sell outcome tokens" ||
+                          ongoingTransactionType != null ||
+                          marketStage !== "Running" ||
+                          error != null
+                        }
+                        onClick={asWrappedTransaction(
+                          "sell outcome tokens",
+                          sellOutcomeTokens,
+                          setError
+                        )}
+                      >
+                        {ongoingTransactionType === "sell outcome tokens" ? (
+                          <Spinner inverted width={25} height={25} />
+                        ) : marketStage === "Paused" ? (
+                          <>[Market paused]</>
+                        ) : (
+                          <>Confirm</>
+                        )}
+                      </button>
+                    </div>
+                    <div className={cn("row", "messages")}>
+                      <>
+                        {estimatedSaleEarnings && estimatedSaleEarnings > 0 && (
+                          <span>
+                            Estimated earnings from sale:{" "}
+                            {formatCollateral(
+                              estimatedSaleEarnings,
+                              collateral
+                            )}
+                          </span>
+                        )}
+                      </>
+                      {error != null && (
+                        <span className={cn("error")}>{error.message}</span>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </>
       )}
     </div>
   );
@@ -280,6 +408,13 @@ YourPositions.propTypes = {
       ).isRequired
     }).isRequired
   ).isRequired,
+  marketResolutionStates: PropTypes.arrayOf(
+    PropTypes.shape({
+      isResolved: PropTypes.bool.isRequired,
+      payoutNumerators: PropTypes.arrayOf(PropTypes.instanceOf(BN).isRequired),
+      payoutDenominator: PropTypes.instanceOf(BN)
+    }).isRequired
+  ),
   positions: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.string.isRequired,
@@ -294,7 +429,8 @@ YourPositions.propTypes = {
   lmsrState: PropTypes.shape({
     funding: PropTypes.instanceOf(BN).isRequired,
     positionBalances: PropTypes.arrayOf(PropTypes.instanceOf(BN).isRequired)
-      .isRequired
+      .isRequired,
+    stage: PropTypes.string.isRequired
   }),
   positionBalances: PropTypes.arrayOf(PropTypes.instanceOf(BN).isRequired),
   stagedTradeAmounts: PropTypes.arrayOf(

@@ -1,9 +1,8 @@
 import Web3 from "web3";
+import { maxUint256BN } from "./constants";
 import { product, combinations } from "./itertools";
 
 const { toBN, toHex, padLeft } = Web3.utils;
-
-const maxUint256 = Web3.utils.toBN(`0x${"ff".repeat(32)}`);
 
 export function calcPositionGroups(markets, positions, positionAmounts) {
   const positionGroups = [];
@@ -38,7 +37,7 @@ export function calcPositionGroups(markets, positions, positionAmounts) {
               ? accRunningAmount
               : runningPositionAmounts[positionIndex]
           ],
-          [maxUint256, maxUint256]
+          [maxUint256BN, maxUint256BN]
         );
 
         if (groupRunningAmount.gtn(0)) {
