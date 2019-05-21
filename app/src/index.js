@@ -1,6 +1,31 @@
 import("normalize.css/normalize.css");
 import("./style.scss");
 
+function getNetworkName(networkId) {
+  // https://ethereum.stackexchange.com/a/17101
+  return (
+    {
+      [0]: "Olympic",
+      [1]: "Mainnet",
+      [2]: "Morden Classic",
+      [3]: "Ropsten",
+      [4]: "Rinkeby",
+      [5]: "Goerli",
+      [6]: "Kotti Classic",
+      [8]: "Ubiq",
+      [42]: "Kovan",
+      [60]: "GoChain",
+      [77]: "Sokol",
+      [99]: "Core",
+      [100]: "xDai",
+      [31337]: "GoChain testnet",
+      [401697]: "Tobalaba",
+      [7762959]: "Musicoin",
+      [61717561]: "Aquachain"
+    }[networkId] || `Network ID ${networkId}`
+  );
+}
+
 async function loadWeb3() {
   const { default: Web3 } = await import("web3");
   const web3 =
@@ -10,17 +35,23 @@ async function loadWeb3() {
       ? (window.ethereum.enable(), new Web3(window.ethereum))
       : new Web3(window.web3.currentProvider);
 
-  return web3;
+  // attempt to get the main account here
+  // so that web3 will emit an error if e.g.
+  // the localhost provider cannot be reached
+  const account = await getAccount(web3);
+
+  return { web3, account };
 }
 
 async function loadBasicData(web3, Decimal) {
-  const { soliditySha3 } = web3.utils;
+  const { soliditySha3, hexToUtf8 } = web3.utils;
 
   const [
-    { lmsrAddress, markets },
+    { lmsrAddress, markets, networkId },
     { default: TruffleContract },
     { product },
     ERC20DetailedArtifact,
+    IDSTokenArtifact,
     WETH9Artifact,
     PredictionMarketSystemArtifact,
     LMSRMarketMakerArtifact
@@ -29,12 +60,14 @@ async function loadBasicData(web3, Decimal) {
     import("truffle-contract"),
     import("./utils/itertools"),
     import("../../build/contracts/ERC20Detailed.json"),
+    import("../../build/contracts/IDSToken.json"),
     import("../../build/contracts/WETH9.json"),
     import("../../build/contracts/PredictionMarketSystem.json"),
     import("../../build/contracts/LMSRMarketMaker.json")
   ]);
 
   const ERC20Detailed = TruffleContract(ERC20DetailedArtifact);
+  const IDSToken = TruffleContract(IDSTokenArtifact);
   const WETH9 = TruffleContract(WETH9Artifact);
   const PredictionMarketSystem = TruffleContract(
     PredictionMarketSystemArtifact
@@ -42,6 +75,7 @@ async function loadBasicData(web3, Decimal) {
   const LMSRMarketMaker = TruffleContract(LMSRMarketMakerArtifact);
   for (const Contract of [
     ERC20Detailed,
+    IDSToken,
     WETH9,
     PredictionMarketSystem,
     LMSRMarketMaker
@@ -54,9 +88,18 @@ async function loadBasicData(web3, Decimal) {
   const collateral = {};
   collateral.address = await lmsrMarketMaker.collateralToken();
   collateral.contract = await ERC20Detailed.at(collateral.address);
-  collateral.name = await collateral.contract.name();
-  collateral.symbol = await collateral.contract.symbol();
-  collateral.decimals = (await collateral.contract.decimals()).toNumber();
+
+  try {
+    collateral.name = await collateral.contract.name();
+    collateral.symbol = await collateral.contract.symbol();
+    collateral.decimals = (await collateral.contract.decimals()).toNumber();
+  } catch (e) {
+    collateral.contract = await IDSToken.at(collateral.address);
+    collateral.name = hexToUtf8(await collateral.contract.name());
+    collateral.symbol = hexToUtf8(await collateral.contract.symbol());
+    collateral.decimals = (await collateral.contract.decimals()).toNumber();
+  }
+
   collateral.toUnitsMultiplier = new Decimal(10).pow(collateral.decimals);
   collateral.fromUnitsMultiplier = new Decimal(10).pow(-collateral.decimals);
 
@@ -65,10 +108,16 @@ async function loadBasicData(web3, Decimal) {
     collateral.symbol === "WETH" &&
     collateral.decimals === 18;
 
-  // TODO: DAI: \u25C8
+  collateral.isDAI =
+    collateral.name === "Dai Stablecoin v1.0" &&
+    collateral.symbol === "DAI" &&
+    collateral.decimals === 18;
+
   if (collateral.isWETH) {
     collateral.symbol = "\u039E";
     collateral.contract = await WETH9.at(collateral.address);
+  } else if (collateral.isDAI) {
+    collateral.symbol = "\u25C8";
   }
 
   const pmSystem = await PredictionMarketSystem.deployed();
@@ -156,7 +205,15 @@ async function loadBasicData(web3, Decimal) {
     }
   }
 
-  return { pmSystem, lmsrMarketMaker, collateral, markets, positions };
+  return {
+    web3,
+    networkId,
+    pmSystem,
+    lmsrMarketMaker,
+    collateral,
+    markets,
+    positions
+  };
 }
 
 async function getAccount(web3) {
@@ -168,6 +225,14 @@ async function getAccount(web3) {
     return accounts[0];
   }
   return web3.defaultAccount;
+}
+
+async function validateNetworkId(web3, networkId) {
+  const web3NetworkId = await web3.eth.net.getId();
+  if (web3NetworkId != networkId)
+    throw new Error(
+      `interface expects ${networkId} but currently connected to ${web3NetworkId}`
+    );
 }
 
 async function getCollateralBalance(web3, collateral, account) {
@@ -236,6 +301,7 @@ Promise.all([
   import("react"),
   import("react-dom"),
   import("classnames"),
+  import("@use-it/interval"),
   import("decimal.js-light"),
   import("./markets"),
   import("./buy-section"),
@@ -246,6 +312,7 @@ Promise.all([
     { default: React, useState, useEffect },
     { render },
     { default: cn },
+    { default: useInterval },
     { default: Decimal },
     { default: Markets },
     { default: BuySection },
@@ -265,8 +332,11 @@ Promise.all([
       function triggerSync() {
         setSyncTime(Date.now());
       }
+      useInterval(triggerSync, 2000);
 
+      const [networkId, setNetworkId] = useState(null);
       const [web3, setWeb3] = useState(null);
+      const [account, setAccount] = useState(null);
       const [pmSystem, setPMSystem] = useState(null);
       const [lmsrMarketMaker, setLMSRMarketMaker] = useState(null);
       const [collateral, setCollateral] = useState(null);
@@ -275,14 +345,29 @@ Promise.all([
 
       useEffect(() => {
         loadWeb3()
-          .then(web3 => (setWeb3(web3), loadBasicData(web3, Decimal)))
           .then(
-            ({ pmSystem, lmsrMarketMaker, collateral, markets, positions }) => {
+            ({ web3, account }) => (
+              setWeb3(web3), setAccount(account), loadBasicData(web3, Decimal)
+            )
+          )
+          .then(
+            async ({
+              web3,
+              networkId,
+              pmSystem,
+              lmsrMarketMaker,
+              collateral,
+              markets,
+              positions
+            }) => {
+              setNetworkId(networkId);
               setPMSystem(pmSystem);
               setLMSRMarketMaker(lmsrMarketMaker);
               setCollateral(collateral);
               setMarkets(markets);
               setPositions(positions);
+
+              await validateNetworkId(web3, networkId);
               setLoading("SUCCESS");
             }
           )
@@ -292,7 +377,6 @@ Promise.all([
           });
       }, []);
 
-      const [account, setAccount] = useState(null);
       const [lmsrState, setLMSRState] = useState(null);
       const [marketResolutionStates, setMarketResolutionStates] = useState(
         null
@@ -302,7 +386,6 @@ Promise.all([
       const [lmsrAllowance, setLMSRAllowance] = useState(null);
 
       for (const [loader, dependentParams, setter] of [
-        [getAccount, [web3], setAccount],
         [
           getLMSRState,
           [web3, pmSystem, lmsrMarketMaker, positions],
@@ -444,7 +527,7 @@ Promise.all([
             <h2>Failed to load 😞</h2>
             <h3>Please check the following:</h3>
             <ul>
-              <li>Connect to correct network (Rinkeby or Mainnet)</li>
+              <li>Connect to correct network ({getNetworkName(networkId)})</li>
               <li>Install/Unlock Metamask</li>
             </ul>
           </div>

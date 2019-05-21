@@ -112,9 +112,10 @@ const BuySection = ({
   const [investmentAmount, setInvestmentAmount] = useState("");
   const [error, setError] = useState(null);
   useEffect(() => {
+    if (stagedTransactionType !== "buy outcome tokens") return;
+
     if (investmentAmount === "") {
       setStagedTradeAmounts(null);
-      setStagedTransactionType("buy outcome tokens");
       setError(null);
       return;
     }
@@ -152,10 +153,9 @@ const BuySection = ({
     } catch (e) {
       setStagedTradeAmounts(null);
       setError(e);
-    } finally {
-      setStagedTransactionType("buy outcome tokens");
     }
   }, [
+    stagedTransactionType,
     positions,
     collateral,
     collateralBalance,
@@ -250,6 +250,7 @@ const BuySection = ({
             placeholder={`Investment amount in ${collateral.name}`}
             value={investmentAmount}
             onChange={e => {
+              setStagedTransactionType("buy outcome tokens");
               setInvestmentAmount(e.target.value);
             }}
           />
@@ -359,7 +360,7 @@ BuySection.propTypes = {
   }).isRequired,
   collateralBalance: PropTypes.shape({
     amount: PropTypes.instanceOf(BN).isRequired,
-    unwrappedAmount: PropTypes.instanceOf(BN).isRequired,
+    unwrappedAmount: PropTypes.instanceOf(BN),
     totalAmount: PropTypes.instanceOf(BN).isRequired
   }),
   lmsrMarketMaker: PropTypes.object.isRequired,

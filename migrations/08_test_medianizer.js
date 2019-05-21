@@ -1,4 +1,7 @@
 module.exports = function(deployer) {
-  if (artifacts.require("Medianizer").address == null)
+  try {
+    artifacts.require("Medianizer").address;
+  } catch (e) {
     deployer.deploy(artifacts.require("TestMedianizer"));
+  }
 };
