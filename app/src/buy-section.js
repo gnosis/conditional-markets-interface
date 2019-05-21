@@ -359,7 +359,7 @@ BuySection.propTypes = {
   }).isRequired,
   collateralBalance: PropTypes.shape({
     amount: PropTypes.instanceOf(BN).isRequired,
-    unwrappedAmount: PropTypes.instanceOf(BN).isRequired,
+    unwrappedAmount: PropTypes.instanceOf(BN),
     totalAmount: PropTypes.instanceOf(BN).isRequired
   }),
   lmsrMarketMaker: PropTypes.object.isRequired,
