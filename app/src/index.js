@@ -1,6 +1,31 @@
 import("normalize.css/normalize.css");
 import("./style.scss");
 
+function getNetworkName(networkId) {
+  // https://ethereum.stackexchange.com/a/17101
+  return (
+    {
+      [0]: "Olympic",
+      [1]: "Mainnet",
+      [2]: "Morden Classic",
+      [3]: "Ropsten",
+      [4]: "Rinkeby",
+      [5]: "Goerli",
+      [6]: "Kotti Classic",
+      [8]: "Ubiq",
+      [42]: "Kovan",
+      [60]: "GoChain",
+      [77]: "Sokol",
+      [99]: "Core",
+      [100]: "xDai",
+      [31337]: "GoChain testnet",
+      [401697]: "Tobalaba",
+      [7762959]: "Musicoin",
+      [61717561]: "Aquachain"
+    }[networkId] || `Network ID ${networkId}`
+  );
+}
+
 async function loadWeb3() {
   const { default: Web3 } = await import("web3");
   const web3 =
@@ -22,7 +47,7 @@ async function loadBasicData(web3, Decimal) {
   const { soliditySha3 } = web3.utils;
 
   const [
-    { lmsrAddress, markets },
+    { lmsrAddress, markets, networkId },
     { default: TruffleContract },
     { product },
     ERC20DetailedArtifact,
@@ -161,7 +186,15 @@ async function loadBasicData(web3, Decimal) {
     }
   }
 
-  return { pmSystem, lmsrMarketMaker, collateral, markets, positions };
+  return {
+    web3,
+    networkId,
+    pmSystem,
+    lmsrMarketMaker,
+    collateral,
+    markets,
+    positions
+  };
 }
 
 async function getAccount(web3) {
@@ -173,6 +206,14 @@ async function getAccount(web3) {
     return accounts[0];
   }
   return web3.defaultAccount;
+}
+
+async function validateNetworkId(web3, networkId) {
+  const web3NetworkId = await web3.eth.net.getId();
+  if (web3NetworkId != networkId)
+    throw new Error(
+      `interface expects ${networkId} but currently connected to ${web3NetworkId}`
+    );
 }
 
 async function getCollateralBalance(web3, collateral, account) {
@@ -271,6 +312,7 @@ Promise.all([
         setSyncTime(Date.now());
       }
 
+      const [networkId, setNetworkId] = useState(null);
       const [web3, setWeb3] = useState(null);
       const [account, setAccount] = useState(null);
       const [pmSystem, setPMSystem] = useState(null);
@@ -287,12 +329,23 @@ Promise.all([
             )
           )
           .then(
-            ({ pmSystem, lmsrMarketMaker, collateral, markets, positions }) => {
+            async ({
+              web3,
+              networkId,
+              pmSystem,
+              lmsrMarketMaker,
+              collateral,
+              markets,
+              positions
+            }) => {
+              setNetworkId(networkId);
               setPMSystem(pmSystem);
               setLMSRMarketMaker(lmsrMarketMaker);
               setCollateral(collateral);
               setMarkets(markets);
               setPositions(positions);
+
+              await validateNetworkId(web3, networkId);
               setLoading("SUCCESS");
             }
           )
@@ -452,7 +505,7 @@ Promise.all([
             <h2>Failed to load 😞</h2>
             <h3>Please check the following:</h3>
             <ul>
-              <li>Connect to correct network (Rinkeby or Mainnet)</li>
+              <li>Connect to correct network ({getNetworkName(networkId)})</li>
               <li>Install/Unlock Metamask</li>
             </ul>
           </div>
