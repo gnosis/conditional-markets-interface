@@ -1,4 +1,3 @@
-const rlp = require("rlp");
 const writeToConfig = require("./utils/writeToConfig");
 
 const defaultAMMFunding = web3.utils.toBN(1e19);
@@ -23,33 +22,24 @@ module.exports = function(deployer) {
       .require("LMSRMarketMakerFactory")
       .deployed();
 
-    const lmsrAddress = web3.utils.toChecksumAddress(
-      web3.utils
-        .keccak256(
-          rlp.encode([
-            lmsrMarketMakerFactory.address,
-            await web3.eth.getTransactionCount(lmsrMarketMakerFactory.address)
-          ])
-        )
-        .substr(26)
-    );
-
     await collateralToken.deposit({
       value: process.env.AMMFUNDING || defaultAMMFunding
     });
 
     await collateralToken.approve(
-      lmsrAddress,
+      lmsrMarketMakerFactory.address,
       process.env.AMMFUNDING || defaultAMMFunding
     );
 
-    await lmsrMarketMakerFactory.createLMSRMarketMaker(
+    const lmsrAddress = (await lmsrMarketMakerFactory.createLMSRMarketMaker(
       artifacts.require("PredictionMarketSystem").address,
       collateralToken.address,
       conditionIds,
       0,
       process.env.AMMFUNDING || defaultAMMFunding
-    );
+    )).logs.find(({ event }) => event === "LMSRMarketMakerCreation").args
+      .lmsrMarketMaker;
+
     writeToConfig({
       networkId: await web3.eth.net.getId(),
       lmsrAddress

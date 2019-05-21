@@ -1,5 +1,5 @@
 {
-  "lmsrAddress": "0xCa24282be001a428d27FdAC4676561c2EB1DE393",
+  "lmsrAddress": "0xE4AabE5DE10a538232a10d5cd33B5754828f6288",
   "markets": [
     {
       "title": "Will be the block difficulty for Ethereum Mainnet be higher than 3000?",
@@ -50,5 +50,5 @@
       ]
     }
   ],
-  "networkId": 1557273703102
+  "networkId": 4
 }
