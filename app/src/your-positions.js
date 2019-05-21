@@ -83,10 +83,11 @@ const YourPositions = ({
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    if (stagedTransactionType !== "sell outcome tokens") return;
+
     if (saleAmount === "") {
       setStagedTradeAmounts(null);
       setEstimatedSaleEarnings(null);
-      setStagedTransactionType("sell outcome tokens");
       setError(null);
       return;
     }
@@ -128,10 +129,15 @@ const YourPositions = ({
       setStagedTradeAmounts(null);
       setEstimatedSaleEarnings(null);
       setError(e);
-    } finally {
-      setStagedTransactionType("sell outcome tokens");
     }
-  }, [collateral, positions, lmsrState, salePositionGroup, saleAmount]);
+  }, [
+    stagedTransactionType,
+    collateral,
+    positions,
+    lmsrState,
+    salePositionGroup,
+    saleAmount
+  ]);
 
   async function sellOutcomeTokens() {
     if (stagedTradeAmounts == null) throw new Error(`No sell set yet`);
@@ -302,6 +308,7 @@ const YourPositions = ({
                       <button
                         type="button"
                         onClick={() => {
+                          setStagedTransactionType("sell outcome tokens");
                           setSalePositionGroup(
                             isSalePositionGroup ? null : positionGroup
                           );
@@ -326,12 +333,14 @@ const YourPositions = ({
                         value={saleAmount}
                         placeholder="Amount of tokens to sell"
                         onChange={e => {
+                          setStagedTransactionType("sell outcome tokens");
                           setSaleAmount(e.target.value);
                         }}
                       />
                       <button
                         type="button"
                         onClick={() => {
+                          setStagedTransactionType("sell outcome tokens");
                           setSaleAmount(
                             collateral.fromUnitsMultiplier
                               .mul(positionGroup.amount.toString())
