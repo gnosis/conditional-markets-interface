@@ -10,7 +10,12 @@ async function loadWeb3() {
       ? (window.ethereum.enable(), new Web3(window.ethereum))
       : new Web3(window.web3.currentProvider);
 
-  return web3;
+  // attempt to get the main account here
+  // so that web3 will emit an error if e.g.
+  // the localhost provider cannot be reached
+  const account = await getAccount(web3);
+
+  return { web3, account };
 }
 
 async function loadBasicData(web3, Decimal) {
@@ -267,6 +272,7 @@ Promise.all([
       }
 
       const [web3, setWeb3] = useState(null);
+      const [account, setAccount] = useState(null);
       const [pmSystem, setPMSystem] = useState(null);
       const [lmsrMarketMaker, setLMSRMarketMaker] = useState(null);
       const [collateral, setCollateral] = useState(null);
@@ -275,7 +281,11 @@ Promise.all([
 
       useEffect(() => {
         loadWeb3()
-          .then(web3 => (setWeb3(web3), loadBasicData(web3, Decimal)))
+          .then(
+            ({ web3, account }) => (
+              setWeb3(web3), setAccount(account), loadBasicData(web3, Decimal)
+            )
+          )
           .then(
             ({ pmSystem, lmsrMarketMaker, collateral, markets, positions }) => {
               setPMSystem(pmSystem);
@@ -292,7 +302,6 @@ Promise.all([
           });
       }, []);
 
-      const [account, setAccount] = useState(null);
       const [lmsrState, setLMSRState] = useState(null);
       const [marketResolutionStates, setMarketResolutionStates] = useState(
         null
@@ -302,7 +311,6 @@ Promise.all([
       const [lmsrAllowance, setLMSRAllowance] = useState(null);
 
       for (const [loader, dependentParams, setter] of [
-        [getAccount, [web3], setAccount],
         [
           getLMSRState,
           [web3, pmSystem, lmsrMarketMaker, positions],
