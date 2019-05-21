@@ -301,6 +301,7 @@ Promise.all([
   import("react"),
   import("react-dom"),
   import("classnames"),
+  import("@use-it/interval"),
   import("decimal.js-light"),
   import("./markets"),
   import("./buy-section"),
@@ -311,6 +312,7 @@ Promise.all([
     { default: React, useState, useEffect },
     { render },
     { default: cn },
+    { default: useInterval },
     { default: Decimal },
     { default: Markets },
     { default: BuySection },
@@ -330,6 +332,7 @@ Promise.all([
       function triggerSync() {
         setSyncTime(Date.now());
       }
+      useInterval(triggerSync, 2000);
 
       const [networkId, setNetworkId] = useState(null);
       const [web3, setWeb3] = useState(null);
