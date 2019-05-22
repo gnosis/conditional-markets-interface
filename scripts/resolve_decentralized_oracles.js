@@ -47,11 +47,11 @@ module.exports = callback => {
 
     try {
       if (answers.oracle == "Difficulty") {
-        await difficultyOracleInstance.resolveDifficulty();
+        await difficultyOracleInstance.resolveValue();
       } else if (answers.oracle == "GasLimit") {
-        await gasLimitOracleInstance.resolveGasLimit();
+        await gasLimitOracleInstance.resolveValue();
       } else if (answers.oracle == "ETHValue") {
-        await ethValueOracleInstance.resolveETHValue();
+        await ethValueOracleInstance.resolveValue();
       }
     } catch (err) {
       console.error(err);
