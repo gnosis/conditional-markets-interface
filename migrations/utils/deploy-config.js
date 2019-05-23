@@ -15,7 +15,7 @@ module.exports = {
   daiStabilityFeeResolutionTime:
     process.env.DAISTABILITYFEERESOLUTIONTIME || fiveMinutesFromNow,
   daiStabilityFeeTargetValue:
-    process.env.DAISTABILITYFEETARGETVALUE || "1000000005648978497166602433",
+    process.env.DAISTABILITYFEETARGETVALUE || "1000000005113779426955452540",
   daiStabilityFeeQuestionID: process.env.DAISTABILITYFEEQUESTIONID || "0x03",
 
   ammFunding: process.env.AMMFUNDING || "1000" + "0".repeat(18)
