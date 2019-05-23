@@ -42,7 +42,9 @@ const config = {
     mainnet: {
       provider: () =>
         new HDWalletProvider(seed, "https://node-green.mainnet.gnosis.pm"),
-      network_id: "1"
+      network_id: "1",
+      skipDryRun: true,
+      gasPrice: 3e9
     }
   },
   compilers: {

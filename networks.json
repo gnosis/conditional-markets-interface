@@ -1,10 +1,34 @@
 {
+  "DaiStandin": {
+    "1": {
+      "events": {},
+      "links": {},
+      "address": "0x89d24A6b4CcB1B6fAA2625fE562bDD9a23260359",
+      "transactionHash": "0x91b318fd3498c14a1495357d6a4e895fd29c3d915ee695a6fbc8ef72908a1aa8"
+    }
+  },
+  "DaiTubStandin": {
+    "1": {
+      "events": {},
+      "links": {},
+      "address": "0x448a5065aeBB8E423F0896E6c5D525C040f59af3",
+      "transactionHash": "0xa066bef4d74ad5433cc89ea21799d7df3e2f37ec0879f9ca74c419e861064fbf"
+    }
+  },
   "DifficultyOracle": {
     "4": {
       "events": {},
       "links": {},
       "address": "0x260B925315394b7fC6988C2989b329aED27652F2",
       "transactionHash": "0x4663685bcc8df795501b0fd69e01363882b216e47102d88df24c41089977b156"
+    }
+  },
+  "DutchXStandin": {
+    "1": {
+      "events": {},
+      "links": {},
+      "address": "0xb9812E2fA995EC53B5b6DF34d21f9304762C5497",
+      "transactionHash": "0xb6061e32145f4b3a1b6864f0ee9d4fbdd13304afa44a6b98bdf03c05af01586f"
     }
   },
   "ETHValueOracle": {
@@ -21,6 +45,12 @@
       "links": {},
       "address": "0x2831D45b0c961738a6837A676b321790209f8AC9",
       "transactionHash": "0x2ea5f42cc9a885d7d841f4b1893a37a320a5a5842ed66aa280b625a86e2cc4e4"
+    },
+    "1": {
+      "events": {},
+      "links": {},
+      "address": "0xa48f73Cd855fe8993CF63C50D77DDE997F10be3a",
+      "transactionHash": "0x368500a21ce1104a2c67cc1b410cc4dbb1e13606e8392fe5f363450ab3a6805a"
     }
   },
   "GasLimitOracle": {
@@ -99,6 +129,12 @@
       "links": {},
       "address": "0xbfFf80B73F081Cc159534d922712551C5Ed8B3D3",
       "transactionHash": "0xe420016bb602c45b06c71a37007a8d7742223f45a0099e70de64f7822135d8c7"
+    },
+    "1": {
+      "events": {},
+      "links": {},
+      "address": "0x729D19f657BD0614b4985Cf1D82531c67569197B",
+      "transactionHash": "0xc4addc3f012a3fe26a6c2c9d47e269ff315ab788fe131a49201137c0fd4851c8"
     }
   },
   "Migrations": {
@@ -398,6 +434,295 @@
       "links": {},
       "address": "0xeCfc7AC377d3cb74FE1553ECd56757Fbd8185505",
       "transactionHash": "0xd5b0010b238e0a7355c68a83ff331e6b12a2c9a3658e00f2c45a011f3fb1eef8"
+    },
+    "1": {
+      "events": {
+        "0xab3760c3bd2bb38b5bcf54dc79802ed67338b4cf29f3054ded67ed24661e4177": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "name": "conditionId",
+              "type": "bytes32"
+            },
+            {
+              "indexed": true,
+              "name": "oracle",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "name": "questionId",
+              "type": "bytes32"
+            },
+            {
+              "indexed": false,
+              "name": "outcomeSlotCount",
+              "type": "uint256"
+            }
+          ],
+          "name": "ConditionPreparation",
+          "type": "event",
+          "signature": "0xab3760c3bd2bb38b5bcf54dc79802ed67338b4cf29f3054ded67ed24661e4177"
+        },
+        "0xb44d84d3289691f71497564b85d4233648d9dbae8cbdbb4329f301c3a0185894": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "name": "conditionId",
+              "type": "bytes32"
+            },
+            {
+              "indexed": true,
+              "name": "oracle",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "name": "questionId",
+              "type": "bytes32"
+            },
+            {
+              "indexed": false,
+              "name": "outcomeSlotCount",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "name": "payoutNumerators",
+              "type": "uint256[]"
+            }
+          ],
+          "name": "ConditionResolution",
+          "type": "event",
+          "signature": "0xb44d84d3289691f71497564b85d4233648d9dbae8cbdbb4329f301c3a0185894"
+        },
+        "0x2e6bb91f8cbcda0c93623c54d0403a43514fabc40084ec96b6d5379a74786298": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "name": "stakeholder",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "name": "collateralToken",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "name": "parentCollectionId",
+              "type": "bytes32"
+            },
+            {
+              "indexed": true,
+              "name": "conditionId",
+              "type": "bytes32"
+            },
+            {
+              "indexed": false,
+              "name": "partition",
+              "type": "uint256[]"
+            },
+            {
+              "indexed": false,
+              "name": "amount",
+              "type": "uint256"
+            }
+          ],
+          "name": "PositionSplit",
+          "type": "event",
+          "signature": "0x2e6bb91f8cbcda0c93623c54d0403a43514fabc40084ec96b6d5379a74786298"
+        },
+        "0x6f13ca62553fcc2bcd2372180a43949c1e4cebba603901ede2f4e14f36b282ca": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "name": "stakeholder",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "name": "collateralToken",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "name": "parentCollectionId",
+              "type": "bytes32"
+            },
+            {
+              "indexed": true,
+              "name": "conditionId",
+              "type": "bytes32"
+            },
+            {
+              "indexed": false,
+              "name": "partition",
+              "type": "uint256[]"
+            },
+            {
+              "indexed": false,
+              "name": "amount",
+              "type": "uint256"
+            }
+          ],
+          "name": "PositionsMerge",
+          "type": "event",
+          "signature": "0x6f13ca62553fcc2bcd2372180a43949c1e4cebba603901ede2f4e14f36b282ca"
+        },
+        "0x2682012a4a4f1973119f1c9b90745d1bd91fa2bab387344f044cb3586864d18d": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "name": "redeemer",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "name": "collateralToken",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "name": "parentCollectionId",
+              "type": "bytes32"
+            },
+            {
+              "indexed": false,
+              "name": "conditionId",
+              "type": "bytes32"
+            },
+            {
+              "indexed": false,
+              "name": "indexSets",
+              "type": "uint256[]"
+            },
+            {
+              "indexed": false,
+              "name": "payout",
+              "type": "uint256"
+            }
+          ],
+          "name": "PayoutRedemption",
+          "type": "event",
+          "signature": "0x2682012a4a4f1973119f1c9b90745d1bd91fa2bab387344f044cb3586864d18d"
+        },
+        "0xc3d58168c5ae7397731d063d5bbf3d657854427343f4c083240f7aacaa2d0f62": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "name": "_operator",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "name": "_from",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "name": "_to",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "name": "_id",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "name": "_value",
+              "type": "uint256"
+            }
+          ],
+          "name": "TransferSingle",
+          "type": "event",
+          "signature": "0xc3d58168c5ae7397731d063d5bbf3d657854427343f4c083240f7aacaa2d0f62"
+        },
+        "0x4a39dc06d4c0dbc64b70af90fd698a233a518aa5d07e595d983b8c0526c8f7fb": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "name": "_operator",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "name": "_from",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "name": "_to",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "name": "_ids",
+              "type": "uint256[]"
+            },
+            {
+              "indexed": false,
+              "name": "_values",
+              "type": "uint256[]"
+            }
+          ],
+          "name": "TransferBatch",
+          "type": "event",
+          "signature": "0x4a39dc06d4c0dbc64b70af90fd698a233a518aa5d07e595d983b8c0526c8f7fb"
+        },
+        "0x17307eab39ab6107e8899845ad3d59bd9653f200f220920489ca2b5937696c31": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "name": "_owner",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "name": "_operator",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "name": "_approved",
+              "type": "bool"
+            }
+          ],
+          "name": "ApprovalForAll",
+          "type": "event",
+          "signature": "0x17307eab39ab6107e8899845ad3d59bd9653f200f220920489ca2b5937696c31"
+        },
+        "0x6bb7ff708619ba0610cba295a58592e0451dee2622938c8755667688daf3529b": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "name": "_value",
+              "type": "string"
+            },
+            {
+              "indexed": true,
+              "name": "_id",
+              "type": "uint256"
+            }
+          ],
+          "name": "URI",
+          "type": "event",
+          "signature": "0x6bb7ff708619ba0610cba295a58592e0451dee2622938c8755667688daf3529b"
+        }
+      },
+      "links": {},
+      "address": "0x8432F987b26A6747651f895Bc0Ae350aF1c30489",
+      "transactionHash": "0x808ba7f9b1b4dfeea3dd44bf4051d2e7e21d21b90e1b2a6cf25db5fb1a75d7b2"
     }
   },
   "WETH9": {
@@ -489,6 +814,95 @@
       "links": {},
       "address": "0xc778417E063141139Fce010982780140Aa0cD5Ab",
       "transactionHash": "0x7bc8e85f99556aa23a41dd3c107e92ec76f057e4cea39f376ffb1b15d514b11f"
+    },
+    "1": {
+      "events": {
+        "0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "name": "src",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "name": "guy",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "name": "wad",
+              "type": "uint256"
+            }
+          ],
+          "name": "Approval",
+          "type": "event",
+          "signature": "0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925"
+        },
+        "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "name": "src",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "name": "dst",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "name": "wad",
+              "type": "uint256"
+            }
+          ],
+          "name": "Transfer",
+          "type": "event",
+          "signature": "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"
+        },
+        "0xe1fffcc4923d04b559f4d29a8bfc6cda04eb5b0d3c460751c2402c5c5cc9109c": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "name": "dst",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "name": "wad",
+              "type": "uint256"
+            }
+          ],
+          "name": "Deposit",
+          "type": "event",
+          "signature": "0xe1fffcc4923d04b559f4d29a8bfc6cda04eb5b0d3c460751c2402c5c5cc9109c"
+        },
+        "0x7fcf532c15f0a6db0bd6d0e038bea71d30d808c7d98cb3bf7268a95bf5081b65": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "name": "src",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "name": "wad",
+              "type": "uint256"
+            }
+          ],
+          "name": "Withdrawal",
+          "type": "event",
+          "signature": "0x7fcf532c15f0a6db0bd6d0e038bea71d30d808c7d98cb3bf7268a95bf5081b65"
+        }
+      },
+      "links": {},
+      "address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+      "transactionHash": "0xb95343413e459a0f97461812111254163ae53467855c0d73e0f1e7c5b8442fa3"
     }
   }
 }
