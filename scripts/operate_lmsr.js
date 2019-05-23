@@ -1,4 +1,5 @@
 const ERC20Detailed = artifacts.require("ERC20Detailed");
+const IDSToken = artifacts.require("IDSToken");
 const WETH9 = artifacts.require("WETH9");
 const PredictionMarketSystem = artifacts.require("PredictionMarketSystem");
 const LMSRMarketMaker = artifacts.require("LMSRMarketMaker");
@@ -7,6 +8,7 @@ const fs = require("fs");
 const path = require("path");
 const inquirer = require("inquirer");
 const { stripIndent } = require("common-tags");
+const Decimal = require("decimal.js-light");
 
 function* product(head = [], ...tail) {
   for (const h of head) {
@@ -35,19 +37,12 @@ module.exports = function(callback) {
     const owner = await lmsrMarketMaker.owner();
     const defaultAccount = LMSRMarketMaker.defaults().from;
 
-    const collateral = {};
-    collateral.address = await lmsrMarketMaker.collateralToken();
-    collateral.contract = await ERC20Detailed.at(collateral.address);
-    collateral.name = await collateral.contract.name();
-    collateral.symbol = await collateral.contract.symbol();
-    collateral.decimals = (await collateral.contract.decimals()).toNumber();
-    collateral.isWETH =
-      collateral.name === "Wrapped Ether" &&
-      collateral.symbol === "WETH" &&
-      collateral.decimals === 18;
-    if (collateral.isWETH) {
-      collateral.contract = await WETH9.at(collateral.address);
-    }
+    const collateral = await require("../app/src/utils/collateral-info")(
+      web3,
+      Decimal,
+      { ERC20Detailed, IDSToken, WETH9 },
+      lmsrMarketMaker
+    );
 
     const formatCollateralAmount = amount =>
       `${

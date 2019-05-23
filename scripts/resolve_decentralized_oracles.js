@@ -1,18 +1,18 @@
-const DifficultyOracle = artifacts.require("DifficultyOracle");
-const GasLimitOracle = artifacts.require("GasLimitOracle");
-const ETHValueOracle = artifacts.require("ETHValueOracle");
+const DutchXTokenPriceOracle = artifacts.require("DutchXTokenPriceOracle");
+const TokenSupplyOracle = artifacts.require("TokenSupplyOracle");
+const DaiStabilityFeeOracle = artifacts.require("DaiStabilityFeeOracle");
 
 const inquirer = require("inquirer");
 
 module.exports = callback => {
   new Promise(async (res, rej) => {
-    let difficultyOracleInstance;
-    let ethValueOracleInstance;
-    let gasLimitOracleInstance;
+    let daiPriceOracle;
+    let daiSupplyOracle;
+    let daiStabilityFeeOracle;
     try {
-      difficultyOracleInstance = await DifficultyOracle.deployed();
-      gasLimitOracleInstance = await GasLimitOracle.deployed();
-      ethValueOracleInstance = await ETHValueOracle.deployed();
+      daiPriceOracle = await DutchXTokenPriceOracle.deployed();
+      daiSupplyOracle = await TokenSupplyOracle.deployed();
+      daiStabilityFeeOracle = await DaiStabilityFeeOracle.deployed();
     } catch (err) {
       console.error("Please ensure the oracle contracts are deployed.");
       console.error(err.message);
@@ -20,14 +20,10 @@ module.exports = callback => {
       rej(err);
     }
 
+    console.log(`DAI Price Oracle deployed at ${daiPriceOracle.address}`);
+    console.log(`DAI Supply Oracle deployed at ${daiSupplyOracle.address}`);
     console.log(
-      `Difficult Oracle deployed at ${difficultyOracleInstance.address}`
-    );
-    console.log(
-      `Gas Limit Oracle deployed at ${gasLimitOracleInstance.address}`
-    );
-    console.log(
-      `ETH Value Oracle deployed at ${ethValueOracleInstance.address}`
+      `DAI Stability Oracle deployed at ${daiStabilityFeeOracle.address}`
     );
 
     const answers = await inquirer.prompt([
@@ -36,9 +32,9 @@ module.exports = callback => {
         name: "oracle",
         message: "Which oracle do you want to resolve?",
         choices: [
-          { value: "Difficulty", name: "Difficulty Oracle" },
-          { value: "GasLimit", name: "Gas Limit Oracle" },
-          { value: "ETHValue", name: "ETH Value Oracle" }
+          { value: "DAIPrice", name: "DAI Price Oracle" },
+          { value: "DAISupply", name: "DAI Supply Oracle" },
+          { value: "DAIStability", name: "DAI Stability Oracle" }
         ]
       }
     ]);
@@ -46,12 +42,12 @@ module.exports = callback => {
     console.log("Resolving...");
 
     try {
-      if (answers.oracle == "Difficulty") {
-        await difficultyOracleInstance.resolveDifficulty();
-      } else if (answers.oracle == "GasLimit") {
-        await gasLimitOracleInstance.resolveGasLimit();
-      } else if (answers.oracle == "ETHValue") {
-        await ethValueOracleInstance.resolveETHValue();
+      if (answers.oracle == "DAIPrice") {
+        await daiPriceOracle.resolveValue();
+      } else if (answers.oracle == "DAISupply") {
+        await daiSupplyOracle.resolveValue();
+      } else if (answers.oracle == "DAIStability") {
+        await daiStabilityFeeOracle.resolveValue();
       }
     } catch (err) {
       console.error(err);

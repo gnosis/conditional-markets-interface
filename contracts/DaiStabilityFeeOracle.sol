@@ -2,25 +2,24 @@ pragma solidity ^0.5.1;
 import { PredictionMarketSystem } from "@gnosis.pm/hg-contracts/contracts/PredictionMarketSystem.sol";
 import { TargetValueOracle } from "./TargetValueOracle.sol";
 
-interface Medianizer {
-    function read() external view returns (bytes32);
+interface IDaiTub {
+    function fee() external view returns (uint);
 }
 
-contract ETHValueOracle is TargetValueOracle {
-    /// Price feed which this oracle uses to price Ether
-    Medianizer public priceFeed;
+contract DaiStabilityFeeOracle is TargetValueOracle {
+    IDaiTub public daiTub;
 
     constructor (
         PredictionMarketSystem pmSystem,
-        Medianizer _priceFeed,
         uint resolutionTime,
         uint targetETHPrice,
-        bytes32 questionId
+        bytes32 questionId,
+        IDaiTub _daiTub
     ) public TargetValueOracle(pmSystem, resolutionTime, targetETHPrice, questionId) {
-        priceFeed = _priceFeed;
+        daiTub = _daiTub;
     }
 
     function readValue() internal returns(uint) {
-        return uint(priceFeed.read());
+        return daiTub.fee();
     }
 }
