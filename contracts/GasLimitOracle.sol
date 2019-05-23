@@ -5,11 +5,10 @@ import { TargetValueOracle } from "./TargetValueOracle.sol";
 contract GasLimitOracle is TargetValueOracle {
     constructor (
         PredictionMarketSystem pmSystem,
-        uint startTime,
-        uint endTime,
+        uint resolutionTime,
         uint difficultyTarget,
         bytes32 questionId
-    ) public TargetValueOracle(pmSystem, startTime, endTime, difficultyTarget, questionId) {}
+    ) public TargetValueOracle(pmSystem, resolutionTime, difficultyTarget, questionId) {}
 
     function readValue() internal returns(uint) {
         return block.gaslimit;

@@ -9,12 +9,11 @@ contract TokenSupplyOracle is TargetValueOracle {
 
     constructor (
         PredictionMarketSystem pmSystem,
-        uint startTime,
-        uint endTime,
+        uint resolutionTime,
         uint difficultyTarget,
         bytes32 questionId,
         IERC20 _token
-    ) public TargetValueOracle(pmSystem, startTime, endTime, difficultyTarget, questionId) {
+    ) public TargetValueOracle(pmSystem, resolutionTime, difficultyTarget, questionId) {
         token = _token;
     }
 

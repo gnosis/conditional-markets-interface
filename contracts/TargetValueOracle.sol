@@ -5,25 +5,26 @@ contract TargetValueOracle {
     /// Prediction market system this oracle reports to.
     PredictionMarketSystem public pmSystem;
     /// Beginning of time window in which valid reports may be generated. Value is inclusive, meaning that the first valid timestamp is this.
-    uint public startTime;
-    /// End of time window in which valid reports may be generated. Value is inclusive, meaning that the last valid timestamp is this.
-    uint public endTime;
+    uint public resolutionTime;
     /// Target value at which oracle would report a full value in the first slot if the actual value was less than or equal to this target, and a full value in the second slot if the actual value exceeded the target.
     uint public targetValue;
     /// Question ID oracle will use during report to the prediction market system.
     bytes32 public questionId;
 
     /// @dev Emitted upon the successful reporting of whether the actual value has exceeded target to the prediction market system.
-    /// @param startTime Beginning of time window in which valid reports may be generated. 
-    /// @param endTime End of time window in which valid reports may be generated. 
+    /// @param resolutionTime Beginning of time window in which valid reports may be generated. 
     /// @param currentTime Time at which this oracle made a determination of the value.
     /// @param value The value found by this contract during the reporting of the value.
-    event ResolutionSuccessful(uint startTime, uint endTime, uint currentTime, uint value);
+    event ResolutionSuccessful(uint resolutionTime, uint currentTime, uint value);
     
-    constructor (PredictionMarketSystem _pmSystem, uint _startTime, uint _endTime, uint _targetValue, bytes32 _questionId) public {
+    constructor (
+        PredictionMarketSystem _pmSystem,
+        uint _resolutionTime,
+        uint _targetValue,
+        bytes32 _questionId
+    ) public {
         pmSystem = _pmSystem;
-        startTime = _startTime;
-        endTime = _endTime;
+        resolutionTime = _resolutionTime;
         targetValue = _targetValue;
         questionId = _questionId;
     }
@@ -34,7 +35,7 @@ contract TargetValueOracle {
     /// @return value witnessed by this oracle
     function resolveValue() external {
         require(
-            block.timestamp >= startTime && block.timestamp <= endTime,
+            block.timestamp >= resolutionTime,
             "Please submit a resolution during the correct time interval"
         );
 
@@ -44,6 +45,6 @@ contract TargetValueOracle {
         } else {
             pmSystem.receiveResult(questionId, abi.encode(0, 1));
         }
-        emit ResolutionSuccessful(startTime, endTime, block.timestamp, value);
+        emit ResolutionSuccessful(resolutionTime, block.timestamp, value);
     }
 }

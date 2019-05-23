@@ -23,13 +23,12 @@ contract DutchXTokenPriceOracle is TargetValueOracle {
 
     constructor (
         PredictionMarketSystem pmSystem,
-        uint startTime,
-        uint endTime,
+        uint resolutionTime,
         uint difficultyTarget,
         bytes32 questionId,
         IDutchX _dutchX,
         IERC20 _token
-    ) public TargetValueOracle(pmSystem, startTime, endTime, difficultyTarget, questionId) {
+    ) public TargetValueOracle(pmSystem, resolutionTime, difficultyTarget, questionId) {
         dutchX = _dutchX;
         token = _token;
     }

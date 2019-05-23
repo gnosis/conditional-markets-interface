@@ -13,11 +13,10 @@ contract ETHValueOracle is TargetValueOracle {
     constructor (
         PredictionMarketSystem pmSystem,
         Medianizer _priceFeed,
-        uint startTime,
-        uint endTime,
+        uint resolutionTime,
         uint targetETHPrice,
         bytes32 questionId
-    ) public TargetValueOracle(pmSystem, startTime, endTime, targetETHPrice, questionId) {
+    ) public TargetValueOracle(pmSystem, resolutionTime, targetETHPrice, questionId) {
         priceFeed = _priceFeed;
     }
 

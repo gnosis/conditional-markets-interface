@@ -11,12 +11,11 @@ contract DaiStabilityFeeOracle is TargetValueOracle {
 
     constructor (
         PredictionMarketSystem pmSystem,
-        uint startTime,
-        uint endTime,
+        uint resolutionTime,
         uint targetETHPrice,
         bytes32 questionId,
         IDaiTub _daiTub
-    ) public TargetValueOracle(pmSystem, startTime, endTime, targetETHPrice, questionId) {
+    ) public TargetValueOracle(pmSystem, resolutionTime, targetETHPrice, questionId) {
         daiTub = _daiTub;
     }
 
