@@ -26,28 +26,75 @@ function getNetworkName(networkId) {
   );
 }
 
-async function loadWeb3() {
-  const { default: Web3 } = await import("web3");
-  const web3 =
-    process.env.NODE_ENV === "development" || process.env.NODE_ENV === "test"
-      ? new Web3("http://localhost:8545")
-      : typeof window.ethereum !== "undefined"
-      ? (window.ethereum.enable(), new Web3(window.ethereum))
-      : new Web3(window.web3.currentProvider);
+function getReadOnlyProviderForNetworkId(networkId) {
+  const providerName = {
+    [1]: "mainnet",
+    [3]: "ropsten",
+    [4]: "rinkeby",
+    [5]: "goerli",
+    [42]: "kovan"
+  }[networkId];
 
-  // attempt to get the main account here
-  // so that web3 will emit an error if e.g.
-  // the localhost provider cannot be reached
-  const account = await getAccount(web3);
+  return providerName == null
+    ? null
+    : `wss://${providerName}.infura.io/ws/v3/d743990732244555a1a0e82d5ab90c7f`;
+}
+
+async function loadWeb3(networkId) {
+  const { default: Web3 } = await import("web3");
+
+  const web3InitErrors = [];
+  let web3, account;
+  let foundWeb3 = false;
+  for (const [providerType, providerCandidate] of [
+    ["injected provider", Web3.givenProvider],
+    ["local websocket", "ws://localhost:8546"],
+    ["local http", "http://localhost:8545"],
+    [
+      `read-only for id ${networkId}`,
+      getReadOnlyProviderForNetworkId(networkId)
+    ]
+  ]) {
+    try {
+      if (providerCandidate == null) throw new Error("no provider found");
+      if (providerCandidate.enable != null) await providerCandidate.enable();
+
+      web3 = new Web3(providerCandidate);
+      const web3NetworkId = await web3.eth.net.getId();
+      if (web3NetworkId != networkId)
+        throw new Error(
+          `interface expects ${networkId} but currently connected to ${web3NetworkId}`
+        );
+
+      // attempt to get the main account here
+      // so that web3 will emit an error if e.g.
+      // the localhost provider cannot be reached
+      if (web3.defaultAccount == null) {
+        const accounts = await web3.eth.getAccounts();
+        account = accounts[0] || null;
+      } else account = web3.defaultAccount;
+
+      foundWeb3 = true;
+      break;
+    } catch (e) {
+      web3InitErrors.push([providerType, e]);
+    }
+  }
+
+  if (!foundWeb3)
+    throw new Error(
+      `could not get valid Web3 instance; got following errors:\n${web3InitErrors
+        .map(([providerCandidate, e]) => `${providerCandidate} -> ${e}`)
+        .join("\n")}`
+    );
 
   return { web3, account };
 }
 
-async function loadBasicData(web3, Decimal) {
+async function loadBasicData({ lmsrAddress, markets }, web3, Decimal) {
   const { soliditySha3 } = web3.utils;
 
   const [
-    { lmsrAddress, markets, networkId },
     { default: TruffleContract },
     { product },
     ERC20DetailedArtifact,
@@ -56,7 +103,6 @@ async function loadBasicData(web3, Decimal) {
     PredictionMarketSystemArtifact,
     LMSRMarketMakerArtifact
   ] = await Promise.all([
-    import("../config.json"),
     import("truffle-contract"),
     import("./utils/itertools"),
     import("../../build/contracts/ERC20Detailed.json"),
@@ -178,33 +224,12 @@ async function loadBasicData(web3, Decimal) {
   }
 
   return {
-    web3,
-    networkId,
     pmSystem,
     lmsrMarketMaker,
     collateral,
     markets,
     positions
   };
-}
-
-async function getAccount(web3) {
-  if (web3.defaultAccount == null) {
-    const accounts = await web3.eth.getAccounts();
-    if (accounts.length === 0) {
-      throw new Error(`got no accounts from ethereum provider`);
-    }
-    return accounts[0];
-  }
-  return web3.defaultAccount;
-}
-
-async function validateNetworkId(web3, networkId) {
-  const web3NetworkId = await web3.eth.net.getId();
-  if (web3NetworkId != networkId)
-    throw new Error(
-      `interface expects ${networkId} but currently connected to ${web3NetworkId}`
-    );
 }
 
 async function getCollateralBalance(web3, collateral, account) {
@@ -316,33 +341,31 @@ Promise.all([
       const [positions, setPositions] = useState(null);
 
       useEffect(() => {
-        loadWeb3()
-          .then(
-            ({ web3, account }) => (
-              setWeb3(web3), setAccount(account), loadBasicData(web3, Decimal)
-            )
-          )
-          .then(
-            async ({
-              web3,
-              networkId,
+        import("../config.json")
+          .then(async ({ default: config }) => {
+            setNetworkId(config.networkId);
+
+            const { web3, account } = await loadWeb3(config.networkId);
+
+            setWeb3(web3);
+            setAccount(account);
+
+            const {
               pmSystem,
               lmsrMarketMaker,
               collateral,
               markets,
               positions
-            }) => {
-              setNetworkId(networkId);
-              setPMSystem(pmSystem);
-              setLMSRMarketMaker(lmsrMarketMaker);
-              setCollateral(collateral);
-              setMarkets(markets);
-              setPositions(positions);
+            } = await loadBasicData(config, web3, Decimal);
 
-              await validateNetworkId(web3, networkId);
-              setLoading("SUCCESS");
-            }
-          )
+            setPMSystem(pmSystem);
+            setLMSRMarketMaker(lmsrMarketMaker);
+            setCollateral(collateral);
+            setMarkets(markets);
+            setPositions(positions);
+
+            setLoading("SUCCESS");
+          })
           .catch(err => {
             setLoading("FAILURE");
             throw err;
@@ -444,45 +467,57 @@ Promise.all([
             </section>
             <div className={cn("seperator")} />
             <section className={cn("section", "position-section")}>
-              <h2 className={cn("heading")}>Manage Positions</h2>
-              <BuySection
-                {...{
-                  account,
-                  markets,
-                  positions,
-                  collateral,
-                  collateralBalance,
-                  lmsrMarketMaker,
-                  lmsrState,
-                  lmsrAllowance,
-                  marketSelections,
-                  stagedTradeAmounts,
-                  setStagedTradeAmounts,
-                  stagedTransactionType,
-                  setStagedTransactionType,
-                  ongoingTransactionType,
-                  asWrappedTransaction
-                }}
-              />
-              <YourPositions
-                {...{
-                  account,
-                  pmSystem,
-                  markets,
-                  marketResolutionStates,
-                  positions,
-                  collateral,
-                  lmsrMarketMaker,
-                  lmsrState,
-                  positionBalances,
-                  stagedTradeAmounts,
-                  setStagedTradeAmounts,
-                  stagedTransactionType,
-                  setStagedTransactionType,
-                  ongoingTransactionType,
-                  asWrappedTransaction
-                }}
-              />
+              {account == null ? (
+                <>
+                  <h2 className={cn("heading")}>Note</h2>
+                  <p>
+                    Please connect an Ethereum provider to{" "}
+                    {getNetworkName(networkId)} to interact with this market.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <h2 className={cn("heading")}>Manage Positions</h2>
+                  <BuySection
+                    {...{
+                      account,
+                      markets,
+                      positions,
+                      collateral,
+                      collateralBalance,
+                      lmsrMarketMaker,
+                      lmsrState,
+                      lmsrAllowance,
+                      marketSelections,
+                      stagedTradeAmounts,
+                      setStagedTradeAmounts,
+                      stagedTransactionType,
+                      setStagedTransactionType,
+                      ongoingTransactionType,
+                      asWrappedTransaction
+                    }}
+                  />
+                  <YourPositions
+                    {...{
+                      account,
+                      pmSystem,
+                      markets,
+                      marketResolutionStates,
+                      positions,
+                      collateral,
+                      lmsrMarketMaker,
+                      lmsrState,
+                      positionBalances,
+                      stagedTradeAmounts,
+                      setStagedTradeAmounts,
+                      stagedTransactionType,
+                      setStagedTransactionType,
+                      ongoingTransactionType,
+                      asWrappedTransaction
+                    }}
+                  />
+                </>
+              )}
             </section>
           </div>
         );
