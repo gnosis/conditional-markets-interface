@@ -43,11 +43,10 @@ async function loadWeb3() {
   return { web3, account };
 }
 
-async function loadBasicData(web3, Decimal) {
+async function loadBasicData({ lmsrAddress, markets }, web3, Decimal) {
   const { soliditySha3 } = web3.utils;
 
   const [
-    { lmsrAddress, markets, networkId },
     { default: TruffleContract },
     { product },
     ERC20DetailedArtifact,
@@ -56,7 +55,6 @@ async function loadBasicData(web3, Decimal) {
     PredictionMarketSystemArtifact,
     LMSRMarketMakerArtifact
   ] = await Promise.all([
-    import("../config.json"),
     import("truffle-contract"),
     import("./utils/itertools"),
     import("../../build/contracts/ERC20Detailed.json"),
@@ -178,8 +176,6 @@ async function loadBasicData(web3, Decimal) {
   }
 
   return {
-    web3,
-    networkId,
     pmSystem,
     lmsrMarketMaker,
     collateral,
@@ -316,33 +312,32 @@ Promise.all([
       const [positions, setPositions] = useState(null);
 
       useEffect(() => {
-        loadWeb3()
-          .then(
-            ({ web3, account }) => (
-              setWeb3(web3), setAccount(account), loadBasicData(web3, Decimal)
-            )
-          )
-          .then(
-            async ({
-              web3,
-              networkId,
+        import("../config.json")
+          .then(async ({ default: config }) => {
+            setNetworkId(config.networkId);
+
+            const { web3, account } = await loadWeb3();
+            await validateNetworkId(web3, config.networkId);
+
+            setWeb3(web3);
+            setAccount(account);
+
+            const {
               pmSystem,
               lmsrMarketMaker,
               collateral,
               markets,
               positions
-            }) => {
-              setNetworkId(networkId);
-              setPMSystem(pmSystem);
-              setLMSRMarketMaker(lmsrMarketMaker);
-              setCollateral(collateral);
-              setMarkets(markets);
-              setPositions(positions);
+            } = await loadBasicData(config, web3, Decimal);
 
-              await validateNetworkId(web3, networkId);
-              setLoading("SUCCESS");
-            }
-          )
+            setPMSystem(pmSystem);
+            setLMSRMarketMaker(lmsrMarketMaker);
+            setCollateral(collateral);
+            setMarkets(markets);
+            setPositions(positions);
+
+            setLoading("SUCCESS");
+          })
           .catch(err => {
             setLoading("FAILURE");
             throw err;
