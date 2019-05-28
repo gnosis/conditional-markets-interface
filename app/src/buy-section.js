@@ -298,9 +298,9 @@ const BuySection = ({
         </>
       )}
       {error && (
-        <span className={cn("error")}>
+        <div className={cn("error")}>
           {error === true ? "An error has occured" : error.message}
-        </span>
+        </div>
       )}
 
       {stagedTradePositionGroups != null && (

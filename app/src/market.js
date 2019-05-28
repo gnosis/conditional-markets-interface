@@ -48,35 +48,35 @@ const Market = ({
   return (
     <article className={cn("market")}>
       <section className={cn("title-section")}>
-        <h1 className={cn("title")}>{title}</h1>
+        <h2 className={cn("title")}>{title}</h2>
         <div className={cn("title-infos")}>
           {marketStage !== "Closed" && (
             <div className={cn("title-info")}>
-              <h2 className={cn("label")}>probability</h2>
-              <h2 className={cn("value")}>
+              <h3 className={cn("label")}>Probability</h3>
+              <h3 className={cn("value")}>
                 {probabilities == null ? (
                   <Spinner width={25} height={25} />
                 ) : (
                   formatProbability(probabilities[0])
                 )}
-              </h2>
+              </h3>
             </div>
           )}
           {isResolved ? (
             <div className={cn("title-info")}>
-              <h2 className={cn("label")}>reported outcome</h2>
-              <h2 className={cn("value", "centered")}>
+              <h3 className={cn("label")}>Reported Outcome</h3>
+              <h3 className={cn("value", "centered")}>
                 {resultOutcomeIndex != null
                   ? outcomes[resultOutcomeIndex].title
                   : "Mixed"}
-              </h2>
+              </h3>
             </div>
           ) : (
             <div className={cn("title-info")}>
-              <h2 className={cn("label")}>resolves</h2>
-              <h2 className={cn("value")}>
+              <h3 className={cn("label")}>Resolves</h3>
+              <h3 className={cn("value")}>
                 {new Date(resolutionDate).toLocaleString()}
-              </h2>
+              </h3>
             </div>
           )}
         </div>

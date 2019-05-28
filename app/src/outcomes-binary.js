@@ -30,7 +30,7 @@ const OutcomesBinary = ({ probabilities, stagedProbabilities }) => {
     <div className={cn("binary-outcome")}>
       <div className={cn("bar")} style={{ color }}>
         <div
-          className={cn("inner")}
+          className={cn("inner-bar", "current")}
           style={{
             backgroundColor: color,
             borderColor: color,
@@ -45,10 +45,10 @@ const OutcomesBinary = ({ probabilities, stagedProbabilities }) => {
         </div>
         {shouldDisplayStagedProbability && (
           <div
-            className={cn("prediction", {
+            className={cn("inner-bar", "staged", {
               inverted: stagedProbability.lt(probability),
-              shiftLeft: estimatedHintPosition.lt(".2"),
-              shiftRight: estimatedHintPosition.gt(".8")
+              "shift-left": estimatedHintPosition.lt(".2"),
+              "shift-right": estimatedHintPosition.gt(".8")
             })}
             style={{
               backgroundColor: color,
