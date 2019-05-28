@@ -13,7 +13,7 @@ const Spinner = ({ centered, inverted, width, height }) => (
     height={`${height}px`}
     viewBox="0 0 40 40"
     enableBackground="new 0 0 40 40"
-    className={cn("indefiniteSpinner", {
+    className={cn("spinner", {
       centered,
       inverted
     })}

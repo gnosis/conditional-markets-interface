@@ -1,4 +1,3 @@
-import("normalize.css/normalize.css");
 import("./style.scss");
 
 function getNetworkName(networkId) {
@@ -451,8 +450,8 @@ Promise.all([
       if (loading === "SUCCESS")
         return (
           <div className={cn("page")}>
+            <h1 className={cn("page-title")}>Gnosis PM 2.0 Experiments</h1>
             <section className={cn("section", "market-section")}>
-              <h1 className={cn("page-title")}>Gnosis PM 2.0 Experiments</h1>
               <Markets
                 {...{
                   markets,
@@ -465,7 +464,7 @@ Promise.all([
                 }}
               />
             </section>
-            <div className={cn("seperator")} />
+            <div className={cn("separator")} />
             <section className={cn("section", "position-section")}>
               {account == null ? (
                 <>

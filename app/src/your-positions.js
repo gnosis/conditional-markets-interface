@@ -322,11 +322,11 @@ const YourPositions = ({
                 </div>
                 {isSalePositionGroup && marketStage !== "Closed" && (
                   <div className={cn("row", "sell")}>
-                    <p>
+                    <div>
                       You can sell a maximum amount of{" "}
                       {formatCollateral(positionGroup.amount, collateral)} of
                       this position.
-                    </p>
+                    </div>
                     <div className={cn("controls")}>
                       <input
                         type="text"
