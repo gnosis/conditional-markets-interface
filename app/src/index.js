@@ -137,7 +137,9 @@ async function loadBasicData({ lmsrAddress, markets }, web3, Decimal) {
     lmsrMarketMaker
   );
 
-  const pmSystem = await PredictionMarketSystem.deployed();
+  const pmSystem = await PredictionMarketSystem.at(
+    await lmsrMarketMaker.pmSystem()
+  );
   const atomicOutcomeSlotCount = (await lmsrMarketMaker.atomicOutcomeSlotCount()).toNumber();
 
   let curAtomicOutcomeSlotCount = 1;
