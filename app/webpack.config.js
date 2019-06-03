@@ -4,7 +4,7 @@ const { BundleAnalyzerPlugin } = require("webpack-bundle-analyzer");
 
 const publicPath =
   process.env.NODE_ENV === "production"
-    ? "/hg-first-decentralized-market/"
+    ? "/hg-first-decentralized-market/safe-compatible/"
     : "/";
 
 const moduleStubPath = path.resolve(__dirname, "module-stub.js");
@@ -13,7 +13,7 @@ module.exports = {
   entry: "./src/index.js",
   devtool: "eval-source-map",
   output: {
-    path: __dirname + "/../docs",
+    path: __dirname + "/../docs/safe-compatible",
     publicPath,
     filename: "bundle.js"
   },
