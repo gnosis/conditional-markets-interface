@@ -21,8 +21,8 @@
     "Ethereum"
   ],
   "dependencies": {
-    "@gnosis.pm/hg-contracts": "^0.2.3",
-    "@gnosis.pm/hg-market-makers": "^0.3.1",
+    "@gnosis.pm/hg-contracts": "^0.4.0",
+    "@gnosis.pm/hg-market-makers": "^0.4.0",
     "@use-it/interval": "^0.1.3",
     "canonical-weth": "^1.4.0",
     "classnames": "^2.2.6",
@@ -35,7 +35,7 @@
     "prop-types": "^15.6.2",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
-    "truffle-contract": "^4.0.13",
+    "truffle-contract": "^4.0.19",
     "truffle-hdwallet-provider": "^1.0.8",
     "web3": "1.0.0-beta.37"
   },
