@@ -19,34 +19,46 @@ const seed =
  *     gasPrice: 10000000000,
  *   },
  */
+
+const createInfuraEntry = (networkName, networkId) => ({
+  [networkName]: {
+    provider: () =>
+      new HDWalletProvider(
+        seed,
+        `https://${networkName}.infura.io/v3/d743990732244555a1a0e82d5ab90c7f`
+      ),
+    network_id: networkId,
+    // See issues:
+    //   https://github.com/trufflesuite/truffle/issues/1612
+    //   https://github.com/trufflesuite/truffle/issues/1698
+    skipDryRun: true
+  }
+});
+
 const config = {
-  networks: {
-    development: {
-      host: "127.0.0.1",
-      port: 8545,
-      network_id: "*",
-      from: process.env.FROM_ACCOUNT
+  networks: Object.assign(
+    {
+      development: {
+        host: "127.0.0.1",
+        port: 8545,
+        network_id: "*",
+        from: process.env.FROM_ACCOUNT
+      },
+      mainnet: {
+        provider: () =>
+          new HDWalletProvider(seed, "https://node-green.mainnet.gnosis.pm"),
+        network_id: "1",
+        skipDryRun: true,
+        gasPrice: 3e9
+      }
     },
-    rinkeby: {
-      provider: () =>
-        new HDWalletProvider(
-          seed,
-          "https://rinkeby.infura.io/v3/22218302c99b4ee29f8a5876ad0b552c"
-        ),
-      network_id: "4",
-      // See issues:
-      //   https://github.com/trufflesuite/truffle/issues/1612
-      //   https://github.com/trufflesuite/truffle/issues/1698
-      skipDryRun: true
-    },
-    mainnet: {
-      provider: () =>
-        new HDWalletProvider(seed, "https://node-green.mainnet.gnosis.pm"),
-      network_id: "1",
-      skipDryRun: true,
-      gasPrice: 3e9
-    }
-  },
+    ...[
+      ["ropsten", "3"],
+      ["rinkeby", "4"],
+      ["kovan", "42"],
+      ["goerli", "5"]
+    ].map(networkInfo => createInfuraEntry(...networkInfo))
+  ),
   compilers: {
     solc: {
       version: "0.5.1"
