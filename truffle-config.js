@@ -20,7 +20,7 @@ const seed =
  *   },
  */
 
-const createInfuraEntry = (networkName, networkId) => ({
+const createInfuraEntry = (networkName, networkId, gasPrice) => ({
   [networkName]: {
     provider: () =>
       new HDWalletProvider(
@@ -28,6 +28,7 @@ const createInfuraEntry = (networkName, networkId) => ({
         `https://${networkName}.infura.io/v3/d743990732244555a1a0e82d5ab90c7f`
       ),
     network_id: networkId,
+    gasPrice,
     // See issues:
     //   https://github.com/trufflesuite/truffle/issues/1612
     //   https://github.com/trufflesuite/truffle/issues/1698
@@ -56,7 +57,7 @@ const config = {
       ["ropsten", "3"],
       ["rinkeby", "4"],
       ["kovan", "42"],
-      ["goerli", "5"]
+      ["goerli", "5", 1e9]
     ].map(networkInfo => createInfuraEntry(...networkInfo))
   ),
   compilers: {
