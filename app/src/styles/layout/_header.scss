@@ -1,0 +1,403 @@
+/*Header Styles*/
+.jr-menu-icon {
+  outline: none !important;
+  @include justify-content(flex-start !important);
+  @extend %size-30;
+  padding: 0 5px !important;
+  @extend %jr-menu-icon;
+  margin-right: 15px;
+  display: flex;
+  cursor: pointer;
+  align-items: center;
+}
+
+.app-main-header {
+  background-color: $white;
+  color: $gray-default;
+  max-height: 70px;
+  position: relative;
+
+  & .search-bar input {
+    @include transition($transition-base);
+    background-color: transparent;
+    color: $gray-default;
+    & + .search-icon {
+      top: 0;
+      & i {
+        color: rgba($gray-default, 0.8);
+      }
+    }
+
+    &:focus {
+      background-color: $body-bg;
+      color: $gray-default;
+      + .search-icon {
+        & i {
+          color: rgba($gray-default, 0.8);
+        }
+      }
+    }
+  }
+
+  .app-header & {
+    border-bottom: 1px solid $border-color;
+  }
+
+  .jr-card & {
+    border: 1px solid $gray-400;
+    @include border-radius($border-radius-lg);
+  }
+}
+
+.app-logo {
+  margin-right: 12px;
+
+  & img {
+    height: 35px;
+
+    @media screen and (max-width: 575px) {
+      height: 28px;
+    }
+  }
+
+  .app-header & {
+    margin-right: 20px;
+
+    @media screen and (max-width: 991px) {
+      margin-right: auto;
+    }
+  }
+}
+
+//Logo disable condition
+.react-logo-white.d-block {
+  display: none !important;
+}
+
+@media screen and (min-width: 992px) {
+  .react-logo-white.d-lg-block {
+    display: none !important;
+  }
+}
+
+.sidebar-header {
+  min-height: 70px;
+  padding: 10px 22px;
+  border-bottom: 1px solid $border-color;
+}
+
+.app-toolbar {
+  min-height: $app-bar-height;
+  padding: 0 40px;
+
+  & .search-bar {
+    margin-right: auto;
+    max-width: 320px;
+    width: 300px;
+
+    @media screen and (max-width: 1199px) {
+      width: 240px;
+    }
+
+    @media screen and (max-width: 1099px) {
+      width: 200px;
+    }
+
+    @media screen and (max-width: 767px) {
+      margin-left: 40px;
+      width: 180px;
+    }
+  }
+
+  @media screen and (max-width: 575px) {
+    padding: 0 20px;
+  }
+
+  .app-top-nav & {
+    min-height: 40px;
+  }
+}
+
+.app-header-horizontal {
+  & .app-toolbar .search-bar {
+    @media screen and (max-width: 1199px) {
+      margin-right: 10px;
+    }
+  }
+}
+
+.app-toolbar-special {
+  & .search-bar {
+    width: 200px;
+
+    @media screen and (max-width: 991px) {
+      width: 280px;
+    }
+
+    @media screen and (max-width: 767px) {
+      width: 200px;
+    }
+  }
+}
+
+.app-toolbar {
+  & .nav-searchbox {
+    & .search-bar {
+      margin-left: 0;
+      width: 100%;
+    }
+
+    & .search-bar input {
+      @include transition($transition-base);
+      background-color: $white;
+      color: $body-color;
+      & + .search-icon {
+        & i {
+          color: rgba($body-color, 0.8);
+        }
+      }
+
+      &:focus {
+        background-color: transparent;
+        color: $body-color;
+        + .search-icon {
+          & i {
+            color: rgba($body-color, 0.8);
+          }
+        }
+      }
+    }
+  }
+}
+
+.header-notifications {
+  margin-bottom: 0;
+
+  & li {
+    vertical-align: middle;
+  }
+
+  & .list-inline-item:not(:last-child) {
+    @media screen and (max-width: 449px) {
+      margin-right: 0;
+    }
+  }
+}
+
+.dropdown-menu {
+  @include box-shadow(none);
+}
+
+.quick-menu {
+
+  & .dropdown-menu {
+    padding: 5px 10px;
+    width: 350px;
+
+    & .jr-card-header {
+      margin: -5px -10px 5px;
+      padding: 10px 10px 10px 20px;
+      border-bottom: 1px solid $gray-300;
+      z-index: 10;
+    }
+
+    &:after {
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-bottom: 5px solid $white;
+      top: -9px;
+      content: "";
+      height: 9px;
+      position: absolute;
+      right: 8px;
+      width: 10px;
+    }
+
+    &:before {
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-bottom: 5px solid $black;
+      top: -10px;
+      content: "";
+      height: 10px;
+      position: absolute;
+      right: 8px;
+      width: 10px;
+    }
+
+    @media screen and (max-width: 449px) {
+      width: 230px;
+    }
+
+    @media screen and (max-width: 359px) {
+      width: 180px;
+    }
+  }
+
+  & .messages-list .user-avatar {
+    position: relative;
+  }
+
+  & .messages-list .badge {
+    position: absolute;
+    left: -4px;
+    top: -4px;
+    height: 16px;
+    width: 16px;
+    line-height: 16px;
+    text-align: center;
+    padding: 0;
+  }
+}
+
+.app-header .nav-searchbox.quick-menu {
+  & .dropdown-menu {
+    width: 200px;
+    left: 0 !important;
+    right: auto !important;
+  }
+
+  & .dropdown-menu:after {
+    right: auto;
+    left: 8px;
+  }
+
+  & .dropdown-menu:before {
+    right: auto;
+    left: 8px;
+  }
+
+  @media screen and (max-width: 400px) {
+    display: none;
+  }
+}
+
+@media screen and (max-width: 575px) {
+  .app-header .nav-searchbox.quick-menu .dropdown-menu {
+    width: 200px;
+  }
+}
+
+@media screen and (max-width: 399px) {
+  .app-header .nav-searchbox.quick-menu .dropdown-menu {
+    width: 100px;
+  }
+}
+
+.language-list li {
+  display: block !important;
+}
+
+.messages-list.language-list ul li {
+  padding: 7px 6px 6px;
+}
+
+.messages-list ul li {
+  position: relative;
+  padding: 20px 10px 14px;
+  border-bottom: 1px solid $gray-300;
+
+  & .user-name a {
+    color: $app-primary;
+  }
+
+  & .sub-heading {
+    font-size: 11px;
+    margin-bottom: 6px !important;
+
+    &.mb-0 {
+      margin-bottom: 0 !important;
+    }
+  }
+
+  &:last-child {
+    border-bottom: 0 none;
+  }
+
+  & .jr-btn {
+    margin-right: 0 !important;
+  }
+
+  & .jr-btn-xs {
+    font-size: 11px !important;
+    padding: 5px !important;
+  }
+}
+
+.quick-menu {
+  & .icon-btn {
+    color: $gray-default;
+  }
+
+  & .icon-alert {
+    position: relative;
+
+    &:after {
+      display: block;
+      position: absolute;
+      content: "";
+      right: 0;
+      top: 0;
+      z-index: 10;
+      width: 8px;
+      height: 8px;
+      background-color: $danger;
+      @include border-radius(50%);
+      @extend %pulse-effect;
+    }
+  }
+
+  & i.animated.infinite {
+    -moz-animation-iteration-count: 25;
+    -webkit-animation-iteration-count: 25;
+    -o-animation-iteration-count: 25;
+    animation-iteration-count: 25;
+  }
+}
+
+.quick-menu {
+  & .dropdown-menu {
+    display: block;
+    visibility: hidden;
+    left: auto !important;
+    right: 0 !important;
+    opacity: 0;
+    transform: translate3d(0px, 100px, 0px) !important;
+    @include transition(all 200ms linear 0ms);
+  }
+
+  &.show .dropdown-menu {
+    opacity: 1;
+    transform: translate3d(0px, 30px, 0px) !important;
+    visibility: visible;
+  }
+}
+
+.user-nav .quick-menu {
+  & .dropdown-menu {
+    width: 200px;
+    padding: 0 0 15px;
+
+    &:after {
+      border-bottom-color: $body-bg;
+    }
+  }
+
+  & .user-profile {
+    position: relative;
+    padding: 20px 25px;
+    background-color: $body-bg;
+    margin-bottom: 15px;
+    @include border-radius(0.25rem 0.25rem 0 0);
+  }
+}
+
+.module-box-header-right {
+  @include display-flex();
+  @include align-items(center);
+}
+
+.app-top-header {
+  position: relative;
+  z-index: 9999;
+}

@@ -1,0 +1,133 @@
+/*Grids List Styles*/
+
+.gl-image,
+.gl-list,
+.gl-advanced,
+.gl-single-line {
+  @include display-flex();
+  @include justify-content(space-around);
+  overflow: hidden;
+}
+
+.gl {
+  max-width: 100%;
+  max-height: 360px;
+  // Promote the list into his own layer on Chrome. This cost memory but helps keeping high FPS.
+  transform: translateZ(0);
+
+  &.row.no-gutters {
+    margin: 0 -2px;
+
+    & .col,
+    & > [class*="col-"] {
+      padding-right: 2px;
+      padding-left: 2px;
+      margin-bottom: 4px;
+    }
+  }
+}
+
+.gl-single-line {
+  & .slg {
+    -ms-flex-wrap: nowrap;
+    -webkit-flex-wrap: nowrap;
+    flex-wrap: nowrap;
+    max-width: 100%;
+  }
+}
+
+.title-gradient {
+  background: -webkit-linear-gradient(to bottom, rgba($black, 0.7) 0%, rgba($black, 0.3) 70%, rgba($black, 0) 100%) !important;
+  background: -o-linear-gradient(to bottom, rgba($black, 0.7) 0%, rgba($black, 0.3) 70%, rgba($black, 0) 100%) !important;
+  background: linear-gradient(to bottom, rgba($black, 0.7) 0%, rgba($black, 0.3) 70%, rgba($black, 0) 100%) !important;
+}
+
+.title-gradient-bottom {
+  background: -webkit-linear-gradient(to top, rgba($black, 0.7) 0%, rgba($black, 0.3) 70%, rgba($black, 0) 100%) !important;
+  background: -o-linear-gradient(to top, rgba($black, 0.7) 0%, rgba($black, 0.3) 70%, rgba($black, 0) 100%) !important;
+  background: linear-gradient(to top, rgba($black, 0.7) 0%, rgba($black, 0.3) 70%, rgba($black, 0) 100%) !important;
+}
+
+.g-title {
+  left: 0;
+  right: 0;
+  height: 48px;
+  display: flex;
+  position: absolute;
+  background: rgba(0, 0, 0, 0.4);
+  align-items: center;
+  font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+}
+
+.grid {
+  height: 100%;
+  display: block;
+  position: relative;
+  overflow: hidden;
+
+  & > img {
+    top: 50%;
+    left: 50%;
+    position: relative;
+    transform: translate(-50%, -50%);
+    display: flex;
+    padding: 0;
+    flex-wrap: wrap;
+  }
+}
+
+.g-ul {
+  display: flex;
+  padding: 0;
+  flex-wrap: wrap;
+  overflow-y: auto;
+  list-style: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.gradient-text {
+  font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+  font-size: 20px;
+  color: white;
+}
+
+.title-gradient-bottom {
+  padding: 20px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 48px;
+  display: flex;
+  position: absolute;
+  background: rgba(0, 0, 0, 0.4);
+  align-items: center;
+  font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+  background: -webkit-linear-gradient(0deg, rgba(0, 0, 0, .7) 0, rgba(0, 0, 0, .3) 70%, transparent) !important;
+  background: -o-linear-gradient(to top, rgba(0, 0, 0, .7) 0, rgba(0, 0, 0, .3) 70%, transparent 100%) !important;
+  background: linear-gradient(0deg, rgba(0, 0, 0, .7) 0, rgba(0, 0, 0, .3) 70%, transparent) !important;
+}
+
+.title-gradient-top {
+  padding: 10px;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 48px;
+  display: flex;
+  position: absolute;
+  background: rgba(0, 0, 0, 0.4);
+  align-items: center;
+  font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+
+  background: -webkit-linear-gradient(180deg, rgba(0, 0, 0, .7) 0, rgba(0, 0, 0, .3) 70%, transparent) !important;
+  background: -o-linear-gradient(to bottom, rgba(0, 0, 0, .7) 0, rgba(0, 0, 0, .3) 70%, transparent 100%) !important;
+  background: linear-gradient(180deg, rgba(0, 0, 0, .7) 0, rgba(0, 0, 0, .3) 70%, transparent) !important;
+}
+
+.grid-thumb img {
+  max-height: 185px;
+}
+
+.gl-advanced-grid {
+  position: relative;
+}

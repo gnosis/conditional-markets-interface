@@ -1,0 +1,25 @@
+/*Footer Styles*/
+
+.app-footer {
+  padding: 0 40px;
+  border-top: solid 1px darken($body-bg, 10%);
+  background-color: $body-bg;
+  color: $sidebar-text-color;
+  line-height: $footer-height;
+  min-height: $footer-height;
+
+  & a {
+    color: $sidebar-text-color;
+    &:hover {
+      color: $sidebar-hover-color;
+    }
+  }
+
+  @media screen and (max-width: 575px) {
+    padding: 20px;
+  }
+
+  @media screen and (max-width: 400px) {
+    font-size: 12px;
+  }
+}

@@ -1,0 +1,744 @@
+/*Theme Dark Deep Purple Styles*/
+$app-primary-dark-deep-purple: #673ab7 !default;
+$secondary-dark-deep-purple: #FFAB00;
+
+$sidebar-dark-deep-purple: #252525 !default;
+$sidebar-text-dark-deep-purple: #a1a1a1 !default;
+$sidebar-darken-deep-purple: darken($sidebar-dark-deep-purple, 3%);
+
+$top-nav-bg-dark-deep-purple: #252525 !default;
+
+// Links
+$link-hover-dark-deep-purple: $white;
+
+//-Base-scss
+.dark-deep-purple .right-arrow {
+  color: $app-primary-dark-deep-purple;
+  &:after {
+    color: $app-primary-dark-deep-purple;
+  }
+}
+
+//
+// Alternate buttons
+//
+@each $color, $value in $theme-colors {
+  .dark-deep-purple .btn-#{$color} {
+    @include button-variant($value, $value);
+  }
+}
+
+@each $color, $value in $theme-colors {
+  .dark-deep-purple a.btn-#{$color} {
+    @include button-variant($value, $value);
+  }
+}
+
+@each $color, $value in $theme-colors {
+  .dark-deep-purple .btn-outline-#{$color} {
+    @if $color == "light" {
+      @include button-outline-variant($value, $gray-900);
+    } @else {
+      @include button-outline-variant($value, $white);
+    }
+  }
+}
+
+@each $color, $value in $theme-colors {
+  .dark-deep-purple a.btn-outline-#{$color} {
+    @if $color == "light" {
+      @include button-outline-variant($value, $gray-900);
+    } @else {
+      @include button-outline-variant($value, $white);
+    }
+  }
+}
+
+.dark-deep-purple .btn-outline-primary,
+.dark-deep-purple a.btn-outline-primary {
+  color: $app-primary-dark-deep-purple;
+  border-color: $app-primary-dark-deep-purple;
+
+  &:focus,
+  &:hover,
+  &.disabled,
+  &:disabled,
+  &:not(:disabled):not(.disabled):active,
+  &:not(:disabled):not(.disabled).active,
+  .show > &.dropdown-toggle {
+    color: $white;
+    border-color: $app-primary-dark-deep-purple;
+    background-color: $app-primary-dark-deep-purple;
+  }
+}
+
+.dark-deep-purple .btn-outline-secondary,
+.dark-deep-purple a.btn-outline-secondary {
+  color: $secondary-dark-deep-purple;
+  border-color: $secondary-dark-deep-purple;
+
+  &:focus,
+  &:hover,
+  &.disabled,
+  &:disabled,
+  &:not(:disabled):not(.disabled):active,
+  &:not(:disabled):not(.disabled).active,
+  .show > &.dropdown-toggle {
+    color: $white;
+    border-color: $secondary-dark-deep-purple;
+    background-color: $secondary-dark-deep-purple;
+  }
+}
+
+//- Bootstrap file Style
+.dark-deep-purple {
+  & a,
+  & a.text-primary {
+    color: $app-primary-dark-deep-purple;
+    &:focus,
+    &:hover {
+      color: darken($app-primary-dark-deep-purple, 10%);
+    }
+  }
+
+  & .text-primary {
+    color: $app-primary-dark-deep-purple !important;
+  }
+
+  & .page-link {
+    color: $app-primary-dark-deep-purple;
+    &:focus,
+    &:hover {
+      color: $app-primary-dark-deep-purple;
+    }
+  }
+
+  & .bg-primary,
+  & .badge-primary {
+    background-color: $app-primary-dark-deep-purple !important;
+    color: $link-hover-dark-deep-purple !important;
+  }
+
+  & .btn-primary,
+  & .jr-btn-primary,
+  & a.btn-primary,
+  & a.jr-btn-primary {
+    background-color: $app-primary-dark-deep-purple;
+    border-color: $app-primary-dark-deep-purple;
+    color: $white;
+
+    &:hover,
+    &:focus,
+    &:not([disabled]):not(.disabled):active {
+      background-color: darken($app-primary-dark-deep-purple, 5%) !important;
+      border-color: darken($app-primary-dark-deep-purple, 5%) !important;
+      color: $white !important;
+    }
+  }
+  & .bg-primary {
+    &.lighten-4 {
+      background-color: #d1c4e9 !important;
+    }
+
+    &.lighten-3 {
+      background-color: #b39ddb !important;
+    }
+
+    &.lighten-2 {
+      background-color: #9575cd !important;
+    }
+
+    &.lighten-1 {
+      background-color: #7e57c2 !important;
+    }
+
+    &.darken-1 {
+      background-color: #5e35b1 !important;
+    }
+
+    &.darken-2 {
+      background-color: #512da8 !important;
+    }
+
+    &.darken-3 {
+      background-color: #4527a0 !important;
+    }
+
+    &.darken-4 {
+      background-color: #311b92 !important;
+    }
+
+    &.accent-1 {
+      background-color: #b388ff !important;
+    }
+
+    &.accent-2 {
+      background-color: #7c4dff !important;
+    }
+
+    &.accent-3 {
+      background-color: #651fff !important;
+    }
+
+    &.accent-4 {
+      background-color: #6200ea !important;
+    }
+  }
+}
+
+//Secondary
+.dark-deep-purple {
+  & a.text-secondary {
+    color: $secondary-dark-deep-purple;
+    &:focus,
+    &:hover {
+      color: darken($secondary-dark-deep-purple, 10%) !important;
+    }
+  }
+
+  & .text-secondary {
+    color: $secondary-dark-deep-purple !important;
+  }
+
+  & .bg-secondary,
+  & .badge-secondary {
+    background-color: $secondary-dark-deep-purple !important;
+    color: $link-hover-dark-deep-purple !important;
+  }
+
+  & .btn-secondary {
+    background-color: $secondary-dark-deep-purple;
+    border-color: $secondary-dark-deep-purple;
+    color: $link-hover-dark-deep-purple;
+
+    &:hover,
+    &:focus,
+    &:active {
+      background-color: darken($secondary-dark-deep-purple, 5%) !important;
+      border-color: darken($secondary-dark-deep-purple, 5%) !important;
+      color: $link-hover-dark-deep-purple !important;
+    }
+  }
+}
+
+//flat-btn
+.dark-deep-purple .jr-flat-btn {
+  background-color: transparent !important;
+  color: $body-color !important;
+  &:hover,
+  &:focus,
+  &:active {
+    background-color: map_get($gray, lighten-4) !important;
+    color: $body-color !important;
+  }
+}
+
+.dark-deep-purple .jr-flat-btn.jr-btn-primary {
+  background-color: transparent !important;
+  color: $app-primary-dark-deep-purple !important;
+  border-color: transparent !important;
+
+  &:hover,
+  &:focus {
+    background-color: rgba($app-primary-dark-deep-purple, 0.12) !important;
+    color: $app-primary-dark-deep-purple !important;
+  }
+}
+
+.dark-deep-purple .bg-primary {
+  & .jr-flat-btn.jr-btn-primary {
+    background-color: transparent !important;
+    color: $white !important;
+    border-color: transparent !important;
+
+    &:hover,
+    &:focus {
+      background-color: rgba($white, 0.12) !important;
+      color: $white !important;
+    }
+  }
+}
+
+.dark-deep-purple .jr-flat-btn.jr-btn-secondary {
+  background-color: transparent !important;
+  color: $secondary-dark-deep-purple !important;
+  border-color: transparent !important;
+
+  &:hover,
+  &:focus {
+    background-color: rgba($secondary-dark-deep-purple, 0.12) !important;
+    color: $secondary-dark-deep-purple !important;
+  }
+}
+
+.dark-deep-purple .bg-secondary {
+  & .jr-flat-btn.jr-btn-secondary {
+    background-color: transparent !important;
+    color: $white !important;
+    border-color: transparent !important;
+
+    &:hover,
+    &:focus {
+      background-color: rgba($white, 0.12) !important;
+      color: $white !important;
+    }
+  }
+}
+//_header.scss
+.dark-deep-purple .app-main-header {
+  background-color: $app-primary-dark-deep-purple !important;
+  color: $white;
+  border-color: $app-primary-dark-deep-purple;
+
+  & .search-bar input {
+    background-color: lighten($app-primary-dark-deep-purple, 5%);
+
+    & + .search-icon i {
+      color: $white;
+    }
+
+    &:focus {
+      background-color: $white;
+      & + .search-icon i {
+        color: rgba($gray-default, 0.8);
+      }
+    }
+  }
+
+  & .search-dropdown input {
+    @media screen and (max-width: 575px) {
+      background-color: $white;
+
+      & + .search-icon i {
+        color: rgba($gray-default, 0.8);
+      }
+    }
+  }
+
+  & .jr-menu-icon .menu-icon {
+    background-color: $white !important;
+  }
+}
+
+.dark-deep-purple .app-header .jr-menu-icon .menu-icon {
+  background-color: $white;
+}
+
+.dark-deep-purple .quick-menu .icon-btn {
+  color: $white;
+}
+
+//Logo disable condition
+.dark-deep-purple .react-logo-white.d-block {
+  display: block !important;
+}
+
+@media screen and (min-width: 992px) {
+  .dark-deep-purple .react-logo-white.d-lg-block {
+    display: block !important;
+  }
+
+  .dark-deep-purple .react-logo-white.d-lg-none {
+    display: none !important;
+  }
+}
+
+.dark-deep-purple .react-logo-color.d-block {
+  display: none !important;
+}
+
+@media screen and (min-width: 992px) {
+  .dark-deep-purple .react-logo-color.d-lg-block {
+    display: none !important;
+  }
+}
+
+//_right-sidebar.scss
+.dark-deep-purple .color-theme-header {
+  background-color: $app-primary-dark-deep-purple;
+
+}
+
+//_sidebar.scss
+.dark-deep-purple .sidebar-header {
+  border-bottom: 0 none;
+  background-color: $sidebar-darken-deep-purple;
+}
+
+.dark-deep-purple .side-nav {
+  background-color: $sidebar-dark-deep-purple !important;
+  color: $sidebar-text-dark-deep-purple !important;
+  border-right: 0 none !important;
+
+  & .user-profile {
+    background-color: $sidebar-darken-deep-purple;
+    position: relative;
+    z-index: 2;
+  }
+
+  & .customizer {
+    border-bottom: 0 none;
+  }
+
+  & .user-detail {
+    & .user-name {
+      color: $link-hover-dark-deep-purple;
+    }
+  }
+}
+
+.dark-deep-purple ul.nav-menu li a {
+  color: $sidebar-text-dark-deep-purple;
+}
+
+.dark-deep-purple ul.nav-menu {
+  & .nav-header {
+    color: $sidebar-text-dark-deep-purple;
+  }
+}
+
+.dark-deep-purple ul.nav-menu > li.open > a,
+.dark-deep-purple ul.nav-menu > li > a:hover,
+.dark-deep-purple ul.nav-menu > li > a:focus {
+  background-color: $sidebar-darken-deep-purple;
+  color: $link-hover-dark-deep-purple;
+}
+
+.dark-deep-purple ul.nav-menu li.menu.open > a {
+  border-color: $secondary-dark-deep-purple;
+}
+
+.dark-deep-purple ul.nav-menu li.menu > a:focus:before,
+.dark-deep-purple ul.nav-menu li.menu > a:hover:before {
+  color: $link-hover-dark-deep-purple;
+}
+
+.dark-deep-purple ul.nav-menu li ul {
+  background-color: $sidebar-darken-deep-purple;
+}
+
+.dark-deep-purple ul.nav-menu li.menu > a:before {
+  color: $sidebar-text-dark-deep-purple;
+}
+
+.dark-deep-purple ul.nav-menu li.menu.open > a:before,
+.dark-deep-purple ul.nav-menu li.menu > a:focus:before,
+.dark-deep-purple ul.nav-menu li.menu li > a:hover:before {
+  color: $link-hover-dark-deep-purple;
+}
+
+.dark-deep-purple ul.nav-menu li.menu .sub-menu li > a:before {
+  color: $sidebar-text-dark-deep-purple;
+}
+
+.dark-deep-purple ul.nav-menu li.menu .sub-menu li > a.active .nav-text {
+  background-color: $app-primary-dark-deep-purple;
+}
+
+.dark-deep-purple ul.nav-menu li.menu .sub-menu li > a:hover,
+.dark-deep-purple ul.nav-menu li.menu .sub-menu li > a:focus,
+.dark-deep-purple ul.nav-menu li.menu.open .sub-menu li > a.active:before,
+.dark-deep-purple ul.nav-menu li.menu .sub-menu li > a:focus:before,
+.dark-deep-purple ul.nav-menu li.menu .sub-menu li > a:hover:before {
+  background-color: $sidebar-darken-deep-purple;
+  color: $link-hover-dark-deep-purple;
+}
+
+/*Header top Navbar Styles*/
+.dark-deep-purple .navbar-nav {
+  & li {
+    &:hover > a,
+    &:focus > a {
+      color: $app-primary-dark-deep-purple;
+    }
+
+    & a {
+      color: $sidebar-text-color;
+    }
+
+    & a:hover,
+    & a:focus {
+      color: $app-primary-dark-deep-purple;
+    }
+  }
+
+  & li.nav-item > a {
+    color: $white;
+  }
+
+  & li.nav-item:hover > a,
+  & li.nav-item:focus > a,
+  & li.nav-item > a:hover,
+  & li.nav-item > a:focus,
+  & li.nav-item.active > a {
+    color: $secondary-dark-deep-purple;
+  }
+
+  ul.sub-menu {
+    & li a.active,
+    & li.active > a {
+      color: $app-primary-dark-deep-purple;
+    }
+  }
+
+  & .nav-arrow {
+    & > a:before {
+      color: $sidebar-text-color;
+    }
+
+    & a:hover,
+    & a:focus {
+      &:before {
+        color: $app-primary-dark-deep-purple;
+      }
+    }
+
+    &:hover > a:before,
+    &:focus > a:before,
+    &.active > a:before {
+      color: $app-primary-dark-deep-purple;
+    }
+  }
+}
+
+.dark-deep-purple .app-top-nav {
+  background-color: $top-nav-bg-dark-deep-purple !important;
+  border-color: $top-nav-bg-dark-deep-purple;
+  & .navbar-nav {
+    & li.nav-item > a {
+      color: $white;
+    }
+
+    & li.nav-item:hover > a,
+    & li.nav-item:focus > a,
+    & li.nav-item > a:hover,
+    & li.nav-item > a:focus,
+    & li.nav-item.active > a {
+      color: $secondary-dark-deep-purple;
+    }
+  }
+}
+
+//_app-module.scss
+.dark-deep-purple .module-nav {
+  & li a {
+    &.active {
+      border-color: $app-primary-dark-deep-purple;
+    }
+  }
+}
+
+//_calendar.scss
+.dark-deep-purple .rbc-event {
+  background-color: $app-primary-dark-deep-purple;
+}
+
+.dark-deep-purple .rbc-event.rbc-selected {
+  background-color: darken($app-primary-dark-deep-purple, 10%);
+}
+
+.dark-deep-purple .rbc-slot-selection {
+  background-color: rgba($app-primary-dark-deep-purple, 0.7);
+}
+
+.dark-deep-purple .rbc-toolbar button:active,
+.dark-deep-purple .rbc-toolbar button.rbc-active {
+  background-color: rgba($app-primary-dark-deep-purple, 0.9);
+  border-color: $app-primary-dark-deep-purple;
+}
+
+.dark-deep-purple .rbc-toolbar button:active:hover,
+.dark-deep-purple .rbc-toolbar button.rbc-active:hover,
+.dark-deep-purple .rbc-toolbar button:active:focus,
+.dark-deep-purple .rbc-toolbar button.rbc-active:focus {
+  background-color: rgba($app-primary-dark-deep-purple, 0.9);
+  border-color: $app-primary-dark-deep-purple;
+}
+
+.dark-deep-purple .rbc-toolbar button:focus {
+  background-color: rgba($app-primary-dark-deep-purple, 0.9);
+  border-color: $app-primary-dark-deep-purple;
+}
+
+.dark-deep-purple .rbc-toolbar button:hover {
+  background-color: rgba($app-primary-dark-deep-purple, 0.9);
+  border-color: $app-primary-dark-deep-purple;
+}
+
+.dark-deep-purple .rbc-day-slot .rbc-event {
+  border-color: $app-primary-dark-deep-purple;
+}
+
+//_chat.scss
+.dark-deep-purple .chat-sidenav-title {
+  color: $app-primary-dark-deep-purple;
+}
+
+.dark-deep-purple .chat-user-item {
+  &.active,
+  &:hover {
+    background-color: lighten($app-primary-dark-deep-purple, 45%);
+  }
+}
+
+//_dashboard.scss
+.dark-deep-purple .contact-list {
+  & i {
+    color: $app-primary-dark-deep-purple;
+  }
+}
+
+//The link which when clicked opens the collapsable ChatUserList
+.dark-deep-purple .Collapsible__trigger {
+  background: $app-primary-dark-deep-purple;
+}
+
+.dark-deep-purple .categories-list {
+  & li a:focus,
+  & li a:hover,
+  & li.active a {
+    color: $app-primary-dark-deep-purple;
+  }
+}
+
+//_login.scss
+.dark-deep-purple .login-content .form-control {
+  &:focus {
+    border-color: $app-primary-dark-deep-purple;
+  }
+}
+
+//_portfolio.scss
+.dark-deep-purple .filter-with-bg-color ul li {
+  & a {
+    border-color: $app-primary-dark-deep-purple;
+
+    &:hover,
+    &:focus,
+    &.active {
+      background-color: $app-primary-dark-deep-purple;
+    }
+  }
+}
+
+//_card.scss
+.dark-deep-purple .profile-intro {
+  & .icon {
+    color: $app-primary-dark-deep-purple;
+  }
+}
+
+.dark-deep-purple .social-link {
+  & li.active a,
+  & li a:hover,
+  & li a:focus {
+    color: $secondary-dark-deep-purple;
+  }
+}
+
+//_tables.scss
+.dark-deep-purple .actions {
+  color: $secondary-dark-deep-purple;
+}
+
+.dark-deep-purple .table-hover tbody tr:hover {
+  background-color: rgba($app-primary-dark-deep-purple, 0.075);
+}
+
+//Border Color
+
+.dark-deep-purple .border-primary {
+  border-color: $app-primary-dark-deep-purple !important;
+}
+
+// login page content
+
+.dark-deep-purple .app-logo-content {
+  background-color: $app-primary-dark-deep-purple;
+}
+
+.dark-deep-purple .app-social-block {
+  & .social-link button {
+    border: solid 1px $app-primary-dark-deep-purple;
+    color: $app-primary-dark-deep-purple;
+
+    &:hover,
+    &:focus {
+      color: $white;
+      background-color: $app-primary-dark-deep-purple;
+    }
+  }
+}
+
+.dark-deep-purple .btn-group,
+.dark-deep-purple .btn-group-vertical {
+  > .jr-btn,
+  > .btn-default {
+    &.active {
+      background-color: $app-primary-dark-deep-purple;
+      border-color: $app-primary-dark-deep-purple;
+    }
+
+  }
+
+  > .jr-flat-btn {
+    border-color: transparent;
+    &.active {
+      background-color: transparent;
+      color: $app-primary-dark-deep-purple !important;
+      border-color: transparent !important;
+
+      &:hover,
+      &:focus {
+        background-color: rgba($app-primary-dark-deep-purple, 0.12) !important;
+        color: $app-primary-dark-deep-purple !important;
+      }
+    }
+  }
+}
+
+.dark-deep-purple .nav-pill-sales {
+  & .nav-link.active {
+    background-color: $app-primary-dark-deep-purple;
+    border-color: $app-primary-dark-deep-purple;
+  }
+}
+
+.dark-deep-purple .form-checkbox > input + .check,
+.dark-deep-purple .form-checkbox > input.sm + .check {
+  color: $app-primary-dark-deep-purple;
+}
+
+/* Input Placeholder Style */
+.dark-deep-purple .app-main-header ::-webkit-input-placeholder { /* Chrome/Opera/Safari */
+  color: darken($white, 8%);
+}
+
+.dark-deep-purple .app-main-header ::-moz-placeholder { /* Firefox 19+ */
+  color: darken($white, 8%);
+}
+
+.dark-deep-purple .app-main-header :-ms-input-placeholder { /* IE 10+ */
+  color: darken($white, 8%);
+}
+
+.dark-deep-purple .app-main-header :-moz-placeholder { /* Firefox 18- */
+  color: darken($white, 8%);
+}
+
+.dark-deep-purple .app-main-header input:focus::-webkit-input-placeholder { /* Chrome/Opera/Safari */
+  color: lighten($body-color, 50%);
+}
+
+.dark-deep-purple .app-main-header input:focus::-moz-placeholder { /* Firefox 19+ */
+  color: lighten($body-color, 50%);
+}
+
+.dark-deep-purple .app-main-header input:focus:-ms-input-placeholder { /* IE 10+ */
+  color: lighten($body-color, 50%);
+}
+
+.dark-deep-purple .app-main-header input:focus:-moz-placeholder { /* Firefox 18- */
+  color: lighten($body-color, 50%);
+}
+

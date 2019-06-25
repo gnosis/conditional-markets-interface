@@ -1,0 +1,78 @@
+/*Typography Styles*/
+h1, h2, h3, h4, h5, h6,
+.h1, .h2, .h3, .h4, .h5, .h6 {
+  font-weight: $headings-font-weight;
+  margin: 0 0 $headings-margin-bottom;
+  color: $headings-color;
+}
+
+h1, .h1 {
+  font-size: $h1-font-size;
+}
+
+h2, .h2 {
+  font-size: $h2-font-size;
+}
+
+h3, .h3 {
+  font-size: $h3-font-size;
+}
+
+h4, .h4 {
+  font-size: $h4-font-size;
+}
+
+h5, .h5 {
+  font-size: $h5-font-size;
+}
+
+h6, .h6 {
+  font-size: $h6-font-size;
+}
+
+.text-strikethrough {
+  text-decoration: line-through !important;
+}
+
+@media screen and (max-width: 991px) {
+  h1, .h1 {
+    font-size: $h2-font-size;
+  }
+
+  h2, .h2 {
+    font-size: $h3-font-size;
+  }
+
+  h3, .h3 {
+    font-size: $h4-font-size;
+  }
+}
+
+.desc-list {
+  margin-bottom: 0;
+  li {
+    padding: $jr-card-padding;
+    border-bottom: 1px solid $gray-400;
+    margin-left: -$jr-card-margin + 4px;
+    margin-right: -$jr-card-margin + 4px;
+
+    &:last-child {
+      border-bottom: 0 none;
+    }
+
+    & .card-title {
+      margin-bottom: 6px;
+    }
+
+  }
+
+  &.even-odd {
+    li {
+      border-bottom: 0 none;
+
+      &:nth-child(2n) {
+        background-color: $gray-300;
+      }
+    }
+  }
+}
