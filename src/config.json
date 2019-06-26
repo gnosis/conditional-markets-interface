@@ -1,9 +1,9 @@
 {
-  "lmsrAddress": "0xDF9FD2e8Cf22F173168F320172bBBB29f6d6b011",
+  "lmsrAddress": "0x07EAa972C61112D78bb859F9d79bd1eD145A21C5",
   "markets": [
     {
       "title": "Will the DAI price exceed $1 according to the DutchX last auction closing price and Maker ETH price feed?",
-      "resolutionDate": "2019-07-26T13:30:09.000Z",
+      "resolutionDate": "2019-07-26T21:58:18.000Z",
       "outcomes": [
         {
           "title": "Yes",
@@ -19,7 +19,7 @@
     },
     {
       "title": "Will the DAI supply exceed 81 million DAI?",
-      "resolutionDate": "2019-07-26T13:30:09.000Z",
+      "resolutionDate": "2019-07-26T21:58:18.000Z",
       "outcomes": [
         {
           "title": "Yes",
@@ -35,7 +35,7 @@
     },
     {
       "title": "Will the DAI stability fee exceed 17.5%?",
-      "resolutionDate": "2019-07-26T13:30:09.000Z",
+      "resolutionDate": "2019-07-26T21:58:18.000Z",
       "outcomes": [
         {
           "title": "Yes",

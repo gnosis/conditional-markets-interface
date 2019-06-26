@@ -9,7 +9,7 @@ import BuySection from "./buy-section";
 import YourPositions from "./your-positions";
 import Spinner from "./spinner";
 import { getNetworkName, loadWeb3 } from "./utils/web3-helpers.js";
-import("./style.css");
+import("./style.scss");
 
 async function loadBasicData({ lmsrAddress, markets }, web3, Decimal) {
   const { soliditySha3 } = web3.utils;
@@ -25,11 +25,11 @@ async function loadBasicData({ lmsrAddress, markets }, web3, Decimal) {
   ] = await Promise.all([
     import("truffle-contract"),
     import("./utils/itertools"),
-    import("./contracts/build/ERC20Detailed.json"),
-    import("./contracts/build/IDSToken.json"),
-    import("./contracts/build/WETH9.json"),
-    import("./contracts/build/PredictionMarketSystem.json"),
-    import("./contracts/build/LMSRMarketMaker.json")
+    import("./build/contracts/ERC20Detailed.json"),
+    import("./build/contracts/IDSToken.json"),
+    import("./build/contracts/WETH9.json"),
+    import("./build/contracts/PredictionMarketSystem.json"),
+    import("./build/contracts/LMSRMarketMaker.json")
   ]);
 
   const ERC20Detailed = TruffleContract(ERC20DetailedArtifact);
@@ -282,15 +282,16 @@ function RootComponent() {
     [getCollateralBalance, [web3, collateral, account], setCollateralBalance],
     [getPositionBalances, [pmSystem, positions, account], setPositionBalances],
     [getLMSRAllowance, [collateral, lmsrMarketMaker, account], setLMSRAllowance]
-  ])
-    useEffect(() => {
-      if (dependentParams.every(p => p != null))
-        loader(...dependentParams)
-          .then(setter)
-          .catch(err => {
-            throw err;
-          });
-    }, [...dependentParams, syncTime]);
+  ]) {
+  }
+  //   useEffect(() => {
+  //     if (dependentParams.every(p => p != null))
+  //       loader(...dependentParams)
+  //         .then(setter)
+  //         .catch(err => {
+  //           throw err;
+  //         });
+  //   }, [...dependentParams, syncTime]);
 
   const [marketSelections, setMarketSelections] = useState(null);
   const [stagedTradeAmounts, setStagedTradeAmounts] = useState(null);

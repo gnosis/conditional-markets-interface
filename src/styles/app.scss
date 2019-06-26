@@ -83,7 +83,7 @@ Version        : 1.0
         15. Theme Dark Deep Purple Styles
         16. Theme Dark Green Styles
   =============================================================*/
-@import "../../node_modules/normalize.css/normalize.css";
+@import "vendors/normalize";
 // Bootstrap
 @import "_bootstrap.scss";
 // Material design
