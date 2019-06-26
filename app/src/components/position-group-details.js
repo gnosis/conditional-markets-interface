@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import Web3 from "web3";
-import { formatCollateral, pseudoMarkdown } from "./utils/formatting";
+import { formatCollateral, pseudoMarkdown } from "../utils/formatting";
 
 import cn from "classnames";
 

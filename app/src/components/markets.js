@@ -4,7 +4,7 @@ import Web3 from "web3";
 import Decimal from "decimal.js-light";
 import Market from "./market";
 
-import { zeroDecimal, oneDecimal } from "./utils/constants";
+import { zeroDecimal, oneDecimal } from "../utils/constants";
 
 const { BN } = Web3.utils;
 

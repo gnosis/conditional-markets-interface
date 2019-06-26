@@ -1,8 +1,8 @@
 import React from "react";
 import PropTypes from "prop-types";
 import Decimal from "decimal.js-light";
-import { oneDecimal, minDisplayedProbability } from "./utils/constants";
-import { formatProbability } from "./utils/formatting";
+import { oneDecimal, minDisplayedProbability } from "../utils/constants";
+import { formatProbability } from "../utils/formatting";
 
 import cn from "classnames";
 

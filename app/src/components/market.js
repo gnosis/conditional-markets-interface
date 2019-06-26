@@ -5,7 +5,7 @@ import Decimal from "decimal.js-light";
 import OutcomesBinary from "./outcomes-binary";
 import OutcomeSelection from "./outcome-selection";
 import Spinner from "./spinner";
-import { formatProbability } from "./utils/formatting";
+import { formatProbability } from "../utils/formatting";
 
 import cn from "classnames";
 
