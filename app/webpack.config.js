@@ -14,8 +14,8 @@ module.exports = {
   devtool: "eval-source-map",
   output: {
     path: __dirname + "/../docs/safe-compatible",
-    publicPath,
-    filename: "bundle.js"
+    filename: "bundle.js",
+    publicPath
   },
   target: "web",
   resolve: {
@@ -43,11 +43,7 @@ module.exports = {
         use: "babel-loader"
       },
       {
-        test: /\.css$/,
-        use: ["style-loader", "css-loader"]
-      },
-      {
-        test: /\.scss$/,
+        test: [/.css$|.scss$/],
         use: ["style-loader", "css-loader", "sass-loader"]
       },
       {
