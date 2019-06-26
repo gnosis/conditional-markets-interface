@@ -126,9 +126,7 @@ const BuySection = ({
 
       if (!investmentAmountInUnits.isInteger())
         throw new Error(
-          `Got more than ${
-            collateral.decimals
-          } decimals in value ${investmentAmount}`
+          `Got more than ${collateral.decimals} decimals in value ${investmentAmount}`
         );
 
       if (investmentAmountInUnits.gt(collateralBalance.totalAmount.toString()))

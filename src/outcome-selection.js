@@ -75,9 +75,7 @@ const OutcomeSelection = ({
             {marketSelection != null
               ? marketSelection.selectedOutcomeIndex == null
                 ? "To select an assumption, make a selection above"
-                : `Assuming "${
-                    outcomes[marketSelection.selectedOutcomeIndex].short
-                  }" occurred`
+                : `Assuming "${outcomes[marketSelection.selectedOutcomeIndex].short}" occurred`
               : "Loading..."}
           </label>
         </div>

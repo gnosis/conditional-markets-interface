@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import registerServiceWorker from "./registerServiceWorker";
 import { render } from "react-dom";
 import cn from "classnames";
 import useInterval from "@use-it/interval";
@@ -8,8 +9,7 @@ import BuySection from "./buy-section";
 import YourPositions from "./your-positions";
 import Spinner from "./spinner";
 import { getNetworkName, loadWeb3 } from "./utils/web3-helpers.js";
-import("./style.scss");
-// import("./styles/bootstrap.scss");
+import("./style.css");
 
 async function loadBasicData({ lmsrAddress, markets }, web3, Decimal) {
   const { soliditySha3 } = web3.utils;
@@ -75,9 +75,7 @@ async function loadBasicData({ lmsrAddress, markets }, web3, Decimal) {
       throw new Error(`condition ${conditionId} not set up yet`);
     if (numSlots !== market.outcomes.length)
       throw new Error(
-        `condition ${conditionId} outcome slot count ${numSlots} does not match market outcome descriptions array with length ${
-          market.outcomes.length
-        }`
+        `condition ${conditionId} outcome slot count ${numSlots} does not match market outcome descriptions array with length ${market.outcomes.length}`
       );
 
     market.marketIndex = i;
@@ -284,7 +282,7 @@ function RootComponent() {
     [getCollateralBalance, [web3, collateral, account], setCollateralBalance],
     [getPositionBalances, [pmSystem, positions, account], setPositionBalances],
     [getLMSRAllowance, [collateral, lmsrMarketMaker, account], setLMSRAllowance]
-  ])
+  ]) {
     useEffect(() => {
       if (dependentParams.every(p => p != null))
         loader(...dependentParams)
@@ -293,6 +291,7 @@ function RootComponent() {
             throw err;
           });
     }, [...dependentParams, syncTime]);
+  }
 
   const [marketSelections, setMarketSelections] = useState(null);
   const [stagedTradeAmounts, setStagedTradeAmounts] = useState(null);
@@ -419,3 +418,5 @@ function RootComponent() {
 
 const rootElement = document.getElementById("root");
 render(<RootComponent />, rootElement);
+
+registerServiceWorker();
