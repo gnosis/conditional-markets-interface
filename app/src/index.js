@@ -1,94 +1,14 @@
+import React, { useState, useEffect } from "react";
+import { render } from "react-dom";
+import cn from "classnames";
+import useInterval from "@use-it/interval";
+import Decimal from "decimal.js-light";
+import Markets from "./markets";
+import BuySection from "./buy-section";
+import YourPositions from "./your-positions";
+import Spinner from "./spinner";
+import { getNetworkName, loadWeb3 } from "./utils/web3-helpers.js";
 import("./style.scss");
-
-function getNetworkName(networkId) {
-  // https://ethereum.stackexchange.com/a/17101
-  return (
-    {
-      [0]: "Olympic",
-      [1]: "Mainnet",
-      [2]: "Morden Classic",
-      [3]: "Ropsten",
-      [4]: "Rinkeby",
-      [5]: "Goerli",
-      [6]: "Kotti Classic",
-      [8]: "Ubiq",
-      [42]: "Kovan",
-      [60]: "GoChain",
-      [77]: "Sokol",
-      [99]: "Core",
-      [100]: "xDai",
-      [31337]: "GoChain testnet",
-      [401697]: "Tobalaba",
-      [7762959]: "Musicoin",
-      [61717561]: "Aquachain"
-    }[networkId] || `Network ID ${networkId}`
-  );
-}
-
-function getReadOnlyProviderForNetworkId(networkId) {
-  const providerName = {
-    [1]: "mainnet",
-    [3]: "ropsten",
-    [4]: "rinkeby",
-    [5]: "goerli",
-    [42]: "kovan"
-  }[networkId];
-
-  return providerName == null
-    ? null
-    : `wss://${providerName}.infura.io/ws/v3/d743990732244555a1a0e82d5ab90c7f`;
-}
-
-async function loadWeb3(networkId) {
-  const { default: Web3 } = await import("web3");
-
-  const web3InitErrors = [];
-  let web3, account;
-  let foundWeb3 = false;
-  for (const [providerType, providerCandidate] of [
-    ["injected provider", Web3.givenProvider],
-    ["local websocket", "ws://localhost:8546"],
-    ["local http", "http://localhost:8545"],
-    [
-      `read-only for id ${networkId}`,
-      getReadOnlyProviderForNetworkId(networkId)
-    ]
-  ]) {
-    try {
-      if (providerCandidate == null) throw new Error("no provider found");
-      if (providerCandidate.enable != null) await providerCandidate.enable();
-
-      web3 = new Web3(providerCandidate);
-      const web3NetworkId = await web3.eth.net.getId();
-      if (web3NetworkId != networkId)
-        throw new Error(
-          `interface expects ${networkId} but currently connected to ${web3NetworkId}`
-        );
-
-      // attempt to get the main account here
-      // so that web3 will emit an error if e.g.
-      // the localhost provider cannot be reached
-      if (web3.defaultAccount == null) {
-        const accounts = await web3.eth.getAccounts();
-        account = accounts[0] || null;
-      } else account = web3.defaultAccount;
-
-      foundWeb3 = true;
-      break;
-    } catch (e) {
-      web3InitErrors.push([providerType, e]);
-    }
-  }
-
-  if (!foundWeb3)
-    throw new Error(
-      `could not get valid Web3 instance; got following errors:\n${web3InitErrors
-        .map(([providerCandidate, e]) => `${providerCandidate} -> ${e}`)
-        .join("\n")}`
-    );
-
-  return { web3, account };
-}
 
 async function loadBasicData({ lmsrAddress, markets }, web3, Decimal) {
   const { soliditySha3 } = web3.utils;
@@ -295,254 +215,206 @@ async function getLMSRAllowance(collateral, lmsrMarketMaker, account) {
   return await collateral.contract.allowance(account, lmsrMarketMaker.address);
 }
 
-Promise.all([
-  import("react"),
-  import("react-dom"),
-  import("classnames"),
-  import("@use-it/interval"),
-  import("decimal.js-light"),
-  import("./markets"),
-  import("./buy-section"),
-  import("./your-positions"),
-  import("./spinner")
-]).then(
-  ([
-    { default: React, useState, useEffect },
-    { render },
-    { default: cn },
-    { default: useInterval },
-    { default: Decimal },
-    { default: Markets },
-    { default: BuySection },
-    { default: YourPositions },
-    { default: Spinner }
-  ]) => {
-    Decimal.config({
-      precision: 80,
-      rounding: Decimal.ROUND_FLOOR
-    });
+Decimal.config({
+  precision: 80,
+  rounding: Decimal.ROUND_FLOOR
+});
 
-    const moduleLoadTime = Date.now();
+const moduleLoadTime = Date.now();
 
-    function RootComponent() {
-      const [loading, setLoading] = useState("LOADING");
-      const [syncTime, setSyncTime] = useState(moduleLoadTime);
-      function triggerSync() {
-        setSyncTime(Date.now());
-      }
-      useInterval(triggerSync, 2000);
+function RootComponent() {
+  const [loading, setLoading] = useState("LOADING");
+  const [syncTime, setSyncTime] = useState(moduleLoadTime);
+  function triggerSync() {
+    setSyncTime(Date.now());
+  }
+  useInterval(triggerSync, 2000);
 
-      const [networkId, setNetworkId] = useState(null);
-      const [web3, setWeb3] = useState(null);
-      const [account, setAccount] = useState(null);
-      const [pmSystem, setPMSystem] = useState(null);
-      const [lmsrMarketMaker, setLMSRMarketMaker] = useState(null);
-      const [collateral, setCollateral] = useState(null);
-      const [markets, setMarkets] = useState(null);
-      const [positions, setPositions] = useState(null);
+  const [networkId, setNetworkId] = useState(null);
+  const [web3, setWeb3] = useState(null);
+  const [account, setAccount] = useState(null);
+  const [pmSystem, setPMSystem] = useState(null);
+  const [lmsrMarketMaker, setLMSRMarketMaker] = useState(null);
+  const [collateral, setCollateral] = useState(null);
+  const [markets, setMarkets] = useState(null);
+  const [positions, setPositions] = useState(null);
 
-      useEffect(() => {
-        import("../config.json")
-          .then(async ({ default: config }) => {
-            setNetworkId(config.networkId);
+  useEffect(() => {
+    import("../config.json")
+      .then(async ({ default: config }) => {
+        setNetworkId(config.networkId);
 
-            const { web3, account } = await loadWeb3(config.networkId);
+        const { web3, account } = await loadWeb3(config.networkId);
 
-            setWeb3(web3);
-            setAccount(account);
+        setWeb3(web3);
+        setAccount(account);
 
-            const {
-              pmSystem,
-              lmsrMarketMaker,
-              collateral,
-              markets,
-              positions
-            } = await loadBasicData(config, web3, Decimal);
+        const {
+          pmSystem,
+          lmsrMarketMaker,
+          collateral,
+          markets,
+          positions
+        } = await loadBasicData(config, web3, Decimal);
 
-            setPMSystem(pmSystem);
-            setLMSRMarketMaker(lmsrMarketMaker);
-            setCollateral(collateral);
-            setMarkets(markets);
-            setPositions(positions);
+        setPMSystem(pmSystem);
+        setLMSRMarketMaker(lmsrMarketMaker);
+        setCollateral(collateral);
+        setMarkets(markets);
+        setPositions(positions);
 
-            setLoading("SUCCESS");
-          })
+        setLoading("SUCCESS");
+      })
+      .catch(err => {
+        setLoading("FAILURE");
+        throw err;
+      });
+  }, []);
+
+  const [lmsrState, setLMSRState] = useState(null);
+  const [marketResolutionStates, setMarketResolutionStates] = useState(null);
+  const [collateralBalance, setCollateralBalance] = useState(null);
+  const [positionBalances, setPositionBalances] = useState(null);
+  const [lmsrAllowance, setLMSRAllowance] = useState(null);
+
+  for (const [loader, dependentParams, setter] of [
+    [getLMSRState, [web3, pmSystem, lmsrMarketMaker, positions], setLMSRState],
+    [getMarketResolutionStates, [pmSystem, markets], setMarketResolutionStates],
+    [getCollateralBalance, [web3, collateral, account], setCollateralBalance],
+    [getPositionBalances, [pmSystem, positions, account], setPositionBalances],
+    [getLMSRAllowance, [collateral, lmsrMarketMaker, account], setLMSRAllowance]
+  ])
+    useEffect(() => {
+      if (dependentParams.every(p => p != null))
+        loader(...dependentParams)
+          .then(setter)
           .catch(err => {
-            setLoading("FAILURE");
             throw err;
           });
-      }, []);
+    }, [...dependentParams, syncTime]);
 
-      const [lmsrState, setLMSRState] = useState(null);
-      const [marketResolutionStates, setMarketResolutionStates] = useState(
-        null
-      );
-      const [collateralBalance, setCollateralBalance] = useState(null);
-      const [positionBalances, setPositionBalances] = useState(null);
-      const [lmsrAllowance, setLMSRAllowance] = useState(null);
+  const [marketSelections, setMarketSelections] = useState(null);
+  const [stagedTradeAmounts, setStagedTradeAmounts] = useState(null);
+  const [stagedTransactionType, setStagedTransactionType] = useState(null);
 
-      for (const [loader, dependentParams, setter] of [
-        [
-          getLMSRState,
-          [web3, pmSystem, lmsrMarketMaker, positions],
-          setLMSRState
-        ],
-        [
-          getMarketResolutionStates,
-          [pmSystem, markets],
-          setMarketResolutionStates
-        ],
-        [
-          getCollateralBalance,
-          [web3, collateral, account],
-          setCollateralBalance
-        ],
-        [
-          getPositionBalances,
-          [pmSystem, positions, account],
-          setPositionBalances
-        ],
-        [
-          getLMSRAllowance,
-          [collateral, lmsrMarketMaker, account],
-          setLMSRAllowance
-        ]
-      ])
-        useEffect(() => {
-          if (dependentParams.every(p => p != null))
-            loader(...dependentParams)
-              .then(setter)
-              .catch(err => {
-                throw err;
-              });
-        }, [...dependentParams, syncTime]);
-
-      const [marketSelections, setMarketSelections] = useState(null);
-      const [stagedTradeAmounts, setStagedTradeAmounts] = useState(null);
-      const [stagedTransactionType, setStagedTransactionType] = useState(null);
-
-      const [ongoingTransactionType, setOngoingTransactionType] = useState(
-        null
-      );
-      function asWrappedTransaction(
-        wrappedTransactionType,
-        transactionFn,
-        setError
-      ) {
-        return async function wrappedAction() {
-          if (ongoingTransactionType != null) {
-            throw new Error(
-              `Attempted to ${wrappedTransactionType} while transaction to ${ongoingTransactionType} is ongoing`
-            );
-          }
-
-          try {
-            setOngoingTransactionType(wrappedTransactionType);
-            await transactionFn();
-          } catch (e) {
-            setError(e);
-            throw e;
-          } finally {
-            setOngoingTransactionType(null);
-            triggerSync();
-          }
-        };
+  const [ongoingTransactionType, setOngoingTransactionType] = useState(null);
+  function asWrappedTransaction(
+    wrappedTransactionType,
+    transactionFn,
+    setError
+  ) {
+    return async function wrappedAction() {
+      if (ongoingTransactionType != null) {
+        throw new Error(
+          `Attempted to ${wrappedTransactionType} while transaction to ${ongoingTransactionType} is ongoing`
+        );
       }
 
-      if (loading === "SUCCESS")
-        return (
-          <div className={cn("page")}>
-            <h1 className={cn("page-title")}>Gnosis PM 2.0 Experiments</h1>
-            <section className={cn("section", "market-section")}>
-              <Markets
+      try {
+        setOngoingTransactionType(wrappedTransactionType);
+        await transactionFn();
+      } catch (e) {
+        setError(e);
+        throw e;
+      } finally {
+        setOngoingTransactionType(null);
+        triggerSync();
+      }
+    };
+  }
+
+  if (loading === "SUCCESS")
+    return (
+      <div className={cn("page")}>
+        <h1 className={cn("page-title")}>Gnosis PM 2.0 Experiments</h1>
+        <section className={cn("section", "market-section")}>
+          <Markets
+            {...{
+              markets,
+              marketResolutionStates,
+              positions,
+              lmsrState,
+              marketSelections,
+              setMarketSelections,
+              stagedTradeAmounts
+            }}
+          />
+        </section>
+        <div className={cn("separator")} />
+        <section className={cn("section", "position-section")}>
+          {account == null ? (
+            <>
+              <h2 className={cn("heading")}>Note</h2>
+              <p>
+                Please connect an Ethereum provider to{" "}
+                {getNetworkName(networkId)} to interact with this market.
+              </p>
+            </>
+          ) : (
+            <>
+              <h2 className={cn("heading")}>Manage Positions</h2>
+              <BuySection
                 {...{
+                  account,
+                  markets,
+                  positions,
+                  collateral,
+                  collateralBalance,
+                  lmsrMarketMaker,
+                  lmsrState,
+                  lmsrAllowance,
+                  marketSelections,
+                  stagedTradeAmounts,
+                  setStagedTradeAmounts,
+                  stagedTransactionType,
+                  setStagedTransactionType,
+                  ongoingTransactionType,
+                  asWrappedTransaction
+                }}
+              />
+              <YourPositions
+                {...{
+                  account,
+                  pmSystem,
                   markets,
                   marketResolutionStates,
                   positions,
+                  collateral,
+                  lmsrMarketMaker,
                   lmsrState,
-                  marketSelections,
-                  setMarketSelections,
-                  stagedTradeAmounts
+                  positionBalances,
+                  stagedTradeAmounts,
+                  setStagedTradeAmounts,
+                  stagedTransactionType,
+                  setStagedTransactionType,
+                  ongoingTransactionType,
+                  asWrappedTransaction
                 }}
               />
-            </section>
-            <div className={cn("separator")} />
-            <section className={cn("section", "position-section")}>
-              {account == null ? (
-                <>
-                  <h2 className={cn("heading")}>Note</h2>
-                  <p>
-                    Please connect an Ethereum provider to{" "}
-                    {getNetworkName(networkId)} to interact with this market.
-                  </p>
-                </>
-              ) : (
-                <>
-                  <h2 className={cn("heading")}>Manage Positions</h2>
-                  <BuySection
-                    {...{
-                      account,
-                      markets,
-                      positions,
-                      collateral,
-                      collateralBalance,
-                      lmsrMarketMaker,
-                      lmsrState,
-                      lmsrAllowance,
-                      marketSelections,
-                      stagedTradeAmounts,
-                      setStagedTradeAmounts,
-                      stagedTransactionType,
-                      setStagedTransactionType,
-                      ongoingTransactionType,
-                      asWrappedTransaction
-                    }}
-                  />
-                  <YourPositions
-                    {...{
-                      account,
-                      pmSystem,
-                      markets,
-                      marketResolutionStates,
-                      positions,
-                      collateral,
-                      lmsrMarketMaker,
-                      lmsrState,
-                      positionBalances,
-                      stagedTradeAmounts,
-                      setStagedTradeAmounts,
-                      stagedTransactionType,
-                      setStagedTransactionType,
-                      ongoingTransactionType,
-                      asWrappedTransaction
-                    }}
-                  />
-                </>
-              )}
-            </section>
-          </div>
-        );
+            </>
+          )}
+        </section>
+      </div>
+    );
 
-      if (loading === "LOADING")
-        return (
-          <div className={cn("loading-page")}>
-            <Spinner centered inverted width={100} height={100} />
-          </div>
-        );
-      if (loading === "FAILURE")
-        return (
-          <div className={cn("failure-page")}>
-            <h2>Failed to load 😞</h2>
-            <h3>Please check the following:</h3>
-            <ul>
-              <li>Connect to correct network ({getNetworkName(networkId)})</li>
-              <li>Install/Unlock Metamask</li>
-            </ul>
-          </div>
-        );
-    }
+  if (loading === "LOADING")
+    return (
+      <div className={cn("loading-page")}>
+        <Spinner centered inverted width={100} height={100} />
+      </div>
+    );
+  if (loading === "FAILURE")
+    return (
+      <div className={cn("failure-page")}>
+        <h2>Failed to load 😞</h2>
+        <h3>Please check the following:</h3>
+        <ul>
+          <li>Connect to correct network ({getNetworkName(networkId)})</li>
+          <li>Install/Unlock Metamask</li>
+        </ul>
+      </div>
+    );
+}
 
-    const rootElement = document.getElementById("root");
-    render(<RootComponent />, rootElement);
-  }
-);
+const rootElement = document.getElementById("root");
+render(<RootComponent />, rootElement);
