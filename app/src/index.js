@@ -1,4 +1,5 @@
 import("./style.scss");
+// import("./styles/bootstrap.scss");
 
 function getNetworkName(networkId) {
   // https://ethereum.stackexchange.com/a/17101

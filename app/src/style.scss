@@ -1,4 +1,4 @@
-@import "../../node_modules/normalize.css/normalize.css";
+@import "./styles/app.scss";
 
 $background-muted: #dcdcdc;
 $button-color-primary: #00a6c6;
@@ -25,7 +25,7 @@ button {
   &:disabled, &.disabled {
     opacity: 0.6;
     cursor: not-allowed;
-  } 
+  }
 
   font-weight: lighter;
   text-transform: uppercase;
@@ -129,13 +129,13 @@ button {
         flex: 1;
         color: #323232;
         text-align: center;
-        
+
         .label {
           text-transform: uppercase;
           font-weight: 200;
           margin-bottom: 0;
         }
-  
+
         .value {
           font-weight: 800;
           margin-top: 0;
@@ -238,7 +238,7 @@ button {
       .hint {
         min-width: 70px;
         top: -(8px + 2px); // 8px = arrow height, 2px = spacing
-        
+
         &::after {
           bottom: -8px;
           border-width: 8px 5px 0 5px;
@@ -268,7 +268,7 @@ button {
       .hint {
         min-width: 170px;
         top: calc(100% + 36px + 8px);
-        
+
         &::after {
           top: -7px;
           bottom: auto;

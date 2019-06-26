@@ -83,7 +83,14 @@ Version        : 1.0
         15. Theme Dark Deep Purple Styles
         16. Theme Dark Green Styles
   =============================================================*/
-//Custom Variables
+@import "../../node_modules/normalize.css/normalize.css";
+// Bootstrap
+@import "_bootstrap.scss";
+// Material design
+// @import "vendors/material-design-iconic-font/css/_material-design-iconic-font";
+// React Select
+@import "vendors/react-select/react-select.scss";
+//Custom Variables - at bottom to overwrite styling
 @import "global/_global-dir";
 //Custom Files
 @import "base/_base-dir";
