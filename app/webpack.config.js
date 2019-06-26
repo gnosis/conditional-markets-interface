@@ -2,6 +2,7 @@ const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const { BundleAnalyzerPlugin } = require("webpack-bundle-analyzer");
+const CopyWebpackPlugin = require("copy-webpack-plugin");
 
 const publicPath =
   process.env.NODE_ENV === "production"
@@ -78,6 +79,12 @@ module.exports = {
     new MiniCssExtractPlugin({
       filename: "styles.css"
     }),
-    require("autoprefixer")
+    require("autoprefixer"),
+    new CopyWebpackPlugin([
+      {
+        from: "./src/assets/images",
+        to: "assets/images"
+      }
+    ])
   ]
 };
