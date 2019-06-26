@@ -25,11 +25,11 @@ async function loadBasicData({ lmsrAddress, markets }, web3, Decimal) {
   ] = await Promise.all([
     import("truffle-contract"),
     import("./utils/itertools"),
-    import("../../build/contracts/ERC20Detailed.json"),
-    import("../../build/contracts/IDSToken.json"),
-    import("../../build/contracts/WETH9.json"),
-    import("../../build/contracts/PredictionMarketSystem.json"),
-    import("../../build/contracts/LMSRMarketMaker.json")
+    import("./contracts/build/ERC20Detailed.json"),
+    import("./contracts/build/IDSToken.json"),
+    import("./contracts/build/WETH9.json"),
+    import("./contracts/build/PredictionMarketSystem.json"),
+    import("./contracts/build/LMSRMarketMaker.json")
   ]);
 
   const ERC20Detailed = TruffleContract(ERC20DetailedArtifact);
@@ -239,7 +239,7 @@ function RootComponent() {
   const [positions, setPositions] = useState(null);
 
   useEffect(() => {
-    import("../config.json")
+    import("./config.json")
       .then(async ({ default: config }) => {
         setNetworkId(config.networkId);
 
@@ -282,7 +282,7 @@ function RootComponent() {
     [getCollateralBalance, [web3, collateral, account], setCollateralBalance],
     [getPositionBalances, [pmSystem, positions, account], setPositionBalances],
     [getLMSRAllowance, [collateral, lmsrMarketMaker, account], setLMSRAllowance]
-  ]) {
+  ])
     useEffect(() => {
       if (dependentParams.every(p => p != null))
         loader(...dependentParams)
@@ -291,7 +291,6 @@ function RootComponent() {
             throw err;
           });
     }, [...dependentParams, syncTime]);
-  }
 
   const [marketSelections, setMarketSelections] = useState(null);
   const [stagedTradeAmounts, setStagedTradeAmounts] = useState(null);
