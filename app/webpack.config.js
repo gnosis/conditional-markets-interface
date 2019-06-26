@@ -1,5 +1,6 @@
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const { BundleAnalyzerPlugin } = require("webpack-bundle-analyzer");
 
 const publicPath =
@@ -38,13 +39,25 @@ module.exports = {
   module: {
     rules: [
       {
+        test: /\.(png|jpg|gif|svg)$/,
+        use: [
+          {
+            loader: "file-loader",
+            options: {
+              name: "[name].[ext]",
+              outputPath: "assets/images"
+            }
+          }
+        ]
+      },
+      {
         test: /\.(js|jsx)$/,
         exclude: /(node_modules)/,
         use: "babel-loader"
       },
       {
         test: [/.css$|.scss$/],
-        use: ["style-loader", "css-loader", "sass-loader"]
+        use: [MiniCssExtractPlugin.loader, "css-loader", "sass-loader"]
       },
       {
         test: /build\/contracts\/\w+\.json$/,
@@ -61,6 +74,10 @@ module.exports = {
     }),
     new BundleAnalyzerPlugin({
       analyzerPort: process.env.NODE_ENV !== "production" ? 8888 : 8889
-    })
+    }),
+    new MiniCssExtractPlugin({
+      filename: "styles.css"
+    }),
+    require("autoprefixer")
   ]
 };
