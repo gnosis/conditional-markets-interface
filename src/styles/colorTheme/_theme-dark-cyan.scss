@@ -1,0 +1,749 @@
+/*Theme Dark Cyan Styles*/
+$app-primary-dark-cyan: #00bcd4 !default;
+$secondary-dark-cyan: #69F0AE;
+
+$sidebar-dark-cyan: #252525 !default;
+$sidebar-text-dark-cyan: #a1a1a1 !default;
+$sidebar-darken-cyan: darken($sidebar-dark-cyan, 3%);
+
+$top-nav-bg-dark-cyan: $sidebar-dark-cyan !default;
+
+// Links
+$link-hover-dark-cyan: $white;
+
+//-Base-scss
+.dark-cyan .right-arrow {
+  color: $app-primary-dark-cyan;
+  &:after {
+    color: $app-primary-dark-cyan;
+  }
+}
+
+//
+// Alternate buttons
+//
+@each $color, $value in $theme-colors {
+  .dark-cyan .btn-#{$color} {
+    @include button-variant($value, $value);
+  }
+}
+
+@each $color, $value in $theme-colors {
+  .dark-cyan a.btn-#{$color} {
+    @include button-variant($value, $value);
+  }
+}
+
+@each $color, $value in $theme-colors {
+  .dark-cyan .btn-outline-#{$color} {
+    @if $color == "light" {
+      @include button-outline-variant($value, $gray-900);
+    } @else {
+      @include button-outline-variant($value, $white);
+    }
+  }
+}
+
+@each $color, $value in $theme-colors {
+  .dark-cyan a.btn-outline-#{$color} {
+    @if $color == "light" {
+      @include button-outline-variant($value, $gray-900);
+    } @else {
+      @include button-outline-variant($value, $white);
+    }
+  }
+}
+
+.dark-cyan .btn-outline-primary,
+.dark-cyan a.btn-outline-primary {
+  color: $app-primary-dark-cyan;
+  border-color: $app-primary-dark-cyan;
+
+  &:focus,
+  &:hover,
+  &.disabled,
+  &:disabled,
+  &:not(:disabled):not(.disabled):active,
+  &:not(:disabled):not(.disabled).active,
+  .show > &.dropdown-toggle {
+    color: $white;
+    border-color: $app-primary-dark-cyan;
+    background-color: $app-primary-dark-cyan;
+  }
+}
+
+.dark-cyan .btn-outline-secondary,
+.dark-cyan a.btn-outline-secondary {
+  color: $secondary-dark-cyan;
+  border-color: $secondary-dark-cyan;
+
+  &:focus,
+  &:hover,
+  &.disabled,
+  &:disabled,
+  &:not(:disabled):not(.disabled):active,
+  &:not(:disabled):not(.disabled).active,
+  .show > &.dropdown-toggle {
+    color: $white;
+    border-color: $secondary-dark-cyan;
+    background-color: $secondary-dark-cyan;
+  }
+}
+
+
+//- Bootstrap file Style
+.dark-cyan {
+  & a,
+  & a.text-primary {
+    color: $app-primary-dark-cyan;
+    &:focus,
+    &:hover {
+      color: darken($app-primary-dark-cyan, 10%);
+    }
+  }
+
+  & .text-primary {
+    color: $app-primary-dark-cyan !important;
+  }
+
+  & .page-link {
+    color: $app-primary-dark-cyan;
+    &:focus,
+    &:hover {
+      color: $app-primary-dark-cyan;
+    }
+  }
+
+  & .bg-primary,
+  & .badge-primary {
+    background-color: $app-primary-dark-cyan !important;
+    color: $white !important;
+  }
+
+  & .btn-primary,
+  & .jr-btn-primary,
+  & a.btn-primary,
+  & a.jr-btn-primary {
+    background-color: $app-primary-dark-cyan;
+    border-color: $app-primary-dark-cyan;
+    color: $white;
+
+    &:hover,
+    &:focus,
+    &:not([disabled]):not(.disabled):active {
+      background-color: darken($app-primary-dark-cyan, 5%) !important;
+      border-color: darken($app-primary-dark-cyan, 5%) !important;
+      color: $white !important;
+    }
+  }
+
+  & .bg-primary {
+    &.lighten-4 {
+      background-color: #b2ebf2 !important;
+    }
+
+    &.lighten-3 {
+      background-color: #80deea !important;
+    }
+
+    &.lighten-2 {
+      background-color: #4dd0e1 !important;
+    }
+
+    &.lighten-1 {
+      background-color: #26c6da !important;
+    }
+
+    &.darken-1 {
+      background-color: #00acc1 !important;
+    }
+
+    &.darken-2 {
+      background-color: #0097a7 !important;
+    }
+
+    &.darken-3 {
+      background-color: #00838f !important;
+    }
+
+    &.darken-4 {
+      background-color: #006064 !important;
+    }
+
+    &.accent-1 {
+      background-color: #84ffff !important;
+    }
+
+    &.accent-2 {
+      background-color: #18ffff !important;
+    }
+
+    &.accent-3 {
+      background-color: #00e5ff !important;
+    }
+
+    &.accent-4 {
+      background-color: #00b8d4 !important;
+    }
+  }
+}
+
+
+//Secondary
+.dark-cyan {
+  & a.text-secondary {
+    color: $secondary-dark-cyan;
+    &:focus,
+    &:hover {
+      color: darken($secondary-dark-cyan, 10%) !important;
+    }
+  }
+
+  & .text-secondary {
+    color: $secondary-dark-cyan !important;
+  }
+
+  & .bg-secondary,
+  & .badge-secondary {
+    background-color: $secondary-dark-cyan !important;
+    color: $link-hover-dark-cyan !important;
+  }
+
+  & .btn-secondary {
+    background-color: $secondary-dark-cyan;
+    border-color: $secondary-dark-cyan;
+    color: $link-hover-dark-cyan;
+
+    &:hover,
+    &:focus,
+    &:active {
+      background-color: darken($secondary-dark-cyan, 5%) !important;
+      border-color: darken($secondary-dark-cyan, 5%) !important;
+      color: $link-hover-dark-cyan !important;
+    }
+  }
+}
+
+//flat-btn
+.dark-cyan .jr-flat-btn {
+  background-color: transparent !important;
+  color: $body-color !important;
+  &:hover,
+  &:focus,
+  &:active {
+    background-color: map_get($gray, lighten-4) !important;
+    color: $body-color !important;
+  }
+}
+
+.dark-cyan .jr-flat-btn.jr-btn-primary {
+  background-color: transparent !important;
+  color: $app-primary-dark-cyan !important;
+  border-color: transparent !important;
+
+  &:hover,
+  &:focus {
+    background-color: rgba($app-primary-dark-cyan, 0.12) !important;
+    color: $app-primary-dark-cyan !important;
+  }
+}
+
+.dark-cyan .bg-primary {
+  & .jr-flat-btn.jr-btn-primary {
+    background-color: transparent !important;
+    color: $white !important;
+    border-color: transparent !important;
+
+    &:hover,
+    &:focus {
+      background-color: rgba($white, 0.12) !important;
+      color: $white !important;
+    }
+  }
+}
+
+.dark-cyan .jr-flat-btn.jr-btn-secondary {
+  background-color: transparent !important;
+  color: $secondary-dark-cyan !important;
+  border-color: transparent !important;
+
+  &:hover,
+  &:focus {
+    background-color: rgba($secondary-dark-cyan, 0.12) !important;
+    color: $secondary-dark-cyan !important;
+  }
+}
+
+.dark-cyan .bg-secondary {
+  & .jr-flat-btn.jr-btn-secondary {
+    background-color: transparent !important;
+    color: $white !important;
+    border-color: transparent !important;
+
+    &:hover,
+    &:focus {
+      background-color: rgba($white, 0.12) !important;
+      color: $white !important;
+    }
+  }
+}
+//_header.scss
+.dark-cyan .app-main-header {
+  background-color: $app-primary-dark-cyan !important;
+  color: $white;
+  border-color: $app-primary-dark-cyan;
+
+  & .search-bar input {
+    background-color: lighten($app-primary-dark-cyan, 5%);
+
+    & + .search-icon i {
+      color: $white;
+    }
+
+    &:focus {
+      background-color: $white;
+
+      & + .search-icon i {
+        color: rgba($gray-default, 0.8);
+      }
+    }
+  }
+
+  & .search-dropdown input {
+    @media screen and (max-width: 575px) {
+      background-color: $white;
+
+      & + .search-icon i {
+        color: rgba($gray-default, 0.8);
+      }
+    }
+  }
+
+  & .jr-menu-icon .menu-icon {
+    background-color: $white !important;
+  }
+}
+
+.dark-cyan .app-header .jr-menu-icon .menu-icon {
+  background-color: $white;
+}
+
+.dark-cyan .quick-menu .icon-btn {
+  color: $white;
+}
+
+//Logo disable condition
+.dark-cyan .react-logo-white.d-block {
+  display: block !important;
+}
+
+@media screen and (min-width: 992px) {
+  .dark-cyan .react-logo-white.d-lg-block {
+    display: block !important;
+  }
+
+  .dark-cyan .react-logo-white.d-lg-none {
+    display: none !important;
+  }
+}
+
+.dark-cyan .react-logo-color.d-block {
+  display: none !important;
+}
+
+@media screen and (min-width: 992px) {
+  .dark-cyan .react-logo-color.d-lg-block {
+    display: none !important;
+  }
+}
+
+//_right-sidebar.scss
+.dark-cyan .color-theme-header {
+  background-color: $app-primary-dark-cyan;
+
+}
+
+//_sidebar.scss
+.dark-cyan .sidebar-header {
+  border-bottom: 0 none;
+  background-color: $sidebar-darken-cyan;
+}
+
+.dark-cyan .side-nav {
+  background-color: $sidebar-dark-cyan !important;
+  color: $sidebar-text-dark-cyan !important;
+  border-right: 0 none !important;
+
+  & .user-profile {
+    background-color: $sidebar-darken-cyan;
+    position: relative;
+    z-index: 2;
+  }
+
+  & .customizer {
+    border-bottom: 0 none;
+  }
+
+  & .user-detail {
+    & .user-name {
+      color: $link-hover-dark-cyan;
+    }
+  }
+}
+
+.dark-cyan ul.nav-menu li a {
+  color: $sidebar-text-dark-cyan;
+}
+
+.dark-cyan ul.nav-menu {
+  & .nav-header {
+    color: $sidebar-text-dark-cyan;
+  }
+}
+
+.dark-cyan ul.nav-menu > li.open > a,
+.dark-cyan ul.nav-menu > li > a:hover,
+.dark-cyan ul.nav-menu > li > a:focus {
+  background-color: $sidebar-darken-cyan;
+  color: $link-hover-dark-cyan;
+}
+
+.dark-cyan ul.nav-menu li.menu.open > a {
+  border-color: $app-primary-dark-cyan;
+}
+
+.dark-cyan ul.nav-menu li.menu > a:focus:before,
+.dark-cyan ul.nav-menu li.menu > a:hover:before {
+  color: $link-hover-dark-cyan;
+}
+
+.dark-cyan ul.nav-menu li ul {
+  background-color: $sidebar-darken-cyan;
+}
+
+.dark-cyan ul.nav-menu li.menu > a:before {
+  color: $sidebar-text-dark-cyan;
+}
+
+.dark-cyan ul.nav-menu li.menu.open > a:before,
+.dark-cyan ul.nav-menu li.menu > a:focus:before,
+.dark-cyan ul.nav-menu li.menu li > a:hover:before {
+  color: $link-hover-dark-cyan;
+}
+
+.dark-cyan ul.nav-menu li.menu .sub-menu li > a:before {
+  color: $sidebar-text-dark-cyan;
+}
+
+.dark-cyan ul.nav-menu li.menu .sub-menu li > a.active .nav-text {
+  background-color: $app-primary-dark-cyan;
+}
+
+.dark-cyan ul.nav-menu li.menu .sub-menu li > a:hover,
+.dark-cyan ul.nav-menu li.menu .sub-menu li > a:focus,
+.dark-cyan ul.nav-menu li.menu.open .sub-menu li > a.active:before,
+.dark-cyan ul.nav-menu li.menu .sub-menu li > a:focus:before,
+.dark-cyan ul.nav-menu li.menu .sub-menu li > a:hover:before {
+  background-color: $sidebar-darken-cyan;
+  color: $link-hover-dark-cyan;
+}
+
+/*Header top Navbar Styles*/
+.dark-cyan .navbar-nav {
+  & li {
+    &:hover > a,
+    &:focus > a {
+      color: $app-primary-dark-cyan;
+    }
+
+    & a {
+      color: $sidebar-text-color;
+    }
+
+    & a:hover,
+    & a:focus {
+      color: $app-primary-dark-cyan;
+    }
+  }
+
+  & li.nav-item > a {
+    color: $white;
+  }
+
+  & li.nav-item:hover > a,
+  & li.nav-item:focus > a,
+  & li.nav-item > a:hover,
+  & li.nav-item > a:focus,
+  & li.nav-item.active > a {
+    color: $secondary-dark-cyan;
+  }
+
+  ul.sub-menu {
+    & li a.active,
+    & li.active > a {
+      color: $app-primary-dark-cyan;
+    }
+  }
+
+  & .nav-arrow {
+    & > a:before {
+      color: $sidebar-text-color;
+    }
+
+    & a:hover,
+    & a:focus {
+      &:before {
+        color: $app-primary-dark-cyan;
+      }
+    }
+
+    &:hover > a:before,
+    &:focus > a:before,
+    &.active > a:before {
+      color: $app-primary-dark-cyan;
+    }
+  }
+}
+
+.dark-cyan .app-top-nav {
+  background-color: $top-nav-bg-dark-cyan !important;
+  border-color: $top-nav-bg-dark-cyan;
+  & .navbar-nav {
+    & li.nav-item > a {
+      color: $white;
+    }
+
+    & li.nav-item:hover > a,
+    & li.nav-item:focus > a,
+    & li.nav-item > a:hover,
+    & li.nav-item > a:focus,
+    & li.nav-item.active > a {
+      color: $secondary-dark-cyan;
+    }
+  }
+}
+
+//_app-module.scss
+.dark-cyan .module-nav {
+  & li a {
+    &.active {
+      border-color: $app-primary-dark-cyan;
+    }
+  }
+}
+
+//_calendar.scss
+.dark-cyan .rbc-event {
+  background-color: $app-primary-dark-cyan;
+}
+
+.dark-cyan .rbc-event.rbc-selected {
+  background-color: darken($app-primary-dark-cyan, 10%);
+}
+
+.dark-cyan .rbc-slot-selection {
+  background-color: rgba($app-primary-dark-cyan, 0.7);
+}
+
+.dark-cyan .rbc-toolbar button:active,
+.dark-cyan .rbc-toolbar button.rbc-active {
+  background-color: rgba($app-primary-dark-cyan, 0.9);
+  border-color: $app-primary-dark-cyan;
+}
+
+.dark-cyan .rbc-toolbar button:active:hover,
+.dark-cyan .rbc-toolbar button.rbc-active:hover,
+.dark-cyan .rbc-toolbar button:active:focus,
+.dark-cyan .rbc-toolbar button.rbc-active:focus {
+  background-color: rgba($app-primary-dark-cyan, 0.9);
+  border-color: $app-primary-dark-cyan;
+}
+
+.dark-cyan .rbc-toolbar button:focus {
+  background-color: rgba($app-primary-dark-cyan, 0.9);
+  border-color: $app-primary-dark-cyan;
+}
+
+.dark-cyan .rbc-toolbar button:hover {
+  background-color: rgba($app-primary-dark-cyan, 0.9);
+  border-color: $app-primary-dark-cyan;
+}
+
+.dark-cyan .rbc-day-slot .rbc-event {
+  border-color: $app-primary-dark-cyan;
+}
+
+//_chat.scss
+.dark-cyan .chat-sidenav-title {
+  color: $app-primary-dark-cyan;
+}
+
+.dark-cyan .chat-user-item {
+  &.active,
+  &:hover {
+    background-color: lighten($app-primary-dark-cyan, 45%);
+  }
+}
+
+//_dashboard.scss
+.dark-cyan .contact-list {
+  & i {
+    color: $app-primary-dark-cyan;
+  }
+}
+
+//The link which when clicked opens the collapsable ChatUserList
+.dark-cyan .Collapsible__trigger {
+  background: $app-primary-dark-cyan;
+}
+
+.dark-cyan .categories-list {
+  & li a:focus,
+  & li a:hover,
+  & li.active a {
+    color: $app-primary-dark-cyan;
+  }
+}
+
+//_login.scss
+.dark-cyan .login-content .form-control {
+  &:focus {
+    border-color: $app-primary-dark-cyan;
+  }
+}
+
+//_portfolio.scss
+.dark-cyan .filter-with-bg-color ul li {
+  & a {
+    border-color: $app-primary-dark-cyan;
+
+    &:hover,
+    &:focus,
+    &.active {
+      background-color: $app-primary-dark-cyan;
+    }
+  }
+}
+
+//_card.scss
+.dark-cyan .profile-intro {
+  & .icon {
+    color: $app-primary-dark-cyan;
+  }
+}
+
+.dark-cyan .social-link {
+  & li.active a,
+  & li a:hover,
+  & li a:focus {
+    color: $secondary-dark-cyan;
+  }
+}
+
+//_tables.scss
+.dark-cyan .actions {
+  color: $secondary-dark-cyan;
+}
+
+.dark-cyan .table-hover tbody tr:hover {
+  background-color: rgba($app-primary-dark-cyan, 0.075);
+}
+
+//Border Color
+
+.dark-cyan .border-primary {
+  border-color: $app-primary-dark-cyan !important;
+}
+
+// login page content
+
+.dark-cyan .app-logo-content {
+  background-color: $app-primary-dark-cyan;
+}
+
+.dark-cyan .app-social-block {
+  & .social-link button {
+    border: solid 1px $app-primary-dark-cyan;
+    color: $app-primary-dark-cyan;
+
+    &:hover,
+    &:focus {
+      color: $white;
+      background-color: $app-primary-dark-cyan;
+    }
+  }
+}
+
+.dark-cyan .btn-group,
+.dark-cyan .btn-group-vertical {
+  > .jr-btn,
+  > .btn-default {
+    &.active {
+      background-color: $app-primary-dark-cyan;
+      border-color: $app-primary-dark-cyan;
+    }
+
+  }
+
+  > .jr-flat-btn {
+    border-color: transparent;
+    &.active {
+      background-color: transparent;
+      color: $app-primary-dark-cyan !important;
+      border-color: transparent !important;
+
+      &:hover,
+      &:focus {
+        background-color: rgba($app-primary-dark-cyan, 0.12) !important;
+        color: $app-primary-dark-cyan !important;
+      }
+    }
+  }
+}
+
+.dark-cyan .nav-pill-sales {
+  & .nav-link.active {
+    background-color: $app-primary-dark-cyan;
+    border-color: $app-primary-dark-cyan;
+  }
+}
+
+.dark-cyan .form-checkbox > input + .check,
+.dark-cyan .form-checkbox > input.sm + .check {
+  color: $app-primary-dark-cyan;
+}
+
+/* Input Placeholder Style */
+.dark-cyan .app-main-header ::-webkit-input-placeholder { /* Chrome/Opera/Safari */
+  color: darken($white, 8%);
+}
+
+.dark-cyan .app-main-header ::-moz-placeholder { /* Firefox 19+ */
+  color: darken($white, 8%);
+}
+
+.dark-cyan .app-main-header :-ms-input-placeholder { /* IE 10+ */
+  color: darken($white, 8%);
+}
+
+.dark-cyan .app-main-header :-moz-placeholder { /* Firefox 18- */
+  color: darken($white, 8%);
+}
+
+.dark-cyan .app-main-header input:focus::-webkit-input-placeholder { /* Chrome/Opera/Safari */
+  color: lighten($body-color, 50%);
+}
+
+.dark-cyan .app-main-header input:focus::-moz-placeholder { /* Firefox 19+ */
+  color: lighten($body-color, 50%);
+}
+
+.dark-cyan .app-main-header input:focus:-ms-input-placeholder { /* IE 10+ */
+  color: lighten($body-color, 50%);
+}
+
+.dark-cyan .app-main-header input:focus:-moz-placeholder { /* Firefox 18- */
+  color: lighten($body-color, 50%);
+}
+
+

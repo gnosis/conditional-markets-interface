@@ -1,0 +1,74 @@
+/*App Layout Styles*/
+
+#app-site,
+.app-main {
+  display: flex;
+  width: 100%;
+  height: 100%;
+}
+
+.app-container {
+  @include display-flex(flex, row, nowrap);
+  width: 100%;
+}
+
+.app-sidebar {
+  @include display-flex(flex, column, nowrap);
+  width: $side-nav-width;
+  min-width: $side-nav-width;
+  max-width: $side-nav-width;
+}
+
+.app-main-container {
+  @include display-flex(flex, column, nowrap);
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+.app-header {
+  min-height: $app-bar-height;
+  z-index: 99;
+  position: relative;
+}
+
+.app-main-content-wrapper {
+  flex: 1;
+  @include display-flex(flex, column, nowrap);
+  width: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.app-container {
+  &.fixed-drawer {
+    & .app-main-header {
+      width: auto !important;
+      @include transition(all 0.5s $transition-ease-out !important);
+    }
+  }
+
+  &.collapsible-drawer {
+    & .app-main-header {
+      width: auto !important;
+      @include transition(all 0.5s $transition-ease-out !important);
+    }
+
+    & .app-main-container {
+      position: relative;
+    }
+  }
+
+  &.mini-drawer {
+    & .app-main-header {
+      width: auto !important;
+      @include transition(all 0.5s $transition-ease-out !important);
+    }
+
+    .app-sidebar {
+      width: $mini-drawer-width;
+      min-width: $mini-drawer-width;
+      max-width: $mini-drawer-width;
+    }
+  }
+}

@@ -1,0 +1,18 @@
+/*Icons Styles*/
+
+.icon {
+  display: inline-block;
+  @extend %size-30;
+  text-align: center;
+}
+
+.icons-wrapper {
+  display: inline-block;
+  & + .icons-wrapper {
+    margin-left: 25px;
+  }
+}
+
+.icon-addon {
+  @extend %icon-addon;
+}

@@ -1,0 +1,476 @@
+.form-checkbox {
+  position: relative;
+  z-index: 1;
+}
+
+.form-checkbox > input {
+  height: 18px;
+  opacity: 0;
+  position: absolute;
+  padding: 10px;
+  top: 0;
+  width: 18px;
+  z-index: 2;
+  cursor: pointer;
+}
+
+.form-control-checkbox .form-checkbox > input {
+  height: 48px;
+  width: 48px;
+}
+
+.form-control-checkbox .form-checkbox {
+  height: 48px;
+  display: flex;
+  align-items: center;
+  width: 48px;
+  justify-content: center;
+}
+
+.form-checkbox > input + .check {
+  border: 1px solid $sidebar-text-color;
+  border-radius: 2px;
+  color: $app-primary;
+  cursor: pointer;
+  display: inline-block;
+  height: 18px;
+  position: relative;
+  width: 18px;
+  z-index: -1;
+}
+
+.form-checkbox > input.sm + .check {
+  border: 1px solid $sidebar-text-color;
+  border-radius: 2px;
+  color: $app-primary;
+  cursor: pointer;
+  display: inline-block;
+  height: 14px;
+  position: relative;
+  top: 3px;
+  width: 14px;
+  z-index: -1;
+}
+
+.form-checkbox > input + .check i {
+  display: none;
+  left: 1px;
+  opacity: 0;
+  position: absolute;
+  top: 2px;
+}
+
+.form-checkbox > input.sm + .check i {
+  display: none;
+  left: 1px;
+  opacity: 0;
+  position: absolute;
+  top: 2px;
+}
+
+.form-checkbox > input:checked + span i {
+  display: block;
+  opacity: 1;
+}
+
+/*Radio and Checkbox styles*/
+
+.checkbox-replace {
+  padding-left: 20px;
+}
+
+.checkbox-replace input[type="checkbox"],
+.radio-replace input[type="radio"] {
+  margin-left: -20px;
+  position: absolute;
+}
+
+.form-inline .checkbox-replace label {
+  padding-left: 5px;
+}
+
+.form-inline .checkbox-replace,
+.form-inline .radio-replace {
+  margin-right: 20px;
+}
+
+.form-inline .checkbox-replace:last-child {
+  margin-right: 0;
+}
+
+.checkbox-replace label {
+  display: inline-block;
+  vertical-align: middle;
+  position: relative;
+  padding-left: 5px;
+}
+
+.checkbox-replace label::before {
+  content: "";
+  display: inline-block;
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  left: 0;
+  top: 0;
+  margin-left: -20px;
+  margin-top: 2px;
+  border: 1px solid $sidebar-text-color;
+  border-radius: 3px;
+  background-color: $white;
+  @include transition (border 0.15s ease-in-out, color 0.15s ease-in-out);
+}
+
+.checkbox-replace label::after {
+  display: inline-block;
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  left: 3px;
+  top: 5px;
+  margin-left: -20px;
+  font-size: 11px;
+  color: $gray-700;
+}
+
+.checkbox-replace input[type="checkbox"] {
+  opacity: 0;
+  z-index: 1;
+  cursor: pointer;
+}
+
+.checkbox-replace input[type="checkbox"]:focus + label::before {
+  outline: 0 none;
+}
+
+.checkbox-replace input[type="checkbox"]:checked + label::after {
+  background-color: $gray-400;
+  content: "";
+}
+
+.checkbox-replace input[type="checkbox"]:disabled + label {
+  opacity: 0.65;
+}
+
+.checkbox-replace input[type="checkbox"]:disabled + label::before {
+  background-color: $white;
+  cursor: not-allowed;
+}
+
+.checkbox-replace.checkbox-inline {
+  margin-top: 0;
+}
+
+.checkbox-primary label::before {
+  border-color: $app-primary;
+}
+
+.checkbox-primary input[type="checkbox"]:checked + label::after {
+  background-color: $app-primary;
+}
+
+.checkbox-danger label::before {
+  border-color: $secondary;
+}
+
+.checkbox-danger input[type="checkbox"]:checked + label::after {
+  border-color: $secondary;
+}
+
+.checkbox-info label::before {
+  border-color: $info;
+}
+
+.checkbox-info input[type="checkbox"]:checked + label::after {
+  border-color: $info;
+}
+
+.checkbox-warning label::before {
+  border-color: $warning;
+}
+
+.checkbox-warning input[type="checkbox"]:checked + label::after {
+  border-color: $warning;
+}
+
+.checkbox-success label::before {
+  border-color: $success;
+}
+
+.checkbox-success input[type="checkbox"]:checked + label::after {
+  border-color: $success;
+}
+
+.radio-replace {
+  padding-left: 20px;
+}
+
+.radio-replace label {
+  display: inline-block;
+  vertical-align: middle;
+  position: relative;
+  padding-left: 5px;
+}
+
+.radio-replace label::before {
+  content: "";
+  display: inline-block;
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  left: 0;
+  top: 0;
+  margin-left: -20px;
+  margin-top: 2px;
+  border: 1px solid $gray-400;
+  border-radius: 50%;
+  background-color: $white;
+  @include transition(border 0.15s ease-in-out);
+}
+
+.radio-replace label::after {
+  display: inline-block;
+  position: absolute;
+  content: " ";
+  width: 12px;
+  height: 12px;
+  left: 3px;
+  top: 5px;
+  margin-left: -20px;
+  border-radius: 50%;
+  background-color: $gray-400;
+  @include rotate (scale(0, 0));
+  @include transition (transform 0.1s cubic-bezier(0.8, -0.33, 0.2, 1.33))
+}
+
+.radio-replace input[type="radio"] {
+  opacity: 0;
+  z-index: 1;
+  cursor: pointer;
+}
+
+.radio-replace input[type="radio"]:focus + label::before {
+  outline: 0 none;
+}
+
+.radio-replace input[type="radio"]:checked + label::after {
+  @include rotate (scale(1, 1));
+
+}
+
+.radio-replace input[type="radio"]:disabled + label {
+  opacity: 0.65;
+}
+
+.radio-replace input[type="radio"]:disabled + label::before {
+  cursor: not-allowed;
+}
+
+.radio-replace.radio-inline {
+  margin-top: 0;
+}
+
+.radio-primary input[type="radio"] + label::after {
+  background-color: $app-primary;
+}
+
+.radio-primary input[type="radio"]:checked + label::before {
+  border-color: $app-primary;
+}
+
+.radio-primary input[type="radio"]:checked + label::after {
+  background-color: $app-primary;
+}
+
+.radio-danger input[type="radio"] + label::after {
+  background-color: $secondary;
+}
+
+.radio-danger input[type="radio"]:checked + label::before {
+  border-color: $secondary;
+}
+
+.radio-danger input[type="radio"]:checked + label::after {
+  background-color: $secondary;
+}
+
+.radio-info input[type="radio"] + label::after {
+  background-color: $info;
+}
+
+.radio-info input[type="radio"]:checked + label::before {
+  border-color: $info;
+}
+
+.radio-info input[type="radio"]:checked + label::after {
+  background-color: $info;
+}
+
+.radio-warning input[type="radio"] + label::after {
+  background-color: $warning;
+}
+
+.radio-warning input[type="radio"]:checked + label::before {
+  border-color: $warning;
+}
+
+.radio-warning input[type="radio"]:checked + label::after {
+  background-color: $warning;
+}
+
+.radio-success input[type="radio"] + label::after {
+  background-color: $success;
+}
+
+.radio-success input[type="radio"]:checked + label::before {
+  border-color: $success;
+}
+
+.radio-success input[type="radio"]:checked + label::after {
+  background-color: $success;
+}
+
+.form-horizontal .checkbox, .form-horizontal .checkbox-inline, .form-horizontal .radio, .form-horizontal .radio-inline {
+  padding-top: 7px;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.form-horizontal .form-inline .checkbox,
+.form-horizontal .form-inline .checkbox-inline,
+.form-horizontal .form-inline .radio,
+.form-horizontal .form-inline .radio-inline {
+  padding-top: 0;
+}
+
+.form-horizontal .checkbox, .form-horizontal .radio {
+  min-height: 27px;
+}
+
+.form-wizard .tab-content .pager.wizard .first a {
+  margin-right: 8px;
+}
+
+.form-wizard .tab-content .pager.wizard .last a {
+  margin-left: 8px;
+}
+
+.wizard-navbar {
+  margin: 60px auto 20px;
+}
+
+.wizard-navbar > ul {
+  display: table;
+  width: 100%;
+  text-align: center;
+  margin: 0;
+  font-weight: 600;
+  padding: 0;
+  list-style: none outside none;
+  table-layout: fixed;
+}
+
+.wizard-navbar > ul li {
+  display: table-cell;
+  width: 1%;
+  position: relative;
+}
+
+.wizard-navbar > ul li a {
+  color: $sidebar-text-color;
+  position: relative;
+  padding: 0 10px;
+  display: block;
+  text-decoration: none;
+}
+
+.wizard-navbar > ul li a span.wz-number {
+  background-color: $gray-200;
+  border-radius: 50%;
+
+  color: $gray-500;
+  display: block;
+  height: 40px;
+  left: 50%;
+  line-height: 40px;
+  margin-left: -20px;
+  margin-top: -50px;
+  position: absolute;
+  text-align: center;
+  @include transition(all 300ms ease-in-out 0s);
+  width: 40px;
+  z-index: 5;
+}
+
+.wizard-navbar > ul li.completed a span.wz-number {
+  background-color: $app-primary;
+  color: $white;
+}
+
+.wizard-navbar > ul li a.active span.wz-number {
+  background-color: $secondary;
+  color: $white;
+}
+
+.wizard-navbar > ul li a.active,
+.wizard-navbar > ul li.completed a {
+  color: $gray-600;
+}
+
+.wizard-navbar > ul li a:before,
+.wizard-navbar > ul li a:after {
+  content: '';
+  position: absolute;
+  height: 4px;
+  width: 50%;
+  background-color: $gray-200;
+  top: -32px;
+  left: 0;
+}
+
+.wizard-navbar > ul li a:after {
+  left: auto;
+  right: 0;
+}
+
+.wizard-navbar > ul li a.active:before,
+.wizard-navbar > ul li a.active:after {
+  background-color: $secondary;
+}
+
+.wizard-navbar > ul li.completed a:before,
+.wizard-navbar > ul li.completed a:after {
+  background-color: $app-primary;
+}
+
+label.error {
+  display: block;
+  color: $danger;
+  font-weight: 400;
+  margin: 5px 0;
+}
+
+@media screen and (max-width: 479px) {
+  .wizard-navbar > ul li a span.wz-label {
+    visibility: hidden;
+  }
+
+  .wizard-navbar > ul li a.active span.wz-label {
+    visibility: visible;
+  }
+}
+
+.form-checkbox-custom {
+  @include display-flex();
+  @include align-items(center);
+  margin-bottom: 12px;
+}
+
+.form-checkbox-custom .check {
+  margin-right: 10px;
+}
+
+.react-switch {
+  vertical-align: middle;
+  margin-left: 4px;
+}

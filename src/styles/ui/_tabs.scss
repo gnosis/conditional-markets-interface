@@ -1,0 +1,9 @@
+/*Tabs Styles*/
+
+.tab {
+  min-width: 10px !important;
+}
+
+.tab-icon > span {
+  @include display-flex();
+}

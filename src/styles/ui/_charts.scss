@@ -1,0 +1,18 @@
+/*Charts Styles*/
+
+.chart-header {
+  padding: 15px 18px;
+  & .card-title {
+    h4 {
+      color: $white;
+      margin-bottom: 4px;
+    }
+  }
+
+  & .title h4 {
+    margin-bottom: 4px;
+  }
+  & p {
+    margin-bottom: 4px;
+  }
+}

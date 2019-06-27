@@ -1,0 +1,156 @@
+@import "../bootstrap/functions";
+@import "../bootstrap/variables";
+@import "../bootstrap/mixins";
+// Fonts
+//
+// Font, line-height, and color for body text, headings, and more.
+@import url('https://fonts.googleapis.com/css?family=Nunito+Sans:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i');
+
+//# sourceMappingURL=roboto.css.map
+
+// stylelint-disable value-keyword-case
+$font-family-sans-serif: 'Nunito Sans', sans-serif;
+$font-family-base: $font-family-sans-serif;
+
+// stylelint-enable value-keyword-case
+$font-size-base: 13px; // Assumes the browser default, typically `16px`
+$font-size-lg: ($font-size-base + 4);
+$font-size-sm: $font-size-base;
+
+$h1-font-size: 24px;
+$h2-font-size: 18px;
+$h3-font-size: 16px;
+$h4-font-size: 15px;
+$h5-font-size: 13px;
+$h6-font-size: 12px;
+
+$headings-margin-bottom: ($h1-font-size / 2);
+$headings-font-family: inherit;
+$headings-font-weight: 400;
+$headings-line-height: 1.2;
+$headings-color: inherit;
+
+//Border Radius
+$border-radius-sm: 2px;
+$border-radius: 4px;
+$border-radius-lg: 8px;
+$border-radius-xl: 10px !default;
+$border-radius-circle: 50% !default;
+
+//Bootstrap Card Variables
+$card-spacer-y: 24px;
+$card-spacer-x: 30px;
+$card-border-color: $border-color;
+$card-border-radius: $border-radius-lg;
+$card-inner-border-radius: $border-radius-lg;
+$list-group-border-radius: $border-radius-lg;
+
+//Grid Gutter Space Between
+$grid-gutter-width: 34px;
+
+//Mixin Values True and False
+$enable-shadows: true;
+
+$app-primary: #3f51b5 !default;
+$primary: $app-primary;
+$secondary: #E91E63;
+$gray-default: #808080 !default;
+
+$sidebar-bg: $white !default;
+$sidebar-text-color: #868e96 !default;
+$sidebar-bg-darken: darken($sidebar-bg, 3%);
+$sidebar-hover-color: $app-primary;
+
+$top-nav-bg: $app-primary !default;
+
+//Default shadow
+$shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.15);
+$shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.15);
+$shadow-lg: 0 1px 8px -1px rgba(0, 0, 0, 0.20);
+$shadow-xl: 0 0 16px 0px rgba(0, 0, 0, 0.20);
+$avatar-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.50);
+
+//Custom Card Variables
+$jr-card-shadow: $shadow !default;
+$jr-card-margin: 34px !default;
+$jr-card-padding: 24px 30px !default;
+$jr-border: 1px solid $gray-400 !default;
+
+// Links
+$link-color: $app-primary;
+$link-hover-color: darken($app-primary, 10%);
+
+//Color Variables
+$success: #4caf50;
+$info: #00bcd4;
+$warning: #ff9800;
+$danger: #f44336;
+$light: #e8eaf6;
+$dark: $gray-800;
+$body-bg: #f4f4f4;
+$body-color: #5c5c5c;
+
+$theme-colors: (
+        "primary": $primary,
+        "secondary": $secondary,
+        "success": $success,
+        "info": $info,
+        "warning": $warning,
+        "danger": $danger,
+        "light": $light,
+        "dark": $dark
+);
+
+//Default Image Location
+$image_path: "../assets/images" !default;
+
+// Motion
+// https://material.google.com/motion/duration-easing.html#duration-easing-natural-easing-curves
+$transition-bezier: .05, .74, .27, .99 !default; // for nav, quickview
+
+$transition-ease: cubic-bezier(0.4, 0.0, 0.2, 1) !default;
+$transition-ease-out: cubic-bezier(0.0, 0.0, 0.2, 1) !default;
+$transition-ease-in: cubic-bezier(0.4, 0.0, 1, 1) !default;
+
+//Side Nav Width
+$side-nav-width: 280px !default;
+$mini-drawer-width: 80px !default;
+
+//App Bar Height
+$app-bar-height: 70px !default;
+
+//Footer Height
+$footer-height: 50px !default;
+
+//latter Spacing variables
+$letter-spacing-base: 3px !default;
+$letter-spacing-lg: 6px !default;
+$letter-spacing-xl: 8px !default;
+
+//Button Variables
+$btn-font-size-lg: $font-size-lg !default;
+$btn-font-size: $font-size-base !default;
+$btn-font-size-sm: $font-size-sm !default;
+$btn-font-size-xs: 10px !default;
+
+$btn-padding-lg: 16px 24px !default;
+$btn-padding: 12px 20px !default;
+$btn-padding-sm: 8px 15px !default;
+$btn-padding-xs: 6px 10px !default;
+
+$btn-fab-size-lg: 70px !default;
+$btn-fab-size-sm: 46px !default;
+$btn-fab-size-xs: 40px !default;
+
+$btn-line-height: 1.2;
+
+//Sizes Variables
+
+$size-20: 20px !default;
+$size-30: 30px !default;
+$size-40: 40px !default;
+$size-50: 50px !default;
+$size-60: 60px !default;
+$size-80: 80px !default;
+$size-100: 100px !default;
+$size-120: 120px !default;
