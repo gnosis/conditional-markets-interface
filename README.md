@@ -1,5 +1,5 @@
-# hg-first-decentralized-market
-The original fully decentralized prediction markets, PM2.0 Mercury.
+# prediction-market
+The original fully FCLA decentralized prediction markets.
 
 ## Development Instructions
 
