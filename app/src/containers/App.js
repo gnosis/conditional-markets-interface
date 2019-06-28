@@ -234,8 +234,9 @@ class App extends React.Component {
     }, 2000);
 
     // Make initial setup calls
-    this.setInitialDataFromWeb3Calls();
+    await this.setInitialDataFromWeb3Calls();
 
+    this.initialStateSetupCalls();
     // window.requestAnimationFrame(() => {
     // this.makeUpdatesWhenPropsChange({syncTime: currentTime});
     // });
@@ -244,6 +245,47 @@ class App extends React.Component {
   async componentDidUpdate(prevProps) {
     this.makeUpdatesWhenPropsChange(prevProps);
   }
+
+  /*
+   * This function is the same as the makeUpdatesWhenPropsChange() function,
+   * however it doesn't have the conditionals. It simply makes the inital
+   * calls without any checks.
+   */
+  initialStateSetupCalls = () => {
+    const {
+      setLMSRState,
+      setMarketResolutionStates,
+      setCollateralBalance,
+      setPositionBalances,
+      setLMSRAllowance,
+      web3,
+      PMSystem,
+      LMSRMarketMaker,
+      positions,
+      markets,
+      collateral,
+      account
+    } = this.props;
+
+    // LMSR State
+    getLMSRState(web3, PMSystem, LMSRMarketMaker, positions).then(setLMSRState);
+
+    // Market Resolution States
+    getMarketResolutionStates(PMSystem, markets).then(
+      setMarketResolutionStates
+    );
+
+    // Collateral Balance
+    getCollateralBalance(web3, collateral, account).then(setCollateralBalance);
+
+    // Position Balances
+    getPositionBalances(PMSystem, positions, account).then(setPositionBalances);
+
+    // LMSR Allowance
+    getLMSRAllowance(collateral, LMSRMarketMaker, account).then(
+      setLMSRAllowance
+    );
+  };
 
   makeUpdatesWhenPropsChange = async prevProps => {
     const {
@@ -274,7 +316,6 @@ class App extends React.Component {
       positions != prevProps.positions ||
       syncTime != prevProps.syncTime
     ) {
-      // console.log("*********");
       getLMSRState(web3, PMSystem, LMSRMarketMaker, positions).then(
         setLMSRState
       );
@@ -441,19 +482,19 @@ class App extends React.Component {
 App.propTypes = {
   setSyncTime: PropTypes.func.isRequired,
   loading: PropTypes.string.isRequired,
-  syncTime: PropTypes.string.isRequired,
+  syncTime: PropTypes.number,
   setLMSRState: PropTypes.func.isRequired,
   setMarketResolutionStates: PropTypes.func.isRequired,
   setCollateralBalance: PropTypes.func.isRequired,
   setPositionBalances: PropTypes.func.isRequired,
   setLMSRAllowance: PropTypes.func.isRequired,
-  web3: PropTypes.object.isRequired,
-  PMSystem: PropTypes.object.isRequired,
-  LMSRMarketMaker: PropTypes.object.isRequired,
-  positions: PropTypes.object.isRequired,
-  markets: PropTypes.object.isRequired,
-  collateral: PropTypes.object.isRequired,
-  account: PropTypes.object.isRequired,
+  web3: PropTypes.object,
+  PMSystem: PropTypes.object,
+  LMSRMarketMaker: PropTypes.object,
+  positions: PropTypes.array,
+  markets: PropTypes.array,
+  collateral: PropTypes.object,
+  account: PropTypes.string,
   setLoading: PropTypes.func.isRequired,
   setNetworkId: PropTypes.func.isRequired,
   setWeb3: PropTypes.func.isRequired,
@@ -463,9 +504,9 @@ App.propTypes = {
   setCollateral: PropTypes.func.isRequired,
   setMarkets: PropTypes.func.isRequired,
   setPositions: PropTypes.func.isRequired,
-  ongoingTransactionType: PropTypes.object.isRequired,
+  ongoingTransactionType: PropTypes.object,
   setOngoingTransactionType: PropTypes.func.isRequired,
-  networkId: PropTypes.string.isRequired
+  networkId: PropTypes.number
 };
 
 export default connect(
