@@ -1,0 +1,177 @@
+/*Right Sidebar Styles*/
+.color-theme {
+  @include display-flex(flex, column, nowrap);
+  max-width: 300px;
+  height: 100%;
+
+  @media screen and (max-width: 499px) {
+    max-width: 250px;
+  }
+}
+
+.color-theme-header {
+  background-color: $app-primary;
+  color: $white;
+  padding: 19px 25px 20px;
+  text-transform: uppercase;
+  @include display-flex();
+  @include align-items(center);
+  @include justify-content(space-between);
+
+  & .color-theme-title {
+    margin-bottom: 0;
+  }
+}
+
+.color-theme-body {
+  padding: 28px 25px;
+
+  & h3 {
+    margin-bottom: 20px;
+  }
+
+  @media screen and (max-width: 499px) {
+    padding: 25px 15px;
+  }
+}
+
+.color-option {
+  list-style: none;
+  padding-left: 0;
+  margin: 0 -7px 10px;
+
+  & li {
+    position: relative;
+    display: inline-block;
+    padding: 0 7px;
+    margin-bottom: 10px;
+  }
+
+  & li a {
+    height: 45px;
+    width: 45px;
+    line-height: 45px;
+    display: inline-block;
+    color: transparent !important;
+    position: relative;
+
+    &:before {
+      content: "\f26b";
+      font-family: "Material-Design-Iconic-Font";
+      font-size: 20px;
+      height: 45px;
+      width: 45px;
+      line-height: 45px;
+      position: absolute;
+      top: 0;
+      left: 0;
+      color: $white;
+      text-align: center;
+      display: none;
+      z-index: 2;
+    }
+  }
+
+  & li a.active {
+    &:before {
+      display: block;
+    }
+  }
+}
+
+.cr-op-dark-sidebar {
+  & li a {
+    &:after {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      z-index: 1;
+      background-color: $body-color;
+      width: 8px;
+    }
+  }
+}
+
+//Coustomizer css
+.theme-option {
+  position: fixed;
+  top: 30%;
+  right: 0;
+  z-index: 1500;
+  background-color: map-get($purple, base);
+  @include border-left-radius($border-radius);
+  @include box-shadow(1px 1px 4px rgba($black, 0.5));
+  color: $white;
+
+  & span.icon-btn {
+    position: relative;
+    z-index: 1505;
+  }
+}
+
+.app-sidebar-content.right-sidebar .rc-drawer-sidebar {
+  z-index: 1506;
+  color: $body-color;
+  background-color: $white;
+}
+
+//Switch button
+.material-switch {
+  margin-bottom: 24px;
+
+  & > input[type="checkbox"] {
+    display: none;
+  }
+
+  & > label {
+    cursor: pointer;
+    height: 0;
+    position: relative;
+    width: 40px;
+
+    &:before {
+      background: rgb(0, 0, 0);
+      box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+      border-radius: 8px;
+      content: '';
+      height: 16px;
+      margin-top: -8px;
+      position: absolute;
+      opacity: 0.3;
+      transition: all 0.4s ease-in-out;
+      width: 40px;
+    }
+
+    &:after {
+      background: rgb(255, 255, 255);
+      border-radius: 16px;
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+      content: '';
+      height: 24px;
+      left: -4px;
+      margin-top: -8px;
+      position: absolute;
+      top: -4px;
+      transition: all 0.3s ease-in-out;
+      width: 24px;
+    }
+  }
+
+  & > input[type="checkbox"]:checked + label::before {
+    background: $black;
+    opacity: 0.5;
+  }
+
+  & > input[type="checkbox"]:checked + label::after {
+    background: $gray-700;
+    left: 20px;
+  }
+}
+
+@media screen and (max-width: 499px) {
+  .color-theme .jr-btn {
+    padding: 10px 15px !important;
+  }
+}

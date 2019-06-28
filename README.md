@@ -1,12 +1,19 @@
-# hg-first-decentralized-market
-The original fully decentralized prediction markets, PM2.0 Mercury.
+# prediction-market
+The original fully FCLA decentralized prediction markets.
 
 ## Development Instructions
 
-1. Run `npm install`
+1. Run `yarn install`
 2. In a separate terminal, run `ganache-cli -d`
 3. Run `npm run migrate`
 4. Start the dev server with `npm start`
+
+It will generate a build folder inside the root with the styles, JS assets and contracts.
+
+## Debug Instructions
+
+Run `npm run build-css` generate CSS assets separately.
+Run `npm run build-js` to generate JS assets separately.
 
 ### Running Helper Scripts
 

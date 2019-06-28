@@ -1,7 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 
-const CONFIG_FILE_PATH = path.join(__dirname, "..", "..", "app", "config.json");
+const CONFIG_FILE_PATH = path.join(__dirname, "..", "..", "src", "config.json");
 
 const writeToConfig = config => {
   fs.copyFileSync(CONFIG_FILE_PATH, `${CONFIG_FILE_PATH}.bak`);

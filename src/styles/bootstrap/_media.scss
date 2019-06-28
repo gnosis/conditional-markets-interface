@@ -1,0 +1,13 @@
+.media {
+  display: flex;
+  align-items: flex-start;
+}
+
+.media-body {
+  flex: 1;
+}
+
+.social-list-line:not(:last-child) {
+  padding-bottom: 25px;
+}
+

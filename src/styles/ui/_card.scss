@@ -1,0 +1,259 @@
+/*Cards Styles*/
+.profile-intro {
+  background-color: $white;
+  @include border-radius($border-radius-lg);
+  overflow: hidden;
+
+  img.avatar-circle {
+    display: inline-block;
+    @extend %size-120;
+    @include border-radius(50%);
+    @include box-shadow($shadow);
+    position: relative;
+    margin: 0 auto;
+    -webkit-transform: translateY(50px);
+    -ms-transform: translateY(50px);
+    transform: translateY(50px);
+    @include transition(all 0.4s ease-in-out);
+    z-index: 1;
+  }
+
+  &:hover {
+    & .avatar-circle {
+      @include transition(border-radius 0.4s ease 0.1s);
+      @include border-radius(25%);
+    }
+  }
+}
+
+.profile-intro {
+  & .card-image {
+    position: relative;
+    width: 100%;
+    min-height: 100%;
+    @include background('http://via.placeholder.com/1920x1072', center center);
+  }
+  & .pi-content {
+    padding: 70px 40px 24px;
+  }
+
+  & .pi-footer {
+    padding: 0 40px 24px;
+  }
+  & .icon {
+    display: inline-block;
+    @include transition(all 0.2s ease 0s);
+    color: theme-color("primary");
+
+    &:hover,
+    &:focus,
+    &:active {
+      -webkit-transform: scale(1.2);
+      -ms-transform: scale(1.2);
+      transform: scale(1.2);
+    }
+  }
+
+  & .icon:not(:last-child) {
+    margin-right: 10px;
+  }
+}
+
+.layer {
+  &:before {
+    display: block;
+    content: "";
+    background-color: rgba($black, 0.3);
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 100%;
+    width: 100%;
+    z-index: 0;
+  }
+}
+
+.card.jr-card-full-height,
+.jr-card.jr-card-full-height {
+  height: calc(100% - #{$jr-card-margin});
+
+  @media screen and (max-width: 575px) {
+    height: auto;
+  }
+}
+
+.jr-card {
+  @extend %jr-card-style;
+
+  & > .jr-card-body:first-child {
+    margin-top: 6px;
+  }
+
+  &.p-0 > .jr-card-body:first-child {
+    margin-top: 0;
+  }
+
+  & .jr-card-thumb {
+    margin: -24px -30px 0;
+
+    & .card-img {
+      @include border-radius($border-radius-lg $border-radius-lg 0 0);
+    }
+  }
+
+  @media screen and (max-width: 575px) {
+    margin-bottom: 18px;
+  }
+}
+
+.jr-card-header {
+  margin-bottom: 24px;
+
+  .card-heading {
+    margin-bottom: (24px / 6);
+  }
+
+  & .badge {
+    margin-bottom: 0;
+
+    &:last-child {
+      margin-left: 10px;
+    }
+  }
+
+  @media screen and (max-width: 575px) {
+    margin-bottom: 18px;
+  }
+}
+
+.jr-entry-header {
+  margin-bottom: 24px;
+
+  .entry-heading {
+    margin-bottom: (24px / 6);
+  }
+
+  .entry-description {
+    margin-bottom: 0;
+    font-size: 13px;
+    color: $gray-600;
+  }
+
+  @media screen and (max-width: 575px) {
+    margin-bottom: 18px;
+  }
+}
+
+.card {
+  margin-bottom: $jr-card-margin;
+
+  @media screen and (max-width: 575px) {
+    margin-bottom: 18px;
+  }
+}
+
+.card-header {
+  font-size: 16px;
+
+  & .badge {
+    margin-bottom: 0;
+
+    &:last-child {
+      margin-left: 10px;
+    }
+  }
+}
+
+.card-title {
+  font-size: $h3-font-size;
+  text-transform: capitalize;
+}
+
+.card-subtitle {
+  font-size: 14px;
+  color: $gray-700;
+
+  &:not(:last-child) {
+    margin-bottom: $h3-font-size;
+  }
+}
+
+.card-mt-footer {
+  padding: 0 15px 20px;
+  margin-top: -10px;
+}
+
+.jr-card-social {
+  font-size: 22px;
+  padding-top: 26px;
+}
+
+.social-link {
+  list-style: none;
+  padding-left: 0;
+  @include display-flex();
+  @include align-items(center);
+  margin: 0 -5px 10px;
+
+  & li {
+    padding: 0 5px;
+    margin-bottom: 5px;
+  }
+
+  & li a {
+    color: $body-color;
+  }
+
+  & li.active a,
+  & li a:hover,
+  & li a:focus {
+    color: $secondary;
+  }
+
+  .jr-card-social & {
+    margin-bottom: 0;
+    @include justify-content(space-around);
+  }
+}
+
+.jr-cart-ab {
+  @include display-flex();
+  @include align-items(center);
+  @include justify-content(space-around);
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+  color: $white;
+  font-size: $h3-font-size;
+
+  & i {
+    vertical-align: middle;
+    font-size: 25px;
+  }
+}
+
+.img-overlay-card {
+  @include border-radius($border-radius-lg);
+  margin-bottom: $jr-card-margin;
+
+  @media screen and (max-width: 1199px) {
+    & .center-crop-img {
+      min-height: 135px;
+    }
+  }
+
+  @media screen and (max-width: 767px) {
+    & .center-crop-img {
+      min-height: 160px;
+    }
+  }
+
+  @media screen and (max-width: 575px) {
+    margin-bottom: 18px;
+  }
+}

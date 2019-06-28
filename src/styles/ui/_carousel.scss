@@ -1,0 +1,15 @@
+/*Carousel Styles*/
+
+.carousel-caption {
+  & h3 {
+    font-size: $h2-font-size;
+  }
+}
+
+.carousel-control-prev {
+  @extend %pointer;
+}
+
+.carousel-control-next {
+  @extend %pointer;
+}

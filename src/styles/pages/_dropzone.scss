@@ -1,0 +1,43 @@
+/*Dropzone Styles*/
+.dropzone-card {
+  position: relative;
+}
+
+.dropzone {
+  margin-bottom: 20px;
+
+  & > div {
+    margin: 0 auto;
+    padding: 15px;
+    @include display-flex(flex, column, nowrap);
+    @include justify-content(center);
+
+    & :last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  & .btn {
+    margin-top: 20px;
+  }
+}
+
+.upload-file-list {
+  list-style: none;
+  padding-left: 0;
+
+  & li {
+    margin-bottom: 5px;
+  }
+}
+
+.form-group-dropzone {
+  & label {
+    margin-bottom: 6px;
+  }
+
+  & .form-control {
+    max-width: 200px;
+    margin: 0 auto;
+  }
+}

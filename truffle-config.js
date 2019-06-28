@@ -1,6 +1,7 @@
 require("dotenv").config();
 
 var HDWalletProvider = require("truffle-hdwallet-provider");
+const fullPathBuildDirectory = `${__dirname}/src/build/contracts`;
 
 const seed =
   process.env.SEED ||
@@ -20,6 +21,7 @@ const seed =
  *   },
  */
 const config = {
+  contracts_build_directory: fullPathBuildDirectory,
   networks: {
     development: {
       host: "127.0.0.1",
@@ -51,8 +53,7 @@ const config = {
     solc: {
       version: "0.5.1"
     }
-  },
-  build: "webpack"
+  }
 };
 
 module.exports = config;
