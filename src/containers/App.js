@@ -14,11 +14,11 @@ import collateralInfo from "../utils/collateral-info";
 
 import TruffleContract from "truffle-contract";
 import { product } from "../utils/itertools";
-import ERC20DetailedArtifact from "../contracts/ERC20Detailed.json";
-import IDSTokenArtifact from "../contracts/IDSToken.json";
-import WETH9Artifact from "../contracts/WETH9.json";
-import PredictionMarketSystemArtifact from "../contracts/PredictionMarketSystem.json";
-import LMSRMarketMakerArtifact from "../contracts/LMSRMarketMaker.json";
+import ERC20DetailedArtifact from "../build/contracts/ERC20Detailed.json";
+import IDSTokenArtifact from "../build/contracts/IDSToken.json";
+import WETH9Artifact from "../build/contracts/WETH9.json";
+import PredictionMarketSystemArtifact from "../build/contracts/PredictionMarketSystem.json";
+import LMSRMarketMakerArtifact from "../build/contracts/LMSRMarketMaker.json";
 
 import config from "../config.json";
 
