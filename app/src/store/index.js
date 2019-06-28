@@ -1,15 +1,15 @@
 import { applyMiddleware, compose, createStore } from "redux";
 import reducers from "../reducers/index";
-import createHistory from "history/createHashHistory";
+// import createHistory from "history/createHashHistory";
 import createSagaMiddleware from "redux-saga";
 import rootSaga from "../sagas/index";
-import { routerMiddleware } from "react-router-redux";
+// import { routerMiddleware } from "react-router-redux";
 
-const history = createHistory();
-const routeMiddleware = routerMiddleware(history);
+// const history = createHistory();
+// const routeMiddleware = routerMiddleware(history);
 const sagaMiddleware = createSagaMiddleware();
 
-const middlewares = [sagaMiddleware, routeMiddleware];
+const middlewares = [sagaMiddleware /* , routeMiddleware */];
 
 export default function configureStore(initialState) {
   // Compose with Redux Devtools if injected
@@ -34,4 +34,4 @@ export default function configureStore(initialState) {
   return store;
 }
 
-export { history };
+// export { history };
