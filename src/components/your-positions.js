@@ -78,7 +78,7 @@ const YourPositions = ({
         )
       );
     }
-  }, [positionGroups]);
+  }, [positionGroups, salePositionGroup]);
 
   const [saleAmount, setSaleAmount] = useState("");
   const [estimatedSaleEarnings, setEstimatedSaleEarnings] = useState(null);
@@ -139,7 +139,8 @@ const YourPositions = ({
     positions,
     LMSRState,
     salePositionGroup,
-    saleAmount
+    saleAmount,
+    setStagedTradeAmounts
   ]);
 
   async function sellOutcomeTokens() {
@@ -194,7 +195,7 @@ const YourPositions = ({
           )
         : null
     );
-  }, [positions, positionBalances, marketResolutionStates]);
+  }, [positions, positionBalances, marketResolutionStates, allMarketsResolved]);
 
   async function redeemPositions() {
     if (!allMarketsResolved)
@@ -439,12 +440,11 @@ YourPositions.propTypes = {
   }).isRequired,
   LMSRMarketMaker: PropTypes.object.isRequired,
   LMSRState: PropTypes.shape({
-    funding: PropTypes.instanceOf(BN).isRequired,
-    positionBalances: PropTypes.arrayOf(PropTypes.instanceOf(BN).isRequired)
-      .isRequired,
+    funding: PropTypes.object.isRequired,
+    positionBalances: PropTypes.arrayOf(PropTypes.object.isRequired).isRequired,
     stage: PropTypes.string.isRequired
   }),
-  positionBalances: PropTypes.arrayOf(PropTypes.instanceOf(BN).isRequired),
+  positionBalances: PropTypes.arrayOf(PropTypes.object.isRequired),
   stagedTradeAmounts: PropTypes.arrayOf(
     PropTypes.instanceOf(Decimal).isRequired
   ),

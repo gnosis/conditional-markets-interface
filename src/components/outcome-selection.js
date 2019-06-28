@@ -18,7 +18,7 @@ const OutcomeSelection = ({
           className={cn("selection", {
             selected:
               marketSelection != null &&
-              marketSelection.selectedOutcomeIndex == index
+              marketSelection.selectedOutcomeIndex === index
           })}
           onClick={() =>
             setMarketSelection({

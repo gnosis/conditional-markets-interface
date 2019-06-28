@@ -10,18 +10,19 @@ import BuySection from "../components/buy-section";
 import YourPositions from "../components/your-positions";
 import Spinner from "../components/spinner";
 import { getNetworkName, loadWeb3 } from "../utils/web3-helpers.js";
-import("../style.scss");
 import collateralInfo from "../utils/collateral-info";
 
 import TruffleContract from "truffle-contract";
 import { product } from "../utils/itertools";
-import ERC20DetailedArtifact from "../../../build/contracts/ERC20Detailed.json";
-import IDSTokenArtifact from "../../../build/contracts/IDSToken.json";
-import WETH9Artifact from "../../../build/contracts/WETH9.json";
-import PredictionMarketSystemArtifact from "../../../build/contracts/PredictionMarketSystem.json";
-import LMSRMarketMakerArtifact from "../../../build/contracts/LMSRMarketMaker.json";
+import ERC20DetailedArtifact from "../contracts/ERC20Detailed.json";
+import IDSTokenArtifact from "../contracts/IDSToken.json";
+import WETH9Artifact from "../contracts/WETH9.json";
+import PredictionMarketSystemArtifact from "../contracts/PredictionMarketSystem.json";
+import LMSRMarketMakerArtifact from "../contracts/LMSRMarketMaker.json";
 
-import config from "../../config.json";
+import config from "../config.json";
+
+import("../style.scss");
 
 async function loadBasicData({ lmsrAddress, markets }, web3, Decimal) {
   const { soliditySha3 } = web3.utils;
@@ -308,11 +309,11 @@ class App extends React.Component {
 
     // LMSR State
     if (
-      web3 != prevProps.web3 ||
-      PMSystem != prevProps.PMSystem ||
-      LMSRMarketMaker != prevProps.LMSRMarketMaker ||
-      positions != prevProps.positions ||
-      syncTime != prevProps.syncTime
+      web3 !== prevProps.web3 ||
+      PMSystem !== prevProps.PMSystem ||
+      LMSRMarketMaker !== prevProps.LMSRMarketMaker ||
+      positions !== prevProps.positions ||
+      syncTime !== prevProps.syncTime
     ) {
       getLMSRState(web3, PMSystem, LMSRMarketMaker, positions).then(
         setLMSRState
@@ -321,9 +322,9 @@ class App extends React.Component {
 
     // Market Resolution States
     if (
-      PMSystem != prevProps.PMSystem ||
-      markets != prevProps.markets ||
-      syncTime != prevProps.syncTime
+      PMSystem !== prevProps.PMSystem ||
+      markets !== prevProps.markets ||
+      syncTime !== prevProps.syncTime
     ) {
       getMarketResolutionStates(PMSystem, markets).then(
         setMarketResolutionStates
@@ -332,10 +333,10 @@ class App extends React.Component {
 
     // Collateral Balance
     if (
-      web3 != prevProps.web3 ||
-      collateral != prevProps.collateral ||
-      account != prevProps.account ||
-      syncTime != prevProps.syncTime
+      web3 !== prevProps.web3 ||
+      collateral !== prevProps.collateral ||
+      account !== prevProps.account ||
+      syncTime !== prevProps.syncTime
     ) {
       getCollateralBalance(web3, collateral, account).then(
         setCollateralBalance
@@ -344,10 +345,10 @@ class App extends React.Component {
 
     // Position Balances
     if (
-      PMSystem != prevProps.PMSystem ||
-      positions != prevProps.positions ||
-      account != prevProps.account ||
-      syncTime != prevProps.syncTime
+      PMSystem !== prevProps.PMSystem ||
+      positions !== prevProps.positions ||
+      account !== prevProps.account ||
+      syncTime !== prevProps.syncTime
     ) {
       getPositionBalances(PMSystem, positions, account).then(
         setPositionBalances
@@ -356,10 +357,10 @@ class App extends React.Component {
 
     // LMSR Allowance
     if (
-      collateral != prevProps.collateral ||
-      LMSRMarketMaker != prevProps.LMSRMarketMaker ||
-      account != prevProps.account ||
-      syncTime != prevProps.syncTime
+      collateral !== prevProps.collateral ||
+      LMSRMarketMaker !== prevProps.LMSRMarketMaker ||
+      account !== prevProps.account ||
+      syncTime !== prevProps.syncTime
     ) {
       getLMSRAllowance(collateral, LMSRMarketMaker, account).then(
         setLMSRAllowance
@@ -405,7 +406,7 @@ class App extends React.Component {
     return async () => {
       const { ongoingTransactionType, setOngoingTransactionType } = this.props;
 
-      if (ongoingTransactionType != null) {
+      if (ongoingTransactionType !== null) {
         throw new Error(
           `Attempted to ${wrappedTransactionType} while transaction to ${ongoingTransactionType} is ongoing`
         );
@@ -466,7 +467,12 @@ class App extends React.Component {
     if (loading === "FAILURE")
       return (
         <div className={cn("failure-page")}>
-          <h2>Failed to load 😞</h2>
+          <h2>
+            Failed to load{" "}
+            <span role="img" aria-label="">
+              😞
+            </span>
+          </h2>
           <h3>Please check the following:</h3>
           <ul>
             <li>Connect to correct network ({getNetworkName(networkId)})</li>

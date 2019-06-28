@@ -1,6 +1,5 @@
 import React, { useEffect } from "react";
 import PropTypes from "prop-types";
-import Web3 from "web3";
 import Decimal from "decimal.js-light";
 import { bindActionCreators } from "redux";
 import { connect } from "react-redux";
@@ -8,8 +7,6 @@ import * as marketDataActions from "../actions/marketData";
 import Market from "./market";
 
 import { zeroDecimal, oneDecimal } from "../utils/constants";
-
-const { BN } = Web3.utils;
 
 function calcSelectedMarketProbabilitiesFromPositionProbabilities(
   markets,
@@ -69,7 +66,7 @@ const Markets = ({
     return () => {
       setMarketSelections(null);
     };
-  }, []);
+  }, [markets, setMarketSelections]);
 
   let marketProbabilities = null;
   let marketProbabilitiesAfterStagedTrade = null;
@@ -167,9 +164,8 @@ Markets.propTypes = {
     }).isRequired
   ).isRequired,
   LMSRState: PropTypes.shape({
-    funding: PropTypes.instanceOf(BN).isRequired,
-    positionBalances: PropTypes.arrayOf(PropTypes.instanceOf(BN).isRequired)
-      .isRequired
+    funding: PropTypes.object.isRequired,
+    positionBalances: PropTypes.arrayOf(PropTypes.object.isRequired).isRequired
   }),
   marketSelections: PropTypes.arrayOf(
     PropTypes.shape({

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
-import Web3 from "web3";
 import Decimal from "decimal.js-light";
 import { bindActionCreators } from "redux";
 import { connect } from "react-redux";
@@ -12,8 +11,6 @@ import { formatCollateral } from "../utils/formatting";
 import { calcPositionGroups } from "../utils/position-groups";
 
 import cn from "classnames";
-
-const { BN } = Web3.utils;
 
 function calcOutcomeTokenCounts(
   positions,
@@ -162,7 +159,8 @@ const BuySection = ({
     collateralBalance,
     LMSRState,
     investmentAmount,
-    marketSelections
+    marketSelections,
+    setStagedTradeAmounts
   ]);
 
   const marketStage = LMSRState && LMSRState.stage;
@@ -363,18 +361,17 @@ BuySection.propTypes = {
     isWETH: PropTypes.bool.isRequired
   }).isRequired,
   collateralBalance: PropTypes.shape({
-    amount: PropTypes.instanceOf(BN).isRequired,
-    unwrappedAmount: PropTypes.instanceOf(BN),
-    totalAmount: PropTypes.instanceOf(BN).isRequired
+    amount: PropTypes.object.isRequired,
+    unwrappedAmount: PropTypes.object,
+    totalAmount: PropTypes.object.isRequired
   }),
   LMSRMarketMaker: PropTypes.object.isRequired,
   LMSRState: PropTypes.shape({
-    funding: PropTypes.instanceOf(BN).isRequired,
-    positionBalances: PropTypes.arrayOf(PropTypes.instanceOf(BN).isRequired)
-      .isRequired,
+    funding: PropTypes.object.isRequired,
+    positionBalances: PropTypes.arrayOf(PropTypes.object.isRequired).isRequired,
     stage: PropTypes.string.isRequired
   }),
-  LMSRAllowance: PropTypes.instanceOf(BN),
+  LMSRAllowance: PropTypes.object,
   marketSelections: PropTypes.arrayOf(
     PropTypes.shape({
       isAssumed: PropTypes.bool.isRequired,
