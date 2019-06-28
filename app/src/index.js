@@ -1,10 +1,15 @@
-import React, { render } from "react-dom";
+import React from "react";
+import { render } from "react-dom";
+import { Provider } from "react-redux";
 import App from "./containers/App";
+import configureStore /* , { history }*/ from "./store";
+
+export const store = configureStore();
 
 const RootComponent = () => (
-  <div>
+  <Provider store={store}>
     <App />
-  </div>
+  </Provider>
 );
 
 const rootElement = document.getElementById("root");

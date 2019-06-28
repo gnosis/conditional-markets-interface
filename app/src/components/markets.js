@@ -2,6 +2,9 @@ import React, { useEffect } from "react";
 import PropTypes from "prop-types";
 import Web3 from "web3";
 import Decimal from "decimal.js-light";
+import { bindActionCreators } from "redux";
+import { connect } from "react-redux";
+import * as marketDataActions from "../actions/marketData";
 import Market from "./market";
 
 import { zeroDecimal, oneDecimal } from "../utils/constants";
@@ -51,7 +54,7 @@ const Markets = ({
   markets,
   marketResolutionStates,
   positions,
-  lmsrState,
+  LMSRState,
   marketSelections,
   setMarketSelections,
   stagedTradeAmounts
@@ -70,8 +73,9 @@ const Markets = ({
 
   let marketProbabilities = null;
   let marketProbabilitiesAfterStagedTrade = null;
-  if (lmsrState != null) {
-    const { funding, positionBalances } = lmsrState;
+
+  if (LMSRState != null) {
+    const { funding, positionBalances } = LMSRState;
     const invB = new Decimal(positionBalances.length)
       .ln()
       .div(funding.toString());
@@ -119,7 +123,7 @@ const Markets = ({
           key={market.conditionId}
           {...{
             ...market,
-            lmsrState,
+            LMSRState,
             resolutionState:
               marketResolutionStates != null ? marketResolutionStates[i] : null,
             probabilities:
@@ -162,7 +166,7 @@ Markets.propTypes = {
       ).isRequired
     }).isRequired
   ).isRequired,
-  lmsrState: PropTypes.shape({
+  LMSRState: PropTypes.shape({
     funding: PropTypes.instanceOf(BN).isRequired,
     positionBalances: PropTypes.arrayOf(PropTypes.instanceOf(BN).isRequired)
       .isRequired
@@ -179,4 +183,19 @@ Markets.propTypes = {
   )
 };
 
-export default Markets;
+export default connect(
+  state => ({
+    markets: state.marketData.markets,
+    positions: state.marketData.positions,
+    LMSRState: state.marketData.LMSRState,
+    marketResolutionStates: state.marketData.marketResolutionStates,
+    marketSelections: state.marketData.marketSelections,
+    stagedTradeAmounts: state.marketData.stagedTradeAmounts
+  }),
+  dispatch => ({
+    setMarketSelections: bindActionCreators(
+      marketDataActions.setMarketSelections,
+      dispatch
+    )
+  })
+)(Markets);

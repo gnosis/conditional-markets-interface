@@ -2,6 +2,9 @@ import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import Web3 from "web3";
 import Decimal from "decimal.js-light";
+import { bindActionCreators } from "redux";
+import { connect } from "react-redux";
+import * as marketDataActions from "../actions/marketData";
 import PositionGroupDetails from "./position-group-details";
 import Spinner from "./spinner";
 import { maxUint256BN, zeroDecimal } from "../utils/constants";
@@ -98,9 +101,9 @@ const BuySection = ({
   positions,
   collateral,
   collateralBalance,
-  lmsrMarketMaker,
-  lmsrState,
-  lmsrAllowance,
+  LMSRMarketMaker,
+  LMSRState,
+  LMSRAllowance,
   marketSelections,
   stagedTradeAmounts,
   setStagedTradeAmounts,
@@ -144,7 +147,7 @@ const BuySection = ({
       setStagedTradeAmounts(
         calcOutcomeTokenCounts(
           positions,
-          lmsrState,
+          LMSRState,
           investmentAmountInUnits,
           marketSelections
         )
@@ -159,24 +162,24 @@ const BuySection = ({
     positions,
     collateral,
     collateralBalance,
-    lmsrState,
+    LMSRState,
     investmentAmount,
     marketSelections
   ]);
 
-  const marketStage = lmsrState && lmsrState.stage;
+  const marketStage = LMSRState && LMSRState.stage;
 
   let hasAnyAllowance = false;
   let hasEnoughAllowance = false;
   let hasInfiniteAllowance = false;
-  if (lmsrAllowance != null)
+  if (LMSRAllowance != null)
     try {
-      hasAnyAllowance = lmsrAllowance.gtn(0);
+      hasAnyAllowance = LMSRAllowance.gtn(0);
       hasEnoughAllowance = collateral.toUnitsMultiplier
         .mul(investmentAmount || "0")
-        .lte(lmsrAllowance.toString());
+        .lte(LMSRAllowance.toString());
 
-      hasInfiniteAllowance = lmsrAllowance.eq(maxUint256BN);
+      hasInfiniteAllowance = LMSRAllowance.eq(maxUint256BN);
     } catch (e) {
       // empty
     }
@@ -190,7 +193,7 @@ const BuySection = ({
       );
 
     const tradeAmounts = stagedTradeAmounts.map(amount => amount.toString());
-    const collateralLimit = await lmsrMarketMaker.calcNetCost(tradeAmounts);
+    const collateralLimit = await LMSRMarketMaker.calcNetCost(tradeAmounts);
 
     if (collateral.isWETH && collateralLimit.gt(collateralBalance.amount)) {
       await collateral.contract.deposit({
@@ -199,13 +202,13 @@ const BuySection = ({
       });
     }
 
-    await lmsrMarketMaker.trade(tradeAmounts, collateralLimit, {
+    await LMSRMarketMaker.trade(tradeAmounts, collateralLimit, {
       from: account
     });
   }
 
   async function setAllowance() {
-    await collateral.contract.approve(lmsrMarketMaker.address, maxUint256BN, {
+    await collateral.contract.approve(LMSRMarketMaker.address, maxUint256BN, {
       from: account
     });
   }
@@ -220,6 +223,9 @@ const BuySection = ({
     );
   }, [markets, positions, stagedTradeAmounts]);
 
+  // console.log(
+  //   asWrappedTransaction("buy outcome tokens", buyOutcomeTokens, setError)
+  // );
   return (
     <div className={cn("positions")}>
       {collateralBalance != null && (
@@ -238,11 +244,11 @@ const BuySection = ({
         <p>Market maker is closed.</p>
       ) : (
         <>
-          {lmsrAllowance != null && (
+          {LMSRAllowance != null && (
             <p>{`Market maker allowance: ${
               hasInfiniteAllowance
                 ? `∞ ${collateral.symbol}`
-                : formatCollateral(lmsrAllowance, collateral)
+                : formatCollateral(LMSRAllowance, collateral)
             }`}</p>
           )}
           <input
@@ -363,14 +369,14 @@ BuySection.propTypes = {
     unwrappedAmount: PropTypes.instanceOf(BN),
     totalAmount: PropTypes.instanceOf(BN).isRequired
   }),
-  lmsrMarketMaker: PropTypes.object.isRequired,
-  lmsrState: PropTypes.shape({
+  LMSRMarketMaker: PropTypes.object.isRequired,
+  LMSRState: PropTypes.shape({
     funding: PropTypes.instanceOf(BN).isRequired,
     positionBalances: PropTypes.arrayOf(PropTypes.instanceOf(BN).isRequired)
       .isRequired,
     stage: PropTypes.string.isRequired
   }),
-  lmsrAllowance: PropTypes.instanceOf(BN),
+  LMSRAllowance: PropTypes.instanceOf(BN),
   marketSelections: PropTypes.arrayOf(
     PropTypes.shape({
       isAssumed: PropTypes.bool.isRequired,
@@ -387,4 +393,29 @@ BuySection.propTypes = {
   asWrappedTransaction: PropTypes.func.isRequired
 };
 
-export default BuySection;
+export default connect(
+  state => ({
+    account: state.marketData.account,
+    markets: state.marketData.markets,
+    positions: state.marketData.positions,
+    collateral: state.marketData.collateral,
+    collateralBalance: state.marketData.collateralBalance,
+    LMSRMarketMaker: state.marketData.LMSRMarketMaker,
+    LMSRState: state.marketData.LMSRState,
+    LMSRAllowance: state.marketData.LMSRAllowance,
+    marketSelections: state.marketData.marketSelections,
+    stagedTradeAmounts: state.marketData.stagedTradeAmounts,
+    stagedTransactionType: state.marketData.stagedTransactionType,
+    ongoingTransactionType: state.marketData.ongoingTransactionType
+  }),
+  dispatch => ({
+    setStagedTradeAmounts: bindActionCreators(
+      marketDataActions.setStagedTradeAmounts,
+      dispatch
+    ),
+    setStagedTransactionType: bindActionCreators(
+      marketDataActions.setStagedTransactionType,
+      dispatch
+    )
+  })
+)(BuySection);

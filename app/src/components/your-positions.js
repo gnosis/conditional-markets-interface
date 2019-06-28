@@ -2,6 +2,9 @@ import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import Web3 from "web3";
 import Decimal from "decimal.js-light";
+import { bindActionCreators } from "redux";
+import { connect } from "react-redux";
+import * as marketDataActions from "../actions/marketData";
 import PositionGroupDetails from "./position-group-details";
 import Spinner from "./spinner";
 import { zeroDecimal } from "../utils/constants";
@@ -33,13 +36,13 @@ function calcNetCost({ funding, positionBalances }, tradeAmounts) {
 
 const YourPositions = ({
   account,
-  pmSystem,
+  PMSystem,
   markets,
   marketResolutionStates,
   positions,
   collateral,
-  lmsrMarketMaker,
-  lmsrState,
+  LMSRMarketMaker,
+  LMSRState,
   positionBalances,
   stagedTradeAmounts,
   setStagedTradeAmounts,
@@ -121,7 +124,7 @@ const YourPositions = ({
       setStagedTradeAmounts(stagedTradeAmounts);
 
       setEstimatedSaleEarnings(
-        calcNetCost(lmsrState, stagedTradeAmounts).neg()
+        calcNetCost(LMSRState, stagedTradeAmounts).neg()
       );
 
       setError(null);
@@ -134,7 +137,7 @@ const YourPositions = ({
     stagedTransactionType,
     collateral,
     positions,
-    lmsrState,
+    LMSRState,
     salePositionGroup,
     saleAmount
   ]);
@@ -147,21 +150,21 @@ const YourPositions = ({
         `Can't sell outcome tokens while staged transaction is to ${stagedTransactionType}`
       );
 
-    if (!(await pmSystem.isApprovedForAll(account, lmsrMarketMaker.address))) {
-      await pmSystem.setApprovalForAll(lmsrMarketMaker.address, true, {
+    if (!(await PMSystem.isApprovedForAll(account, LMSRMarketMaker.address))) {
+      await PMSystem.setApprovalForAll(LMSRMarketMaker.address, true, {
         from: account
       });
     }
 
     const tradeAmounts = stagedTradeAmounts.map(amount => amount.toString());
-    const collateralLimit = await lmsrMarketMaker.calcNetCost(tradeAmounts);
+    const collateralLimit = await LMSRMarketMaker.calcNetCost(tradeAmounts);
 
-    await lmsrMarketMaker.trade(tradeAmounts, collateralLimit, {
+    await LMSRMarketMaker.trade(tradeAmounts, collateralLimit, {
       from: account
     });
   }
 
-  const marketStage = lmsrState && lmsrState.stage;
+  const marketStage = LMSRState && LMSRState.stage;
 
   const allMarketsResolved =
     marketResolutionStates &&
@@ -230,13 +233,13 @@ const YourPositions = ({
           childCollectionId
         );
 
-        if ((await pmSystem.balanceOf(account, childPositionId)).gtn(0)) {
+        if ((await PMSystem.balanceOf(account, childPositionId)).gtn(0)) {
           indexSets.push(toBN(1).shln(outcomeIndex));
         }
       }
 
       if (indexSets.length > 0) {
-        await pmSystem.redeemPositions(
+        await PMSystem.redeemPositions(
           collateral.address,
           parentCollectionId,
           market.conditionId,
@@ -403,7 +406,7 @@ const YourPositions = ({
 
 YourPositions.propTypes = {
   account: PropTypes.string.isRequired,
-  pmSystem: PropTypes.object.isRequired,
+  PMSystem: PropTypes.object.isRequired,
   markets: PropTypes.arrayOf(
     PropTypes.shape({
       outcomes: PropTypes.arrayOf(
@@ -434,8 +437,8 @@ YourPositions.propTypes = {
     symbol: PropTypes.string.isRequired,
     decimals: PropTypes.number.isRequired
   }).isRequired,
-  lmsrMarketMaker: PropTypes.object.isRequired,
-  lmsrState: PropTypes.shape({
+  LMSRMarketMaker: PropTypes.object.isRequired,
+  LMSRState: PropTypes.shape({
     funding: PropTypes.instanceOf(BN).isRequired,
     positionBalances: PropTypes.arrayOf(PropTypes.instanceOf(BN).isRequired)
       .isRequired,
@@ -452,4 +455,29 @@ YourPositions.propTypes = {
   asWrappedTransaction: PropTypes.func.isRequired
 };
 
-export default YourPositions;
+export default connect(
+  state => ({
+    account: state.marketData.account,
+    markets: state.marketData.markets,
+    PMSystem: state.marketData.PMSystem,
+    marketResolutionStates: state.marketData.marketResolutionStates,
+    positions: state.marketData.positions,
+    collateral: state.marketData.collateral,
+    LMSRMarketMaker: state.marketData.LMSRMarketMaker,
+    LMSRState: state.marketData.LMSRState,
+    positionBalances: state.marketData.positionBalances,
+    stagedTradeAmounts: state.marketData.stagedTradeAmounts,
+    stagedTransactionType: state.marketData.stagedTransactionType,
+    ongoingTransactionType: state.marketData.ongoingTransactionType
+  }),
+  dispatch => ({
+    setStagedTradeAmounts: bindActionCreators(
+      marketDataActions.setStagedTradeAmounts,
+      dispatch
+    ),
+    setStagedTransactionType: bindActionCreators(
+      marketDataActions.setStagedTransactionType,
+      dispatch
+    )
+  })
+)(YourPositions);
