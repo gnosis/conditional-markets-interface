@@ -1,7 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import cn from "classnames";
-import useInterval from "@use-it/interval";
 import Decimal from "decimal.js-light";
+import { bindActionCreators } from "redux";
+import { connect } from "react-redux";
+import PropTypes from "prop-types";
+import * as marketDataActions from "../actions/marketData";
 import Markets from "../components/markets";
 import BuySection from "../components/buy-section";
 import YourPositions from "../components/your-positions";
@@ -18,6 +21,8 @@ import WETH9Artifact from "../../../build/contracts/WETH9.json";
 import PredictionMarketSystemArtifact from "../../../build/contracts/PredictionMarketSystem.json";
 import LMSRMarketMakerArtifact from "../../../build/contracts/LMSRMarketMaker.json";
 
+import config from "../../config.json";
+
 async function loadBasicData({ lmsrAddress, markets }, web3, Decimal) {
   const { soliditySha3 } = web3.utils;
 
@@ -27,36 +32,36 @@ async function loadBasicData({ lmsrAddress, markets }, web3, Decimal) {
   const PredictionMarketSystem = TruffleContract(
     PredictionMarketSystemArtifact
   );
-  const LMSRMarketMaker = TruffleContract(LMSRMarketMakerArtifact);
+  const LMSRMarketMaker_truffle = TruffleContract(LMSRMarketMakerArtifact);
   for (const Contract of [
     ERC20Detailed,
     IDSToken,
     WETH9,
     PredictionMarketSystem,
-    LMSRMarketMaker
+    LMSRMarketMaker_truffle
   ]) {
     Contract.setProvider(web3.currentProvider);
   }
 
-  const lmsrMarketMaker = await LMSRMarketMaker.at(lmsrAddress);
+  const LMSRMarketMaker = await LMSRMarketMaker_truffle.at(lmsrAddress);
 
   const collateral = await collateralInfo(
     web3,
     Decimal,
     { ERC20Detailed, IDSToken, WETH9 },
-    lmsrMarketMaker
+    LMSRMarketMaker
   );
 
-  const pmSystem = await PredictionMarketSystem.at(
-    await lmsrMarketMaker.pmSystem()
+  const PMSystem = await PredictionMarketSystem.at(
+    await LMSRMarketMaker.pmSystem()
   );
-  const atomicOutcomeSlotCount = (await lmsrMarketMaker.atomicOutcomeSlotCount()).toNumber();
+  const atomicOutcomeSlotCount = (await LMSRMarketMaker.atomicOutcomeSlotCount()).toNumber();
 
   let curAtomicOutcomeSlotCount = 1;
   for (let i = 0; i < markets.length; i++) {
     const market = markets[i];
-    const conditionId = await lmsrMarketMaker.conditionIds(i);
-    const numSlots = (await pmSystem.getOutcomeSlotCount(
+    const conditionId = await LMSRMarketMaker.conditionIds(i);
+    const numSlots = (await PMSystem.getOutcomeSlotCount(
       conditionId
     )).toNumber();
 
@@ -80,6 +85,7 @@ async function loadBasicData({ lmsrAddress, markets }, web3, Decimal) {
 
     curAtomicOutcomeSlotCount *= numSlots;
   }
+
   if (curAtomicOutcomeSlotCount !== atomicOutcomeSlotCount) {
     throw new Error(
       `mismatch in counted atomic outcome slot ${curAtomicOutcomeSlotCount} and contract reported value ${atomicOutcomeSlotCount}`
@@ -135,8 +141,8 @@ async function loadBasicData({ lmsrAddress, markets }, web3, Decimal) {
   }
 
   return {
-    pmSystem,
-    lmsrMarketMaker,
+    PMSystem,
+    LMSRMarketMaker,
     collateral,
     markets,
     positions
@@ -160,28 +166,28 @@ async function getCollateralBalance(web3, collateral, account) {
   return collateralBalance;
 }
 
-async function getLMSRState(web3, pmSystem, lmsrMarketMaker, positions) {
+async function getLMSRState(web3, PMSystem, LMSRMarketMaker, positions) {
   const { fromWei } = web3.utils;
   const [owner, funding, stage, fee, positionBalances] = await Promise.all([
-    lmsrMarketMaker.owner(),
-    lmsrMarketMaker.funding(),
-    lmsrMarketMaker
-      .stage()
-      .then(stage => ["Running", "Paused", "Closed"][stage.toNumber()]),
-    lmsrMarketMaker.fee().then(fee => fromWei(fee)),
-    getPositionBalances(pmSystem, positions, lmsrMarketMaker.address)
+    LMSRMarketMaker.owner(),
+    LMSRMarketMaker.funding(),
+    LMSRMarketMaker.stage().then(
+      stage => ["Running", "Paused", "Closed"][stage.toNumber()]
+    ),
+    LMSRMarketMaker.fee().then(fee => fromWei(fee)),
+    getPositionBalances(PMSystem, positions, LMSRMarketMaker.address)
   ]);
   return { owner, funding, stage, fee, positionBalances };
 }
 
-async function getMarketResolutionStates(pmSystem, markets) {
+async function getMarketResolutionStates(PMSystem, markets) {
   return await Promise.all(
     markets.map(async ({ conditionId, outcomes }) => {
-      const payoutDenominator = await pmSystem.payoutDenominator(conditionId);
+      const payoutDenominator = await PMSystem.payoutDenominator(conditionId);
       if (payoutDenominator.gtn(0)) {
         const payoutNumerators = await Promise.all(
           outcomes.map((_, outcomeIndex) =>
-            pmSystem.payoutNumerators(conditionId, outcomeIndex)
+            PMSystem.payoutNumerators(conditionId, outcomeIndex)
           )
         );
 
@@ -195,14 +201,14 @@ async function getMarketResolutionStates(pmSystem, markets) {
   );
 }
 
-async function getPositionBalances(pmSystem, positions, account) {
+async function getPositionBalances(PMSystem, positions, account) {
   return await Promise.all(
-    positions.map(position => pmSystem.balanceOf(account, position.id))
+    positions.map(position => PMSystem.balanceOf(account, position.id))
   );
 }
 
-async function getLMSRAllowance(collateral, lmsrMarketMaker, account) {
-  return await collateral.contract.allowance(account, lmsrMarketMaker.address);
+async function getLMSRAllowance(collateral, LMSRMarketMaker, account) {
+  return await collateral.contract.allowance(account, LMSRMarketMaker.address);
 }
 
 Decimal.config({
@@ -212,88 +218,154 @@ Decimal.config({
 
 const moduleLoadTime = Date.now();
 
-const App = () => {
-  const [loading, setLoading] = useState("LOADING");
-  const [syncTime, setSyncTime] = useState(moduleLoadTime);
-  function triggerSync() {
-    setSyncTime(Date.now());
+class App extends React.Component {
+  async componentDidMount() {
+    const { setSyncTime /* , syncTime */ } = this.props;
+
+    // Set current syncTime
+    setSyncTime(moduleLoadTime);
+
+    // Save current time
+    const currentTime = Date.now();
+
+    // Repeatedly set the syncTime going forward
+    setInterval(() => {
+      setSyncTime(currentTime);
+    }, 2000);
+
+    // Make initial setup calls
+    this.setInitialDataFromWeb3Calls();
+
+    // window.requestAnimationFrame(() => {
+    // this.makeUpdatesWhenPropsChange({syncTime: currentTime});
+    // });
   }
-  useInterval(triggerSync, 2000);
 
-  const [networkId, setNetworkId] = useState(null);
-  const [web3, setWeb3] = useState(null);
-  const [account, setAccount] = useState(null);
-  const [pmSystem, setPMSystem] = useState(null);
-  const [lmsrMarketMaker, setLMSRMarketMaker] = useState(null);
-  const [collateral, setCollateral] = useState(null);
-  const [markets, setMarkets] = useState(null);
-  const [positions, setPositions] = useState(null);
+  async componentDidUpdate(prevProps) {
+    this.makeUpdatesWhenPropsChange(prevProps);
+  }
 
-  useEffect(() => {
-    import("../../config.json")
-      .then(async ({ default: config }) => {
-        setNetworkId(config.networkId);
+  makeUpdatesWhenPropsChange = async prevProps => {
+    const {
+      loading,
+      syncTime,
+      setLMSRState,
+      setMarketResolutionStates,
+      setCollateralBalance,
+      setPositionBalances,
+      setLMSRAllowance,
+      web3,
+      PMSystem,
+      LMSRMarketMaker,
+      positions,
+      markets,
+      collateral,
+      account
+    } = this.props;
 
-        const { web3, account } = await loadWeb3(config.networkId);
+    // We can only execute the updates if web3 has been loaded (via the setInitialDataFromWeb3Calls() function)
+    if (loading !== "SUCCESS") return;
 
-        setWeb3(web3);
-        setAccount(account);
+    // LMSR State
+    if (
+      web3 != prevProps.web3 ||
+      PMSystem != prevProps.PMSystem ||
+      LMSRMarketMaker != prevProps.LMSRMarketMaker ||
+      positions != prevProps.positions ||
+      syncTime != prevProps.syncTime
+    ) {
+      // console.log("*********");
+      getLMSRState(web3, PMSystem, LMSRMarketMaker, positions).then(
+        setLMSRState
+      );
+    }
 
-        const {
-          pmSystem,
-          lmsrMarketMaker,
-          collateral,
-          markets,
-          positions
-        } = await loadBasicData(config, web3, Decimal);
+    // Market Resolution States
+    if (
+      PMSystem != prevProps.PMSystem ||
+      markets != prevProps.markets ||
+      syncTime != prevProps.syncTime
+    ) {
+      getMarketResolutionStates(PMSystem, markets).then(
+        setMarketResolutionStates
+      );
+    }
 
-        setPMSystem(pmSystem);
-        setLMSRMarketMaker(lmsrMarketMaker);
-        setCollateral(collateral);
-        setMarkets(markets);
-        setPositions(positions);
+    // Collateral Balance
+    if (
+      web3 != prevProps.web3 ||
+      collateral != prevProps.collateral ||
+      account != prevProps.account ||
+      syncTime != prevProps.syncTime
+    ) {
+      getCollateralBalance(web3, collateral, account).then(
+        setCollateralBalance
+      );
+    }
 
-        setLoading("SUCCESS");
-      })
-      .catch(err => {
-        setLoading("FAILURE");
-        throw err;
-      });
-  }, []);
+    // Position Balances
+    if (
+      PMSystem != prevProps.PMSystem ||
+      positions != prevProps.positions ||
+      account != prevProps.account ||
+      syncTime != prevProps.syncTime
+    ) {
+      getPositionBalances(PMSystem, positions, account).then(
+        setPositionBalances
+      );
+    }
 
-  const [lmsrState, setLMSRState] = useState(null);
-  const [marketResolutionStates, setMarketResolutionStates] = useState(null);
-  const [collateralBalance, setCollateralBalance] = useState(null);
-  const [positionBalances, setPositionBalances] = useState(null);
-  const [lmsrAllowance, setLMSRAllowance] = useState(null);
+    // LMSR Allowance
+    if (
+      collateral != prevProps.collateral ||
+      LMSRMarketMaker != prevProps.LMSRMarketMaker ||
+      account != prevProps.account ||
+      syncTime != prevProps.syncTime
+    ) {
+      getLMSRAllowance(collateral, LMSRMarketMaker, account).then(
+        setLMSRAllowance
+      );
+    }
+  };
 
-  for (const [loader, dependentParams, setter] of [
-    [getLMSRState, [web3, pmSystem, lmsrMarketMaker, positions], setLMSRState],
-    [getMarketResolutionStates, [pmSystem, markets], setMarketResolutionStates],
-    [getCollateralBalance, [web3, collateral, account], setCollateralBalance],
-    [getPositionBalances, [pmSystem, positions, account], setPositionBalances],
-    [getLMSRAllowance, [collateral, lmsrMarketMaker, account], setLMSRAllowance]
-  ])
-    useEffect(() => {
-      if (dependentParams.every(p => p != null))
-        loader(...dependentParams)
-          .then(setter)
-          .catch(err => {
-            throw err;
-          });
-    }, [...dependentParams, syncTime]);
+  setInitialDataFromWeb3Calls = async () => {
+    const {
+      setLoading,
+      setNetworkId,
+      setWeb3,
+      setAccount,
+      setPMSystem,
+      setLMSRMarketMaker,
+      setCollateral,
+      setMarkets,
+      setPositions
+    } = this.props;
 
-  const [marketSelections, setMarketSelections] = useState(null);
-  const [stagedTradeAmounts, setStagedTradeAmounts] = useState(null);
-  const [stagedTransactionType, setStagedTransactionType] = useState(null);
+    setNetworkId(config.networkId);
+    const { web3, account } = await loadWeb3(config.networkId);
+    setWeb3(web3);
+    setAccount(account);
+    const {
+      PMSystem,
+      LMSRMarketMaker,
+      collateral,
+      markets,
+      positions
+    } = await loadBasicData(config, web3, Decimal);
+    setPMSystem(PMSystem);
+    setLMSRMarketMaker(LMSRMarketMaker);
+    setCollateral(collateral);
+    setMarkets(markets);
+    setPositions(positions);
 
-  const [ongoingTransactionType, setOngoingTransactionType] = useState(null);
-  function asWrappedTransaction(
-    wrappedTransactionType,
-    transactionFn,
-    setError
-  ) {
-    return async function wrappedAction() {
+    setLoading("SUCCESS");
+    return;
+  };
+
+  asWrappedTransaction = (wrappedTransactionType, transactionFn, setError) => {
+    return async () => {
+      const { ongoingTransactionType, setOngoingTransactionType } = this.props;
+
       if (ongoingTransactionType != null) {
         throw new Error(
           `Attempted to ${wrappedTransactionType} while transaction to ${ongoingTransactionType} is ongoing`
@@ -308,102 +380,165 @@ const App = () => {
         throw e;
       } finally {
         setOngoingTransactionType(null);
-        triggerSync();
+        // triggerSync();
       }
     };
+  };
+
+  render() {
+    const { loading, account, networkId } = this.props;
+
+    if (loading === "SUCCESS")
+      return (
+        <div className={cn("page")}>
+          <h1 className={cn("page-title")}>Flyingcarpet PM</h1>
+          <section className={cn("section", "market-section")}>
+            <Markets />
+          </section>
+          <div className={cn("separator")} />
+          <section className={cn("section", "position-section")}>
+            {account == null ? (
+              <>
+                <h2 className={cn("heading")}>Note</h2>
+                <p>
+                  Please connect an Ethereum provider to{" "}
+                  {getNetworkName(networkId)} to interact with this market.
+                </p>
+              </>
+            ) : (
+              <>
+                <h2 className={cn("heading")}>Manage Positions</h2>
+                <BuySection asWrappedTransaction={this.asWrappedTransaction} />
+                <YourPositions
+                  asWrappedTransaction={this.asWrappedTransaction}
+                />
+              </>
+            )}
+          </section>
+        </div>
+      );
+
+    if (loading === "LOADING")
+      return (
+        <div className={cn("loading-page")}>
+          <Spinner centered inverted width={100} height={100} />
+        </div>
+      );
+    if (loading === "FAILURE")
+      return (
+        <div className={cn("failure-page")}>
+          <h2>Failed to load 😞</h2>
+          <h3>Please check the following:</h3>
+          <ul>
+            <li>Connect to correct network ({getNetworkName(networkId)})</li>
+            <li>Install/Unlock Metamask</li>
+          </ul>
+        </div>
+      );
   }
+}
 
-  if (loading === "SUCCESS")
-    return (
-      <div className={cn("page")}>
-        <h1 className={cn("page-title")}>Gnosis PM 2.0 Experiments</h1>
-        <section className={cn("section", "market-section")}>
-          <Markets
-            {...{
-              markets,
-              marketResolutionStates,
-              positions,
-              lmsrState,
-              marketSelections,
-              setMarketSelections,
-              stagedTradeAmounts
-            }}
-          />
-        </section>
-        <div className={cn("separator")} />
-        <section className={cn("section", "position-section")}>
-          {account == null ? (
-            <>
-              <h2 className={cn("heading")}>Note</h2>
-              <p>
-                Please connect an Ethereum provider to{" "}
-                {getNetworkName(networkId)} to interact with this market.
-              </p>
-            </>
-          ) : (
-            <>
-              <h2 className={cn("heading")}>Manage Positions</h2>
-              <BuySection
-                {...{
-                  account,
-                  markets,
-                  positions,
-                  collateral,
-                  collateralBalance,
-                  lmsrMarketMaker,
-                  lmsrState,
-                  lmsrAllowance,
-                  marketSelections,
-                  stagedTradeAmounts,
-                  setStagedTradeAmounts,
-                  stagedTransactionType,
-                  setStagedTransactionType,
-                  ongoingTransactionType,
-                  asWrappedTransaction
-                }}
-              />
-              <YourPositions
-                {...{
-                  account,
-                  pmSystem,
-                  markets,
-                  marketResolutionStates,
-                  positions,
-                  collateral,
-                  lmsrMarketMaker,
-                  lmsrState,
-                  positionBalances,
-                  stagedTradeAmounts,
-                  setStagedTradeAmounts,
-                  stagedTransactionType,
-                  setStagedTransactionType,
-                  ongoingTransactionType,
-                  asWrappedTransaction
-                }}
-              />
-            </>
-          )}
-        </section>
-      </div>
-    );
-
-  if (loading === "LOADING")
-    return (
-      <div className={cn("loading-page")}>
-        <Spinner centered inverted width={100} height={100} />
-      </div>
-    );
-  if (loading === "FAILURE")
-    return (
-      <div className={cn("failure-page")}>
-        <h2>Failed to load 😞</h2>
-        <h3>Please check the following:</h3>
-        <ul>
-          <li>Connect to correct network ({getNetworkName(networkId)})</li>
-          <li>Install/Unlock Metamask</li>
-        </ul>
-      </div>
-    );
+App.propTypes = {
+  setSyncTime: PropTypes.func.isRequired,
+  loading: PropTypes.string.isRequired,
+  syncTime: PropTypes.string.isRequired,
+  setLMSRState: PropTypes.func.isRequired,
+  setMarketResolutionStates: PropTypes.func.isRequired,
+  setCollateralBalance: PropTypes.func.isRequired,
+  setPositionBalances: PropTypes.func.isRequired,
+  setLMSRAllowance: PropTypes.func.isRequired,
+  web3: PropTypes.object.isRequired,
+  PMSystem: PropTypes.object.isRequired,
+  LMSRMarketMaker: PropTypes.object.isRequired,
+  positions: PropTypes.object.isRequired,
+  markets: PropTypes.object.isRequired,
+  collateral: PropTypes.object.isRequired,
+  account: PropTypes.object.isRequired,
+  setLoading: PropTypes.func.isRequired,
+  setNetworkId: PropTypes.func.isRequired,
+  setWeb3: PropTypes.func.isRequired,
+  setAccount: PropTypes.func.isRequired,
+  setPMSystem: PropTypes.func.isRequired,
+  setLMSRMarketMaker: PropTypes.func.isRequired,
+  setCollateral: PropTypes.func.isRequired,
+  setMarkets: PropTypes.func.isRequired,
+  setPositions: PropTypes.func.isRequired,
+  ongoingTransactionType: PropTypes.object.isRequired,
+  setOngoingTransactionType: PropTypes.func.isRequired,
+  networkId: PropTypes.string.isRequired
 };
 
-export default App;
+export default connect(
+  state => ({
+    syncTime: state.marketData.syncTime,
+    loading: state.marketData.loading,
+    networkId: state.marketData.networkId,
+    web3: state.marketData.web3,
+    account: state.marketData.account,
+    PMSystem: state.marketData.PMSystem,
+    LMSRMarketMaker: state.marketData.LMSRMarketMaker,
+    collateral: state.marketData.collateral,
+    markets: state.marketData.markets,
+    positions: state.marketData.positions,
+    LMSRState: state.marketData.LMSRState,
+    marketResolutionStates: state.marketData.marketResolutionStates,
+    collateralBalance: state.marketData.collateralBalance,
+    positionBalances: state.marketData.positionBalances,
+    LMSRAllowance: state.marketData.LMSRAllowance,
+    marketSelections: state.marketData.marketSelections,
+    stagedTradeAmounts: state.marketData.stagedTradeAmounts,
+    stagedTransactionType: state.marketData.stagedTransactionType,
+    ongoingTransactionType: state.marketData.ongoingTransactionType
+  }),
+  dispatch => ({
+    setSyncTime: bindActionCreators(marketDataActions.setSyncTime, dispatch),
+    setLoading: bindActionCreators(marketDataActions.setLoading, dispatch),
+    setNetworkId: bindActionCreators(marketDataActions.setNetworkId, dispatch),
+    setWeb3: bindActionCreators(marketDataActions.setWeb3, dispatch),
+    setAccount: bindActionCreators(marketDataActions.setAccount, dispatch),
+    setPMSystem: bindActionCreators(marketDataActions.setPMSystem, dispatch),
+    setLMSRMarketMaker: bindActionCreators(
+      marketDataActions.setLMSRMarketMaker,
+      dispatch
+    ),
+    setCollateral: bindActionCreators(
+      marketDataActions.setCollateral,
+      dispatch
+    ),
+    setMarkets: bindActionCreators(marketDataActions.setMarkets, dispatch),
+    setPositions: bindActionCreators(marketDataActions.setPositions, dispatch),
+    setLMSRState: bindActionCreators(marketDataActions.setLMSRState, dispatch),
+    setMarketResolutionStates: bindActionCreators(
+      marketDataActions.setMarketResolutionStates,
+      dispatch
+    ),
+    setCollateralBalance: bindActionCreators(
+      marketDataActions.setCollateralBalance,
+      dispatch
+    ),
+    setPositionBalances: bindActionCreators(
+      marketDataActions.setPositionBalances,
+      dispatch
+    ),
+    setLMSRAllowance: bindActionCreators(
+      marketDataActions.setLMSRAllowance,
+      dispatch
+    ),
+    setMarketSelections: bindActionCreators(
+      marketDataActions.setMarketSelections,
+      dispatch
+    ),
+    setStagedTradeAmounts: bindActionCreators(
+      marketDataActions.setStagedTradeAmounts,
+      dispatch
+    ),
+    setStagedTransactionType: bindActionCreators(
+      marketDataActions.setStagedTransactionType,
+      dispatch
+    ),
+    setOngoingTransactionType: bindActionCreators(
+      marketDataActions.setOngoingTransactionType,
+      dispatch
+    )
+  })
+)(App);
