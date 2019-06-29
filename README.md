@@ -24,7 +24,7 @@ Run `npm run build-js` to generate JS assets separately.
 
 ### PM Dashboard Code Structure
 <p align="center">
-  <img width="400px" src="https://github.com/flyingcarpet-network/prediction-market/blob/master/src/assets/react_workflow_pm_dashboard.png" />
+  <img width="400px" src="https://github.com/flyingcarpet-network/prediction-market/blob/master/src/assets/workflow/react_workflow_pm_dashboard.png" />
 </p>
 
 ### Running Helper Scripts
