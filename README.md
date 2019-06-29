@@ -15,6 +15,18 @@ It will generate a build folder inside the root with the styles, JS assets and c
 Run `npm run build-css` generate CSS assets separately.
 Run `npm run build-js` to generate JS assets separately.
 
+## Workflow
+
+### PM Dashboard workflow
+<p align="center">
+  <img width="400px" src="https://github.com/flyingcarpet-network/prediction-market/blob/master/src/assets/workflow/pm_dashboard.png" />
+</p>
+
+### PM Dashboard Code Structure
+<p align="center">
+  <img width="400px" src="https://github.com/flyingcarpet-network/prediction-market/blob/master/src/assets/react_workflow_pm_dashboard.png" />
+</p>
+
 ### Running Helper Scripts
 
 For operating the LMSR market maker
