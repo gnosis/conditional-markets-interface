@@ -27,6 +27,11 @@ Run `npm run build-js` to generate JS assets separately.
   <img width="400px" src="https://github.com/flyingcarpet-network/prediction-market/blob/master/src/assets/workflow/react_workflow_pm_dashboard.png" />
 </p>
 
+## Available markets
+1. Carbon credits 
+2. Ice Melting
+3. Coffee production
+
 ### Running Helper Scripts
 
 For operating the LMSR market maker
