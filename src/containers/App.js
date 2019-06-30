@@ -33,18 +33,18 @@ async function loadBasicData({ lmsrAddress, markets }, web3, Decimal) {
   const PredictionMarketSystem = TruffleContract(
     PredictionMarketSystemArtifact
   );
-  const LMSRMarketMaker_truffle = TruffleContract(LMSRMarketMakerArtifact);
+  const LMSRMarketMakerTruffle = TruffleContract(LMSRMarketMakerArtifact);
   for (const Contract of [
     ERC20Detailed,
     IDSToken,
     WETH9,
     PredictionMarketSystem,
-    LMSRMarketMaker_truffle
+    LMSRMarketMakerTruffle
   ]) {
     Contract.setProvider(web3.currentProvider);
   }
 
-  const LMSRMarketMaker = await LMSRMarketMaker_truffle.at(lmsrAddress);
+  const LMSRMarketMaker = await LMSRMarketMakerTruffle.at(lmsrAddress);
 
   const collateral = await collateralInfo(
     web3,
@@ -66,19 +66,20 @@ async function loadBasicData({ lmsrAddress, markets }, web3, Decimal) {
       conditionId
     )).toNumber();
 
-    if (numSlots === 0)
+    if (numSlots === 0) {
       throw new Error(`condition ${conditionId} not set up yet`);
-    if (numSlots !== market.outcomes.length)
+    }
+    if (numSlots !== market.outcomes.length) {
       throw new Error(
         `condition ${conditionId} outcome slot count ${numSlots} does not match market outcome descriptions array with length ${market.outcomes.length}`
       );
-
+    }
     market.marketIndex = i;
     market.conditionId = conditionId;
-    market.outcomes.forEach((outcome, i) => {
+    market.outcomes.forEach((outcome, counter) => {
       outcome.collectionId = soliditySha3(
         { t: "bytes32", v: conditionId },
-        { t: "uint", v: 1 << i }
+        { t: "uint", v: 1 << counter }
       );
     });
 
@@ -305,7 +306,9 @@ class App extends React.Component {
     } = this.props;
 
     // We can only execute the updates if web3 has been loaded (via the setInitialDataFromWeb3Calls() function)
-    if (loading !== "SUCCESS") return;
+    if (loading !== "SUCCESS") {
+      return;
+    }
 
     // LMSR State
     if (
@@ -428,7 +431,7 @@ class App extends React.Component {
   render() {
     const { loading, account, networkId } = this.props;
 
-    if (loading === "SUCCESS")
+    if (loading === "SUCCESS") {
       return (
         <div className={cn("page")}>
           <h1 className={cn("page-title")}>Flyingcarpet PM</h1>
@@ -457,14 +460,16 @@ class App extends React.Component {
           </section>
         </div>
       );
+    }
 
-    if (loading === "LOADING")
+    if (loading === "LOADING") {
       return (
         <div className={cn("loading-page")}>
           <Spinner centered inverted width={100} height={100} />
         </div>
       );
-    if (loading === "FAILURE")
+    }
+    if (loading === "FAILURE") {
       return (
         <div className={cn("failure-page")}>
           <h2>
@@ -480,6 +485,7 @@ class App extends React.Component {
           </ul>
         </div>
       );
+    }
   }
 }
 
