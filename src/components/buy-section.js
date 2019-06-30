@@ -23,8 +23,9 @@ function calcOutcomeTokenCounts(
       ({ isAssumed, selectedOutcomeIndex }) =>
         isAssumed || selectedOutcomeIndex == null
     )
-  )
+  ) {
     throw new Error("At least one outcome selection must be made");
+  }
 
   const invB = new Decimal(positions.length).ln().dividedBy(funding.toString());
 
@@ -85,9 +86,15 @@ function calcOutcomeTokenCounts(
     .toInteger();
 
   return positionTypes.map(type => {
-    if (type === "taken") return takenPositionsAmountEach;
-    if (type === "refunded") return amount;
-    if (type === "refused") return zeroDecimal;
+    if (type === "taken") {
+      return takenPositionsAmountEach;
+    }
+    if (type === "refunded") {
+      return amount;
+    }
+    if (type === "refused") {
+      return zeroDecimal;
+    }
     throw new Error(`Position types [${positionTypes.join(", ")}] invalid`);
   });
 }
@@ -112,7 +119,9 @@ const BuySection = ({
   const [investmentAmount, setInvestmentAmount] = useState("");
   const [error, setError] = useState(null);
   useEffect(() => {
-    if (stagedTransactionType !== "buy outcome tokens") return;
+    if (stagedTransactionType !== "buy outcome tokens") {
+      return;
+    }
 
     if (investmentAmount === "") {
       setStagedTradeAmounts(null);
@@ -124,12 +133,15 @@ const BuySection = ({
         investmentAmount
       );
 
-      if (!investmentAmountInUnits.isInteger())
+      if (!investmentAmountInUnits.isInteger()) {
         throw new Error(
           `Got more than ${collateral.decimals} decimals in value ${investmentAmount}`
         );
+      }
 
-      if (investmentAmountInUnits.gt(collateralBalance.totalAmount.toString()))
+      if (
+        investmentAmountInUnits.gt(collateralBalance.totalAmount.toString())
+      ) {
         throw new Error(
           `Not enough collateral: missing ${formatCollateral(
             investmentAmountInUnits.sub(
@@ -138,6 +150,7 @@ const BuySection = ({
             collateral
           )}`
         );
+      }
 
       setStagedTradeAmounts(
         calcOutcomeTokenCounts(
@@ -168,7 +181,7 @@ const BuySection = ({
   let hasAnyAllowance = false;
   let hasEnoughAllowance = false;
   let hasInfiniteAllowance = false;
-  if (LMSRAllowance != null)
+  if (LMSRAllowance != null) {
     try {
       hasAnyAllowance = LMSRAllowance.gtn(0);
       hasEnoughAllowance = collateral.toUnitsMultiplier
@@ -179,15 +192,18 @@ const BuySection = ({
     } catch (e) {
       // empty
     }
+  }
 
   async function buyOutcomeTokens() {
-    if (stagedTradeAmounts == null) throw new Error(`No buy set yet`);
+    if (stagedTradeAmounts == null) {
+      throw new Error(`No buy set yet`);
+    }
 
-    if (stagedTransactionType !== "buy outcome tokens")
+    if (stagedTransactionType !== "buy outcome tokens") {
       throw new Error(
         `Can't buy outcome tokens while staged transaction is to ${stagedTransactionType}`
       );
-
+    }
     const tradeAmounts = stagedTradeAmounts.map(amount => amount.toString());
     const collateralLimit = await LMSRMarketMaker.calcNetCost(tradeAmounts);
 

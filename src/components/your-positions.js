@@ -57,12 +57,13 @@ const YourPositions = ({
     if (positionBalances == null) {
       setPositionGroups(null);
     } else {
-      const positionGroups = calcPositionGroups(
+      // TODO MUST BE FIXED It looks like a Shadowed variable which could cause scope issue
+      const positionGroupsShadowed = calcPositionGroups(
         markets,
         positions,
         positionBalances
       );
-      setPositionGroups(positionGroups);
+      setPositionGroups(positionGroupsShadowed);
     }
   }, [markets, positions, positionBalances]);
 
@@ -86,7 +87,9 @@ const YourPositions = ({
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (stagedTransactionType !== "sell outcome tokens") return;
+    if (stagedTransactionType !== "sell outcome tokens") {
+      return;
+    }
 
     if (saleAmount === "") {
       setStagedTradeAmounts(null);
