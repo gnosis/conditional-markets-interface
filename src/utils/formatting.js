@@ -20,10 +20,10 @@ export const formatCollateral = (amount, collateral) => {
 
 const REPLACEMENT_RULES = [[/_(.*)_/g, "<em>$1</em>"]];
 
-export const pseudoMarkdown = string => {
+export const pseudoMarkdown = (str: string) => {
   let parsedString = REPLACEMENT_RULES.reduce(
-    (prevString, [matcher, replacer]) => string.replace(matcher, replacer),
-    string
+    (prevString, [matcher, replacer]) => str.replace(matcher, replacer),
+    str
   );
 
   return <span dangerouslySetInnerHTML={{ __html: parsedString }} />;

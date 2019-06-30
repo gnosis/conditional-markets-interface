@@ -24,7 +24,7 @@ import config from "../config.json";
 
 import("../style.scss");
 
-async function loadBasicData({ lmsrAddress, markets }, web3, Decimal) {
+async function loadBasicData({ lmsrAddress, markets }, web3, DecimalInner) {
   const { soliditySha3 } = web3.utils;
 
   const ERC20Detailed = TruffleContract(ERC20DetailedArtifact);
@@ -33,22 +33,22 @@ async function loadBasicData({ lmsrAddress, markets }, web3, Decimal) {
   const PredictionMarketSystem = TruffleContract(
     PredictionMarketSystemArtifact
   );
-  const LMSRMarketMaker_truffle = TruffleContract(LMSRMarketMakerArtifact);
+  const LMSRMarketMakerTruffle = TruffleContract(LMSRMarketMakerArtifact);
   for (const Contract of [
     ERC20Detailed,
     IDSToken,
     WETH9,
     PredictionMarketSystem,
-    LMSRMarketMaker_truffle
+    LMSRMarketMakerTruffle
   ]) {
     Contract.setProvider(web3.currentProvider);
   }
 
-  const LMSRMarketMaker = await LMSRMarketMaker_truffle.at(lmsrAddress);
+  const LMSRMarketMaker = await LMSRMarketMakerTruffle.at(lmsrAddress);
 
   const collateral = await collateralInfo(
     web3,
-    Decimal,
+    DecimalInner,
     { ERC20Detailed, IDSToken, WETH9 },
     LMSRMarketMaker
   );
@@ -66,19 +66,22 @@ async function loadBasicData({ lmsrAddress, markets }, web3, Decimal) {
       conditionId
     )).toNumber();
 
-    if (numSlots === 0)
+    if (numSlots === 0) {
       throw new Error(`condition ${conditionId} not set up yet`);
-    if (numSlots !== market.outcomes.length)
+    }
+    if (numSlots !== market.outcomes.length) {
       throw new Error(
         `condition ${conditionId} outcome slot count ${numSlots} does not match market outcome descriptions array with length ${market.outcomes.length}`
       );
+    }
 
     market.marketIndex = i;
     market.conditionId = conditionId;
-    market.outcomes.forEach((outcome, i) => {
+    market.outcomes.forEach((outcome, y) => {
       outcome.collectionId = soliditySha3(
         { t: "bytes32", v: conditionId },
-        { t: "uint", v: 1 << i }
+        // tslint:disable-next-line:no-bitwise
+        { t: "uint", v: 1 << y }
       );
     });
 
@@ -96,8 +99,8 @@ async function loadBasicData({ lmsrAddress, markets }, web3, Decimal) {
     ...markets
       .slice()
       .reverse()
-      .map(({ conditionId, outcomes, marketIndex }) =>
-        outcomes.map((outcome, outcomeIndex) => ({
+      .map(({ conditionId, outcomesInner, marketIndex }) =>
+        outcomesInner.map((outcome, outcomeIndex) => ({
           ...outcome,
           conditionId,
           marketIndex,
@@ -171,9 +174,9 @@ async function getLMSRState(web3, PMSystem, LMSRMarketMaker, positions) {
     LMSRMarketMaker.owner(),
     LMSRMarketMaker.funding(),
     LMSRMarketMaker.stage().then(
-      stage => ["Running", "Paused", "Closed"][stage.toNumber()]
+      stageInner => ["Running", "Paused", "Closed"][stageInner.toNumber()]
     ),
-    LMSRMarketMaker.fee().then(fee => fromWei(fee)),
+    LMSRMarketMaker.fee().then(feeInner => fromWei(feeInner)),
     getPositionBalances(PMSystem, positions, LMSRMarketMaker.address)
   ]);
   return { owner, funding, stage, fee, positionBalances };
@@ -195,7 +198,9 @@ async function getMarketResolutionStates(PMSystem, markets) {
           payoutNumerators,
           payoutDenominator
         };
-      } else return { isResolved: false };
+      } else {
+        return { isResolved: false };
+      }
     })
   );
 }
@@ -305,7 +310,9 @@ class App extends React.Component {
     } = this.props;
 
     // We can only execute the updates if web3 has been loaded (via the setInitialDataFromWeb3Calls() function)
-    if (loading !== "SUCCESS") return;
+    if (loading !== "SUCCESS") {
+      return;
+    }
 
     // LMSR State
     if (
@@ -428,7 +435,7 @@ class App extends React.Component {
   render() {
     const { loading, account, networkId } = this.props;
 
-    if (loading === "SUCCESS")
+    if (loading === "SUCCESS") {
       return (
         <div className={cn("page")}>
           <h1 className={cn("page-title")}>Flyingcarpet PM</h1>
@@ -457,14 +464,17 @@ class App extends React.Component {
           </section>
         </div>
       );
+    }
 
-    if (loading === "LOADING")
+    if (loading === "LOADING") {
       return (
         <div className={cn("loading-page")}>
           <Spinner centered inverted width={100} height={100} />
         </div>
       );
-    if (loading === "FAILURE")
+    }
+
+    if (loading === "FAILURE") {
       return (
         <div className={cn("failure-page")}>
           <h2>
@@ -480,6 +490,7 @@ class App extends React.Component {
           </ul>
         </div>
       );
+    }
   }
 }
 

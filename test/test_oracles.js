@@ -16,13 +16,21 @@ contract("Oracles", function(accounts) {
   let diffOracleInstance;
   let gasOracleInstance;
   let collateralToken;
-  let conditionOneId, conditionTwoId;
+  let conditionOneId;
+  let conditionTwoId;
   let checksummedLMSRAddress;
   let lmsrInstance;
-  let baseCollectionId1, baseCollectionId2;
+  let baseCollectionId1;
+  let baseCollectionId2;
   // let basePositionId1, basePositionId2;
-  let collectionId1, collectionId2, collectionId3, collectionId4;
-  let positionId1, positionId2, positionId3, positionId4;
+  let collectionId1;
+  let collectionId2;
+  let collectionId3;
+  let collectionId4;
+  let positionId1;
+  let positionId2;
+  let positionId3;
+  let positionId4;
 
   before(async () => {
     pmSystem = await PredictionMarketSystem.deployed();
@@ -199,7 +207,7 @@ contract("Oracles", function(accounts) {
       resolveGas,
       "resolutionSuccessful",
       event => {
-        return event.param1 == process.env.O2STARTGAS;
+        return event.param1 === process.env.O2STARTGAS;
       },
       "The sucessful gas resolution should be emitted with the correct parameters"
     );

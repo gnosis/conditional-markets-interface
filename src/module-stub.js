@@ -1,3 +1,3 @@
-module.exports = class DummyModule {
-  setProvider() {}
-};
+// module.exports = class DummyModule {
+//   setProvider() {}
+// };

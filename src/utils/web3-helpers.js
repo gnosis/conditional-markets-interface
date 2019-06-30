@@ -45,7 +45,8 @@ export async function loadWeb3(networkId) {
   const { default: Web3 } = await import("web3");
 
   const web3InitErrors = [];
-  let web3, account;
+  let web3;
+  let account;
   let foundWeb3 = false;
   for (const [providerType, providerCandidate] of [
     ["injected provider", Web3.givenProvider],
@@ -57,15 +58,20 @@ export async function loadWeb3(networkId) {
     ]
   ]) {
     try {
-      if (providerCandidate == null) throw new Error("no provider found");
-      if (providerCandidate.enable != null) await providerCandidate.enable();
+      if (providerCandidate == null) {
+        throw new Error("no provider found");
+      }
+      if (providerCandidate.enable != null) {
+        await providerCandidate.enable();
+      }
 
       web3 = new Web3(providerCandidate);
       const web3NetworkId = await web3.eth.net.getId();
-      if (web3NetworkId !== networkId)
+      if (web3NetworkId !== networkId) {
         throw new Error(
           `interface expects ${networkId} but currently connected to ${web3NetworkId}`
         );
+      }
 
       // attempt to get the main account here
       // so that web3 will emit an error if e.g.
@@ -73,7 +79,9 @@ export async function loadWeb3(networkId) {
       if (web3.defaultAccount == null) {
         const accounts = await web3.eth.getAccounts();
         account = accounts[0] || null;
-      } else account = web3.defaultAccount;
+      } else {
+        account = web3.defaultAccount;
+      }
 
       foundWeb3 = true;
       break;
@@ -82,12 +90,13 @@ export async function loadWeb3(networkId) {
     }
   }
 
-  if (!foundWeb3)
+  if (!foundWeb3) {
     throw new Error(
       `could not get valid Web3 instance; got following errors:\n${web3InitErrors
         .map(([providerCandidate, e]) => `${providerCandidate} -> ${e}`)
         .join("\n")}`
     );
+  }
 
   return { web3, account };
 }

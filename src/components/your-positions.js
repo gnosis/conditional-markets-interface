@@ -101,20 +101,22 @@ const YourPositions = ({
     try {
       const saleAmountInUnits = collateral.toUnitsMultiplier.mul(saleAmount);
 
-      if (!saleAmountInUnits.isInteger())
+      if (!saleAmountInUnits.isInteger()) {
         throw new Error(
           `Got more than ${collateral.decimals} decimals in value ${saleAmount}`
         );
+      }
 
-      if (saleAmountInUnits.gt(salePositionGroup.amount.toString()))
+      if (saleAmountInUnits.gt(salePositionGroup.amount.toString())) {
         throw new Error(
           `Not enough collateral: missing ${formatCollateral(
             saleAmountInUnits.sub(salePositionGroup.amount.toString()),
             collateral
           )}`
         );
+      }
 
-      const stagedTradeAmounts = Array.from(
+      const stagedTradeAmountsInner = Array.from(
         { length: positions.length },
         (_, i) =>
           salePositionGroup.positions.find(
@@ -124,10 +126,10 @@ const YourPositions = ({
             : saleAmountInUnits.neg()
       );
 
-      setStagedTradeAmounts(stagedTradeAmounts);
+      setStagedTradeAmounts(stagedTradeAmountsInner);
 
       setEstimatedSaleEarnings(
-        calcNetCost(LMSRState, stagedTradeAmounts).neg()
+        calcNetCost(LMSRState, stagedTradeAmountsInner).neg()
       );
 
       setError(null);
@@ -147,12 +149,15 @@ const YourPositions = ({
   ]);
 
   async function sellOutcomeTokens() {
-    if (stagedTradeAmounts == null) throw new Error(`No sell set yet`);
+    if (stagedTradeAmounts == null) {
+      throw new Error(`No sell set yet`);
+    }
 
-    if (stagedTransactionType !== "sell outcome tokens")
+    if (stagedTransactionType !== "sell outcome tokens") {
       throw new Error(
         `Can't sell outcome tokens while staged transaction is to ${stagedTransactionType}`
       );
+    }
 
     if (!(await PMSystem.isApprovedForAll(account, LMSRMarketMaker.address))) {
       await PMSystem.setApprovalForAll(LMSRMarketMaker.address, true, {
@@ -201,14 +206,17 @@ const YourPositions = ({
   }, [positions, positionBalances, marketResolutionStates, allMarketsResolved]);
 
   async function redeemPositions() {
-    if (!allMarketsResolved)
+    if (!allMarketsResolved) {
       throw new Error("Can't redeem until all markets resolved");
+    }
 
     async function redeemPositionsThroughAllMarkets(
       marketsLeft,
       parentCollectionId
     ) {
-      if (marketsLeft === 0) return;
+      if (marketsLeft === 0) {
+        return;
+      }
 
       const market = markets[marketsLeft - 1];
       const indexSets = [];
