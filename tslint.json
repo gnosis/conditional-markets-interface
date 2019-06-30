@@ -18,6 +18,7 @@
   },
   "jsRules": {
     "no-console": false, //Disable for javascript
-    "object-literal-sort-keys": false //Disable for javascript
+    "object-literal-sort-keys": false, //Disable for javascript
+    "no-bitwise": true
   }
 }

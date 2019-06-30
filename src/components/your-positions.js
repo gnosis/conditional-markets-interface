@@ -116,7 +116,8 @@ const YourPositions = ({
         );
       }
 
-      const stagedTradeAmountsInner = Array.from(
+      // TODO Fix stagedTradeAmounts shadowed name
+      const stagedTradeAmountsInnerScope = Array.from(
         { length: positions.length },
         (_, i) =>
           salePositionGroup.positions.find(
@@ -126,10 +127,10 @@ const YourPositions = ({
             : saleAmountInUnits.neg()
       );
 
-      setStagedTradeAmounts(stagedTradeAmountsInner);
+      setStagedTradeAmounts(stagedTradeAmountsInnerScope);
 
       setEstimatedSaleEarnings(
-        calcNetCost(LMSRState, stagedTradeAmountsInner).neg()
+        calcNetCost(LMSRState, stagedTradeAmountsInnerScope).neg()
       );
 
       setError(null);
@@ -149,6 +150,7 @@ const YourPositions = ({
   ]);
 
   async function sellOutcomeTokens() {
+    // TODO Dangerous call to stagedTradeAmounts outside scope.
     if (stagedTradeAmounts == null) {
       throw new Error(`No sell set yet`);
     }

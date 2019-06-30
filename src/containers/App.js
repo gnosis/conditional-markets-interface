@@ -77,11 +77,11 @@ async function loadBasicData({ lmsrAddress, markets }, web3, DecimalInner) {
 
     market.marketIndex = i;
     market.conditionId = conditionId;
-    market.outcomes.forEach((outcome, y) => {
+    market.outcomes.forEach((outcome, counter) => {
       outcome.collectionId = soliditySha3(
         { t: "bytes32", v: conditionId },
         // tslint:disable-next-line:no-bitwise
-        { t: "uint", v: 1 << y }
+        { t: "uint", v: 1 << counter }
       );
     });
 
