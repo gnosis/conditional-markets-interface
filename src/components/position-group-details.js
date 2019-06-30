@@ -9,7 +9,7 @@ const { BN } = Web3.utils;
 
 export default function PositionGroupDetails({ positionGroup, collateral }) {
   return (
-    <>
+    <p>
       <div className={cn("value")}>
         <strong>
           {formatCollateral(positionGroup.runningAmount, collateral)}
@@ -25,14 +25,14 @@ export default function PositionGroupDetails({ positionGroup, collateral }) {
             {positionGroup.outcomeSet
               .map(({ when }) => pseudoMarkdown(when))
               .reduce((a, b) => (
-                <>
+                <p>
                   {a} <strong>and</strong> {b}
-                </>
+                </p>
               ))}
           </span>
         )}
       </div>
-    </>
+    </p>
   );
 }
 

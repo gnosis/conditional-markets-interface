@@ -239,7 +239,7 @@ const BuySection = ({
       {marketStage === "Closed" ? (
         <p>Market maker is closed.</p>
       ) : (
-        <>
+        <p>
           {LMSRAllowance != null && (
             <p>{`Market maker allowance: ${
               hasInfiniteAllowance
@@ -275,9 +275,9 @@ const BuySection = ({
             {ongoingTransactionType === "buy outcome tokens" ? (
               <Spinner centered inverted width={25} height={25} />
             ) : marketStage === "Paused" ? (
-              <>[Market paused]</>
+              <p>[Market paused]</p>
             ) : (
-              <>Buy</>
+              <p>Buy</p>
             )}
           </button>
           {((!hasAnyAllowance && stagedTradeAmounts == null) ||
@@ -297,7 +297,7 @@ const BuySection = ({
               )}
             </button>
           )}
-        </>
+        </p>
       )}
       {error && (
         <div className={cn("error")}>

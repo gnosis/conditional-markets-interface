@@ -9,9 +9,9 @@
   "scripts": {
     "build-css": "node-sass-chokidar src/ -o public/",
     "watch-css": "npm run build-css && node-sass-chokidar src/ -o public/ --watch --recursive",
-    "start-js": "react-scripts start",
+    "start-js": "react-scripts-ts start",
     "start": "npm-run-all -p watch-css start-js",
-    "build-js": "react-scripts build",
+    "build-js": "react-scripts-ts build",
     "build": "npm-run-all build-css build-js",
     "compile": "truffle compile --all",
     "migrate": "truffle migrate",
@@ -60,6 +60,7 @@
     "dotenv": "^7.0.0",
     "elliptic": "^6.4.1",
     "eslint-plugin-prettier": "^3.1.0",
+    "extract-text-webpack-plugin": "^4.0.0-beta.0",
     "husky": "^2.1.0",
     "json-x-loader": "^0.3.0",
     "lint-staged": "^8.1.5",
@@ -68,12 +69,14 @@
     "npm-run-all": "^4.1.5",
     "prettier": "^1.17.0",
     "react-scripts": "^3.0.1",
+    "react-scripts-ts": "^3.1.0",
     "rlp": "^2.2.3",
     "run-with-testrpc": "^0.3.1",
     "sass-loader": "^7.1.0",
     "style-loader": "^0.23.1",
     "truffle": "^5.0.14",
-    "truffle-assertions": "^0.8.2"
+    "truffle-assertions": "^0.8.2",
+    "typescript": "^3.5.2"
   },
   "husky": {
     "hooks": {

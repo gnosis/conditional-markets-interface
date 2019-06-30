@@ -82,7 +82,7 @@ const Market = ({
         </div>
       </section>
       {marketStage !== "Closed" && (
-        <>
+        <p>
           <section className={cn("outcomes-section")}>
             <OutcomesBinary
               {...{
@@ -102,7 +102,7 @@ const Market = ({
               }}
             />
           </section>
-        </>
+        </p>
       )}
     </article>
   );

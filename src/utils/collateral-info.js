@@ -1,4 +1,4 @@
-module.exports = async function getCollateralInfo(
+async function getCollateralInfo(
   web3,
   Decimal,
   { ERC20Detailed, IDSToken, WETH9 },
@@ -41,4 +41,6 @@ module.exports = async function getCollateralInfo(
   }
 
   return collateral;
-};
+}
+
+export default getCollateralInfo;

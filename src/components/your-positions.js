@@ -264,9 +264,9 @@ const YourPositions = ({
       ) : positionGroups.length === 0 ? (
         <em>{"You don't hold any positions."}</em>
       ) : (
-        <>
+        <p>
           {allMarketsResolved && (
-            <>
+            <p>
               <p>
                 Redeeming your positions will net you a total of{" "}
                 {formatCollateral(redemptionAmount, collateral)}
@@ -284,14 +284,14 @@ const YourPositions = ({
                   {ongoingTransactionType === "redeem positions" ? (
                     <Spinner inverted width={25} height={25} />
                   ) : (
-                    <>Redeem Positions</>
+                    <p>Redeem Positions</p>
                   )}
                 </button>
               </div>
               {error != null && (
                 <span className={cn("error")}>{error.message}</span>
               )}
-            </>
+            </p>
           )}
           {positionGroups.map(positionGroup => {
             const isSalePositionGroup =
@@ -372,14 +372,14 @@ const YourPositions = ({
                         {ongoingTransactionType === "sell outcome tokens" ? (
                           <Spinner inverted width={25} height={25} />
                         ) : marketStage === "Paused" ? (
-                          <>[Market paused]</>
+                          <p>[Market paused]</p>
                         ) : (
-                          <>Confirm</>
+                          <p>Confirm</p>
                         )}
                       </button>
                     </div>
                     <div className={cn("row", "messages")}>
-                      <>
+                      <p>
                         {estimatedSaleEarnings && estimatedSaleEarnings > 0 && (
                           <span>
                             Estimated earnings from sale:{" "}
@@ -389,7 +389,7 @@ const YourPositions = ({
                             )}
                           </span>
                         )}
-                      </>
+                      </p>
                       {error != null && (
                         <span className={cn("error")}>{error.message}</span>
                       )}
@@ -399,7 +399,7 @@ const YourPositions = ({
               </div>
             );
           })}
-        </>
+        </p>
       )}
     </div>
   );
