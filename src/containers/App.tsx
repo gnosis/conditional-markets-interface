@@ -12,19 +12,38 @@ import { getNetworkName, loadWeb3 } from "../utils/web3-helpers.js";
 import collateralInfo from "../utils/collateral-info";
 // @ts-ignore
 import TruffleContract from "truffle-contract";
-
-import { product } from "../utils/itertools";
 import '../style.scss';
-
-const ERC20DetailedArtifact = require("../build/contracts/ERC20Detailed.json");
-const IDSTokenArtifact = require("../build/contracts/IDSToken.json");
-const WETH9Artifact = require("../build/contracts/WETH9.json");
-const PredictionMarketSystemArtifact = require("../build/contracts/PredictionMarketSystem.json");
-const LMSRMarketMakerArtifact = require("../build/contracts/LMSRMarketMaker.json");
-const  config = require("../config.json");
+// const  config = require("../config.json");
 
 async function loadBasicData({ lmsrAddress, markets }, web3Inner, DecimalInner) {
   const { soliditySha3 } = web3Inner.utils;
+
+  // const { product } = await
+  // const ERC20DetailedArtifact = require("../build/contracts/ERC20Detailed.json");
+  // const IDSTokenArtifact = require("../build/contracts/IDSToken.json");
+  // const WETH9Artifact = require("../build/contracts/WETH9.json");
+  // const PredictionMarketSystemArtifact = require("../build/contracts/PredictionMarketSystem.json");
+  // const LMSRMarketMakerArtifact = require("../build/contracts/LMSRMarketMaker.json");
+
+  const [
+    { default: TruffleContract },
+    { product },
+    ERC20DetailedArtifact,
+    IDSTokenArtifact,
+    WETH9Artifact,
+    PredictionMarketSystemArtifact,
+    LMSRMarketMakerArtifact
+  ] = await Promise.all([
+    import("truffle-contract"),
+    import("../utils/itertools"),
+    import("../build/contracts/ERC20Detailed.json"),
+    import("../build/contracts/IDSToken.json"),
+    import("../build/contracts/WETH9.json"),
+    import("../build/contracts/PredictionMarketSystem.json"),
+    import("../build/contracts/LMSRMarketMaker.json")
+  ]);
+
+  // console.log("after await products:", product);
 
   const ERC20Detailed = TruffleContract(ERC20DetailedArtifact);
   const IDSToken = TruffleContract(IDSTokenArtifact);
@@ -95,7 +114,11 @@ async function loadBasicData({ lmsrAddress, markets }, web3Inner, DecimalInner) 
 
   const positions = [];
 
-  console.log("product:", product);
+  // const products = product().next();
+
+  // console.log("products:", products);
+
+  // console.log("products: ", product);
 
   for (const outcomes of product(
     ...markets
@@ -171,6 +194,7 @@ async function getCollateralBalance(web3Inner, collateral, account) {
 }
 
 async function getLMSRState(web3Inner, PMSystem, LMSRMarketMaker, positions) {
+  console.log("web3Inner:", web3Inner);
   const { fromWei } = web3Inner.utils;
   const [owner, funding, stage, fee, positionBalances] = await Promise.all([
     LMSRMarketMaker.owner(),
@@ -413,37 +437,40 @@ class App extends React.Component<IProps, IState> {
   };
 
   setInitialDataFromWeb3Calls = async () => {
-    const {
-      setLoading,
-      setNetworkId,
-      setWeb3,
-      setAccount,
-      setPMSystem,
-      setLMSRMarketMaker,
-      setCollateral,
-      setMarkets,
-      setPositions
-    } = this.props;
+    await import("../config.json")
+      .then(async ({ default: config }) => {
+        const {
+          setLoading,
+          setNetworkId,
+          setWeb3,
+          setAccount,
+          setPMSystem,
+          setLMSRMarketMaker,
+          setCollateral,
+          setMarkets,
+          setPositions
+        } = this.props;
 
-    setNetworkId(config.networkId);
-    const { web3, account } = await loadWeb3(config.networkId);
-    setWeb3(web3);
-    setAccount(account);
-    const {
-      PMSystem,
-      LMSRMarketMaker,
-      collateral,
-      markets,
-      positions
-    } = await loadBasicData(config, web3, Decimal);
-    setPMSystem(PMSystem);
-    setLMSRMarketMaker(LMSRMarketMaker);
-    setCollateral(collateral);
-    setMarkets(markets);
-    setPositions(positions);
+        setNetworkId(config.networkId);
+        const { web3, account } = await loadWeb3(config.networkId);
+        setWeb3(web3);
+        setAccount(account);
+        const {
+          PMSystem,
+          LMSRMarketMaker,
+          collateral,
+          markets,
+          positions
+        } = await loadBasicData(config, web3, Decimal);
+        setPMSystem(PMSystem);
+        setLMSRMarketMaker(LMSRMarketMaker);
+        setCollateral(collateral);
+        setMarkets(markets);
+        setPositions(positions);
 
-    setLoading("SUCCESS");
-    return;
+        setLoading("SUCCESS");
+        return;
+      });
   };
 
   asWrappedTransaction = (wrappedTransactionType, transactionFn, setError) => {
