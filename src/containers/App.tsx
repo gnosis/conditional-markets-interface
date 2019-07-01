@@ -221,7 +221,11 @@ Decimal.config({
 
 const moduleLoadTime = Date.now();
 
-class App extends React.Component {
+export interface IProps {
+  setSyncTime: number;
+}
+
+class App extends React.Component<IProps> {
   async componentDidMount() {
     const { setSyncTime /* , syncTime */ } = this.props;
 
