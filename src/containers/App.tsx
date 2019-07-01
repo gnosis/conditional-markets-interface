@@ -3,7 +3,6 @@ import cn from "classnames";
 import Decimal from "decimal.js-light";
 import { bindActionCreators } from "redux";
 import { connect } from "react-redux";
-import PropTypes from "prop-types";
 import * as marketDataActions from "../actions/marketData";
 import Markets from "../components/markets";
 import BuySection from "../components/buy-section";
@@ -223,13 +222,40 @@ Decimal.config({
 const moduleLoadTime = Date.now();
 
 export interface IProps {
-  setSyncTime: number;
+  setSyncTime: Function;
+  loading: string,
+  syncTime: number,
+  setLMSRState: Function,
+  setMarketResolutionStates: Function,
+  setCollateralBalance: Function,
+  setPositionBalances: Function,
+  setLMSRAllowance: Function,
+  web3: Object,
+  PMSystem: Object,
+  LMSRMarketMaker: Object,
+  positions: Array<any>,
+  markets: Array<any>,
+  collateral: Object,
+  account: string,
+  setLoading: Function,
+  setNetworkId: Function,
+  setWeb3: Function,
+  setAccount: Function,
+  setPMSystem: Function,
+  setLMSRMarketMaker: Function,
+  setCollateral: Function,
+  setMarkets: Function,
+  setPositions: Function,
+  ongoingTransactionType: Object,
+  setOngoingTransactionType: Function,
+  networkId: number
 }
 
 class App extends React.Component<IProps> {
 
   async componentDidMount () {
-    const { setSyncTime /* , syncTime */ } = this.props;
+    // @ts-ignore
+    const { setSyncTime } = this.props;
 
     // Set current syncTime
     setSyncTime(moduleLoadTime);
@@ -267,7 +293,7 @@ class App extends React.Component<IProps> {
       setCollateralBalance,
       setPositionBalances,
       setLMSRAllowance,
-      web3Inner,
+      web3,
       PMSystem,
       LMSRMarketMaker,
       positions,
@@ -277,7 +303,7 @@ class App extends React.Component<IProps> {
     } = this.props;
 
     // LMSR State
-    getLMSRState(web3Inner, PMSystem, LMSRMarketMaker, positions).then(setLMSRState);
+    getLMSRState(web3, PMSystem, LMSRMarketMaker, positions).then(setLMSRState);
 
     // Market Resolution States
     getMarketResolutionStates(PMSystem, markets).then(
@@ -285,7 +311,7 @@ class App extends React.Component<IProps> {
     );
 
     // Collateral Balance
-    getCollateralBalance(web3Inner, collateral, account).then(setCollateralBalance);
+    getCollateralBalance(web3, collateral, account).then(setCollateralBalance);
 
     // Position Balances
     getPositionBalances(PMSystem, positions, account).then(setPositionBalances);
@@ -305,7 +331,7 @@ class App extends React.Component<IProps> {
       setCollateralBalance,
       setPositionBalances,
       setLMSRAllowance,
-      web3Inner,
+      web3,
       PMSystem,
       LMSRMarketMaker,
       positions,
@@ -321,13 +347,13 @@ class App extends React.Component<IProps> {
 
     // LMSR State
     if (
-      web3Inner !== prevProps.web3Inner ||
+      web3 !== prevProps.web3 ||
       PMSystem !== prevProps.PMSystem ||
       LMSRMarketMaker !== prevProps.LMSRMarketMaker ||
       positions !== prevProps.positions ||
       syncTime !== prevProps.syncTime
     ) {
-      getLMSRState(web3Inner, PMSystem, LMSRMarketMaker, positions).then(
+      getLMSRState(web3, PMSystem, LMSRMarketMaker, positions).then(
         setLMSRState
       );
     }
@@ -345,12 +371,12 @@ class App extends React.Component<IProps> {
 
     // Collateral Balance
     if (
-      web3Inner !== prevProps.web3Inner ||
+      web3 !== prevProps.web3 ||
       collateral !== prevProps.collateral ||
       account !== prevProps.account ||
       syncTime !== prevProps.syncTime
     ) {
-      getCollateralBalance(web3Inner, collateral, account).then(
+      getCollateralBalance(web3, collateral, account).then(
         setCollateralBalance
       );
     }
@@ -394,8 +420,8 @@ class App extends React.Component<IProps> {
     } = this.props;
 
     setNetworkId(config.networkId);
-    const { web3Inner, account } = await loadWeb3(config.networkId);
-    setWeb3(web3Inner);
+    const { web3, account } = await loadWeb3(config.networkId);
+    setWeb3(web3);
     setAccount(account);
     const {
       PMSystem,
@@ -403,7 +429,7 @@ class App extends React.Component<IProps> {
       collateral,
       markets,
       positions
-    } = await loadBasicData(config, web3Inner, Decimal);
+    } = await loadBasicData(config, web3, Decimal);
     setPMSystem(PMSystem);
     setLMSRMarketMaker(LMSRMarketMaker);
     setCollateral(collateral);
@@ -498,36 +524,6 @@ class App extends React.Component<IProps> {
     }
   }
 }
-
-App.propTypes = {
-  setSyncTime: PropTypes.func.isRequired,
-  loading: PropTypes.string.isRequired,
-  syncTime: PropTypes.number,
-  setLMSRState: PropTypes.func.isRequired,
-  setMarketResolutionStates: PropTypes.func.isRequired,
-  setCollateralBalance: PropTypes.func.isRequired,
-  setPositionBalances: PropTypes.func.isRequired,
-  setLMSRAllowance: PropTypes.func.isRequired,
-  web3: PropTypes.object,
-  PMSystem: PropTypes.object,
-  LMSRMarketMaker: PropTypes.object,
-  positions: PropTypes.array,
-  markets: PropTypes.array,
-  collateral: PropTypes.object,
-  account: PropTypes.string,
-  setLoading: PropTypes.func.isRequired,
-  setNetworkId: PropTypes.func.isRequired,
-  setWeb3: PropTypes.func.isRequired,
-  setAccount: PropTypes.func.isRequired,
-  setPMSystem: PropTypes.func.isRequired,
-  setLMSRMarketMaker: PropTypes.func.isRequired,
-  setCollateral: PropTypes.func.isRequired,
-  setMarkets: PropTypes.func.isRequired,
-  setPositions: PropTypes.func.isRequired,
-  ongoingTransactionType: PropTypes.object,
-  setOngoingTransactionType: PropTypes.func.isRequired,
-  networkId: PropTypes.number
-};
 
 export default connect(
   state => ({
