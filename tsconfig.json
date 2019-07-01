@@ -1,13 +1,10 @@
 {
   "compilerOptions": {
     "target": "es5",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "lib": ["es6", "dom"],
     "allowJs": true,
     "skipLibCheck": true,
+    "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "strict": true,
     "forceConsistentCasingInFileNames": true,
@@ -17,21 +14,23 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "preserve",
-    "noImplicitReturns": true,
+    "forceConsistentCasingInFileNames": true,
+    "noImplicitReturns": false,
     "noImplicitThis": false,
     "noImplicitAny": false,
-    "strictNullChecks": true,
-    "suppressImplicitAnyIndexErrors": true,
-    "noUnusedLocals": true,
-    "esModuleInterop": true
+    "strictNullChecks": false
   },
   "include": [
-    "src",
+    "src"
+  ],
+  "exclude": [
     "node_modules",
     "build",
     "scripts",
     "acceptance-tests",
     "webpack",
-    "jest"
+    "jest",
+    "src/utils",
+    "src/vendors"
   ]
 }

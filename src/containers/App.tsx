@@ -10,6 +10,7 @@ import YourPositions from "../components/your-positions";
 import Spinner from "../components/spinner";
 import { getNetworkName, loadWeb3 } from "../utils/web3-helpers.js";
 import collateralInfo from "../utils/collateral-info";
+// @ts-ignore
 import TruffleContract from "truffle-contract";
 
 import { product } from "../utils/itertools";
