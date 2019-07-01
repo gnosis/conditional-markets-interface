@@ -23,7 +23,7 @@ const  config = require("../config.json");
 import '../style.scss';
 
 async function loadBasicData({ lmsrAddress, markets }, web3Inner, DecimalInner) {
-  const { soliditySha3 } = web3.utils;
+  const { soliditySha3 } = web3Inner.utils;
 
   const ERC20Detailed = TruffleContract(ERC20DetailedArtifact);
   const IDSToken = TruffleContract(IDSTokenArtifact);
@@ -39,13 +39,13 @@ async function loadBasicData({ lmsrAddress, markets }, web3Inner, DecimalInner) 
     PredictionMarketSystem,
     LMSRMarketMakerTruffle
   ]) {
-    Contract.setProvider(web3.currentProvider);
+    Contract.setProvider(web3Inner.currentProvider);
   }
 
   const LMSRMarketMaker = await LMSRMarketMakerTruffle.at(lmsrAddress);
 
   const collateral = await collateralInfo(
-    web3,
+    web3Inner,
     DecimalInner,
     { ERC20Detailed, IDSToken, WETH9 },
     LMSRMarketMaker
@@ -112,7 +112,7 @@ async function loadBasicData({ lmsrAddress, markets }, web3Inner, DecimalInner) 
         t: "uint",
         v: outcomes
           .map(({ collectionId }) => collectionId)
-          .map(id => web3.utils.toBN(id))
+          .map(id => web3Inner.utils.toBN(id))
           .reduce((a, b) => a.add(b))
           .maskn(256)
       }
