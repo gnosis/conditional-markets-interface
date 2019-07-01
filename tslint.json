@@ -1,5 +1,6 @@
 {
-  "extends": ["tslint:recommended", "tslint-react", "tslint-config-prettier"],
+  "extends": ["tslint:recommended", "tslint-react", "tslint-config-prettier",
+    "awesome-typescript-loader"],
   "linterOptions": {
     "exclude": [
       "config/**/*.js",

@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from 'react';
 import cn from "classnames";
 import Decimal from "decimal.js-light";
 import { bindActionCreators } from "redux";
@@ -14,13 +14,14 @@ import collateralInfo from "../utils/collateral-info";
 
 import TruffleContract from "truffle-contract";
 import { product } from "../utils/itertools";
+import '../style.scss';
+
 const ERC20DetailedArtifact = require("../build/contracts/ERC20Detailed.json");
 const IDSTokenArtifact = require("../build/contracts/IDSToken.json");
 const WETH9Artifact = require("../build/contracts/WETH9.json");
 const PredictionMarketSystemArtifact = require("../build/contracts/PredictionMarketSystem.json");
 const LMSRMarketMakerArtifact = require("../build/contracts/LMSRMarketMaker.json");
 const  config = require("../config.json");
-import '../style.scss';
 
 async function loadBasicData({ lmsrAddress, markets }, web3Inner, DecimalInner) {
   const { soliditySha3 } = web3Inner.utils;
@@ -226,8 +227,11 @@ export interface IProps {
 }
 
 class App extends React.Component<IProps> {
-  public componentDidMount() {
+
+  async componentDidMount () {
     const { setSyncTime /* , syncTime */ } = this.props;
+
+    console.log("this:", this);
 
     // Set current syncTime
     setSyncTime(moduleLoadTime);
@@ -241,7 +245,7 @@ class App extends React.Component<IProps> {
     }, 2000);
 
     // Make initial setup calls
-    await this.setInitialDataFromWeb3Calls();
+    // await this.setInitialDataFromWeb3Calls();
 
     this.initialStateSetupCalls();
     // window.requestAnimationFrame(() => {
@@ -275,7 +279,7 @@ class App extends React.Component<IProps> {
     } = this.props;
 
     // LMSR State
-    getLMSRState(web3, PMSystem, LMSRMarketMaker, positions).then(setLMSRState);
+    getLMSRState(web3Inner, PMSystem, LMSRMarketMaker, positions).then(setLMSRState);
 
     // Market Resolution States
     getMarketResolutionStates(PMSystem, markets).then(
@@ -283,7 +287,7 @@ class App extends React.Component<IProps> {
     );
 
     // Collateral Balance
-    getCollateralBalance(web3, collateral, account).then(setCollateralBalance);
+    getCollateralBalance(web3Inner, collateral, account).then(setCollateralBalance);
 
     // Position Balances
     getPositionBalances(PMSystem, positions, account).then(setPositionBalances);
@@ -319,13 +323,13 @@ class App extends React.Component<IProps> {
 
     // LMSR State
     if (
-      web3 !== prevProps.web3 ||
+      web3Inner !== prevProps.web3Inner ||
       PMSystem !== prevProps.PMSystem ||
       LMSRMarketMaker !== prevProps.LMSRMarketMaker ||
       positions !== prevProps.positions ||
       syncTime !== prevProps.syncTime
     ) {
-      getLMSRState(web3, PMSystem, LMSRMarketMaker, positions).then(
+      getLMSRState(web3Inner, PMSystem, LMSRMarketMaker, positions).then(
         setLMSRState
       );
     }
@@ -343,12 +347,12 @@ class App extends React.Component<IProps> {
 
     // Collateral Balance
     if (
-      web3 !== prevProps.web3 ||
+      web3Inner !== prevProps.web3Inner ||
       collateral !== prevProps.collateral ||
       account !== prevProps.account ||
       syncTime !== prevProps.syncTime
     ) {
-      getCollateralBalance(web3, collateral, account).then(
+      getCollateralBalance(web3Inner, collateral, account).then(
         setCollateralBalance
       );
     }
@@ -393,7 +397,7 @@ class App extends React.Component<IProps> {
 
     setNetworkId(config.networkId);
     const { web3Inner, account } = await loadWeb3(config.networkId);
-    setWeb3(web3);
+    setWeb3(web3Inner);
     setAccount(account);
     const {
       PMSystem,
@@ -401,7 +405,7 @@ class App extends React.Component<IProps> {
       collateral,
       markets,
       positions
-    } = await loadBasicData(config, web3, Decimal);
+    } = await loadBasicData(config, web3Inner, Decimal);
     setPMSystem(PMSystem);
     setLMSRMarketMaker(LMSRMarketMaker);
     setCollateral(collateral);
@@ -435,7 +439,7 @@ class App extends React.Component<IProps> {
     };
   };
 
-  render() {
+  public render() {
     const { loading, account, networkId } = this.props;
 
     if (loading === "SUCCESS") {
