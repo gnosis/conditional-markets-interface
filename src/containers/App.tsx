@@ -14,13 +14,12 @@ import collateralInfo from "../utils/collateral-info";
 
 import TruffleContract from "truffle-contract";
 import { product } from "../utils/itertools";
-import ERC20DetailedArtifact from "../build/contracts/ERC20Detailed.json";
-import IDSTokenArtifact from "../build/contracts/IDSToken.json";
-import WETH9Artifact from "../build/contracts/WETH9.json";
-import PredictionMarketSystemArtifact from "../build/contracts/PredictionMarketSystem.json";
-import LMSRMarketMakerArtifact from "../build/contracts/LMSRMarketMaker.json";
-
-import config from "../config.json";
+const ERC20DetailedArtifact = require("../build/contracts/ERC20Detailed.json");
+const IDSTokenArtifact = require("../build/contracts/IDSToken.json");
+const WETH9Artifact = require("../build/contracts/WETH9.json");
+const PredictionMarketSystemArtifact = require("../build/contracts/PredictionMarketSystem.json");
+const LMSRMarketMakerArtifact = require("../build/contracts/LMSRMarketMaker.json");
+const  config = require("../config.json");
 
 import("../style.scss");
 

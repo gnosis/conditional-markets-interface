@@ -14,8 +14,7 @@
     "no-console": false, //Disable for typescript
     "no-require-imports": false,
     "no-var-requires": false,
-    "object-literal-sort-keys": false,
-    "resolveJsonModule": true
+    "object-literal-sort-keys": false
   },
   "jsRules": {
     "no-console": false, //Disable for javascript
