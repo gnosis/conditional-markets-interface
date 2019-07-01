@@ -2,6 +2,8 @@ import Web3 from "web3";
 
 import Decimal from "decimal.js-light";
 
+console.log("web3:", Web3);
+
 const { toBN } = Web3.utils;
 
 export const maxUint256BN = toBN(`0x${"ff".repeat(32)}`);
