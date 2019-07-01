@@ -151,11 +151,11 @@ async function loadBasicData({ lmsrAddress, markets }, web3Inner, DecimalInner) 
 }
 
 async function getCollateralBalance(web3Inner, collateral, account) {
-  const collateralBalance = {};
+  const collateralBalance = Object();
   collateralBalance.amount = await collateral.contract.balanceOf(account);
   if (collateral.isWETH) {
-    collateralBalance.unwrappedAmount = web3.utils.toBN(
-      await web3.eth.getBalance(account)
+    collateralBalance.unwrappedAmount = web3Inner.utils.toBN(
+      await web3Inner.eth.getBalance(account)
     );
     collateralBalance.totalAmount = collateralBalance.amount.add(
       collateralBalance.unwrappedAmount
@@ -168,7 +168,7 @@ async function getCollateralBalance(web3Inner, collateral, account) {
 }
 
 async function getLMSRState(web3Inner, PMSystem, LMSRMarketMaker, positions) {
-  const { fromWei } = web3.utils;
+  const { fromWei } = web3Inner.utils;
   const [owner, funding, stage, fee, positionBalances] = await Promise.all([
     LMSRMarketMaker.owner(),
     LMSRMarketMaker.funding(),
