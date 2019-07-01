@@ -226,7 +226,7 @@ export interface IProps {
 }
 
 class App extends React.Component<IProps> {
-  async componentDidMount() {
+  public componentDidMount() {
     const { setSyncTime /* , syncTime */ } = this.props;
 
     // Set current syncTime
