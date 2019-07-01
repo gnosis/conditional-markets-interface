@@ -20,8 +20,7 @@ const WETH9Artifact = require("../build/contracts/WETH9.json");
 const PredictionMarketSystemArtifact = require("../build/contracts/PredictionMarketSystem.json");
 const LMSRMarketMakerArtifact = require("../build/contracts/LMSRMarketMaker.json");
 const  config = require("../config.json");
-
-import("../style.scss");
+import '../style.scss';
 
 async function loadBasicData({ lmsrAddress, markets }, web3Inner, DecimalInner) {
   const { soliditySha3 } = web3.utils;
