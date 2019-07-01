@@ -11,8 +11,8 @@ import YourPositions from "../components/your-positions";
 import Spinner from "../components/spinner";
 import { getNetworkName, loadWeb3 } from "../utils/web3-helpers.js";
 import collateralInfo from "../utils/collateral-info";
-
 import TruffleContract from "truffle-contract";
+
 import { product } from "../utils/itertools";
 import '../style.scss';
 
@@ -230,8 +230,6 @@ class App extends React.Component<IProps> {
 
   async componentDidMount () {
     const { setSyncTime /* , syncTime */ } = this.props;
-
-    console.log("this:", this);
 
     // Set current syncTime
     setSyncTime(moduleLoadTime);
