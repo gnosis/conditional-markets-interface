@@ -20,7 +20,7 @@ export const formatCollateral = (amount, collateral) => {
 
 const REPLACEMENT_RULES = [[/_(.*)_/g, "<em>$1</em>"]];
 
-export const pseudoMarkdown = (str: string) => {
+export const pseudoMarkdown = str => {
   let parsedString = REPLACEMENT_RULES.reduce(
     (prevString, [matcher, replacer]) => str.replace(matcher, replacer),
     str
