@@ -92,7 +92,8 @@ async function loadBasicData({ lmsrAddress, markets }, web3Inner, DecimalInner) 
     );
   }
 
-  const positions = [];
+  const positions = Array();
+
   for (const outcomes of product(
     ...markets
       .slice()
