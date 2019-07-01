@@ -1,5 +1,5 @@
 {
-  "lmsrAddress": "0xCa24282be001a428d27FdAC4676561c2EB1DE393",
+  "lmsrAddress": "0xC89Ce4735882C9F0f0FE26686c53074E09B0D550",
   "markets": [
     {
       "title": "Will the DAI price exceed $1 according to the DutchX last auction closing price and Maker ETH price feed?",
@@ -50,5 +50,5 @@
       ]
     }
   ],
-  "networkId": 1561926541295
+  "networkId": 1561941136791
 }
