@@ -2,8 +2,6 @@
  * These are helper functions used for access and interacting with web3.
  */
 
-import Web3 from "web3";
-
 export function getNetworkName(networkId) {
   // https://ethereum.stackexchange.com/a/17101
   return (
@@ -44,6 +42,8 @@ export function getReadOnlyProviderForNetworkId(networkId) {
 }
 
 export async function loadWeb3(networkId) {
+  const { default: Web3 } = await import("web3");
+
   const web3InitErrors = [];
   let web3;
   let account;
