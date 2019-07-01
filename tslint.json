@@ -14,12 +14,13 @@
     "no-console": false, //Disable for typescript
     "no-require-imports": false,
     "no-var-requires": false,
-    "object-literal-sort-keys": false
+    "object-literal-sort-keys": false,
+    "resolveJsonModule": true
   },
   "jsRules": {
     "no-console": false, //Disable for javascript
     "object-literal-sort-keys": false, //Disable for javascript
     "no-bitwise": true,
-    "noImplicitAny": false 
+    "noImplicitAny": false
   }
 }
