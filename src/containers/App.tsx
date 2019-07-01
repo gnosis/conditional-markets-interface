@@ -95,6 +95,8 @@ async function loadBasicData({ lmsrAddress, markets }, web3Inner, DecimalInner) 
 
   const positions = [];
 
+  console.log("product:", product);
+
   for (const outcomes of product(
     ...markets
       .slice()

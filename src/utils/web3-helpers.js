@@ -57,6 +57,7 @@ export async function loadWeb3(networkId) {
       getReadOnlyProviderForNetworkId(networkId)
     ]
   ]) {
+    console.log("providerCandidate:", providerCandidate);
     try {
       if (providerCandidate == null) {
         throw new Error("no provider found");
