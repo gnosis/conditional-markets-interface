@@ -273,7 +273,7 @@ class App extends React.Component<IProps, IState> {
     }, 2000);
 
     // Make initial setup calls
-    // await this.setInitialDataFromWeb3Calls();
+    await this.setInitialDataFromWeb3Calls();
 
     this.initialStateSetupCalls();
     // window.requestAnimationFrame(() => {
