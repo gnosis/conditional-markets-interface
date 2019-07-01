@@ -1,8 +1,8 @@
 import * as React from 'react';
 import cn from "classnames";
 import Decimal from "decimal.js-light";
-import { bindActionCreators } from "redux";
 import { connect } from "react-redux";
+import { bindActionCreators } from "redux";
 import * as marketDataActions from "../actions/marketData";
 import Markets from "../components/markets";
 import BuySection from "../components/buy-section";
@@ -191,14 +191,13 @@ async function getMarketResolutionStates(PMSystem, markets) {
             PMSystem.payoutNumerators(conditionId, outcomeIndex)
           )
         );
-
-        return {
+        return Object.create({
           isResolved: true,
           payoutNumerators,
           payoutDenominator
-        };
+        });
       } else {
-        return { isResolved: false };
+        return Object.create({isResolved: false });
       }
     })
   );
@@ -225,11 +224,11 @@ export interface IProps {
   setSyncTime: Function;
   loading: string,
   syncTime: number,
-  setLMSRState: Function,
-  setMarketResolutionStates: Function,
-  setCollateralBalance: Function,
-  setPositionBalances: Function,
-  setLMSRAllowance: Function,
+  setLMSRState: any,
+  setMarketResolutionStates: any,
+  setCollateralBalance: any,
+  setPositionBalances: any,
+  setLMSRAllowance: any,
   web3: Object,
   PMSystem: Object,
   LMSRMarketMaker: Object,
@@ -251,7 +250,11 @@ export interface IProps {
   networkId: number
 }
 
-class App extends React.Component<IProps> {
+export interface IState {
+  marketData: Object;
+}
+
+class App extends React.Component<IProps, IState> {
 
   async componentDidMount () {
     // @ts-ignore
@@ -471,6 +474,8 @@ class App extends React.Component<IProps> {
         <div className={cn("page")}>
           <h1 className={cn("page-title")}>Flyingcarpet PM</h1>
           <section className={cn("section", "market-section")}>
+          // TODO Move components to typescript!!!!!
+           // @ts-ignore
             <Markets />
           </section>
           <div className={cn("separator")} />
@@ -486,7 +491,9 @@ class App extends React.Component<IProps> {
             ) : (
               <p>
                 <h2 className={cn("heading")}>Manage Positions</h2>
+                // @ts-ignore
                 <BuySection asWrappedTransaction={this.asWrappedTransaction} />
+                // @ts-ignore
                 <YourPositions
                   asWrappedTransaction={this.asWrappedTransaction}
                 />
@@ -522,29 +529,52 @@ class App extends React.Component<IProps> {
         </div>
       );
     }
+
+    // TODO Handle error messages
+    return;
   }
 }
 
 export default connect(
+  // @ts-ignore
   state => ({
-    syncTime: state.marketData.syncTime,
+    // @ts-ignore
     loading: state.marketData.loading,
+    // @ts-ignore
     networkId: state.marketData.networkId,
+    // @ts-ignore
     web3: state.marketData.web3,
+    // @ts-ignore
     account: state.marketData.account,
+    // @ts-ignore
     PMSystem: state.marketData.PMSystem,
+    // @ts-ignore
+    syncTime: state.marketData.syncTime,
+    // @ts-ignore
     LMSRMarketMaker: state.marketData.LMSRMarketMaker,
+    // @ts-ignore
     collateral: state.marketData.collateral,
+    // @ts-ignore
     markets: state.marketData.markets,
+    // @ts-ignore
     positions: state.marketData.positions,
+    // @ts-ignore
     LMSRState: state.marketData.LMSRState,
+    // @ts-ignore
     marketResolutionStates: state.marketData.marketResolutionStates,
+    // @ts-ignore
     collateralBalance: state.marketData.collateralBalance,
+    // @ts-ignore
     positionBalances: state.marketData.positionBalances,
+    // @ts-ignore
     LMSRAllowance: state.marketData.LMSRAllowance,
+    // @ts-ignore
     marketSelections: state.marketData.marketSelections,
+    // @ts-ignore
     stagedTradeAmounts: state.marketData.stagedTradeAmounts,
+    // @ts-ignore
     stagedTransactionType: state.marketData.stagedTransactionType,
+    // @ts-ignore
     ongoingTransactionType: state.marketData.ongoingTransactionType
   }),
   dispatch => ({

@@ -1,4 +1,3 @@
-// tslint:disable:no-console
 /*eslint no-console: "error"*/
 
 // In production, we register a service worker to serve assets from local cache.
@@ -67,12 +66,14 @@ function registerValidSW(swUrl: string) {
               // the fresh content will have been added to the cache.
               // It's the perfect time to display a 'New content is
               // available; please refresh.' message in your web app.
-              // console.log("New content is available; please refresh.");
+              // eslint-disable-next-line no-console
+              console.log('New content is available; please refresh.');
             } else {
               // At this point, everything has been precached.
               // It's the perfect time to display a
               // 'Content is cached for offline use.' message.
-              // console.log("Content is cached for offline use.");
+              // eslint-disable-next-line no-console
+              console.log('Content is cached for offline use.');
             }
           }
         };
