@@ -13,17 +13,13 @@ import collateralInfo from "../utils/collateral-info";
 // @ts-ignore
 import TruffleContract from "truffle-contract";
 import '../style.scss';
-// const  config = require("../config.json");
 
+// Design components
+import Header from './../components/Header/index';
+
+// Functions
 async function loadBasicData({ lmsrAddress, markets }, web3Inner, DecimalInner) {
-  const { soliditySha3 } = web3Inner.utils;
-
-  // const { product } = await
-  // const ERC20DetailedArtifact = require("../build/contracts/ERC20Detailed.json");
-  // const IDSTokenArtifact = require("../build/contracts/IDSToken.json");
-  // const WETH9Artifact = require("../build/contracts/WETH9.json");
-  // const PredictionMarketSystemArtifact = require("../build/contracts/PredictionMarketSystem.json");
-  // const LMSRMarketMakerArtifact = require("../build/contracts/LMSRMarketMaker.json");
+  const { soliditySha3 } = web3Inner.utils
 
   const [
     { default: TruffleContract },
@@ -498,31 +494,50 @@ class App extends React.Component<IProps, IState> {
 
     if (loading === "SUCCESS") {
       return (
-        <div className={cn("page")}>
-          <h1 className={cn("page-title")}>Flyingcarpet PM</h1>
-          <section className={cn("section", "market-section")}>
-            <Markets />
-          </section>
-          <div className={cn("separator")} />
-          <section className={cn("section", "position-section")}>
-            {account == null ? (
-              <>
-                <h2 className={cn("heading")}>Note</h2>
-                <p>
-                  Please connect an Ethereum provider to{" "}
-                  {getNetworkName(networkId)} to interact with this market.
-                </p>
-              </>
-            ) : (
-              <>
-                <h2 className={cn("heading")}>Manage Positions</h2>
-                <BuySection asWrappedTransaction={this.asWrappedTransaction} />
-                <YourPositions
-                  asWrappedTransaction={this.asWrappedTransaction}
-                />
-              </>
-            )}
-          </section>
+
+        <div className="">
+          <div className="app-main">
+            <div className="app-container">
+              <div className="app-main-container">
+                <div className="app-header">
+                  <Header />
+                </div>
+                <main className="app-main-content-wrapper">
+                  <div className="app-main-content">
+                    <div className="app-wrapper">
+                      <div className="row">
+                        <h1 className={cn("page-title")}>Flyingcarpet PM</h1>
+                        <section className={cn("section", "market-section")}>
+                          <Markets />
+                        </section>
+                        <div className={cn("separator")} />
+                        <section className={cn("section", "position-section")}>
+                          {account == null ? (
+                            <>
+                              <h2 className={cn("heading")}>Note</h2>
+                              <p>
+                                Please connect an Ethereum provider to{" "}
+                                {getNetworkName(networkId)} to interact with this market.
+                              </p>
+                            </>
+                          ) : (
+                            <>
+                              <h2 className={cn("heading")}>Manage Positions</h2>
+                              <BuySection asWrappedTransaction={this.asWrappedTransaction} />
+                              <YourPositions
+                                asWrappedTransaction={this.asWrappedTransaction}
+                              />
+                            </>
+                          )}
+                        </section>
+                      </div>
+                    </div>
+                  </div>
+                  {/* <Footer/> */}
+                </main>
+              </div>
+            </div>
+          </div>
         </div>
       );
     }
