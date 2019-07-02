@@ -43,8 +43,6 @@ async function loadBasicData({ lmsrAddress, markets }, web3Inner, DecimalInner) 
     import("../build/contracts/LMSRMarketMaker.json")
   ]);
 
-  // console.log("after await products:", product);
-
   const ERC20Detailed = TruffleContract(ERC20DetailedArtifact);
   const IDSToken = TruffleContract(IDSTokenArtifact);
   const WETH9 = TruffleContract(WETH9Artifact);
@@ -114,30 +112,28 @@ async function loadBasicData({ lmsrAddress, markets }, web3Inner, DecimalInner) 
 
   const positions = [];
 
-  // const products = product().next();
-
-  // console.log("products:", products);
-
-  // console.log("products: ", product);
-
-  for (const outcomes of product(
+  const iter = product(
     ...markets
       .slice()
       .reverse()
-      .map(({ conditionId, outcomesInner, marketIndex }) =>
-        outcomesInner.map((outcome, outcomeIndex) => ({
+      .map(({ conditionId, outcomes, marketIndex }) =>
+        outcomes.map((outcome, outcomeIndex) => ({
           ...outcome,
           conditionId,
           marketIndex,
           outcomeIndex
         }))
       )
-  )) {
+  );
+
+  let outcomes = iter.next();
+
+  while (outcomes.value) {
     const positionId = soliditySha3(
       { t: "address", v: collateral.address },
       {
         t: "uint",
-        v: outcomes
+        v: outcomes.value
           .map(({ collectionId }) => collectionId)
           .map(id => web3Inner.utils.toBN(id))
           .reduce((a, b) => a.add(b))
@@ -148,6 +144,8 @@ async function loadBasicData({ lmsrAddress, markets }, web3Inner, DecimalInner) 
       id: positionId,
       outcomes
     });
+
+    outcomes = iter.next()
   }
 
   positions.forEach((position, i) => {
@@ -160,7 +158,7 @@ async function loadBasicData({ lmsrAddress, markets }, web3Inner, DecimalInner) 
     }
   }
   for (const position of positions) {
-    for (const outcome of position.outcomes) {
+    for (const outcome of position.outcomes.value) {
       markets[outcome.marketIndex].outcomes[
         outcome.outcomeIndex
       ].positions.push(position);
@@ -194,7 +192,6 @@ async function getCollateralBalance(web3Inner, collateral, account) {
 }
 
 async function getLMSRState(web3Inner, PMSystem, LMSRMarketMaker, positions) {
-  console.log("web3Inner:", web3Inner);
   const { fromWei } = web3Inner.utils;
   const [owner, funding, stage, fee, positionBalances] = await Promise.all([
     LMSRMarketMaker.owner(),

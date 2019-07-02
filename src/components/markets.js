@@ -16,13 +16,14 @@ function calcSelectedMarketProbabilitiesFromPositionProbabilities(
 ) {
   const sumConsideredPositionProbabilities = whichPositions =>
     whichPositions
-      .filter(({ outcomes }) =>
-        outcomes.every(
+      .filter(({ outcomes }) => {
+        console.log(outcomes);
+        return outcomes.value.forEach(
           ({ marketIndex, outcomeIndex }) =>
             !marketSelections[marketIndex].isAssumed ||
             outcomeIndex === marketSelections[marketIndex].selectedOutcomeIndex
-        )
-      )
+        );
+      })
       .reduce(
         (acc, { positionIndex }) =>
           acc.add(positionProbabilities[positionIndex]),
@@ -155,12 +156,14 @@ Markets.propTypes = {
   positions: PropTypes.arrayOf(
     PropTypes.shape({
       positionIndex: PropTypes.number.isRequired,
-      outcomes: PropTypes.arrayOf(
-        PropTypes.shape({
-          marketIndex: PropTypes.number.isRequired,
-          outcomeIndex: PropTypes.number.isRequired
-        }).isRequired
-      ).isRequired
+      outcomes: PropTypes.shape({
+        value: PropTypes.arrayOf(
+          PropTypes.shape({
+            marketIndex: PropTypes.number.isRequired,
+            outcomeIndex: PropTypes.number.isRequired
+          }).isRequired
+        ).isRequired
+      }).isRequired
     }).isRequired
   ).isRequired,
   LMSRState: PropTypes.shape({
