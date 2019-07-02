@@ -16,6 +16,7 @@ import '../style.scss';
 
 // Design components
 import Header from './../components/Header/index';
+import Footer from './../components/Footer/index';
 
 // Functions
 async function loadBasicData({ lmsrAddress, markets }, web3Inner, DecimalInner) {
@@ -494,8 +495,6 @@ class App extends React.Component<IProps, IState> {
 
     if (loading === "SUCCESS") {
       return (
-
-        <div className="">
           <div className="app-main">
             <div className="app-container">
               <div className="app-main-container">
@@ -506,12 +505,8 @@ class App extends React.Component<IProps, IState> {
                   <div className="app-main-content">
                     <div className="app-wrapper">
                       <div className="row">
-                        <h1 className={cn("page-title")}>FCLA PM</h1>
-                        <section className={cn("section", "market-section")}>
                           <Markets />
-                        </section>
-                        <div className={cn("separator")} />
-                        <section className={cn("section", "position-section")}>
+                        <div className="">
                           {account == null ? (
                             <>
                               <h2 className={cn("heading")}>Note</h2>
@@ -529,16 +524,17 @@ class App extends React.Component<IProps, IState> {
                               />
                             </>
                           )}
-                        </section>
+                        </div>
                       </div>
                     </div>
                   </div>
-                  {/* <Footer/> */}
                 </main>
+                <div className="app-footer">
+                  <Footer/>
+                </div>
               </div>
             </div>
           </div>
-        </div>
       );
     }
 
