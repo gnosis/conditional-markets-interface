@@ -5,3 +5,4 @@ app/dist
 .env
 app/config.json.bak
 package-lock.json
+src/config.json
