@@ -16,14 +16,13 @@ function calcSelectedMarketProbabilitiesFromPositionProbabilities(
 ) {
   const sumConsideredPositionProbabilities = whichPositions =>
     whichPositions
-      .filter(({ outcomes }) => {
-        console.log(outcomes);
-        return outcomes.value.forEach(
+      .filter(({ outcomes }) =>
+        outcomes.value.map(
           ({ marketIndex, outcomeIndex }) =>
             !marketSelections[marketIndex].isAssumed ||
             outcomeIndex === marketSelections[marketIndex].selectedOutcomeIndex
-        );
-      })
+        )
+      )
       .reduce(
         (acc, { positionIndex }) =>
           acc.add(positionProbabilities[positionIndex]),
