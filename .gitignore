@@ -6,3 +6,4 @@ app/dist
 app/config.json.bak
 package-lock.json
 src/config.json
+src/config.json.bak
