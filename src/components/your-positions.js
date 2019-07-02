@@ -277,7 +277,7 @@ const YourPositions = ({
       ) : positionGroups.length === 0 ? (
         <em>{"You don't hold any positions."}</em>
       ) : (
-        <p>
+        <>
           {allMarketsResolved && (
             <p>
               <p>
@@ -412,7 +412,7 @@ const YourPositions = ({
               </div>
             );
           })}
-        </p>
+        </>
       )}
     </div>
   );

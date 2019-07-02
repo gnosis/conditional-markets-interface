@@ -501,30 +501,26 @@ class App extends React.Component<IProps, IState> {
         <div className={cn("page")}>
           <h1 className={cn("page-title")}>Flyingcarpet PM</h1>
           <section className={cn("section", "market-section")}>
-          // TODO Move components to typescript!!!!!
-           // @ts-ignore
             <Markets />
           </section>
           <div className={cn("separator")} />
           <section className={cn("section", "position-section")}>
             {account == null ? (
-              <p>
+              <>
                 <h2 className={cn("heading")}>Note</h2>
                 <p>
                   Please connect an Ethereum provider to{" "}
                   {getNetworkName(networkId)} to interact with this market.
                 </p>
-              </p>
+              </>
             ) : (
-              <p>
+              <>
                 <h2 className={cn("heading")}>Manage Positions</h2>
-                // @ts-ignore
                 <BuySection asWrappedTransaction={this.asWrappedTransaction} />
-                // @ts-ignore
                 <YourPositions
                   asWrappedTransaction={this.asWrappedTransaction}
                 />
-              </p>
+              </>
             )}
           </section>
         </div>

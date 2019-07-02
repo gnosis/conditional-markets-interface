@@ -255,7 +255,7 @@ const BuySection = ({
       {marketStage === "Closed" ? (
         <p>Market maker is closed.</p>
       ) : (
-        <p>
+        <>
           {LMSRAllowance != null && (
             <p>{`Market maker allowance: ${
               hasInfiniteAllowance
@@ -313,7 +313,7 @@ const BuySection = ({
               )}
             </button>
           )}
-        </p>
+        </>
       )}
       {error && (
         <div className={cn("error")}>
