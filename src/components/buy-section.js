@@ -361,12 +361,14 @@ BuySection.propTypes = {
     PropTypes.shape({
       id: PropTypes.string.isRequired,
       positionIndex: PropTypes.number.isRequired,
-      outcomes: PropTypes.arrayOf(
-        PropTypes.shape({
-          marketIndex: PropTypes.number.isRequired,
-          outcomeIndex: PropTypes.number.isRequired
-        }).isRequired
-      ).isRequired
+      outcomes: PropTypes.shape({
+        value: PropTypes.arrayOf(
+          PropTypes.shape({
+            marketIndex: PropTypes.number.isRequired,
+            outcomeIndex: PropTypes.number.isRequired
+          }).isRequired
+        ).isRequired
+      }).isRequired
     }).isRequired
   ).isRequired,
   collateral: PropTypes.shape({
