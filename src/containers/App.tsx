@@ -506,7 +506,7 @@ class App extends React.Component<IProps, IState> {
                   <div className="app-main-content">
                     <div className="app-wrapper">
                       <div className="row">
-                        <h1 className={cn("page-title")}>Flyingcarpet PM</h1>
+                        <h1 className={cn("page-title")}>FCLA PM</h1>
                         <section className={cn("section", "market-section")}>
                           <Markets />
                         </section>
