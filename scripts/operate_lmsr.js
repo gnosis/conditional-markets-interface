@@ -32,7 +32,9 @@ module.exports = function(callback) {
       );
 
     const lmsrMarketMaker = await LMSRMarketMaker.at(config.lmsrAddress);
-    const pmSystem = await PredictionMarketSystem.deployed();
+    const pmSystem = await PredictionMarketSystem.at(
+      await lmsrMarketMaker.pmSystem()
+    );
 
     const owner = await lmsrMarketMaker.owner();
     const defaultAccount = LMSRMarketMaker.defaults().from;

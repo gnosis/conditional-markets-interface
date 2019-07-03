@@ -169,7 +169,7 @@ const YourPositions = ({
   const [redemptionAmount, setRedemptionAmount] = useState(null);
   useEffect(() => {
     setRedemptionAmount(
-      allMarketsResolved
+      allMarketsResolved && positionBalances != null
         ? positionBalances.reduce(
             (payoutSum, balance, positionIndex) =>
               payoutSum.add(
@@ -257,10 +257,8 @@ const YourPositions = ({
       <h2>Positions</h2>
       {positionGroups == null ? (
         <Spinner width={25} height={25} />
-      ) : positionGroups.length === 0 ? (
-        <em>{"You don't hold any positions."}</em>
       ) : (
-        <>
+        <div>
           {allMarketsResolved && (
             <>
               <p>
@@ -289,113 +287,121 @@ const YourPositions = ({
               )}
             </>
           )}
-          {positionGroups.map(positionGroup => {
-            const isSalePositionGroup =
-              salePositionGroup != null &&
-              salePositionGroup.collectionId === positionGroup.collectionId;
+          {positionGroups.length === 0 ? (
+            <em>{"You don't hold any positions."}</em>
+          ) : (
+            positionGroups.map(positionGroup => {
+              const isSalePositionGroup =
+                salePositionGroup != null &&
+                salePositionGroup.collectionId === positionGroup.collectionId;
 
-            return (
-              <div key={positionGroup.collectionId} className={cn("position")}>
-                <div className={cn("row", "details")}>
-                  <PositionGroupDetails
-                    {...{
-                      positionGroup,
-                      collateral
-                    }}
-                  />
-                  {marketStage !== "Closed" && (
-                    <div className={cn("controls")}>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setStagedTransactionType("sell outcome tokens");
-                          setSalePositionGroup(
-                            isSalePositionGroup ? null : positionGroup
-                          );
-                          setSaleAmount("");
-                        }}
-                      >
-                        Sell
-                      </button>
+              return (
+                <div
+                  key={positionGroup.collectionId}
+                  className={cn("position")}
+                >
+                  <div className={cn("row", "details")}>
+                    <PositionGroupDetails
+                      {...{
+                        positionGroup,
+                        collateral
+                      }}
+                    />
+                    {marketStage !== "Closed" && (
+                      <div className={cn("controls")}>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setStagedTransactionType("sell outcome tokens");
+                            setSalePositionGroup(
+                              isSalePositionGroup ? null : positionGroup
+                            );
+                            setSaleAmount("");
+                          }}
+                        >
+                          Sell
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                  {isSalePositionGroup && marketStage !== "Closed" && (
+                    <div className={cn("row", "sell")}>
+                      <div>
+                        You can sell a maximum amount of{" "}
+                        {formatCollateral(positionGroup.amount, collateral)} of
+                        this position.
+                      </div>
+                      <div className={cn("controls")}>
+                        <input
+                          type="text"
+                          value={saleAmount}
+                          placeholder="Amount of tokens to sell"
+                          onChange={e => {
+                            setStagedTransactionType("sell outcome tokens");
+                            setSaleAmount(e.target.value);
+                          }}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setStagedTransactionType("sell outcome tokens");
+                            setSaleAmount(
+                              collateral.fromUnitsMultiplier
+                                .mul(positionGroup.amount.toString())
+                                .toFixed()
+                            );
+                          }}
+                        >
+                          Max Amount
+                        </button>
+                        <button
+                          type="button"
+                          disabled={
+                            stagedTradeAmounts == null ||
+                            stagedTransactionType !== "sell outcome tokens" ||
+                            ongoingTransactionType != null ||
+                            marketStage !== "Running" ||
+                            error != null
+                          }
+                          onClick={asWrappedTransaction(
+                            "sell outcome tokens",
+                            sellOutcomeTokens,
+                            setError
+                          )}
+                        >
+                          {ongoingTransactionType === "sell outcome tokens" ? (
+                            <Spinner inverted width={25} height={25} />
+                          ) : marketStage === "Paused" ? (
+                            <>[Market paused]</>
+                          ) : (
+                            <>Confirm</>
+                          )}
+                        </button>
+                      </div>
+                      <div className={cn("row", "messages")}>
+                        <>
+                          {estimatedSaleEarnings &&
+                            estimatedSaleEarnings > 0 && (
+                              <span>
+                                Estimated earnings from sale:{" "}
+                                {formatCollateral(
+                                  estimatedSaleEarnings,
+                                  collateral
+                                )}
+                              </span>
+                            )}
+                        </>
+                        {error != null && (
+                          <span className={cn("error")}>{error.message}</span>
+                        )}
+                      </div>
                     </div>
                   )}
                 </div>
-                {isSalePositionGroup && marketStage !== "Closed" && (
-                  <div className={cn("row", "sell")}>
-                    <div>
-                      You can sell a maximum amount of{" "}
-                      {formatCollateral(positionGroup.amount, collateral)} of
-                      this position.
-                    </div>
-                    <div className={cn("controls")}>
-                      <input
-                        type="text"
-                        value={saleAmount}
-                        placeholder="Amount of tokens to sell"
-                        onChange={e => {
-                          setStagedTransactionType("sell outcome tokens");
-                          setSaleAmount(e.target.value);
-                        }}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setStagedTransactionType("sell outcome tokens");
-                          setSaleAmount(
-                            collateral.fromUnitsMultiplier
-                              .mul(positionGroup.amount.toString())
-                              .toFixed()
-                          );
-                        }}
-                      >
-                        Max Amount
-                      </button>
-                      <button
-                        type="button"
-                        disabled={
-                          stagedTradeAmounts == null ||
-                          stagedTransactionType !== "sell outcome tokens" ||
-                          ongoingTransactionType != null ||
-                          marketStage !== "Running" ||
-                          error != null
-                        }
-                        onClick={asWrappedTransaction(
-                          "sell outcome tokens",
-                          sellOutcomeTokens,
-                          setError
-                        )}
-                      >
-                        {ongoingTransactionType === "sell outcome tokens" ? (
-                          <Spinner inverted width={25} height={25} />
-                        ) : marketStage === "Paused" ? (
-                          <>[Market paused]</>
-                        ) : (
-                          <>Confirm</>
-                        )}
-                      </button>
-                    </div>
-                    <div className={cn("row", "messages")}>
-                      <>
-                        {estimatedSaleEarnings && estimatedSaleEarnings > 0 && (
-                          <span>
-                            Estimated earnings from sale:{" "}
-                            {formatCollateral(
-                              estimatedSaleEarnings,
-                              collateral
-                            )}
-                          </span>
-                        )}
-                      </>
-                      {error != null && (
-                        <span className={cn("error")}>{error.message}</span>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </>
+              );
+            })
+          )}
+        </div>
       )}
     </div>
   );
