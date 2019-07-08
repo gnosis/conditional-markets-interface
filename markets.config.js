@@ -1,11 +1,11 @@
-const tomorrow = new Date();
-tomorrow.setDate(tomorrow.getDate() + 1);
+const resolutionDate = new Date();
+resolutionDate.setDate(resolutionDate.getDate() + 30);
 
 module.exports = [
   {
-    questionId: `0x${"0".repeat(63)}1`,
+    questionId: `0x${"0".repeat(63)}a`,
     title: `A or B?`,
-    resolutionDate: tomorrow.toISOString(),
+    resolutionDate: resolutionDate.toISOString(),
     outcomes: [
       {
         title: "A",
@@ -20,9 +20,9 @@ module.exports = [
     ]
   },
   {
-    questionId: `0x${"0".repeat(63)}2`,
+    questionId: `0x${"0".repeat(63)}b`,
     title: `X or Y?`,
-    resolutionDate: tomorrow.toISOString(),
+    resolutionDate: resolutionDate.toISOString(),
     outcomes: [
       {
         title: "X",
@@ -33,6 +33,23 @@ module.exports = [
         title: "Y",
         short: "Y",
         when: "Y"
+      }
+    ]
+  },
+  {
+    questionId: `0x${"0".repeat(63)}c`,
+    title: `What will be the result of this longer question? It can be Foo or Bar, but it must be one of those.`,
+    resolutionDate: resolutionDate.toISOString(),
+    outcomes: [
+      {
+        title: "Foo",
+        short: "Foo",
+        when: "Foo"
+      },
+      {
+        title: "Bar",
+        short: "Bar",
+        when: "Bar"
       }
     ]
   }
