@@ -1,0 +1,18 @@
+.page {}
+
+.sections {
+  display: flex;
+
+
+  .section {
+    &-markets {
+      flex: 1;
+      border-right: 1px solid #dedfde;
+    }
+
+    &-positions {
+      background: #ffffff;
+      flex-basis: 20%;
+    }
+  }
+}

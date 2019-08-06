@@ -1,7 +1,11 @@
 import React from "react";
 import PropTypes from "prop-types";
 
-import cn from "classnames";
+import cn from "classnames/bind";
+
+import style from "./spinner.scss";
+
+const cx = cn.bind(style);
 
 const Spinner = ({ centered, inverted, width, height }) => (
   <svg
@@ -13,7 +17,7 @@ const Spinner = ({ centered, inverted, width, height }) => (
     height={`${height}px`}
     viewBox="0 0 40 40"
     enableBackground="new 0 0 40 40"
-    className={cn("spinner", {
+    className={cx("spinner", {
       centered,
       inverted
     })}

@@ -1,4 +1,13 @@
-import("./style.scss");
+import cn from "classnames/bind";
+
+// CSS Reset
+import "normalize.css/normalize.css";
+
+// Base Style (loads fonts)
+import "./scss/style.scss";
+
+import style from "./index.scss";
+const cx = cn.bind(style);
 
 function getNetworkName(networkId) {
   // https://ethereum.stackexchange.com/a/17101
@@ -298,24 +307,28 @@ async function getLMSRAllowance(collateral, lmsrMarketMaker, account) {
 Promise.all([
   import("react"),
   import("react-dom"),
-  import("classnames"),
   import("@use-it/interval"),
   import("decimal.js-light"),
   import("./markets"),
   import("./buy-section"),
   import("./your-positions"),
-  import("./spinner")
+  import("./spinner"),
+  import("./header"),
+  import("./menu"),
+  import("./avatar")
 ]).then(
   ([
     { default: React, useState, useEffect },
     { render },
-    { default: cn },
     { default: useInterval },
     { default: Decimal },
     { default: Markets },
     { default: BuySection },
     { default: YourPositions },
-    { default: Spinner }
+    { default: Spinner },
+    { default: Header },
+    { default: Menu },
+    { default: Avatar }
   ]) => {
     Decimal.config({
       precision: 80,
@@ -451,87 +464,88 @@ Promise.all([
 
       if (loading === "SUCCESS")
         return (
-          <div className={cn("page")}>
-            <h1 className={cn("page-title")}>Gnosis PM 2.0 Experiments</h1>
-            <section className={cn("section", "market-section")}>
-              <Markets
-                {...{
-                  markets,
-                  marketResolutionStates,
-                  positions,
-                  lmsrState,
-                  marketSelections,
-                  setMarketSelections,
-                  stagedTradeAmounts
-                }}
-              />
-            </section>
-            <div className={cn("separator")} />
-            <section className={cn("section", "position-section")}>
-              {account == null ? (
-                <>
-                  <h2 className={cn("heading")}>Note</h2>
-                  <p>
-                    Please connect an Ethereum provider to{" "}
-                    {getNetworkName(networkId)} to interact with this market.
-                  </p>
-                </>
-              ) : (
-                <>
-                  <h2 className={cn("heading")}>Manage Positions</h2>
-                  <BuySection
-                    {...{
-                      account,
-                      markets,
-                      positions,
-                      collateral,
-                      collateralBalance,
-                      lmsrMarketMaker,
-                      lmsrState,
-                      lmsrAllowance,
-                      marketSelections,
-                      stagedTradeAmounts,
-                      setStagedTradeAmounts,
-                      stagedTransactionType,
-                      setStagedTransactionType,
-                      ongoingTransactionType,
-                      asWrappedTransaction
-                    }}
-                  />
-                  <YourPositions
-                    {...{
-                      account,
-                      pmSystem,
-                      markets,
-                      marketResolutionStates,
-                      positions,
-                      collateral,
-                      lmsrMarketMaker,
-                      lmsrState,
-                      positionBalances,
-                      stagedTradeAmounts,
-                      setStagedTradeAmounts,
-                      stagedTransactionType,
-                      setStagedTransactionType,
-                      ongoingTransactionType,
-                      asWrappedTransaction
-                    }}
-                  />
-                </>
-              )}
-            </section>
+          <div className={cx("page")}>
+            <Header avatar={<Avatar address={account} />} menu={<Menu />} />
+            <div className={cx("sections")}>
+              <section className={cx("section", "section-markets")}>
+                <Markets
+                  {...{
+                    markets,
+                    marketResolutionStates,
+                    positions,
+                    lmsrState,
+                    marketSelections,
+                    setMarketSelections,
+                    stagedTradeAmounts
+                  }}
+                />
+              </section>
+              <section className={cx("section", "section-positions")}>
+                {account == null ? (
+                  <>
+                    <h2 className={cx("heading")}>Note</h2>
+                    <p>
+                      Please connect an Ethereum provider to{" "}
+                      {getNetworkName(networkId)} to interact with this market.
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <h2 className={cx("heading")}>Manage Positions</h2>
+                    <BuySection
+                      {...{
+                        account,
+                        markets,
+                        positions,
+                        collateral,
+                        collateralBalance,
+                        lmsrMarketMaker,
+                        lmsrState,
+                        lmsrAllowance,
+                        marketSelections,
+                        stagedTradeAmounts,
+                        setStagedTradeAmounts,
+                        stagedTransactionType,
+                        setStagedTransactionType,
+                        ongoingTransactionType,
+                        asWrappedTransaction
+                      }}
+                    />
+                    <YourPositions
+                      {...{
+                        account,
+                        pmSystem,
+                        markets,
+                        marketResolutionStates,
+                        positions,
+                        collateral,
+                        lmsrMarketMaker,
+                        lmsrState,
+                        positionBalances,
+                        stagedTradeAmounts,
+                        setStagedTradeAmounts,
+                        stagedTransactionType,
+                        setStagedTransactionType,
+                        ongoingTransactionType,
+                        asWrappedTransaction
+                      }}
+                    />
+                  </>
+                )}
+              </section>
+            </div>
           </div>
         );
 
       if (loading === "LOADING")
         return (
-          <div className={cn("loading-page")}>
+          <div className={cx("loading-page")}>
             <Spinner centered inverted width={100} height={100} />
           </div>
         );
       if (loading === "FAILURE")
         return (
-          <div className={cn("failure-page")}>
+          <div className={cx("failure-page")}>
             <h2>Failed to load 😞</h2>
             <h3>Please check the following:</h3>
             <ul>
