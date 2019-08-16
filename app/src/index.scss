@@ -1,12 +1,18 @@
-.page {}
+.page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
 
 .sections {
   display: flex;
+  flex: 1;
 
 
   .section {
     &-markets {
       flex: 1;
+      padding: 1em 2em;
       border-right: 1px solid #dedfde;
     }
 

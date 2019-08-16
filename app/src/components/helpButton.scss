@@ -1,0 +1,21 @@
+.help-button {
+  appearance: none;
+  -webkit-appearance: none;
+  background: #009cb4;
+  border-radius: 100%;
+  display: inline-block;
+  border: none;
+  color: white;
+
+  line-height: 20px;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+
+  transition: all .2s ease-in-out;
+  margin-left: 5px;
+
+  &:hover, &:focus {
+    background: darken(#009cb4, 20%);
+  }
+}

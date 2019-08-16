@@ -15,7 +15,7 @@ module.exports = {
   resolve: {
     symlinks: false,
     alias: {
-      "~style": `${__dirname}/src/style`,
+      assets: `${__dirname}/assets`,
       // manually deduplicate these modules
       "bn.js": path.resolve(__dirname, "../node_modules/bn.js"),
       // stub out these modules
@@ -24,7 +24,8 @@ module.exports = {
       "web3-eth-ens": moduleStubPath,
       "web3-providers-ipc": moduleStubPath,
       "bignumber.js/bignumber": moduleStubPath
-    }
+    },
+    modules: ["node_modules", "src", "assets"]
   },
   devServer: {
     contentBase: __dirname + "/assets",
@@ -66,7 +67,17 @@ module.exports = {
       },
       {
         test: /\.(png|svg|jpg|gif)$/,
-        use: ["file-loader"]
+        use: ["file-loader"],
+        exclude: [`${__dirname}/assets/icons`]
+      },
+      {
+        test: /.*\/icons\/.*\.svg$/,
+        use: {
+          loader: "svg-url-loader",
+          options: {
+            stripdeclarations: true
+          }
+        }
       },
       {
         test: /build\/contracts\/\w+\.json$/,

@@ -1,0 +1,13 @@
+@import "../sidebar.scss";
+
+.positions {
+  &-heading {
+    @include sidebar-entry;
+
+    font-weight: 800;
+  }
+
+  &-empty {
+    @include sidebar-empty;
+  }
+}

@@ -12,6 +12,7 @@ export const formatProbability = probability =>
     .toDecimalPlaces(probabilityDecimalPlaces, Decimal.ROUND_HALF_UP)}%`;
 
 export const formatCollateral = (amount, collateral) => {
+  console.log(amount, collateral);
   return `${new Decimal((amount || "0").toString())
     .mul(collateral.fromUnitsMultiplier)
     .toSignificantDigits(collateralSignificantDigits)

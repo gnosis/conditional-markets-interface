@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 import cn from "classnames/bind";
 import style from "./header.scss";
 
-import Logo from "../assets/img/conditional-logo-color.svg";
+import Logo from "img/conditional-logo-color.svg";
 
 const cx = cn.bind(style);
 

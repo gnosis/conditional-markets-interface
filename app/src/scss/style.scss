@@ -10,7 +10,11 @@
   html {
     box-sizing: border-box;
   }
-  
+
+  html, body, #root, .page {
+    height: 100%;
+  }
+
   *, *:before, *:after {
     box-sizing: inherit;
   }  

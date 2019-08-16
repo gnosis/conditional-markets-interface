@@ -1,0 +1,16 @@
+@mixin sidebar-entry {
+  padding: 1.2em 0.8em;
+  background-color: #ffffff;
+  border-bottom: 1px solid #dedfde;
+  font-size: 100%;
+}
+
+@mixin sidebar-empty {
+  @include sidebar-entry;
+    
+  padding-top: 4em;
+  padding-bottom: 4em;
+  text-align: center;
+  font-size: 90%;
+  font-weight: 600;
+}

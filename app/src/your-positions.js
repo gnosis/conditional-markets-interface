@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import Web3 from "web3";
 import Decimal from "decimal.js-light";
 import PositionGroupDetails from "./position-group-details";
-import Spinner from "./spinner";
+import Spinner from "./components/Spinner";
 import { zeroDecimal } from "./utils/constants";
 import { formatCollateral } from "./utils/formatting";
 import { calcPositionGroups } from "./utils/position-groups";

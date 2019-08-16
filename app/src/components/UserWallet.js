@@ -4,15 +4,15 @@ import cn from "classnames/bind";
 
 import Blockies from "react-blockies";
 
-import style from "./avatar.scss";
+import style from "./UserWallet.scss";
 
 const cx = cn.bind(style);
 
 const formatAddress = address =>
   `${address.substr(0, 6)}...${address.substr(-4)}`;
 
-const Avatar = ({ address }) => (
-  <div className={cx("user-profile")}>
+const UserWallet = ({ address }) => (
+  <div className={cx("user-wallet")}>
     <span title={address}>{formatAddress(address)}</span>
     <div className={cx("avatar")}>
       <Blockies
@@ -25,8 +25,8 @@ const Avatar = ({ address }) => (
   </div>
 );
 
-Avatar.propTypes = {
+UserWallet.propTypes = {
   address: PropTypes.string.isRequired
 };
 
-export default Avatar;
+export default UserWallet;

@@ -1,0 +1,80 @@
+.market-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  thead {
+    text-transform: uppercase;
+    font-size: 80%;
+    font-weight: 600;
+    letter-spacing: 1px;
+    color: #526877;
+
+    tr {
+      height: 50px;
+      text-align: left;
+    }
+
+
+    th {
+      white-space: nowrap;
+      padding: 0.4em 0.5em;
+
+      em {
+        font-style: normal;
+        color: #009cb4;
+      }
+
+      &:first-child, &:last-child {
+        padding: 0.4em 2em;
+      }
+    }
+  }
+
+  tbody {
+    box-shadow: 0 0 8px rgba(82, 104, 119, 0.26);
+
+    // Index
+    td:nth-child(1) {
+      text-align: center;
+      font-weight: 800;
+    }
+
+    // Probability
+    td:nth-child(3) {
+      min-width: 300px;
+    }
+
+    .explanation-row {
+      &:not(:last-child) {
+        border-bottom: 1px solid #dedfde;
+      }
+    }
+
+    .explanation {
+      padding: 0.8em 0;
+      background-color: #ffffff;
+      text-transform: uppercase;
+
+      span {
+        display: block;
+        width: 200px;
+        text-align: right;
+        margin: auto;
+        padding-right: 100px;
+      }
+    }
+
+    .arrow {
+      background-position: right 45% top 50%;
+      background-size: 44px;
+      background-repeat: no-repeat;
+
+      &.explanation-top {
+        background-image: url("~assets/icons/arrow-up.svg");
+      }
+      &.explanation-down {
+        background-image: url("~assets/icons/arrow-down.svg");
+      }
+    }
+  }
+}

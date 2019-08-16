@@ -309,26 +309,24 @@ Promise.all([
   import("react-dom"),
   import("@use-it/interval"),
   import("decimal.js-light"),
-  import("./markets"),
-  import("./buy-section"),
-  import("./your-positions"),
-  import("./spinner"),
+  import("./MarketTable"),
+  import("./Sidebar"),
+  import("./components/Spinner"),
   import("./header"),
-  import("./menu"),
-  import("./avatar")
+  import("./components/Menu"),
+  import("./components/UserWallet")
 ]).then(
   ([
-    { default: React, useState, useEffect },
+    { default: React, useState, useEffect, useCallback },
     { render },
     { default: useInterval },
     { default: Decimal },
-    { default: Markets },
-    { default: BuySection },
-    { default: YourPositions },
+    { default: MarketTable },
+    { default: Sidebar },
     { default: Spinner },
     { default: Header },
     { default: Menu },
-    { default: Avatar }
+    { default: UserWallet }
   ]) => {
     Decimal.config({
       precision: 80,
@@ -340,10 +338,6 @@ Promise.all([
     function RootComponent() {
       const [loading, setLoading] = useState("LOADING");
       const [syncTime, setSyncTime] = useState(moduleLoadTime);
-      function triggerSync() {
-        setSyncTime(Date.now());
-      }
-      useInterval(triggerSync, 2000);
 
       const [networkId, setNetworkId] = useState(null);
       const [web3, setWeb3] = useState(null);
@@ -457,7 +451,7 @@ Promise.all([
             throw e;
           } finally {
             setOngoingTransactionType(null);
-            triggerSync();
+            //triggerSync();
           }
         };
       }
@@ -465,10 +459,10 @@ Promise.all([
       if (loading === "SUCCESS")
         return (
           <div className={cx("page")}>
-            <Header avatar={<Avatar address={account} />} menu={<Menu />} />
+            <Header avatar={<UserWallet address={account} />} menu={<Menu />} />
             <div className={cx("sections")}>
               <section className={cx("section", "section-markets")}>
-                <Markets
+                <MarketTable
                   {...{
                     markets,
                     marketResolutionStates,
@@ -490,47 +484,26 @@ Promise.all([
                     </p>
                   </>
                 ) : (
-                  <>
-                    <h2 className={cx("heading")}>Manage Positions</h2>
-                    <BuySection
-                      {...{
-                        account,
-                        markets,
-                        positions,
-                        collateral,
-                        collateralBalance,
-                        lmsrMarketMaker,
-                        lmsrState,
-                        lmsrAllowance,
-                        marketSelections,
-                        stagedTradeAmounts,
-                        setStagedTradeAmounts,
-                        stagedTransactionType,
-                        setStagedTransactionType,
-                        ongoingTransactionType,
-                        asWrappedTransaction
-                      }}
-                    />
-                    <YourPositions
-                      {...{
-                        account,
-                        pmSystem,
-                        markets,
-                        marketResolutionStates,
-                        positions,
-                        collateral,
-                        lmsrMarketMaker,
-                        lmsrState,
-                        positionBalances,
-                        stagedTradeAmounts,
-                        setStagedTradeAmounts,
-                        stagedTransactionType,
-                        setStagedTransactionType,
-                        ongoingTransactionType,
-                        asWrappedTransaction
-                      }}
-                    />
-                  </>
+                  <Sidebar
+                    {...{
+                      account,
+                      pmSystem,
+                      markets,
+                      marketResolutionStates,
+                      marketSelections,
+                      collateral,
+                      collateralBalance,
+                      lmsrMarketMaker,
+                      lmsrState,
+                      positionBalances,
+                      stagedTradeAmounts,
+                      setStagedTradeAmounts,
+                      stagedTransactionType,
+                      setStagedTransactionType,
+                      ongoingTransactionType,
+                      asWrappedTransaction
+                    }}
+                  />
                 )}
               </section>
             </div>
