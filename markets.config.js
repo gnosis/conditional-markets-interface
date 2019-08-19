@@ -1,55 +1,55 @@
 const resolutionDate = new Date();
-resolutionDate.setDate(resolutionDate.getDate() + 30);
+resolutionDate.setDate(resolutionDate.getDate() + 14);
 
 module.exports = [
   {
     questionId: `0x${"0".repeat(63)}a`,
-    title: `A or B?`,
+    title: `Will the DAI price exceed $1 according to the DutchX last auction closing price and Maker ETH price feed?`,
     resolutionDate: resolutionDate.toISOString(),
     outcomes: [
       {
-        title: "A",
-        short: "A",
-        when: "A"
+        title: "Yes",
+        short: "Yes",
+        when: "1 DAI > $1"
       },
       {
-        title: "B",
-        short: "B",
-        when: "B"
+        title: "No",
+        short: "No",
+        when: "1 DAI ≤ $1"
       }
     ]
   },
   {
     questionId: `0x${"0".repeat(63)}b`,
-    title: `X or Y?`,
+    title: "Will the DAI supply exceed 81 million DAI?",
     resolutionDate: resolutionDate.toISOString(),
     outcomes: [
       {
-        title: "X",
-        short: "X",
-        when: "X"
+        title: "Yes",
+        short: "Yes",
+        when: "DAI supply > 81 million DAI"
       },
       {
-        title: "Y",
-        short: "Y",
-        when: "Y"
+        title: "No",
+        short: "No",
+        when: "DAI supply ≤ 81 million DAI"
       }
     ]
   },
   {
     questionId: `0x${"0".repeat(63)}c`,
-    title: `What will be the result of this longer question? It can be Foo or Bar, but it must be one of those.`,
+    title: "Will the DAI stability fee exceed 17.5%?",
     resolutionDate: resolutionDate.toISOString(),
     outcomes: [
       {
-        title: "Foo",
-        short: "Foo",
-        when: "Foo"
+        title: "Yes",
+        short: "Yes",
+        when: "DAI stability fee > 17.5%"
       },
       {
-        title: "Bar",
-        short: "Bar",
-        when: "Bar"
+        title: "No",
+        short: "No",
+        when: "DAI stability fee ≤ 17.5%"
       }
     ]
   }
