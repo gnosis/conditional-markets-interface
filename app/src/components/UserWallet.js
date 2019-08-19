@@ -13,20 +13,26 @@ const formatAddress = address =>
 
 const UserWallet = ({ address }) => (
   <div className={cx("user-wallet")}>
-    <span title={address}>{formatAddress(address)}</span>
-    <div className={cx("avatar")}>
-      <Blockies
-        seed={address.toLowerCase()}
-        size={8}
-        scale={16}
-        className={cx("avatar-image")}
-      />
-    </div>
+    {address ? (
+      <>
+        <span title={address}>{formatAddress(address)}</span>
+        <div className={cx("avatar")}>
+          <Blockies
+            seed={address.toLowerCase()}
+            size={8}
+            scale={16}
+            className={cx("avatar-image")}
+          />
+        </div>
+      </>
+    ) : (
+      <div>Not connected</div>
+    )}
   </div>
 );
 
 UserWallet.propTypes = {
-  address: PropTypes.string.isRequired
+  address: PropTypes.string
 };
 
 export default UserWallet;

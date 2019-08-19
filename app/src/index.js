@@ -474,16 +474,8 @@ Promise.all([
                   }}
                 />
               </section>
-              <section className={cx("section", "section-positions")}>
-                {account == null ? (
-                  <>
-                    <h2 className={cx("heading")}>Note</h2>
-                    <p>
-                      Please connect an Ethereum provider to{" "}
-                      {getNetworkName(networkId)} to interact with this market.
-                    </p>
-                  </>
-                ) : (
+              {account != null && (
+                <section className={cx("section", "section-positions")}>
                   <Sidebar
                     {...{
                       account,
@@ -506,8 +498,8 @@ Promise.all([
                       asWrappedTransaction
                     }}
                   />
-                )}
-              </section>
+                </section>
+              )}
             </div>
           </div>
         );
