@@ -107,7 +107,12 @@ Market.propTypes = {
     PropTypes.instanceOf(Decimal).isRequired
   ),
 
-  marketSelections: PropTypes.shape({}),
+  marketSelections: PropTypes.arrayOf(
+    PropTypes.shape({
+      selectedOutcomeIndex: PropTypes.number.isRequired,
+      isAssumed: PropTypes.bool.isRequired
+    })
+  ),
   setMarketSelection: PropTypes.any.isRequired
 };
 

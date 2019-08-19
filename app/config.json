@@ -1,10 +1,10 @@
 {
-  "lmsrAddress": "0x9a61b3bBB39785A6591cCFEcECA693E9613ede97",
+  "lmsrAddress": "0x067805E69e62E8bE56e8D13f4EBf53372D3dD02e",
   "markets": [
     {
       "questionId": "0x000000000000000000000000000000000000000000000000000000000000000a",
       "title": "A or B?",
-      "resolutionDate": "2019-09-11T07:48:20.152Z",
+      "resolutionDate": "2019-09-15T10:56:28.457Z",
       "outcomes": [
         {
           "title": "A",
@@ -21,7 +21,7 @@
     {
       "questionId": "0x000000000000000000000000000000000000000000000000000000000000000b",
       "title": "X or Y?",
-      "resolutionDate": "2019-09-11T07:48:20.152Z",
+      "resolutionDate": "2019-09-15T10:56:28.457Z",
       "outcomes": [
         {
           "title": "X",
@@ -38,7 +38,7 @@
     {
       "questionId": "0x000000000000000000000000000000000000000000000000000000000000000c",
       "title": "What will be the result of this longer question? It can be Foo or Bar, but it must be one of those.",
-      "resolutionDate": "2019-09-11T07:48:20.152Z",
+      "resolutionDate": "2019-09-15T10:56:28.457Z",
       "outcomes": [
         {
           "title": "Foo",

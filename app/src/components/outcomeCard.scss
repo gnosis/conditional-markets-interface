@@ -1,0 +1,95 @@
+.outcome-card {
+  position: relative;
+  border-radius: 3px;
+  border: 1px solid #dedfde;
+  margin-top: 3px;
+  display: flex;
+  white-space: nowrap;
+  
+  :first-child {
+    border-top-left-radius: 2px;
+    border-bottom-left-radius: 2px;
+  }
+
+  .market {
+    background-color: #526877;
+    color: #ffffff;
+    padding: 0.3rem;
+  }
+
+  .outcome {
+    padding: 0.3rem;
+
+    .dot {
+      width: 12px;
+      height: 0;
+      display: inline-block;
+      position: relative;
+
+      &::after {
+        content: '';
+        display: block;
+        background-color: currentColor;
+        position: absolute;
+        left: calc(50% - 6px);
+        width: 12px;
+        height: 12px;
+        margin-top: -11px;
+        border-radius: 100%;
+      }
+    }
+  }
+
+
+  &.glue-or {
+    margin-left: 20px;
+
+    &:not(:last-of-type) {
+      &::after {
+        content: 'or';
+      }
+    }
+  }
+
+  &.glue-and {
+    margin-left: 20px;
+
+    &:not(:last-of-type) {
+      &::after {
+        content: '&';
+      }
+    }
+  }
+
+  &.glue-or, &.glue-and {
+    &:not(:last-of-type) {
+      &::after {
+        display: block;
+        position: absolute;
+        width: 12px;
+        height: 100%;
+        line-height: 28px;
+        right: -18px;
+        top: 0;
+      }
+    }
+  }
+
+  &.prefix-IF {
+    &:first-of-type {
+      margin-left: 20px;
+
+      &::before {
+        display: block;
+        position: absolute;
+        width: 12px;
+        height: 100%;
+        line-height: 28px;
+        left: -18px;
+        top: 0;
+        content: 'IF';
+      }
+    }
+  }
+
+}

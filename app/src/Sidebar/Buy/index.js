@@ -1,15 +1,23 @@
-import React, { useState, useEffect } from "react";
+import React, { Fragment, useState, useEffect } from "react";
+import PropTypes from "prop-types";
+import Decimal from "decimal.js-light";
+
+import Web3 from "web3";
 
 import cn from "classnames/bind";
 import style from "./buy.scss";
 
-import Web3 from "web3";
-import Decimal from "decimal.js-light";
 import PositionGroupDetails from "position-group-details";
 import Spinner from "components/Spinner";
-import { maxUint256BN, zeroDecimal, outcomeColors } from "utils/constants";
+import OutcomeCard from "components/OutcomeCard";
+import { maxUint256BN, outcomeColors } from "utils/constants";
 import { formatCollateral } from "utils/formatting";
-import { calcPositionGroups } from "utils/position-groups";
+import {
+  calcPositionGroups,
+  calcOutcomeTokenCounts
+} from "utils/position-groups";
+
+const { BN } = Web3.utils;
 
 const cx = cn.bind(style);
 
@@ -31,6 +39,7 @@ const Buy = ({
   asWrappedTransaction
 }) => {
   const [investmentAmount, setInvestmentAmount] = useState("");
+  const [humanReadablePositions, setHumanReadablePositions] = useState(null);
   const [error, setError] = useState(null);
   useEffect(() => {
     if (stagedTransactionType !== "buy outcome tokens") return;
@@ -52,6 +61,7 @@ const Buy = ({
           } decimals in value ${investmentAmount}`
         );
 
+      /*
       if (investmentAmountInUnits.gt(collateralBalance.totalAmount.toString()))
         throw new Error(
           `Not enough collateral: missing ${formatCollateral(
@@ -61,6 +71,7 @@ const Buy = ({
             collateral
           )}`
         );
+      */
 
       setStagedTradeAmounts(
         calcOutcomeTokenCounts(
@@ -120,6 +131,10 @@ const Buy = ({
       });
     }
 
+    await collateral.contract.approve(lmsrMarketMaker.address, maxUint256BN, {
+      from: account
+    });
+
     await lmsrMarketMaker.trade(tradeAmounts, collateralLimit, {
       from: account
     });
@@ -152,19 +167,95 @@ const Buy = ({
     investmentAllowed = false;
   }
 
-  let humanReadablePositions = {
-    payOutWhen: [{ marketIndex: 0, outcome: 0, value: 1e-15, margin: 0.5 }],
-    loseInvestmentWhen: [
-      { marketIndex: 0, outcome: 1, value: -1e-15, margin: 0.5 }
-    ],
-    refundWhen: []
-  };
+  useEffect(() => {
+    let humanReadablePositions = {
+      payOutWhen: {
+        title: "Pay out when:",
+        getGlue: () => "and",
+        getPrefix: () => "IF",
+        positions: []
+      },
+      loseInvestmentWhen: {
+        title: "Lose investment when:",
+        positions: [],
+        getGlue: () => "or",
+        getPrefix: () => "IF"
+      },
+      refundWhen: {
+        title: "Refund when:",
+        positions: [],
+        getGlue: () => "or",
+        getPrefix: () => "IF"
+      }
+    };
 
-  /*
-  marketSelections.forEach(({ selectedOutcomeIndex, isAssumed }, index) => {
-    positions["payOutWhen"]
-  })
-  */
+    let processTradePositions = true;
+
+    try {
+      Decimal(investmentAmount);
+    } catch (err) {
+      processTradePositions = false;
+    }
+
+    if (processTradePositions) {
+      (stagedTradePositionGroups || []).forEach(
+        ({ outcomeSet, runningAmount }, index) => {
+          //positions["payOutWhen"]
+
+          // all payouts
+          humanReadablePositions.payOutWhen.positions = outcomeSet;
+          humanReadablePositions.payOutWhen.runningAmount = runningAmount;
+
+          // all lose invests
+
+          // invert outcome sets
+          humanReadablePositions.loseInvestmentWhen.positions = outcomeSet.map(
+            outcome => {
+              if (outcome.outcomeIndex == -1) {
+                return outcome;
+              }
+
+              return {
+                ...outcome,
+                outcomeIndex: outcome.outcomeIndex == 0 ? 1 : 0
+              };
+            }
+          );
+          humanReadablePositions.loseInvestmentWhen.runningAmount = Decimal(
+            investmentAmount
+          )
+            .neg()
+            .mul(Math.pow(10, collateral.decimals));
+          humanReadablePositions.loseInvestmentWhen.margin = Decimal(-1.0);
+
+          // refund when
+
+          // invert outcome sets
+          humanReadablePositions.refundWhen.positions = outcomeSet
+            .filter(outcome => marketSelections[outcome.marketIndex].isAssumed)
+            .map(outcome => {
+              if (outcome.outcomeIndex == -1) {
+                return outcome;
+              }
+
+              return {
+                ...outcome,
+                ...markets[outcome.marketIndex].outcomes[
+                  outcome.outcomeIndex == 0 ? 1 : 0
+                ],
+                outcomeIndex: outcome.outcomeIndex == 0 ? 1 : 0
+              };
+            });
+          humanReadablePositions.refundWhen.runningAmount = Decimal(
+            investmentAmount
+          ).mul(Math.pow(10, collateral.decimals));
+          humanReadablePositions.refundWhen.margin = Decimal(1.0);
+        }
+      );
+
+      setHumanReadablePositions(humanReadablePositions);
+    }
+  }, [stagedTradePositionGroups]);
 
   return (
     <>
@@ -175,33 +266,51 @@ const Buy = ({
         </button>
       </div>
       {problemText && <div className={cx("buy-empty")}>{problemText}</div>}
+      {error && (
+        <div className={cx("buy-empty")}>
+          {error === true ? "An error has occured" : error.message}
+        </div>
+      )}
       {investmentAllowed && (
         <>
           <div className={cx("buy-summary")}>
-            {humanReadablePositions.payOutWhen && (
-              <div className={cx("buy-summary-heading")}>Pay out when</div>
-            )}
-            {humanReadablePositions.payOutWhen.map(
-              ({ marketIndex, outcome, value, margin }) => (
-                <div className={cx("summary-entry")}>
-                  <div className={cx("entry-outcome")}>
-                    <span className={cx("entry-marketindex")}>
-                      #{marketIndex + 1}
-                    </span>
-                    <span className={cx("entry-outcome")}>
-                      <i
-                        className={cx("dot")}
-                        style={{
-                          color: outcomeColors[outcome].darken(0.5).toString()
-                        }}
-                      />{" "}
-                      {markets[marketIndex].outcomes[outcome].title}
-                    </span>
-                  </div>
-                  <div className={cx("entry-values")} />
-                </div>
-              )
-            )}
+            {humanReadablePositions &&
+              [
+                humanReadablePositions.payOutWhen,
+                humanReadablePositions.refundWhen,
+                humanReadablePositions.loseInvestmentWhen
+              ]
+                .filter(category => category && category.positions.length)
+                .map(category => (
+                  <Fragment key={category.title}>
+                    <div className={cx("buy-summary-heading")}>
+                      {category.title}
+                    </div>
+                    <div className={cx("buy-summary-category")}>
+                      <div className={cx("category-entries")}>
+                        {category.positions.map(outcome => (
+                          <OutcomeCard
+                            key={`${outcome.marketIndex}-${
+                              outcome.outcomeIndex
+                            }`}
+                            glueType={category.getGlue()}
+                            prefixType={category.getPrefix()}
+                            {...outcome}
+                          />
+                        ))}
+                      </div>
+                      <div className={cx("category-values")}>
+                        <p className={cx("category-value", "value")}>
+                          {formatCollateral(category.runningAmount, collateral)}
+                        </p>
+                        {/*<p className={cx("category-value", "margin")}>
+                          ({category.margin > 0 && "+"}
+                          {category.margin * 100}%)
+                          </p>*/}
+                      </div>
+                    </div>
+                  </Fragment>
+                ))}
           </div>
           <div className={cx("buy-subheading")}>
             Total Investment ({collateral.name})
@@ -243,7 +352,23 @@ const Buy = ({
         </>
       )}
       <div className={cx("buy-confirm")}>
-        <button className={cx("button")} type="button" disabled>
+        <button
+          className={cx("button")}
+          type="button"
+          disabled={
+            //!hasEnoughAllowance ||
+            stagedTransactionType !== "buy outcome tokens" ||
+            stagedTradeAmounts == null ||
+            ongoingTransactionType != null ||
+            marketStage !== "Running" ||
+            error != null
+          }
+          onClick={asWrappedTransaction(
+            "buy outcome tokens",
+            buyOutcomeTokens,
+            setError
+          )}
+        >
           Place Order
         </button>
       </div>
@@ -353,6 +478,69 @@ const Buy = ({
       )}
     </div>
   );
+};
+
+Buy.propTypes = {
+  account: PropTypes.string.isRequired,
+  markets: PropTypes.arrayOf(
+    PropTypes.shape({
+      outcomes: PropTypes.arrayOf(
+        PropTypes.shape({
+          positions: PropTypes.arrayOf(
+            PropTypes.shape({
+              id: PropTypes.string.isRequired
+            }).isRequired
+          ).isRequired
+        }).isRequired
+      ).isRequired
+    }).isRequired
+  ).isRequired,
+  positions: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.string.isRequired,
+      positionIndex: PropTypes.number.isRequired,
+      outcomes: PropTypes.arrayOf(
+        PropTypes.shape({
+          marketIndex: PropTypes.number.isRequired,
+          outcomeIndex: PropTypes.number.isRequired
+        }).isRequired
+      ).isRequired
+    }).isRequired
+  ).isRequired,
+  collateral: PropTypes.shape({
+    contract: PropTypes.object.isRequired,
+    name: PropTypes.string.isRequired,
+    symbol: PropTypes.string.isRequired,
+    decimals: PropTypes.number.isRequired,
+    isWETH: PropTypes.bool.isRequired
+  }).isRequired,
+  collateralBalance: PropTypes.shape({
+    amount: PropTypes.instanceOf(BN).isRequired,
+    unwrappedAmount: PropTypes.instanceOf(BN),
+    totalAmount: PropTypes.instanceOf(BN).isRequired
+  }),
+  lmsrMarketMaker: PropTypes.object.isRequired,
+  lmsrState: PropTypes.shape({
+    funding: PropTypes.instanceOf(BN).isRequired,
+    positionBalances: PropTypes.arrayOf(PropTypes.instanceOf(BN).isRequired)
+      .isRequired,
+    stage: PropTypes.string.isRequired
+  }),
+  lmsrAllowance: PropTypes.instanceOf(BN),
+  marketSelections: PropTypes.arrayOf(
+    PropTypes.shape({
+      isAssumed: PropTypes.bool.isRequired,
+      selectedOutcomeIndex: PropTypes.number
+    }).isRequired
+  ),
+  stagedTradeAmounts: PropTypes.arrayOf(
+    PropTypes.instanceOf(Decimal).isRequired
+  ),
+  setStagedTradeAmounts: PropTypes.func.isRequired,
+  stagedTransactionType: PropTypes.string,
+  setStagedTransactionType: PropTypes.func.isRequired,
+  ongoingTransactionType: PropTypes.string,
+  asWrappedTransaction: PropTypes.func.isRequired
 };
 
 export default Buy;

@@ -19,11 +19,61 @@
   &-empty {
     @include sidebar-empty;
     border-bottom: none;
+    white-space: wrap;
   }
 
   &-confirm {
     @include sidebar-entry;
     padding-top: 0;
+  }
+
+  &-summary {
+    &-heading {
+      @include sidebar-entry;
+      padding-top: 0.8rem;
+      padding-bottom: 0.8rem;
+      font-size: 80%;
+      color: #526877;
+      border-bottom: none;
+    }
+
+    &-category {
+      @include sidebar-entry;
+
+      padding-top: 0.5rem;
+      padding-bottom: 0.5rem;
+      background-color: #f7f8fb;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .category-values {
+      &-positive {
+        color: #02ae60;
+      }
+      &-negative {
+        color: #ff685e;
+      }
+
+      .category-value {
+        text-align: right;
+        margin: 0;
+
+        &.value {
+          font-weight: 800;
+        }
+
+        &.margin {
+          font-size: 80%;
+        }
+      }
+    }
+
+    .category-entries {
+      display: flex;
+      align-self: flex-start;
+      flex-wrap: wrap;
+    }
   }
 
   &-investment {
@@ -55,12 +105,12 @@
 
     .input-group {
       position: relative;
-      margin: 0 0.4em;
+      margin: 0 0.4rem;
     }
 
     .input {
       height: 24px;
-      padding: 1.4em 2em 1.4em 3em;
+      padding: 1.4rem 2rem 1.4rem 3rem;
       text-align: right;
       font-weight: 100;
       border: 1px solid #dedfed;
@@ -98,7 +148,7 @@
   text-transform: uppercase;
   display: block;
   width: 100%;
-  padding: 1em 0;
+  padding: 1rem 0;
   color: #ffffff;
 
   &.disabled, &:disabled {
@@ -123,6 +173,6 @@
 }
 
 .collateral-name {
-  line-height: 3em;
-  padding: 0 0.7em;
+  line-height: 3rem;
+  padding: 0 0.7rem;
 }
