@@ -58,12 +58,11 @@ module.exports = {
         use: {
           loader: "file-loader",
           options: {
-            limit: 50000,
-            mimetype: "application/font-woff",
-            name: "./fonts/[name].[ext]", // Output below ./fonts
-            publicPath: "../" // Take the directory into account
+            name: '[name].[ext]',
+            outputPath: 'fonts/'
           }
-        }
+        },
+        include: [`${__dirname}/assets/fonts`],
       },
       {
         test: /\.(png|svg|jpg|gif)$/,
