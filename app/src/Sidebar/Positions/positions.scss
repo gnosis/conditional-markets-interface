@@ -1,0 +1,90 @@
+@import "../sidebar.scss";
+
+.positions {
+  &-heading {
+    @include sidebar-entry;
+
+    font-weight: 800;
+  }
+
+  &-empty {
+    @include sidebar-empty;
+  }
+
+  &-subheading {
+    @include sidebar-entry;
+    border-bottom: none;
+    font-weight: 100;
+    font-size: 90%;
+    color: rgb(90, 90, 90);
+    display: flex;
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+  }
+
+  &-redeem {
+
+    .redeem-all {
+      -webkit-appearance: none;
+      padding: 0;
+      appearance: none;
+      border: none;
+      background: none;
+      width: 24px;
+      height: 24px;
+      display: block;
+
+      font-size: 200%;
+      line-height: 0;
+      color: #009cb4;
+
+      &:hover, &:focus, &:active {
+        color: darken(#009cb4, 20%);
+      }
+    }
+  }
+}
+
+.position-entry {
+  display: flex;
+  align-self: flex-start;
+  flex-wrap: wrap;
+  @include sidebar-entry;
+  padding-top: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+
+  .value {
+    text-align: right;
+    padding: 0.3em;
+    margin: 0;
+  }
+}
+
+.position-sell {
+  .button {
+    appearance: none;
+    -webkit-appearance: none;
+    border-radius: 3px;
+    background-color: #ff685e;
+    padding: 0.3rem 0.8em;
+    color: #ffffff;
+    text-transform: uppercase;
+  }
+}
+
+.position-col {
+  &-outcome {
+    width: 33%;
+  }
+
+  &-value {
+    width: 33%;
+    text-align: right;
+  }
+
+  &-sell {
+    text-align: right;
+    width: 33%;
+  }
+}

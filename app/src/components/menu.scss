@@ -1,0 +1,26 @@
+.menu {
+  height: 100%;
+
+  ul {
+    height: 100%;
+    margin: 0 1.5rem;
+    list-style: none;
+    padding: 0;
+    display: inline-flex;
+    flex-direction: row;
+  }
+
+  .menu-item {
+    font-weight: 600;
+    height: auto;
+    padding: 0 .5rem;
+
+    display: inline-flex;
+    flex-direction: column;
+    justify-content: center;
+
+    &.active {
+      border-bottom: 4px solid #009cb4;
+    }
+  }
+}

@@ -1,54 +1,57 @@
 {
-  "lmsrAddress": "0x972aB3C96cC384711fBF949E4d859c8973aA4B9C",
+  "lmsrAddress": "0x067805E69e62E8bE56e8D13f4EBf53372D3dD02e",
   "markets": [
     {
-      "title": "Will the DAI price exceed $1 according to the DutchX last auction closing price and Maker ETH price feed?",
-      "resolutionDate": "2019-06-24T16:00:00.000Z",
+      "questionId": "0x000000000000000000000000000000000000000000000000000000000000000a",
+      "title": "A or B?",
+      "resolutionDate": "2019-09-15T10:56:28.457Z",
       "outcomes": [
         {
-          "title": "Yes",
-          "short": "Yes",
-          "when": "1 DAI > $1"
+          "title": "A",
+          "short": "A",
+          "when": "A"
         },
         {
-          "title": "No",
-          "short": "No",
-          "when": "1 DAI ≤ $1"
+          "title": "B",
+          "short": "B",
+          "when": "B"
         }
       ]
     },
     {
-      "title": "Will the DAI supply exceed 81 million DAI?",
-      "resolutionDate": "2019-06-24T16:00:00.000Z",
+      "questionId": "0x000000000000000000000000000000000000000000000000000000000000000b",
+      "title": "X or Y?",
+      "resolutionDate": "2019-09-15T10:56:28.457Z",
       "outcomes": [
         {
-          "title": "Yes",
-          "short": "Yes",
-          "when": "DAI supply > 81 million DAI"
+          "title": "X",
+          "short": "X",
+          "when": "X"
         },
         {
-          "title": "No",
-          "short": "No",
-          "when": "DAI supply ≤ 81 million DAI"
+          "title": "Y",
+          "short": "Y",
+          "when": "Y"
         }
       ]
     },
     {
-      "title": "Will the DAI stability fee exceed 17.5%?",
-      "resolutionDate": "2019-06-24T16:00:00.000Z",
+      "questionId": "0x000000000000000000000000000000000000000000000000000000000000000c",
+      "title": "What will be the result of this longer question? It can be Foo or Bar, but it must be one of those.",
+      "resolutionDate": "2019-09-15T10:56:28.457Z",
       "outcomes": [
         {
-          "title": "Yes",
-          "short": "Yes",
-          "when": "DAI stability fee > 17.5%"
+          "title": "Foo",
+          "short": "Foo",
+          "when": "Foo"
         },
         {
-          "title": "No",
-          "short": "No",
-          "when": "DAI stability fee ≤ 17.5%"
+          "title": "Bar",
+          "short": "Bar",
+          "when": "Bar"
         }
       ]
     }
   ],
-  "networkId": 1
+  "networkId": 437894314312
 }

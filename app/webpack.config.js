@@ -15,7 +15,7 @@ module.exports = {
   resolve: {
     symlinks: false,
     alias: {
-      "~style": `${__dirname}/src/style`,
+      assets: `${__dirname}/assets`,
       // manually deduplicate these modules
       "bn.js": path.resolve(__dirname, "../node_modules/bn.js"),
       // stub out these modules
@@ -24,10 +24,12 @@ module.exports = {
       "web3-eth-ens": moduleStubPath,
       "web3-providers-ipc": moduleStubPath,
       "bignumber.js/bignumber": moduleStubPath
-    }
+    },
+    modules: ["node_modules", "src", "assets"]
   },
   devServer: {
-    contentBase: __dirname + "/dist"
+    contentBase: __dirname + "/assets",
+    overlay: true
   },
   module: {
     rules: [
@@ -37,12 +39,45 @@ module.exports = {
         use: "babel-loader"
       },
       {
-        test: /\.css$/,
-        use: ["style-loader", "css-loader"]
+        test: /\.s?css$/,
+        use: [
+          "style-loader",
+          {
+            loader: "css-loader",
+            options: {
+              modules: {
+                localIdentName: "[name]__[local]--[hash:base64:5]"
+              }
+            }
+          },
+          "sass-loader"
+        ]
       },
       {
-        test: /\.scss$/,
-        use: ["style-loader", "css-loader", "sass-loader"]
+        test: /\.woff2?(\?v=\d+\.\d+\.\d+)?$/,
+        use: {
+          loader: "url-loader",
+          options: {
+            limit: 50000,
+            mimetype: "application/font-woff",
+            name: "./fonts/[name].[ext]", // Output below ./fonts
+            publicPath: "../" // Take the directory into account
+          }
+        }
+      },
+      {
+        test: /\.(png|svg|jpg|gif)$/,
+        use: ["file-loader"],
+        exclude: [`${__dirname}/assets/icons`]
+      },
+      {
+        test: /.*\/icons\/.*\.svg$/,
+        use: {
+          loader: "svg-url-loader",
+          options: {
+            stripdeclarations: true
+          }
+        }
       },
       {
         test: /build\/contracts\/\w+\.json$/,

@@ -1,0 +1,12 @@
+
+.spinner {
+  path {
+    fill: #000;
+  }
+
+  &.inverted {
+    path {
+      fill: #fff;
+    }
+  }
+}

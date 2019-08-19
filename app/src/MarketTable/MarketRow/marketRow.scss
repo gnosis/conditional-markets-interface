@@ -1,0 +1,14 @@
+.market-row {
+  height: 120px;
+  background-color: #ffffff;
+  border: none;
+
+  &:not(:last-child) {
+    border-bottom: 1px solid #dedfde;
+  }
+
+  td {
+    border: none;
+    padding: 0.4em 0.8em;
+  }
+}

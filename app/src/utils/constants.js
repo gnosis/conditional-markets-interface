@@ -1,4 +1,5 @@
 import Web3 from "web3";
+import Color from "color";
 
 import Decimal from "decimal.js-light";
 
@@ -14,3 +15,5 @@ export const minDisplayedProbability = new Decimal(10)
   .pow(-probabilityDecimalPlaces)
   .mul("0.01");
 export const collateralSignificantDigits = 5;
+
+export const outcomeColors = [Color("#d9f6fb"), Color("#ffe6ea")];

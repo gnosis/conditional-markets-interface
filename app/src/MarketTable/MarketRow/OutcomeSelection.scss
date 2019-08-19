@@ -1,0 +1,18 @@
+.outcome-selection {
+  &-dropdown {
+    position: relative;
+    padding: 1em 3.5em 1em 1em;
+    appearance: none;
+    border-radius: 2px;
+    border: 1px solid #dedfed;
+    background: none;
+    color: #526877;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+
+    background-image: url("~assets/icons/down-angle.svg");
+    background-position: right 0em top 50%;
+    background-size: 44px;
+    background-repeat: no-repeat;
+  }
+}

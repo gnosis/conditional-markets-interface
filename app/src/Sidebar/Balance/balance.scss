@@ -1,0 +1,16 @@
+@import "../sidebar.scss";
+
+.balance {
+  @include sidebar-entry;
+
+  display: flex;
+  justify-content: space-between;
+
+  .label {
+    
+  }
+
+  .value {
+    font-weight: 800;
+  }
+}

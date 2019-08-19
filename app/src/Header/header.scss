@@ -1,0 +1,29 @@
+.header {
+  background: #ffffff;
+  display: flex;
+  flex-direction: row;
+
+  width: 100%;
+  position: relative;
+
+  border-bottom: 1px solid #dedfde;
+  align-items: stretch;
+
+  .logo, .menu, .avatar {
+    height: auto;
+
+    &:not(:last-child) {
+      border-right: 1px solid #dedfde;
+    }
+  }
+
+  .logo {
+    flex-basis: 10%;
+    padding: 0.7rem 1rem;
+  }
+
+  .menu {
+    flex: 1;
+  }
+}
+

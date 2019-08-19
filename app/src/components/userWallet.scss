@@ -1,0 +1,24 @@
+.user-wallet {
+  display: flex;
+  padding: 1rem 0.8rem;
+  justify-content: center;
+  align-items: center;
+
+  > * {
+    margin: 0 4px;
+  }
+
+  .avatar {
+    height: 42px;
+    width: 42px;
+    position: relative;
+    border-radius: 100%;
+    overflow: hidden;
+
+    &-image {
+      max-height: 100%;
+      max-width: 100%;
+      image-rendering: pixelated;
+    }
+  }
+}

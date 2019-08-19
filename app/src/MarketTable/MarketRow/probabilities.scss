@@ -1,0 +1,49 @@
+.probabilities {
+  .probability {
+    position: relative;
+    border-bottom: 2px solid white;
+    margin: 0.2em 0;
+    height: 34px;
+
+    .bar {
+      padding: 0.4em 0.2em;
+      height: 100%;
+
+      transition: width 0.4s ease;
+    }
+
+    .label {
+      line-height: 0;
+      top: 50%;
+      position: absolute;
+
+      .dot {
+        width: 24px;
+        height: 0;
+        display: inline-block;
+        position: relative;
+
+        &::after {
+          content: '';
+          display: block;
+          background-color: currentColor;
+          position: absolute;
+          left: calc(50% - 6px);
+          width: 12px;
+          height: 12px;
+          margin-top: -11px;
+          border-radius: 100%;
+        }
+      }
+
+      &.amount {
+        right: 0.2em;
+      }
+
+      &.outcome {
+        left: 0.2em;
+        font-weight: 800;
+      }
+    }
+  }
+}
