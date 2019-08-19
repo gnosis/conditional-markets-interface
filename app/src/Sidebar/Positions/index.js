@@ -1,5 +1,6 @@
 import React, { Fragment, useState, useEffect, useCallback } from "react";
-//import PropTypes from "prop-types";
+import PropTypes from "prop-types";
+import Web3 from "web3";
 import Decimal from "decimal.js-light";
 import Spinner from "components/Spinner";
 import { zeroDecimal } from "utils/constants";
@@ -11,6 +12,7 @@ import style from "./positions.scss";
 import OutcomeCard from "../../components/OutcomeCard";
 
 const cx = cn.bind(style);
+const { toBN } = Web3.utils;
 
 function calcNetCost({ funding, positionBalances }, tradeAmounts) {
   const invB = new Decimal(positionBalances.length)
@@ -187,7 +189,7 @@ const Positions = ({
 
     const tradeAmounts = stagedTradeAmounts.map(amount => amount.toString());
     const collateralLimit = await lmsrMarketMaker.calcNetCost(tradeAmounts);
-    
+
     asWrappedTransaction("sell outcome tokens", sellOutcomeTokens, setError);
     await lmsrMarketMaker.trade(tradeAmounts, collateralLimit, {
       from: account

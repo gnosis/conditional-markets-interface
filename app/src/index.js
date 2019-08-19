@@ -507,7 +507,7 @@ Promise.all([
       if (loading === "LOADING")
         return (
           <div className={cx("loading-page")}>
-            <Spinner centered inverted width={100} height={100} />
+            <Spinner centered width={100} height={100} />
           </div>
         );
       if (loading === "FAILURE")
