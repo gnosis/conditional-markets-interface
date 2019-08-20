@@ -173,7 +173,7 @@ const Positions = ({
     [account, lmsrMarketMaker, collateral]
   );
 
-  async function sellOutcomeTokens() {
+  const sellOutcomeTokens = useCallback(async () => {
     if (stagedTradeAmounts == null) throw new Error(`No sell set yet`);
 
     if (stagedTransactionType !== "sell outcome tokens")
@@ -194,7 +194,14 @@ const Positions = ({
     await lmsrMarketMaker.trade(tradeAmounts, collateralLimit, {
       from: account
     });
-  }
+  }, [
+    collateral,
+    stagedTradeAmounts,
+    stagedTransactionType,
+    pmSystem,
+    asWrappedTransaction,
+    account
+  ]);
 
   const marketStage = lmsrState && lmsrState.stage;
 
@@ -228,7 +235,7 @@ const Positions = ({
     );
   }, [positions, positionBalances, marketResolutionStates]);
 
-  async function redeemPositions() {
+  const redeemPositions = useCallback(async () => {
     if (!allMarketsResolved)
       throw new Error("Can't redeem until all markets resolved");
 
@@ -285,7 +292,7 @@ const Positions = ({
       markets.length,
       `0x${"0".repeat(64)}`
     );
-  }
+  }, [collateral, account, pmSystem]);
 
   if (positionGroups === null) {
     return (

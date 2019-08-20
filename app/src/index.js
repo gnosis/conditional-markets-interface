@@ -314,7 +314,8 @@ Promise.all([
   import("./components/Spinner"),
   import("./header"),
   import("./components/Menu"),
-  import("./components/UserWallet")
+  import("./components/UserWallet"),
+  import("./components/Toasts")
 ]).then(
   ([
     { default: React, useState, useEffect, useCallback },
@@ -326,7 +327,8 @@ Promise.all([
     { default: Spinner },
     { default: Header },
     { default: Menu },
-    { default: UserWallet }
+    { default: UserWallet },
+    { default: Toasts }
   ]) => {
     Decimal.config({
       precision: 80,
@@ -338,6 +340,11 @@ Promise.all([
     function RootComponent() {
       const [loading, setLoading] = useState("LOADING");
       const [syncTime, setSyncTime] = useState(moduleLoadTime);
+      const triggerSync = useCallback(() => {
+        setSyncTime(Date.now());
+      });
+      useInterval(triggerSync, 2000);
+      const [toasts, setToasts] = useState([]);
 
       const [networkId, setNetworkId] = useState(null);
       const [web3, setWeb3] = useState(null);
@@ -352,7 +359,6 @@ Promise.all([
         import("../config.json")
           .then(async ({ default: config }) => {
             setNetworkId(config.networkId);
-
             const { web3, account } = await loadWeb3(config.networkId);
 
             setWeb3(web3);
@@ -431,30 +437,87 @@ Promise.all([
       const [ongoingTransactionType, setOngoingTransactionType] = useState(
         null
       );
-      function asWrappedTransaction(
-        wrappedTransactionType,
-        transactionFn,
-        setError
-      ) {
-        return async function wrappedAction() {
-          if (ongoingTransactionType != null) {
-            throw new Error(
-              `Attempted to ${wrappedTransactionType} while transaction to ${ongoingTransactionType} is ongoing`
-            );
-          }
+      const asWrappedTransaction = useCallback(
+        (wrappedTransactionType, transactionFn, setError) => {
+          return async function wrappedAction() {
+            if (ongoingTransactionType != null) {
+              throw new Error(
+                `Attempted to ${wrappedTransactionType} while transaction to ${ongoingTransactionType} is ongoing`
+              );
+            }
 
-          try {
-            setOngoingTransactionType(wrappedTransactionType);
-            await transactionFn();
-          } catch (e) {
-            setError(e);
-            throw e;
-          } finally {
-            setOngoingTransactionType(null);
-            //triggerSync();
+            try {
+              addToast("Transaction processing...", "info");
+              setOngoingTransactionType(wrappedTransactionType);
+              await transactionFn();
+              addToast("Transaction confirmed.", "success");
+            } catch (e) {
+              addToast(
+                <>
+                  Unfortunately, the transaction failed.
+                  <br />
+                  <strong>{e.message}</strong>
+                </>,
+                "error"
+              );
+              throw e;
+            } finally {
+              setOngoingTransactionType(null);
+              triggerSync();
+            }
+          };
+        },
+        [setOngoingTransactionType, ongoingTransactionType]
+      );
+
+      const addToast = useCallback(
+        (toastMessage, toastType = "default") => {
+          const toastId = Math.round(Math.random() * 1e9 + 1e10).toString();
+          const creationTime = new Date().getTime() / 1000;
+
+          setToasts(prevToasts => [
+            ...prevToasts,
+            {
+              id: toastId,
+              message: toastMessage,
+              type: toastType,
+              created: creationTime,
+              duration: 30 //s
+            }
+          ]);
+        },
+        [toasts]
+      );
+
+      const updateToasts = useCallback(() => {
+        const now = new Date().getTime() / 1000;
+
+        setToasts(prevToasts => {
+          let newToasts = [];
+          for (let toast of prevToasts) {
+            if (now - toast.created < toast.duration) {
+              newToasts.push(toast);
+            }
           }
-        };
-      }
+          return newToasts;
+        });
+      }, [toasts]);
+
+      const deleteToast = useCallback(
+        targetId => {
+          setToasts(prevToasts => {
+            const targetIndex = prevToasts.findIndex(
+              ({ id }) => id === targetId
+            );
+            prevToasts.splice(targetIndex, 1);
+            return prevToasts;
+          });
+          updateToasts();
+        },
+        [setToasts, toasts]
+      );
+
+      useInterval(updateToasts, 1000);
 
       if (loading === "SUCCESS")
         return (
@@ -470,7 +533,8 @@ Promise.all([
                     lmsrState,
                     marketSelections,
                     setMarketSelections,
-                    stagedTradeAmounts
+                    stagedTradeAmounts,
+                    addToast
                   }}
                 />
               </section>
@@ -495,11 +559,17 @@ Promise.all([
                       stagedTransactionType,
                       setStagedTransactionType,
                       ongoingTransactionType,
-                      asWrappedTransaction
+                      asWrappedTransaction,
+                      addToast
                     }}
                   />
                 </section>
               )}
+              <Toasts
+                deleteToast={deleteToast}
+                addToast={addToast}
+                toasts={toasts}
+              />
             </div>
           </div>
         );

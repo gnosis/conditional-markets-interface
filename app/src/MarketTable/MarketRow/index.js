@@ -71,6 +71,7 @@ const Market = ({
       <td>
         {marketSelections && (
           <ToggleConditional
+            disabled={marketSelections[index].selectedOutcomeIndex === -1}
             conditionId={conditionId}
             toggleConditional={handleToggleConditional}
             conditionalActive={marketSelections[index].isAssumed}

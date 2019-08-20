@@ -54,6 +54,11 @@
     transform: translateX(-100%);
   }
 
+  input:disabled + label {
+    opacity: 0.8;
+    cursor: not-allowed;
+  }
+
   label:active:after {
     width: ($toggleDotWidth * $toggleDotExpand);
   }
