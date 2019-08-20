@@ -1,5 +1,25 @@
 .probabilities {
+  .outcome-bar {
+    display: flex;
+  }
+
+  .change-percentage {
+    font-size: 80%;
+    align-self: center;
+    margin-left: 10px;
+    min-width: 40px;
+
+    &:not(.negative) {
+      color: #02ae60;
+    }
+
+    &.negative {
+      color: #ff685e;
+    }
+  }
+
   .probability {
+    flex: 1;
     position: relative;
     border-bottom: 2px solid white;
     margin: 0.2em 0;

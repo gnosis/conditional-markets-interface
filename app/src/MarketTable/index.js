@@ -23,15 +23,11 @@ const MarketTable = ({
   lmsrState,
   marketSelections,
   setMarketSelections,
+  resetMarketSelections,
   stagedTradeAmounts
 }) => {
   useEffect(() => {
-    setMarketSelections(
-      Array.from({ length: markets.length }, () => ({
-        selectedOutcomeIndex: -1, // no selection
-        isAssumed: false
-      }))
-    );
+    resetMarketSelections();
     return () => {
       setMarketSelections(null);
     };
@@ -219,6 +215,7 @@ MarketTable.propTypes = {
       isAssumed: PropTypes.bool.isRequired
     }).isRequired
   ),
+  resetMarketSelections: PropTypes.func.isRequired,
   setMarketSelections: PropTypes.func.isRequired,
   stagedTradeAmounts: PropTypes.arrayOf(
     PropTypes.instanceOf(Decimal).isRequired

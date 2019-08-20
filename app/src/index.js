@@ -437,6 +437,18 @@ Promise.all([
       const [ongoingTransactionType, setOngoingTransactionType] = useState(
         null
       );
+
+      const resetMarketSelections = useCallback(() => {
+        if (markets != null) {
+          setMarketSelections(
+            Array.from({ length: markets.length }, () => ({
+              selectedOutcomeIndex: -1, // no selection
+              isAssumed: false
+            }))
+          );
+        }
+      }, [markets, setMarketSelections]);
+
       const asWrappedTransaction = useCallback(
         (wrappedTransactionType, transactionFn, setError) => {
           return async function wrappedAction() {
@@ -534,6 +546,7 @@ Promise.all([
                     marketSelections,
                     setMarketSelections,
                     stagedTradeAmounts,
+                    resetMarketSelections,
                     addToast
                   }}
                 />
@@ -560,6 +573,7 @@ Promise.all([
                       setStagedTransactionType,
                       ongoingTransactionType,
                       asWrappedTransaction,
+                      resetMarketSelections,
                       addToast
                     }}
                   />

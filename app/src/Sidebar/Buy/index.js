@@ -36,6 +36,7 @@ const Buy = ({
   stagedTransactionType,
   setStagedTransactionType,
   ongoingTransactionType,
+  resetMarketSelections,
   asWrappedTransaction
 }) => {
   const [investmentAmount, setInvestmentAmount] = useState("");
@@ -60,11 +61,6 @@ const Buy = ({
       return;
     }
 
-    //if (investmentAmount === "") {
-    //setStagedTradeAmounts(null);
-    //setError(null);
-    //return;
-    //}
     try {
       const investmentAmountInUnits = collateral.toUnitsMultiplier.mul(
         hasEnteredInvestment ? investmentAmount : zeroDecimal
@@ -76,18 +72,6 @@ const Buy = ({
             collateral.decimals
           } decimals in value ${investmentAmount}`
         );
-
-      /*
-      if (investmentAmountInUnits.gt(collateralBalance.totalAmount.toString()))
-        throw new Error(
-          `Not enough collateral: missing ${formatCollateral(
-            investmentAmountInUnits.sub(
-              collateralBalance.totalAmount.toString()
-            ),
-            collateral
-          )}`
-        );
-      */
 
       setStagedTradeAmounts(
         calcOutcomeTokenCounts(
@@ -237,6 +221,14 @@ const Buy = ({
     }
   }, [collateralBalance, collateral]);
 
+  const clearAllPositions = useCallback(() => {
+    setStagedTransactionType(null);
+    setStagedTradeAmounts(null);
+    setInvestmentAmount("");
+    resetMarketSelections(null);
+    setError(null);
+  }, [setStagedTradeAmounts, setInvestmentAmount, setError]);
+
   useEffect(() => {
     const hasConditional = (marketSelections || []).some(
       ({ isAssumed }) => isAssumed
@@ -344,7 +336,11 @@ const Buy = ({
     <>
       <div className={cx("buy-heading")}>
         Order Position(s){" "}
-        <button type="button" className={cx("link-button", "clear")}>
+        <button
+          type="button"
+          className={cx("link-button", "clear")}
+          onClick={clearAllPositions}
+        >
           clear all
         </button>
       </div>
