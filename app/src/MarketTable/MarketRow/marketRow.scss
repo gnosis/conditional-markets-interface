@@ -3,12 +3,51 @@
   background-color: #ffffff;
   border: none;
 
+  &-heading {
+    display: block;
+    white-space: nowrap;
+    color: rgba(0, 0, 0, 0.6);
+    text-transform: uppercase;
+    padding: 0.2rem;
+
+    @media (min-width: 960px) {
+      display: none;
+    }
+  }
+
   &:not(:last-child) {
     border-bottom: 1px solid #dedfde;
   }
 
+  .mobile-index {
+    font-weight: 800;
+    color: rgba(0, 0, 0, 0.8);
+
+    @media (min-width: 960px) {
+      display: none;
+    }
+  }
+
   td {
+    @media (max-width: 960px) {
+      position: relative;
+
+      &:first-child {
+        display: none;
+      }
+    }
+
+    text-align: center;
     border: none;
     padding: 0.4em 0.8em;
+
+    &:last-child {
+      display: flex;
+      align-items: center;
+      flex-direction: column;
+    }
+
+
+    
   }
 }

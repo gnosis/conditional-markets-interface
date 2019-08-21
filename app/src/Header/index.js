@@ -10,9 +10,13 @@ const cx = cn.bind(style);
 
 const Header = ({ avatar, menu }) => (
   <div className={cx("header")}>
-    <div className={cx("logo")}>
+    <button
+      className={cx("logo")}
+      onClick={() => location.reload()}
+      type="button"
+    >
       <img src={Logo} alt="Gnosis Conditional Tokens" />
-    </div>
+    </button>
     <div className={cx("menu")}>{menu}</div>
     <div className={cx("avatar")}>{avatar}</div>
   </div>

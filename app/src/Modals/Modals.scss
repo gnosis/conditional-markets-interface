@@ -1,0 +1,43 @@
+.modal {
+  height: auto;
+  background-color: #ffffff;
+  padding: 1rem 4rem;
+  border-radius: 3px;
+  box-shadow: 0 1px 15px 0 rgba(0, 30, 59, 0.15);
+  max-width: 760px;
+  width: 100%;
+  position: relative;
+  margin: 1rem 0;
+
+  &-close {
+    content: '\00D7';
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    font-size: 150%;
+    color: black;
+    transition: filter .4s ease;
+    text-decoration: none;
+
+    &:focus, &:active, &:hover {
+      text-decoration: none;
+      filter: drop-shadow(2px 4px 6px rgba(0, 0, 0, 0.4));;
+    }
+
+    &:visited {
+      text-decoration: none;
+      color: inherit;
+    }
+  }
+
+  &-body {
+    padding: 1rem;
+  }
+
+  &-header {
+    padding: 2rem 1rem;
+    text-align: center;
+    font-size: 150%;
+    font-weight: bold;
+  }
+}

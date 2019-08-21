@@ -24,7 +24,8 @@ const MarketTable = ({
   marketSelections,
   setMarketSelections,
   resetMarketSelections,
-  stagedTradeAmounts
+  stagedTradeAmounts,
+  openModal
 }) => {
   useEffect(() => {
     resetMarketSelections();
@@ -109,25 +110,31 @@ const MarketTable = ({
     }
   });
 
+  const headings = [
+    "#",
+    "Market",
+    <>Outcome Probability {isStaging && <em>(Predicted)</em>}</>,
+    "Ends In",
+    "Outcome",
+    <>
+      <span>Conditional</span> <HelpButton openModal={openModal} />
+    </>
+  ];
+
   return (
     <table className={cx("market-table")}>
       <thead>
         <tr>
-          <th>#</th>
-          <th>Market</th>
-          <th>Outcome Probability {isStaging && <em>(Predicted)</em>}</th>
-          <th>Ends In</th>
-          <th>Outcome</th>
-          <th>
-            <span>Conditional</span>
-            <HelpButton />
-          </th>
+          {headings.map((node, i) => (
+            <th key={`heading_${i}`}>{node}</th>
+          ))}
         </tr>
       </thead>
       <tbody>
         {conditionalMarkets.map(market => (
           <MarketRow
             key={market.conditionId}
+            headings={headings}
             stagedProbabilities={
               marketProbabilities != null
                 ? marketProbabilities[market.index]
@@ -166,6 +173,7 @@ const MarketTable = ({
         {nonConditionalMarkets.map(market => (
           <MarketRow
             key={market.conditionId}
+            headings={headings}
             stagedProbabilities={
               marketProbabilities != null
                 ? marketProbabilities[market.index]

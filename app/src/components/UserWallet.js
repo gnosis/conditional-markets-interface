@@ -11,7 +11,7 @@ const cx = cn.bind(style);
 const formatAddress = address =>
   `${address.substr(0, 6)}...${address.substr(-4)}`;
 
-const UserWallet = ({ address }) => (
+const UserWallet = ({ address, openModal }) => (
   <div className={cx("user-wallet")}>
     {address ? (
       <>
@@ -26,7 +26,11 @@ const UserWallet = ({ address }) => (
         </div>
       </>
     ) : (
-      <div>Not connected</div>
+      <div>
+        <button type="button" className={cx("connect-wallet")} onClick={(e) => openModal("Connect")}>
+          Connect
+        </button>
+      </div>
     )}
   </div>
 );

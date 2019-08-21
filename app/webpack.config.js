@@ -58,11 +58,11 @@ module.exports = {
         use: {
           loader: "file-loader",
           options: {
-            name: '[name].[ext]',
-            outputPath: 'fonts/'
+            name: "[name].[ext]",
+            outputPath: "fonts/"
           }
         },
-        include: [`${__dirname}/assets/fonts`],
+        include: [`${__dirname}/assets/fonts`]
       },
       {
         test: /\.(png|svg|jpg|gif)$/,

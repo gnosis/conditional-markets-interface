@@ -14,13 +14,20 @@
 
 .sections {
   display: flex;
+
+  @media (max-width: 1365px) {
+    flex-direction: column;
+  }
   flex: 1;
 
 
   .section {
     &-markets {
       flex: 1;
-      padding: 1em 2em;
+
+      @media (min-width: 960px) {
+        padding: 1em 2em;
+      }
       border-right: 1px solid #dedfde;
     }
 
@@ -28,5 +35,54 @@
       background: #ffffff;
       flex-basis: 20%;
     }
+  }
+}
+
+
+.modal-space {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+
+  background: #009cb4;
+
+  &:not(.modal-open) {
+    display: none;
+  }
+
+  .logo {
+    max-height: 45px;
+    width: auto;
+    margin: 1rem;
+  }
+
+  .footer {
+    list-style: none;
+    padding: 0;
+
+    li {
+      display: inline-block;
+      margin: 0 1rem;
+      color: white;
+      font-size: 80%;
+
+      a {
+        color: inherit;
+        transition: all .4s ease;
+        text-decoration: none;
+
+        &:focus, &:active, &:visited, &:hover {
+          color: inherit;
+          opacity: 0.8;
+        }
+      }
+    }
+  }
+}
+
+.app-space {
+  &.modal-open {
+    display: none;
   }
 }

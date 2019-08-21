@@ -18,11 +18,21 @@
   }
 
   .logo {
-    flex-basis: 10%;
+    appearance: none;
+    -webkit-appearance: none;
+    border: none;
+    background: none;
+    
+    img {
+      height: 100%;
+      width: auto;
+    }
+
+    //flex-basis: 10%;
     padding: 0.7rem 1rem;
   }
 
-  .menu {
+  .menu {  
     flex: 1;
   }
 }

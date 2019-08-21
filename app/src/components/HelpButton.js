@@ -5,6 +5,14 @@ import style from "./helpButton.scss";
 
 const cx = cn.bind(style);
 
-const HelpButton = () => <button className={cx("help-button")}>?</button>;
+const HelpButton = ({ openModal }) => (
+  <button
+    className={cx("help-button")}
+    type="button"
+    onClick={() => openModal("ConditionalExplanation")}
+  >
+    ?
+  </button>
+);
 
 export default HelpButton;

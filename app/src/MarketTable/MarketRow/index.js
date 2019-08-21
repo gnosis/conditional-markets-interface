@@ -18,6 +18,7 @@ const { BN } = Web3.utils;
 const Market = ({
   conditionId,
   title,
+  headings,
   resolutionDate,
   index,
   probabilities,
@@ -44,40 +45,46 @@ const Market = ({
     [marketSelections]
   );
 
+  const entries = [
+    `${index + 1}`,
+    <>
+      <span className={cx("mobile-index")}>#{index + 1}</span> {title}
+    </>,
+    <Probabilities
+      key="probabilities"
+      outcomes={outcomes}
+      probabilities={probabilities}
+      stagedProbabilities={stagedProbabilities}
+    />,
+    <ResolutionDate key="res_date" date={resolutionDate} />,
+    marketSelections && (
+      <OutcomeSelection
+        key="selection"
+        outcomes={outcomes}
+        conditionId={conditionId}
+        marketSelection={marketSelections[index]}
+        setOutcomeSelection={handleMarketSelection}
+      />
+    ),
+    marketSelections && (
+      <ToggleConditional
+        key="conditional_topggle"
+        disabled={marketSelections[index].selectedOutcomeIndex === -1}
+        conditionId={conditionId}
+        toggleConditional={handleToggleConditional}
+        conditionalActive={marketSelections[index].isAssumed}
+      />
+    )
+  ];
+
   return (
     <tr className={cx("market-row")} key={conditionId}>
-      <td>{index + 1}</td>
-      <td>{title}</td>
-      <td>
-        <Probabilities
-          outcomes={outcomes}
-          probabilities={probabilities}
-          stagedProbabilities={stagedProbabilities}
-        />
-      </td>
-      <td>
-        <ResolutionDate date={resolutionDate} />
-      </td>
-      <td>
-        {marketSelections && (
-          <OutcomeSelection
-            outcomes={outcomes}
-            conditionId={conditionId}
-            marketSelection={marketSelections[index]}
-            setOutcomeSelection={handleMarketSelection}
-          />
-        )}
-      </td>
-      <td>
-        {marketSelections && (
-          <ToggleConditional
-            disabled={marketSelections[index].selectedOutcomeIndex === -1}
-            conditionId={conditionId}
-            toggleConditional={handleToggleConditional}
-            conditionalActive={marketSelections[index].isAssumed}
-          />
-        )}
-      </td>
+      {entries.map((entry, index) => (
+        <td key={`tr_row_${index}_${conditionId}`}>
+          <div className={cx("market-row-heading")}>{headings[index]}</div>
+          <div className={cx("market-row-content")}>{entry}</div>
+        </td>
+      ))}
     </tr>
   );
 };

@@ -3,6 +3,7 @@
   padding: 1rem 0.8rem;
   justify-content: center;
   align-items: center;
+  height: 100%;
 
   > * {
     margin: 0 4px;
@@ -20,5 +21,23 @@
       max-width: 100%;
       image-rendering: pixelated;
     }
+  }
+}
+
+.connect-wallet {
+  appearance: none;
+  -webkit-appearance: none;
+  background: none;
+  text-transform: uppercase;
+  font-weight: bolder;
+  padding: 1rem 0.8rem;
+  border-radius: 3px;
+  border: 1px solid #dedfed;
+
+  background-color: #02ae60;
+  color: #ffffff;
+
+  &:hover, &:focus, &:active {
+    background-color: darken(#02ae60, 20%);
   }
 }

@@ -6,98 +6,11 @@ import "normalize.css/normalize.css";
 // Base Style (loads fonts)
 import "./scss/style.scss";
 
+import Logo from "assets/img/conditional-logo@3x.png";
+import { loadWeb3, getNetworkName } from "utils/web3";
+
 import style from "./index.scss";
 const cx = cn.bind(style);
-
-function getNetworkName(networkId) {
-  // https://ethereum.stackexchange.com/a/17101
-  return (
-    {
-      [0]: "Olympic",
-      [1]: "Mainnet",
-      [2]: "Morden Classic",
-      [3]: "Ropsten",
-      [4]: "Rinkeby",
-      [5]: "Goerli",
-      [6]: "Kotti Classic",
-      [8]: "Ubiq",
-      [42]: "Kovan",
-      [60]: "GoChain",
-      [77]: "Sokol",
-      [99]: "Core",
-      [100]: "xDai",
-      [31337]: "GoChain testnet",
-      [401697]: "Tobalaba",
-      [7762959]: "Musicoin",
-      [61717561]: "Aquachain"
-    }[networkId] || `Network ID ${networkId}`
-  );
-}
-
-function getReadOnlyProviderForNetworkId(networkId) {
-  const providerName = {
-    [1]: "mainnet",
-    [3]: "ropsten",
-    [4]: "rinkeby",
-    [5]: "goerli",
-    [42]: "kovan"
-  }[networkId];
-
-  return providerName == null
-    ? null
-    : `wss://${providerName}.infura.io/ws/v3/d743990732244555a1a0e82d5ab90c7f`;
-}
-
-async function loadWeb3(networkId) {
-  const { default: Web3 } = await import("web3");
-
-  const web3InitErrors = [];
-  let web3, account;
-  let foundWeb3 = false;
-  for (const [providerType, providerCandidate] of [
-    ["injected provider", Web3.givenProvider],
-    ["local websocket", "ws://localhost:8546"],
-    ["local http", "http://localhost:8545"],
-    [
-      `read-only for id ${networkId}`,
-      getReadOnlyProviderForNetworkId(networkId)
-    ]
-  ]) {
-    try {
-      if (providerCandidate == null) throw new Error("no provider found");
-      if (providerCandidate.enable != null) await providerCandidate.enable();
-
-      web3 = new Web3(providerCandidate);
-      const web3NetworkId = await web3.eth.net.getId();
-      if (web3NetworkId != networkId)
-        throw new Error(
-          `interface expects ${networkId} but currently connected to ${web3NetworkId}`
-        );
-
-      // attempt to get the main account here
-      // so that web3 will emit an error if e.g.
-      // the localhost provider cannot be reached
-      if (web3.defaultAccount == null) {
-        const accounts = await web3.eth.getAccounts();
-        account = accounts[0] || null;
-      } else account = web3.defaultAccount;
-
-      foundWeb3 = true;
-      break;
-    } catch (e) {
-      web3InitErrors.push([providerType, e]);
-    }
-  }
-
-  if (!foundWeb3)
-    throw new Error(
-      `could not get valid Web3 instance; got following errors:\n${web3InitErrors
-        .map(([providerCandidate, e]) => `${providerCandidate} -> ${e}`)
-        .join("\n")}`
-    );
-
-  return { web3, account };
-}
 
 async function loadBasicData({ lmsrAddress, markets }, web3, Decimal) {
   const { soliditySha3 } = web3.utils;
@@ -355,7 +268,7 @@ Promise.all([
       const [markets, setMarkets] = useState(null);
       const [positions, setPositions] = useState(null);
 
-      useEffect(() => {
+      const init = useCallback(() => {
         import("../config.json")
           .then(async ({ default: config }) => {
             setNetworkId(config.networkId);
@@ -377,14 +290,17 @@ Promise.all([
             setCollateral(collateral);
             setMarkets(markets);
             setPositions(positions);
-
-            setLoading("SUCCESS");
           })
           .catch(err => {
             setLoading("FAILURE");
             throw err;
+          })
+          .finally(() => {
+            setLoading("SUCCESS");
           });
       }, []);
+
+      useEffect(init, []);
 
       const [lmsrState, setLMSRState] = useState(null);
       const [marketResolutionStates, setMarketResolutionStates] = useState(
@@ -393,6 +309,8 @@ Promise.all([
       const [collateralBalance, setCollateralBalance] = useState(null);
       const [positionBalances, setPositionBalances] = useState(null);
       const [lmsrAllowance, setLMSRAllowance] = useState(null);
+
+      const [modal, setModal] = useState(null);
 
       for (const [loader, dependentParams, setter] of [
         [
@@ -529,61 +447,107 @@ Promise.all([
         [setToasts, toasts]
       );
 
+      const closeModal = useCallback(() => {
+        setModal(null);
+      }, []);
+
+      const openModal = useCallback(async (modalName, options) => {
+        //setLoading("LOADING");
+
+        try {
+          const { default: ComponentClass } = await import(
+            `./Modals/${modalName}`
+          );
+          setModal(<ComponentClass closeModal={closeModal} reinit={init} {...options} />);
+          //setLoading("SUCCESS");
+        } catch (err) {
+          console.error(err.message);
+          setLoading("ERROR");
+        }
+      }, []);
+
       useInterval(updateToasts, 1000);
 
       if (loading === "SUCCESS")
         return (
           <div className={cx("page")}>
-            <Header avatar={<UserWallet address={account} />} menu={<Menu />} />
-            <div className={cx("sections")}>
-              <section className={cx("section", "section-markets")}>
-                <MarketTable
-                  {...{
-                    markets,
-                    marketResolutionStates,
-                    positions,
-                    lmsrState,
-                    marketSelections,
-                    setMarketSelections,
-                    stagedTradeAmounts,
-                    resetMarketSelections,
-                    addToast
-                  }}
-                />
-              </section>
-              {account != null && (
-                <section className={cx("section", "section-positions")}>
-                  <Sidebar
+            <div className={cx("modal-space", { "modal-open": !!modal })}>
+              <img className={cx("logo")} src={Logo} />
+              {modal}
+              {/*<ul className={cx("footer")}>
+                <li>
+                  <a href="/static/help.html" target="_BLANK">
+                    Help
+                  </a>
+                </li>
+                <li>
+                  <a href="/static/privacy.html" target="_BLANK">
+                    Privacy
+                  </a>
+                </li>
+                <li>
+                  <a href="/static/terms.html" target="_BLANK">
+                    Terms
+                  </a>
+                </li>
+                </ul>*/}
+            </div>
+            <div className={cx("app-space", { "modal-open": !!modal })}>
+              <Header
+                avatar={<UserWallet address={account} openModal={openModal} />}
+                menu={<Menu />}
+              />
+              <div className={cx("sections")}>
+                <section className={cx("section", "section-markets")}>
+                  <MarketTable
                     {...{
-                      account,
-                      pmSystem,
                       markets,
-                      positions,
                       marketResolutionStates,
-                      marketSelections,
-                      collateral,
-                      collateralBalance,
-                      lmsrMarketMaker,
+                      positions,
                       lmsrState,
-                      lmsrAllowance,
-                      positionBalances,
+                      marketSelections,
+                      setMarketSelections,
                       stagedTradeAmounts,
-                      setStagedTradeAmounts,
-                      stagedTransactionType,
-                      setStagedTransactionType,
-                      ongoingTransactionType,
-                      asWrappedTransaction,
                       resetMarketSelections,
-                      addToast
+                      addToast,
+                      openModal
                     }}
                   />
                 </section>
-              )}
-              <Toasts
-                deleteToast={deleteToast}
-                addToast={addToast}
-                toasts={toasts}
-              />
+                {account != null && (
+                  <section className={cx("section", "section-positions")}>
+                    <Sidebar
+                      {...{
+                        account,
+                        pmSystem,
+                        markets,
+                        positions,
+                        marketResolutionStates,
+                        marketSelections,
+                        collateral,
+                        collateralBalance,
+                        lmsrMarketMaker,
+                        lmsrState,
+                        lmsrAllowance,
+                        positionBalances,
+                        stagedTradeAmounts,
+                        setStagedTradeAmounts,
+                        stagedTransactionType,
+                        setStagedTransactionType,
+                        ongoingTransactionType,
+                        asWrappedTransaction,
+                        resetMarketSelections,
+                        addToast
+                      }}
+                    />
+                  </section>
+                )}
+                <Toasts
+                  deleteToast={deleteToast}
+                  addToast={addToast}
+                  toasts={toasts}
+                />
+              </div>
             </div>
           </div>
         );

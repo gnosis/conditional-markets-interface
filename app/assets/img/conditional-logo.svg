@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="163" height="44" viewBox="0 0 163 44">
+    <g fill="#FFF" fill-rule="evenodd">
+        <text font-family="Averta-Regular, Averta" font-size="18" letter-spacing=".5">
+            <tspan x="54" y="18">Conditional</tspan>  <tspan x="61.902" y="36.936" font-family="Averta-Bold, Averta" font-weight="bold">Tokens</tspan>
+        </text>
+        <path d="M22 44C9.85 44 0 34.15 0 22S9.85 0 22 0s22 9.85 22 22-9.85 22-22 22zm0-3c9.389 0 17-7.611 17-17S31.389 7 22 7 5 14.611 5 24s7.611 17 17 17z"/>
+    </g>
+</svg>
