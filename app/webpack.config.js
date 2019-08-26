@@ -8,7 +8,7 @@ module.exports = {
   entry: "./src/index.js",
   devtool: "eval-source-map",
   output: {
-    path: __dirname + "/../docs/rinkeby",
+    path: __dirname + "/../docs",
     filename: "bundle.js"
   },
   target: "web",
