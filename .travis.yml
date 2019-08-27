@@ -12,8 +12,7 @@ install:
    - npm install -g sass@1.22.10
    - npm install -g truffle@5.0.33
 before_script:
-  - truffle compile
-  - npm run build
+  - npm run compile && npm run build
 
 script:
   - echo "Skip tests" # no test cases for the project
