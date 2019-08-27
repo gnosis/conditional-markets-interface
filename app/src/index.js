@@ -312,7 +312,7 @@ Promise.all([
   import("./MarketTable"),
   import("./Sidebar"),
   import("./components/Spinner"),
-  import("./header"),
+  import("./Header"),
   import("./components/Menu"),
   import("./components/UserWallet")
 ]).then(
