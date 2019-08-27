@@ -1,6 +1,6 @@
 if: (branch = develop) OR (branch = master) OR (type = pull_request) OR (tag IS present)
 language: node_js
-node_js: '12'
+node_js: '11'
 before_install:
   - npm install
   # Needed to deploy pull request and releases
