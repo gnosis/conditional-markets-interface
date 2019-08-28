@@ -2,15 +2,13 @@
 
 .balance {
   @include sidebar-entry;
-
-  display: flex;
-  justify-content: space-between;
+  font-size: 1.3rem;
 
   .label {
-    
+
   }
 
   .value {
-    font-weight: 800;
+    font-weight: $bold;
   }
 }

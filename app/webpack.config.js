@@ -16,6 +16,7 @@ module.exports = {
     symlinks: false,
     alias: {
       assets: `${__dirname}/assets`,
+      scss: `${__dirname}/src/scss`,
       // manually deduplicate these modules
       "bn.js": path.resolve(__dirname, "../node_modules/bn.js"),
       // stub out these modules

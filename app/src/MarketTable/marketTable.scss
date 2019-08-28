@@ -1,3 +1,5 @@
+@import "~scss/_variables.scss";
+
 .market-table {
   width: 100%;
   border-collapse: collapse;
@@ -8,26 +10,27 @@
       top: -9999px;
       left: -9999px;
     }
-    
+
     text-transform: uppercase;
     font-size: 80%;
     font-weight: 600;
-    letter-spacing: 1px;
-    color: #526877;
+    letter-spacing: .1rem;
+    color: $shadeBlue;
 
     tr {
-      height: 50px;
       text-align: left;
     }
 
 
     th {
       white-space: nowrap;
-      padding: 0.4em 0.5em;
+      font-size: 1.1rem;
+      padding: 0.4em 0.8em;
+      height: 5rem;
 
       em {
         font-style: normal;
-        color: #009cb4;
+        color: $blue;
       }
 
       &:first-child, &:last-child {
@@ -37,7 +40,8 @@
   }
 
   tbody {
-    box-shadow: 0 0 8px rgba(82, 104, 119, 0.26);
+    background: $white;
+    box-shadow: 0 .2rem 1rem 0 rgba(0, 25, 60, 0.10);
 
     tr {
       @media (max-width: 960px) {
@@ -60,6 +64,8 @@
       @media (max-width: 960px) {
         display: block;
       }
+
+      text-align: left;
 
       // Index
       &:nth-child(1) {

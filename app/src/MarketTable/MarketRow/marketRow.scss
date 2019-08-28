@@ -1,12 +1,18 @@
+
+@import "~scss/_variables.scss";
+
 .market-row {
-  height: 120px;
-  background-color: #ffffff;
+  height: auto;
+  min-height: 12rem;
+  background-color: $white;
   border: none;
+  font-size: 1.5rem;
+  line-height: 1.5;
 
   &-heading {
     display: block;
     white-space: nowrap;
-    color: rgba(0, 0, 0, 0.6);
+    color: rgba(0, 0, 0, .6);
     text-transform: uppercase;
     padding: 0.2rem;
 
@@ -16,7 +22,7 @@
   }
 
   &:not(:last-child) {
-    border-bottom: 1px solid #dedfde;
+    border-bottom: .1rem solid $greyBorder2;
   }
 
   .mobile-index {
@@ -47,7 +53,5 @@
       flex-direction: column;
     }
 
-
-    
   }
 }

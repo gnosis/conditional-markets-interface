@@ -1,16 +1,23 @@
+@import "../scss/_variables.scss";
+
 @mixin sidebar-entry {
-  padding: 1.2rem 0.8rem;
-  background-color: #ffffff;
-  border-bottom: 1px solid #dedfde;
-  font-size: 100%;
+  padding: 1.6rem;
+  background-color: $white;
+  border-bottom: .1rem solid $greyBorder;
+  font-size: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  line-height: 1;
 }
 
 @mixin sidebar-empty {
   @include sidebar-entry;
-    
+
   padding-top: 4rem;
   padding-bottom: 4rem;
   text-align: center;
-  font-size: 90%;
-  font-weight: 600;
+  font-size: 1.3rem;
+  font-weight: $bold;
+  color: $shadeBlue;
 }
