@@ -396,7 +396,7 @@ const Buy = ({
           onClick={makeStepper(-0.001)}
           type="button"
         >
-          -
+          –
         </button>
         <div className={cx("input-group")}>
           <button

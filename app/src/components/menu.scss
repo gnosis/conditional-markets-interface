@@ -1,7 +1,9 @@
+@import "~scss/_variables.scss";
+
 .menu {
   height: 100%;
 
-  
+
   @media (max-width: 960px) {
     display: none;
   }
@@ -11,21 +13,25 @@
     margin: 0 1.5rem;
     list-style: none;
     padding: 0;
-    display: inline-flex;
-    flex-direction: row;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: flex-start;
   }
 
   .menu-item {
-    font-weight: 600;
+    font-weight: $bold;
     height: auto;
-    padding: 0 .5rem;
-
-    display: inline-flex;
-    flex-direction: column;
+    font-size: 1.6rem;
+    line-break: 1;
+    padding: 0 1rem;
+    display: flex;
+    flex-flow: column wrap;
     justify-content: center;
+    height: 100%;
 
     &.active {
-      border-bottom: 4px solid #009cb4;
+      border-bottom: .4rem solid $blue;
     }
   }
 }

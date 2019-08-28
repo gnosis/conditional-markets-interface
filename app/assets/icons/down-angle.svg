@@ -1,8 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" aria-labelledby="title"
-aria-describedby="desc" role="img" xmlns:xlink="http://www.w3.org/1999/xlink">
-  <title>Angle Down</title>
-  <desc>A line styled icon from Orion Icon Library.</desc>
-  <path data-name="layer1"
-  fill="none" stroke="#009cb4" stroke-miterlimit="10" stroke-width="2" d="M20 26l11.994 14L44 26"
-  stroke-linejoin="round" stroke-linecap="round"></path>
+<svg width="17" height="10" viewBox="0 0 17 10" xmlns="http://www.w3.org/2000/svg">
+  <g fill="none" fill-rule="evenodd">
+    <g transform="translate(-148 -21)" fill="#009CB4" fill-rule="nonzero">
+      <path d="M164.766061 22.4939394l-6.905758 6.9033333-1.375485 1.3754849-8.278788-8.2787879 1.375485-1.3754849 6.903333 6.9033334 6.905758-6.9033334z" />
+    </g>
+  </g>
 </svg>

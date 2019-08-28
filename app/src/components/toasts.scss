@@ -1,3 +1,5 @@
+@import "~scss/_variables.scss";
+
 .toasts {
   position: fixed;
   right: 1rem;
@@ -50,20 +52,20 @@
     }
 
     &-type-success {
-      border-left-color: #02ae60;
+      border-left-color: $green;
 
       .icon.success {
-        background-color: #02ae60;
+        background-color: $green;
         -webkit-mask: url("~assets/icons/check-circle.svg") no-repeat center;
         mask: url("~assets/icons/check-circle.svg") no-repeat center;
       }
     }
 
     &-type-error {
-      border-left-color: #ff685e;
+      border-left-color: $red;
 
       .icon.error {
-        background-color: #ff685e;
+        background-color: $red;
         -webkit-mask: url("~assets/icons/cross-circle.svg") no-repeat center;
         mask: url("~assets/icons/cross-circle.svg") no-repeat center;
       }

@@ -83,6 +83,10 @@
 }
 
 .app-space {
+  display: flex;
+  flex-flow: column wrap;
+  height: 100%;
+
   &.modal-open {
     display: none;
   }

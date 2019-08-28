@@ -1,18 +1,18 @@
+@import "~scss/_variables.scss";
+
 .outcome-selection {
   &-dropdown {
     position: relative;
-    padding: 1em 3.5em 1em 1em;
-    appearance: none;
-    border-radius: 2px;
-    border: 1px solid #dedfed;
+    padding: 0 2.8em 0 1.4rem;
+    border-radius: .2rem;
+    border: .1rem solid $greyBorder2;
     background: none;
-    color: #526877;
+    color: $shadeBlue;
     -webkit-appearance: none;
     -moz-appearance: none;
-
-    background-image: url("~assets/icons/down-angle.svg");
-    background-position: right 0em top 50%;
-    background-size: 44px;
-    background-repeat: no-repeat;
+    appearance: none;
+    outline: 0;
+    background: url("~assets/icons/down-angle.svg") right 1rem center / 1.6rem 1rem no-repeat;
+    height: 5.2rem;
   }
 }

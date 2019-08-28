@@ -1,8 +1,16 @@
-.resolution-date {
-  min-width: 100px;
+@import "~scss/_variables.scss";
 
-  p {
+.resolution-date {
+
+  > strong {
+    font-size: 1.5rem;
+    color: $darkBlue;
+  }
+
+  > p {
     margin: 0;
-    font-size: 90%;
+    font-size: 1.4rem;
+    color: $shadeBlue;
+    line-height: 1.4;
   }
 }

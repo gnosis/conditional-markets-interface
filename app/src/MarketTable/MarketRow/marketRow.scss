@@ -1,10 +1,9 @@
-
 @import "~scss/_variables.scss";
 
 .market-row {
   height: auto;
   min-height: 12rem;
-  background-color: $white;
+  background-color: transparent;
   border: none;
   font-size: 1.5rem;
   line-height: 1.5;
@@ -45,7 +44,7 @@
 
     text-align: center;
     border: none;
-    padding: 0.4em 0.8em;
+    padding: 1.2em 0.8em;
 
     &:last-child {
       display: flex;
