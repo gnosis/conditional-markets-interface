@@ -1,0 +1,40 @@
+if: (branch = development) OR (branch = master) OR (type = pull_request) OR (tag IS present)
+language: node_js
+node_js: '11'
+before_install:
+  - npm install
+  # Needed to deploy pull request and releases
+  - pip install awscli --upgrade --user
+cache:
+  directories:
+  - "$HOME/.npm"
+install:
+   - npm install -g sass@1.22.10
+   - npm install -g truffle@5.0.33
+before_script:
+  - npm run compile && npm run build
+
+script:
+  - echo "Skip tests" # no test cases for the project
+
+deploy:
+  # DEVELOPMENT deployment
+  - provider: s3
+    bucket: $DEV_BUCKET_NAME
+    access_key_id: $AWS_ACCESS_KEY_ID
+    secret_access_key: $AWS_SECRET_ACCESS_KEY
+    skip_cleanup: true
+    local_dir: docs
+    on:
+      branch: development
+
+  # STAGING deployment
+  - provider: s3
+    bucket: $STAGING_BUCKET_NAME
+    access_key_id: $AWS_ACCESS_KEY_ID
+    secret_access_key: $AWS_SECRET_ACCESS_KEY
+    skip_cleanup: true
+    local_dir: docs
+    upload-dir: current
+    on:
+      branch: master

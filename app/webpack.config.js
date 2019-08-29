@@ -92,10 +92,5 @@ module.exports = {
       filename: "index.html",
       template: __dirname + "/src/index.html"
     })
-    /*
-    new BundleAnalyzerPlugin({
-      analyzerPort: process.env.NODE_ENV !== "production" ? 8888 : 8889
-    })
-    */
   ]
 };
