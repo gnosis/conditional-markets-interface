@@ -27,7 +27,11 @@ const UserWallet = ({ address, openModal }) => (
       </>
     ) : (
       <div>
-        <button type="button" className={cx("connect-wallet")} onClick={(e) => openModal("Connect")}>
+        <button
+          type="button"
+          className={cx("connect-wallet")}
+          onClick={e => openModal("Connect")}
+        >
           Connect
         </button>
       </div>
