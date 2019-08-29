@@ -4,7 +4,7 @@ import cn from "classnames/bind";
 
 import Blockies from "react-blockies";
 
-import style from "./UserWallet.scss";
+import style from "./userWallet.scss";
 
 const cx = cn.bind(style);
 

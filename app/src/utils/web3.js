@@ -85,6 +85,12 @@ export async function loadWeb3(networkId) {
       foundWeb3 = true;
       web3 = providerValues.web3;
       account = providerValues.account;
+      // eslint-disable-next-line
+      console.info(
+        `Web3 connection established. Using ${providerType} on network ${getNetworkName(
+          networkId
+        )}`
+      );
       break;
     } catch (e) {
       web3InitErrors.push([providerType, e]);

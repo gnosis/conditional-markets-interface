@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 import cn from "classnames/bind";
 
 import Explanation from "assets/img/conditional-explanation.png";
@@ -11,7 +12,9 @@ const ConditionalExplanation = ({ closeModal }) => {
   return (
     <div className={cx("modal")}>
       <div className={cx("modal-header")}>
-        <a href="#" className={cx("modal-close")} onClick={closeModal}>&times;</a>{" "}
+        <a href="#" className={cx("modal-close")} onClick={closeModal}>
+          &times;
+        </a>{" "}
         What is a conditional market?
       </div>
       <div className={cx("modal-body")}>
@@ -26,15 +29,19 @@ const ConditionalExplanation = ({ closeModal }) => {
         </p>
         <p>
           When the outcome(s) of conditional markets in the end are not met,
-          you'll receive a refund.
+          you&apos;ll receive a refund.
         </p>
         <p>
-          Enable the 'conditional' toggle on the market that you want your other
-          trades to depend on.
+          Enable the &apos;conditional&apos; toggle on the market that you want
+          your other trades to depend on.
         </p>
       </div>
     </div>
   );
+};
+
+ConditionalExplanation.propTypes = {
+  closeModal: PropTypes.func.isRequired
 };
 
 export default ConditionalExplanation;

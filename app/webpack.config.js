@@ -1,6 +1,6 @@
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
-const { BundleAnalyzerPlugin } = require("webpack-bundle-analyzer");
+// const { BundleAnalyzerPlugin } = require("webpack-bundle-analyzer");
 
 const moduleStubPath = path.resolve(__dirname, "module-stub.js");
 
@@ -15,6 +15,7 @@ module.exports = {
   resolve: {
     symlinks: false,
     alias: {
+      "react-dom": "@hot-loader/react-dom",
       assets: `${__dirname}/assets`,
       scss: `${__dirname}/src/scss`,
       // manually deduplicate these modules
@@ -92,10 +93,5 @@ module.exports = {
       filename: "index.html",
       template: __dirname + "/src/index.html"
     })
-    /*
-    new BundleAnalyzerPlugin({
-      analyzerPort: process.env.NODE_ENV !== "production" ? 8888 : 8889
-    })
-    */
   ]
 };
