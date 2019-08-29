@@ -1,14 +1,13 @@
+@import "~scss/_variables.scss";
 .conditional {
   display: flex;
   justify-content: center;
   position: relative;
 
-  $toggleWidth: 50px;
-  $toggleHeight: 32px;
-  $toggleBorderThickness: 1px;
-  $toggleDotWidth: ($toggleHeight - $toggleBorderThickness*2);
-  $toggleDotExpand: 1.2;
-    
+  $toggleWidth: 5rem;
+  $toggleHeight: 3.2rem;
+  $toggleDotSize: 2.8rem;
+
   input[type=checkbox]{
     height: 100%;
     width: $toggleWidth;
@@ -20,38 +19,42 @@
     -moz-appearance: none;
     -webkit-appearance: none;
   }
-  
+
   label {
     cursor: pointer;
     text-indent: -9999px;
     width: $toggleWidth;
     height: $toggleHeight;
-    background: grey;
+    background: $white;
+    border: .3rem solid $greyBorder2;
     display: block;
-    border-radius: $toggleDotWidth;
+    border-radius: $toggleDotSize;
     position: relative;
   }
 
   label:after {
     content: '';
     position: absolute;
-    top: $toggleBorderThickness;
-    left: $toggleBorderThickness;
-    width: $toggleDotWidth;
-    height: ($toggleHeight - $toggleBorderThickness*2);
-    background: #fff;
-    border-radius: $toggleDotWidth;
-    transition: 0.3s;
-    box-shadow: -1px 7px 2px rgba(0, 0, 0, 0.2);
+    top: -.1rem;
+    left: -.2rem;
+    width: $toggleDotSize;
+    height: $toggleDotSize;
+    border-radius: 3rem;
+    transition: all 0.3s ease-in-out;
+    background: $white;
+    border: .1rem solid rgba(0, 0, 0, 0.10);
+    box-shadow: 0 .6rem .3rem 0 rgba(0, 0, 0, 0.17);
   }
 
   input:checked + label {
-    background: #009cb4;
+    background: $blue;
+    border: .3rem solid $blue;
   }
 
   input:checked + label:after {
-    left: calc(100% - #{$toggleBorderThickness});
+    left: calc(100% + .1rem);
     transform: translateX(-100%);
+    border: .1rem solid $white;
   }
 
   input:disabled + label {
@@ -60,6 +63,6 @@
   }
 
   label:active:after {
-    width: ($toggleDotWidth * $toggleDotExpand);
+    // width: ($toggleDotWidth * $toggleDotExpand);
   }
 }

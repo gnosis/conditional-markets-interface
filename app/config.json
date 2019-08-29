@@ -1,12 +1,10 @@
 {
-  "lmsrAddress": "0x067805E69e62E8bE56e8D13f4EBf53372D3dD02e",
-  "markets": [
-    {
+  "lmsrAddress": "0xca24282be001a428d27fdac4676561c2eb1de393",
+  "markets": [{
       "questionId": "0xda66c02001000000000000000000000000000000000000000000000000000000",
       "title": "Will Multi-Collateral Dai go live on Mainnet by November 1st 2019?",
       "resolutionDate": "2019-09-01T16:00:00.000Z",
-      "outcomes": [
-        {
+      "outcomes": [{
           "title": "Yes",
           "short": "Yes",
           "when": "MCD live Nov 1"
@@ -22,8 +20,7 @@
       "questionId": "0xda66c02002000000000000000000000000000000000000000000000000000000",
       "title": "Will Multi-Collateral Dai overtake Single-Collateral Dai by March 31st 2020?",
       "resolutionDate": "2020-03-31T16:00:00.000Z",
-      "outcomes": [
-        {
+      "outcomes": [{
           "title": "Yes",
           "short": "Yes",
           "when": "MCD is Dai"
@@ -39,8 +36,7 @@
       "questionId": "0xda66c02003000000000000000000000000000000000000000000000000000000",
       "title": "Will the stability fee for Single-Collateral Dai go up from 20.5% before November 1st 2019?",
       "resolutionDate": "2019-09-01T16:00:00.000Z",
-      "outcomes": [
-        {
+      "outcomes": [{
           "title": "Yes",
           "short": "Yes",
           "when": "Dai stability fee > 20.5%"

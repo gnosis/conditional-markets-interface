@@ -34,22 +34,16 @@
   }
 
   td {
+    text-align: center;
+    border: none;
+    padding: 1.2rem 0.8rem;
+
     @media (max-width: 960px) {
       position: relative;
 
       &:first-child {
         display: none;
       }
-    }
-
-    text-align: center;
-    border: none;
-    padding: 1.2em 0.8em;
-
-    &:last-child {
-      display: flex;
-      align-items: center;
-      flex-direction: column;
     }
 
   }
