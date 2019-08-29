@@ -2,22 +2,19 @@
 
 .toasts {
   position: fixed;
-  right: 1rem;
-  bottom: 1rem;
+  right: 5rem;
+  bottom: 5rem;
 
   .toast {
-    background-color: #ffffff;
-    border-radius: 3px;
-    box-shadow: 0 0 10px 0 rgba(33, 48, 77, 0.1);
+    background-color: $white;
+    border-radius: .3rem;
+    box-shadow: 0 0 1rem 0 rgba(33, 48, 77, 0.1);
     margin-top: 0.5rem;
     padding: 1rem 0.5rem 1rem 0.5rem;
-
-    border-left: 6px solid #dedfde;
-    font-size: 90%;
-
+    border-left: .6rem solid $greyBorder2;
+    font-size: 1.4rem;
     min-width: 19rem;
     max-width: 29rem;
-
     display: flex;
     align-items: center;
 
@@ -26,15 +23,16 @@
     }
 
     .icon {
-      width: 18px;
-      height: 18px;
-      margin: 8px;
+      width: 1.8rem;
+      height: 1.8rem;
+      margin: .8rem;
       display: inline-block;
       position: relative;
       font-style: normal;
 
       &.close {
         justify-self: flex-end;
+
         &::after {
           position: absolute;
           line-height: 0;
@@ -42,13 +40,13 @@
           left: 50%;
           font-size: 150%;
           content: '\00D7';
-          transform: translate(-6px, -1px);
+          transform: translate(-.6rem, -.1rem);
         }
       }
     }
 
     &-type-info {
-      border-left-color: #009cb4;
+      border-left-color: $blue;
     }
 
     &-type-success {

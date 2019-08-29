@@ -76,6 +76,7 @@
       // Probability
       &:nth-child(3) {
         min-width: 30rem;
+        padding: 1.2rem 2.4rem;
       }
     }
 
@@ -86,29 +87,47 @@
     }
 
     .explanation {
-      padding: 0.8rem 0;
       background-color: $white;
       text-transform: uppercase;
+      height: 4.6rem;
+      padding: 0;
+      background: none;
+      vertical-align: middle;
+      margin: 0;
+      line-height: 4.6rem;
+      width: 100%;
+      position: relative;
 
       span {
-        display: block;
-        width: 20rem;
+        width: 5.2rem;
+        display: inline-block;
+        margin: 0 0 0 -2.1rem;
+        padding: 0;
+        font-weight: normal;
+        font-size: 2rem;
+        color: $darkBlue;
+        letter-spacing: 0;
         text-align: right;
-        margin: auto;
-        padding-right: 10rem;
+        height: 100%;
+        position: relative;
       }
     }
 
     .arrow {
-      background-position: right 45% top 50%;
-      background-size: 4.4rem;
-      background-repeat: no-repeat;
-
-      &.explanation-top {
-        background-image: url("~assets/icons/arrow-up.svg");
+      &.explanation-top::after,
+      &.explanation-down::after {
+        content: "";
+        background: url("~assets/icons/arrow.svg") center/contain no-repeat;
+        width: 1.1rem;
+        height: 2rem;
+        display: inline-block;
+        margin: 0 0 0 1rem;
+        opacity: .5;
+        position: absolute;
+        top: 1.3rem;
       }
-      &.explanation-down {
-        background-image: url("~assets/icons/arrow-down.svg");
+      &.explanation-down::after {
+        transform: scaleY(-1);
       }
     }
   }

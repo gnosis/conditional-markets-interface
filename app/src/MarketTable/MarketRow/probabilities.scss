@@ -9,6 +9,10 @@
     align-self: center;
     margin-left: 1rem;
     min-width: 4rem;
+    font-weight: $bold;
+    font-size: 1.3rem;
+    letter-spacing: 0;
+    line-height: 1;
 
     &:not(.negative) {
       color: $green;

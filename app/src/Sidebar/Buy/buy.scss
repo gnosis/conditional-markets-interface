@@ -34,7 +34,7 @@
   &-summary {
     &-heading {
       @include sidebar-entry;
-      padding: 1rem 1.6rem;
+      padding: 1rem 1.2rem;
       font-size: 1.3rem;
       color: $shadeBlue;
       border-bottom: none;
@@ -42,18 +42,29 @@
 
     &-category {
       @include sidebar-entry;
-
-      padding-top: 0.5rem;
-      padding-bottom: 0.5rem;
-      background-color: #f7f8fb;
+      font-size: 1.5rem;
+      line-height: 1;
+      background-color: $grey;
       display: flex;
-      justify-content: space-between;
+      justify-content: flex-start;
+      align-items: center;
+      min-height: 4.6rem;
+      padding: 1rem 1.6rem 0;
+      flex-flow: row wrap;
     }
 
     .category-values {
+      margin: -1rem 0 0 auto;
+      flex: 0 1 auto;
+      font-size: 1.3rem;
+      letter-spacing: 0;
+      text-align: right;
+      line-height: 1;
+
       &-positive {
         color: $green;
       }
+
       &-negative {
         color: $red;
       }
@@ -75,8 +86,9 @@
 
     .category-entries {
       display: flex;
-      align-self: flex-start;
-      flex-wrap: wrap;
+      align-self: center;
+      flex-flow: row wrap;
+      flex: 1;
     }
   }
 

@@ -18,11 +18,12 @@
     @include sidebar-entry;
     border-bottom: none;
     font-weight: $normal;
-    font-size: 90%;
-    color: rgb(90, 90, 90);
     display: flex;
-    padding-top: 0.5em;
-    padding-bottom: 0.5em;
+    font-size: 1.3rem;
+    color: $shadeBlue;
+    letter-spacing: 0;
+    height: 3.2rem;
+    padding: 1.6rem;
   }
 
   &-redeem {
@@ -59,7 +60,7 @@
 
   .value {
     text-align: right;
-    padding: 0.3em;
+    padding: 0.3rem;
     margin: 0;
   }
 }
@@ -68,11 +69,16 @@
   .button {
     appearance: none;
     -webkit-appearance: none;
-    border-radius: 3px;
+    border-radius: .3rem;
     background-color: $red;
-    padding: 0.3rem 0.8em;
     color: $white;
     text-transform: uppercase;
+    border: 0;
+    font-weight: $bold;
+    font-size: 1.3rem;
+    letter-spacing: 0;
+    text-align: center;
+    padding: .5rem 1.2rem;
   }
 }
 
