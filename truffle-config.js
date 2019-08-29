@@ -51,14 +51,18 @@ const config = {
         network_id: "1",
         skipDryRun: true,
         gasPrice: 3e9
+      },
+      rinkeby: {
+        provider: () =>
+          new HDWalletProvider(seed, "https://node.rinkeby.gnosisdev.com:443"),
+        network_id: "4",
+        skipDryRun: true,
+        gasPrice: 3e9
       }
     },
-    ...[
-      ["ropsten", "3"],
-      ["rinkeby", "4"],
-      ["kovan", "42"],
-      ["goerli", "5", 1e9]
-    ].map(networkInfo => createInfuraEntry(...networkInfo))
+    ...[["ropsten", "3"], ["kovan", "42"], ["goerli", "5", 1e9]].map(
+      networkInfo => createInfuraEntry(...networkInfo)
+    )
   ),
   compilers: {
     solc: {

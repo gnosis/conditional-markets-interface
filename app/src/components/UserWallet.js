@@ -11,22 +11,32 @@ const cx = cn.bind(style);
 const formatAddress = address =>
   `${address.substr(0, 6)}...${address.substr(-4)}`;
 
-const UserWallet = ({ address }) => (
+const UserWallet = ({ address, openModal }) => (
   <div className={cx("user-wallet")}>
-    <span title={address}>{formatAddress(address)}</span>
-    <div className={cx("avatar")}>
-      <Blockies
-        seed={address.toLowerCase()}
-        size={8}
-        scale={16}
-        className={cx("avatar-image")}
-      />
-    </div>
+    {address ? (
+      <>
+        <span title={address}>{formatAddress(address)}</span>
+        <div className={cx("avatar")}>
+          <Blockies
+            seed={address.toLowerCase()}
+            size={8}
+            scale={16}
+            className={cx("avatar-image")}
+          />
+        </div>
+      </>
+    ) : (
+      <div>
+        <button type="button" className={cx("connect-wallet")} onClick={(e) => openModal("Connect")}>
+          Connect
+        </button>
+      </div>
+    )}
   </div>
 );
 
 UserWallet.propTypes = {
-  address: PropTypes.string.isRequired
+  address: PropTypes.string
 };
 
 export default UserWallet;

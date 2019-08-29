@@ -23,23 +23,23 @@
   }
 
   &-redeem {
+    @include sidebar-entry;
+    border-bottom: none;
 
     .redeem-all {
       -webkit-appearance: none;
-      padding: 0;
       appearance: none;
       border: none;
-      background: none;
-      width: 24px;
-      height: 24px;
+      background-color: #02ae60;
+      border-radius: 2px;
+      text-transform: uppercase;
       display: block;
-
-      font-size: 200%;
-      line-height: 0;
-      color: #009cb4;
-
-      &:hover, &:focus, &:active {
-        color: darken(#009cb4, 20%);
+      width: 100%;
+      padding: 1rem 0;
+      color: #ffffff;
+    
+      &.disabled, &:disabled {
+        opacity: 0.4;
       }
     }
   }

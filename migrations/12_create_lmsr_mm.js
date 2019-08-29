@@ -28,14 +28,27 @@ module.exports = function(deployer) {
 
     await collateralToken.approve(lmsrMarketMakerFactory.address, ammFunding);
 
-    const lmsrAddress = (await lmsrMarketMakerFactory.createLMSRMarketMaker(
+    const lmsrFactoryTx = await lmsrMarketMakerFactory.createLMSRMarketMaker(
       artifacts.require("PredictionMarketSystem").address,
       collateralToken.address,
       conditionIds,
       0,
       ammFunding
-    )).logs.find(({ event }) => event === "LMSRMarketMakerCreation").args
-      .lmsrMarketMaker;
+    );
+
+    const creationLogEntry = lmsrFactoryTx.logs.find(
+      ({ event }) => event === "LMSRMarketMakerCreation"
+    );
+
+    if (!creationLogEntry) {
+      // eslint-disable-next-line
+      console.error(JSON.stringify(lmsrFactoryTx, null, 2));
+      throw new Error(
+        "No LMSRMarketMakerCreation Event fired. Please check the TX above.\nPossible causes for failure:\n- ABIs outdated. Delete the build/ folder\n- Transaction failure\n- Unfunded LMSR"
+      );
+    }
+
+    const lmsrAddress = creationLogEntry.args.lmsrMarketMaker;
 
     writeToConfig({
       networkId: await web3.eth.net.getId(),

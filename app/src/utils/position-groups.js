@@ -11,7 +11,6 @@ export function calcOutcomeTokenCounts(
   amount,
   marketSelections
 ) {
-  console.log(marketSelections);
   if (
     marketSelections.every(
       ({ isAssumed, selectedOutcomeIndex }) =>

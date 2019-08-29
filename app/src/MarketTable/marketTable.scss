@@ -3,6 +3,12 @@
   border-collapse: collapse;
 
   thead {
+    @media (max-width: 960px) {
+      position: absolute;
+      top: -9999px;
+      left: -9999px;
+    }
+    
     text-transform: uppercase;
     font-size: 80%;
     font-weight: 600;
@@ -33,15 +39,38 @@
   tbody {
     box-shadow: 0 0 8px rgba(82, 104, 119, 0.26);
 
-    // Index
-    td:nth-child(1) {
-      text-align: center;
-      font-weight: 800;
+    tr {
+      @media (max-width: 960px) {
+        display: flex;
+        flex-wrap: wrap;
+        height: auto;
+        justify-content: center;
+
+        &:not(.explanation-row) {
+          margin-bottom: 15px;
+        }
+
+        .explanation {
+          width: 100%;
+        }
+      }
     }
 
-    // Probability
-    td:nth-child(3) {
-      min-width: 300px;
+    td {
+      @media (max-width: 960px) {
+        display: block;
+      }
+
+      // Index
+      &:nth-child(1) {
+        text-align: center;
+        font-weight: 800;
+      }
+
+      // Probability
+      &:nth-child(3) {
+        min-width: 300px;
+      }
     }
 
     .explanation-row {

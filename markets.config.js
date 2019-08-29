@@ -1,55 +1,57 @@
-const resolutionDate = new Date();
-resolutionDate.setDate(resolutionDate.getDate() + 30);
-
 module.exports = [
   {
-    questionId: `0x${"0".repeat(63)}a`,
-    title: `A or B?`,
-    resolutionDate: resolutionDate.toISOString(),
+    questionId:
+      "0xda66c02001000000000000000000000000000000000000000000000000000000",
+    title: "Will Multi-Collateral Dai go live on Mainnet by November 1st 2019?",
+    resolutionDate: "2019-09-01T16:00:00.000Z",
     outcomes: [
       {
-        title: "A",
-        short: "A",
-        when: "A"
+        title: "Yes",
+        short: "Yes",
+        when: "MCD live Nov 1"
       },
       {
-        title: "B",
-        short: "B",
-        when: "B"
+        title: "No",
+        short: "No",
+        when: "MCD not live Nov 1"
       }
     ]
   },
   {
-    questionId: `0x${"0".repeat(63)}b`,
-    title: `X or Y?`,
-    resolutionDate: resolutionDate.toISOString(),
+    questionId:
+      "0xda66c02002000000000000000000000000000000000000000000000000000000",
+    title:
+      "Will Multi-Collateral Dai overtake Single-Collateral Dai by March 31st 2020?",
+    resolutionDate: "2020-03-31T16:00:00.000Z",
     outcomes: [
       {
-        title: "X",
-        short: "X",
-        when: "X"
+        title: "Yes",
+        short: "Yes",
+        when: "MCD is Dai"
       },
       {
-        title: "Y",
-        short: "Y",
-        when: "Y"
+        title: "No",
+        short: "No",
+        when: "SCD is Dai"
       }
     ]
   },
   {
-    questionId: `0x${"0".repeat(63)}c`,
-    title: `What will be the result of this longer question? It can be Foo or Bar, but it must be one of those.`,
-    resolutionDate: resolutionDate.toISOString(),
+    questionId:
+      "0xda66c02003000000000000000000000000000000000000000000000000000000",
+    title:
+      "Will the stability fee for Single-Collateral Dai go up from 20.5% before November 1st 2019?",
+    resolutionDate: "2019-09-01T16:00:00.000Z",
     outcomes: [
       {
-        title: "Foo",
-        short: "Foo",
-        when: "Foo"
+        title: "Yes",
+        short: "Yes",
+        when: "Dai stability fee > 20.5%"
       },
       {
-        title: "Bar",
-        short: "Bar",
-        when: "Bar"
+        title: "No",
+        short: "No",
+        when: "Dai stability fee ≤ 20.5%"
       }
     ]
   }

@@ -1,0 +1,64 @@
+@import "./Modals.scss";
+
+.connect-card {
+  appearance: none;
+  -webkit-appearance: none;
+  background: white;
+  width: 180px;
+  border-radius: 6px;
+  border: 2px solid #dedfde;
+
+  transition: all .3s ease-in-out;
+  position: relative;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  top: 0;
+
+  padding: 1rem;
+  min-height: 220px;
+
+  a {
+    color: black;
+
+    &:hover, &:focus, &:active {
+      opacity: 0.8;
+    }
+
+    &:visited {
+      color: black;
+    }
+  }
+
+  &-header {
+    margin: 0;
+    font-size: 125%;
+    font-weight: 500;
+    text-align: center;
+    padding: 2rem 0;
+  }
+
+  &-subheader {
+    margin: 0;
+    font-size: 80%;
+    text-align: center;
+    color: rgba(0, 0, 0, 0.6);
+  }
+
+  img {
+    width: 40%;
+    height: auto;
+  }
+
+  &:hover, &:active {
+    top: -5px;
+    border-color: #009cb4;
+  }
+}
+
+.providers {
+  display: flex;
+  justify-content: center;
+}

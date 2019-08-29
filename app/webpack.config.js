@@ -1,6 +1,6 @@
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
-const { BundleAnalyzerPlugin } = require("webpack-bundle-analyzer");
+// const { BundleAnalyzerPlugin } = require("webpack-bundle-analyzer");
 
 const moduleStubPath = path.resolve(__dirname, "module-stub.js");
 
@@ -15,6 +15,7 @@ module.exports = {
   resolve: {
     symlinks: false,
     alias: {
+      "react-dom": "@hot-loader/react-dom",
       assets: `${__dirname}/assets`,
       // manually deduplicate these modules
       "bn.js": path.resolve(__dirname, "../node_modules/bn.js"),
@@ -56,14 +57,13 @@ module.exports = {
       {
         test: /\.woff2?(\?v=\d+\.\d+\.\d+)?$/,
         use: {
-          loader: "url-loader",
+          loader: "file-loader",
           options: {
-            limit: 50000,
-            mimetype: "application/font-woff",
-            name: "./fonts/[name].[ext]", // Output below ./fonts
-            publicPath: "../" // Take the directory into account
+            name: "[name].[ext]",
+            outputPath: "fonts/"
           }
-        }
+        },
+        include: [`${__dirname}/assets/fonts`]
       },
       {
         test: /\.(png|svg|jpg|gif)$/,
@@ -91,9 +91,6 @@ module.exports = {
     new HtmlWebpackPlugin({
       filename: "index.html",
       template: __dirname + "/src/index.html"
-    })/*,
-    new BundleAnalyzerPlugin({
-      analyzerPort: process.env.NODE_ENV !== "production" ? 8888 : 8889
-    })*/
+    })
   ]
 };
