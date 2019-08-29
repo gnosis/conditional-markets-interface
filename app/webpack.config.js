@@ -1,6 +1,6 @@
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
-const { BundleAnalyzerPlugin } = require("webpack-bundle-analyzer");
+// const { BundleAnalyzerPlugin } = require("webpack-bundle-analyzer");
 
 const moduleStubPath = path.resolve(__dirname, "module-stub.js");
 
@@ -15,6 +15,7 @@ module.exports = {
   resolve: {
     symlinks: false,
     alias: {
+      "react-dom": "@hot-loader/react-dom",
       assets: `${__dirname}/assets`,
       // manually deduplicate these modules
       "bn.js": path.resolve(__dirname, "../node_modules/bn.js"),

@@ -40,14 +40,6 @@
     text-align: center;
     border: none;
     padding: 0.4em 0.8em;
-
-    &:last-child {
-      display: flex;
-      align-items: center;
-      flex-direction: column;
-    }
-
-
-    
+    vertical-align: middle;
   }
 }
