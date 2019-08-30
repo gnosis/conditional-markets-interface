@@ -9,14 +9,18 @@
   line-height: 1.5;
 
   &-heading {
-    display: block;
+    display: none;
     white-space: nowrap;
     color: rgba(0, 0, 0, .6);
     text-transform: uppercase;
     padding: 0.2rem;
 
-    @media (min-width: 960px) {
-      display: none;
+    @media #{$tablet-small-max} {
+      display: block;
+      font-weight: $bold;
+      font-size: 1.1rem;
+      color: $shadeBlue;
+      letter-spacing: 0.05rem;
     }
   }
 
@@ -25,11 +29,20 @@
   }
 
   .mobile-index {
-    font-weight: 800;
-    color: rgba(0, 0, 0, 0.8);
+    font-weight: $bold;
+    color: $darkBlue;
+    display: none;
 
-    @media (min-width: 960px) {
-      display: none;
+    @media #{$tablet-small-max} {
+      display: block;
+      font-weight: $bold;
+      font-size: 1.1rem;
+      color: $darkBlue;
+      letter-spacing: 0.05rem;
+      background: $greyBorder2;
+      padding: .5rem 1rem;
+      border-radius: .2rem;
+      margin: 1rem 0;
     }
   }
 
@@ -37,14 +50,12 @@
     text-align: center;
     border: none;
     padding: 1.2rem 0.8rem;
-
-    @media (max-width: 960px) {
-      position: relative;
+    position: relative;
 
       &:first-child {
-        display: none;
+        @media #{$tablet-small-max} {
+          display: none;
+        }
       }
-    }
-
   }
 }

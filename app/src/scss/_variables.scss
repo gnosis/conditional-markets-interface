@@ -8,6 +8,7 @@ $tiny-screen: 340px !default;
 $small-screen: 736px !default;
 $small-screen-up: 737px !default;
 $medium-smallresolutions: 850px !default;
+$medium-smallresolutions-up: 851px !default;
 $medium-end: 1024px !default;
 // --------------------------
 $desktop-screen: 1025px !default;
@@ -53,14 +54,16 @@ $tablet-portrait: "(min-device-width: #{$small-screen-up}) and (max-device-width
 $tablet-landscape: "(min-device-width: #{$small-screen-up}) and (max-device-width: #{$medium-end}) and (orientation: landscape)" !default;
 $tablet: "(min-width: #{$small-screen-up}) and (max-width: #{$medium-end}), #{$tablet-portrait}, #{$tablet-landscape}";
 $tablet-no-portrait: "(min-width: #{$small-screen-up}) and (max-width: #{$medium-end}), #{$tablet-landscape}";
-$tablet-small: "(min-width: #{$small-screen-up}) and (max-width: #{$medium-smallresolutions})";
+$tablet-small-only: "(min-width: #{$small-screen-up}) and (max-width: #{$medium-smallresolutions})";
+$tablet-small-max: "only screen and (max-width: #{$medium-smallresolutions})";
+$tablet-small-up: "only screen and (min-width: #{$medium-smallresolutions-up})";
 // $ipad-pro-portrait-breakpoint: "(min-device-width: 1024px) and (max-device-height: 1366px) and (orientation:portrait) and (-webkit-min-device-pixel-ratio: 2)";
 // $ipad-pro-landscape-breakpoint: "(min-device-width: 1024px) and (max-device-height: 1366px) and (orientation:landscape) and (-webkit-min-device-pixel-ratio: 2)";
 
 // Global HEX Colors
 $black: #000;
 $white: #FFF;
-$blue: #009BB4;
+$blue: #009CB4;
 $shadeBlue: #526877;
 $darkBlue: #00193C;
 $grey: #F7F8FB;
@@ -70,6 +73,7 @@ $red: #FF685E;
 $green: #02AE60;
 
 // Fonts
+$arial: Arial, Helvetica, sans-serif;
 $averta: "Averta", Helvetica, sans-serif;
 $helvetica: "Helvetica Neue", Helvetica, sans-serif;
 

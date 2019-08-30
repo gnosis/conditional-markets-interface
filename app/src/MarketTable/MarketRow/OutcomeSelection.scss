@@ -14,5 +14,8 @@
     outline: 0;
     background: url("~assets/icons/down-angle.svg") right 1rem center / 1.6rem 1rem no-repeat;
     height: 5.2rem;
+    @media #{$tablet-small-max} {
+      width: 100%;
+    }
   }
 }

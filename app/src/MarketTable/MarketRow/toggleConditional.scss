@@ -1,12 +1,18 @@
 @import "~scss/_variables.scss";
+
+$toggleWidth: 5rem;
+$toggleHeight: 3.2rem;
+$toggleDotSize: 2.8rem;
+
 .conditional {
   display: flex;
   justify-content: center;
   position: relative;
 
-  $toggleWidth: 5rem;
-  $toggleHeight: 3.2rem;
-  $toggleDotSize: 2.8rem;
+  @media #{$tablet-small-max} {
+    justify-content: flex-start;
+    padding: 1rem 0;
+  }
 
   input[type=checkbox]{
     height: 100%;
@@ -14,7 +20,6 @@
     border: none;
     display: block;
     position: absolute;
-
     appearance: none;
     -moz-appearance: none;
     -webkit-appearance: none;

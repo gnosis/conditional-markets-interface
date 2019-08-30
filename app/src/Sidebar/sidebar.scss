@@ -1,5 +1,10 @@
 @import "../scss/_variables.scss";
 
+.sidebar {
+  height: 100%;
+  height: calc(100vh - 7.5rem);
+}
+
 @mixin sidebar-entry {
   padding: 1.6rem;
   background-color: $white;

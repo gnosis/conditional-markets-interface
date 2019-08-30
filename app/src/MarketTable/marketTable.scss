@@ -11,14 +11,15 @@
     color: $shadeBlue;
     text-transform: uppercase;
 
-    @media (max-width: 960px) {
-      position: absolute;
-      top: -9999px;
-      left: -9999px;
+    @media #{$tablet-small-max} {
+      display: none;
     }
 
     tr {
       text-align: left;
+      @media #{$tablet-small-max} {
+        width: 100%;
+      }
     }
 
 
@@ -42,13 +43,20 @@
     background: $white;
     box-shadow: 0 .2rem 1rem 0 rgba(0, 25, 60, 0.10);
     border-radius: .2rem;
+      @media #{$tablet-small-max} {
+        background: transparent;
+      }
 
     tr {
-      @media (max-width: 960px) {
+      @media #{$tablet-small-max} {
         display: flex;
         flex-wrap: wrap;
         height: auto;
         justify-content: center;
+        background: $white;
+        box-shadow: 0 .2rem 1rem 0 rgba(0, 25, 60, 0.10);
+        margin-bottom: 2.4rem;
+        padding: 0 .8rem;
 
         &:not(.explanation-row) {
           margin-bottom: 1.5rem;
@@ -61,11 +69,12 @@
     }
 
     td {
-      @media (max-width: 960px) {
-        display: block;
-      }
-
       text-align: left;
+
+      @media #{$tablet-small-max} {
+        display: block;
+        width: 100%;
+      }
 
       // Index
       &:nth-child(1) {
@@ -73,10 +82,18 @@
         font-weight: $bold;
       }
 
+      &:nth-child(2) {
+        // @media #{$tablet-small-up} {
+        //   min-width: 24rem;
+        // }
+      }
+
       // Probability
       &:nth-child(3) {
-        min-width: 30rem;
-        padding: 1.2rem 2.4rem;
+        // min-width: 30rem;
+        // width: 100%;
+        // max-width: 30rem;
+        // padding: 1.2rem 2.4rem;
       }
     }
 

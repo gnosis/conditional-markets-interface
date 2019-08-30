@@ -14,6 +14,11 @@
     letter-spacing: 0.05rem;
     text-align: right;
     margin: 0 1rem 0 0;
+
+      @media #{$tablet-small-max} {
+        font-size: 1.2rem;
+        margin: 0 .5rem 0 0;
+      }
   }
 
   .avatar {
@@ -22,6 +27,10 @@
     position: relative;
     border-radius: 100%;
     overflow: hidden;
+      @media #{$tablet-small-max} {
+        height: 2.4rem;
+        width: 2.4rem;
+      }
 
     &-image {
       max-height: 100%;
@@ -40,7 +49,6 @@
   padding: 1rem 0.8rem;
   border-radius: .3rem;;
   border: .1rem solid $greyBorder2;
-
   background-color: $green;
   color: $white;
 

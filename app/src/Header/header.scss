@@ -7,7 +7,12 @@
   width: 100%;
   position: relative;
   border-bottom: .1rem solid $greyBorder2;
-  align-items: stretch;
+  height: 7.5rem;
+
+  @media #{$tablet-small-max} {
+    height: 4.6rem;
+    justify-content: space-between;
+  }
 
   .logo,
   .menu,
@@ -31,12 +36,21 @@
       height: 100%;
       width: 90%;
       margin: 0 auto;
+
+        @media #{$tablet-small-max} {
+          height: 2.8rem;
+          width: 10.4rem;
+          margin: 0 1rem 0 1rem;
+        }
     }
 
   }
 
   .menu {
     flex: 1;
+    @media #{$tablet-small-max} {
+      display: none;
+    }
   }
 }
 

@@ -1,3 +1,5 @@
+@import "~scss/_variables.scss";
+
 .page {
   display: flex;
   flex-direction: column;
@@ -14,26 +16,27 @@
 
 .sections {
   display: flex;
-
-  @media (max-width: 1365px) {
-    flex-direction: column;
-  }
   flex: 1;
 
+  // @media (max-width: 1365px) {
+  //   flex-direction: column;
+  // }
 
   .section {
     &-markets {
       flex: 1;
-
-      @media (min-width: 960px) {
-        padding: 1em 2em;
-      }
-      border-right: 1px solid #dedfde;
+      border-right: .1rem solid $greyBorder2;
+        @media #{$tablet-small-max} {
+          border: 0;
+        }
     }
 
     &-positions {
-      background: #ffffff;
+      background: $white;
       flex-basis: 20%;
+        @media #{$tablet-small-max} {
+          display: none;
+        }
     }
   }
 }
@@ -43,17 +46,16 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-direction: column;
+  flex-flow: column wrap;
   min-height: 100%;
-
-  background: #009cb4;
+  background: $blue;
 
   &:not(.modal-open) {
     display: none;
   }
 
   .logo {
-    max-height: 45px;
+    max-height: 4.5rem;
     width: auto;
     margin: 1rem;
   }
@@ -65,8 +67,7 @@
     li {
       display: inline-block;
       margin: 0 1rem;
-      color: white;
-      font-size: 80%;
+      color: $white;
 
       a {
         color: inherit;
@@ -75,7 +76,7 @@
 
         &:focus, &:active, &:visited, &:hover {
           color: inherit;
-          opacity: 0.8;
+          opacity: .8;
         }
       }
     }
@@ -85,7 +86,6 @@
 .app-space {
   display: flex;
   flex-flow: column wrap;
-  height: 100%;
 
   &.modal-open {
     display: none;
