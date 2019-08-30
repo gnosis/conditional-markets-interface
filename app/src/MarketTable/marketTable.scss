@@ -90,10 +90,14 @@
 
       // Probability
       &:nth-child(3) {
-        // min-width: 30rem;
-        // width: 100%;
-        // max-width: 30rem;
-        // padding: 1.2rem 2.4rem;
+        width: auto;
+        @media #{$desktop} {
+          width: 30rem;
+        }
+      }
+
+      &:nth-child(6) {
+        width: 6rem;
       }
     }
 

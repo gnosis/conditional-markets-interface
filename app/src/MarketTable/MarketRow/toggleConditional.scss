@@ -8,6 +8,7 @@ $toggleDotSize: 2.8rem;
   display: flex;
   justify-content: center;
   position: relative;
+  width: 6rem;
 
   @media #{$tablet-small-max} {
     justify-content: flex-start;
