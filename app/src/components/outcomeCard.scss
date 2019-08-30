@@ -37,7 +37,7 @@
     padding: .5rem;
 
     .dot {
-      width: 12px;
+      width: 1.2rem;
       height: 0;
       display: inline-block;
       position: relative;
@@ -47,10 +47,10 @@
         display: block;
         background-color: currentColor;
         position: absolute;
-        left: calc(50% - 6px);
-        width: 12px;
-        height: 12px;
-        margin-top: -11px;
+        left: calc(50% - .6rem);
+        width: 1.2rem;
+        height: 1.2rem;
+        margin-top: -1.1rem;
         border-radius: 100%;
       }
     }
