@@ -1,5 +1,6 @@
 import React, { Fragment, useState, useEffect, useCallback } from "react";
-//import PropTypes from "prop-types";
+import PropTypes from "prop-types";
+import Web3 from "web3";
 import Decimal from "decimal.js-light";
 import Spinner from "components/Spinner";
 import { zeroDecimal } from "utils/constants";
@@ -11,6 +12,7 @@ import style from "./positions.scss";
 import OutcomeCard from "../../components/OutcomeCard";
 
 const cx = cn.bind(style);
+const { toBN } = Web3.utils;
 
 function calcNetCost({ funding, positionBalances }, tradeAmounts) {
   const invB = new Decimal(positionBalances.length)
@@ -171,7 +173,7 @@ const Positions = ({
     [account, lmsrMarketMaker, collateral]
   );
 
-  async function sellOutcomeTokens() {
+  const sellOutcomeTokens = useCallback(async () => {
     if (stagedTradeAmounts == null) throw new Error(`No sell set yet`);
 
     if (stagedTransactionType !== "sell outcome tokens")
@@ -187,12 +189,19 @@ const Positions = ({
 
     const tradeAmounts = stagedTradeAmounts.map(amount => amount.toString());
     const collateralLimit = await lmsrMarketMaker.calcNetCost(tradeAmounts);
-    
+
     asWrappedTransaction("sell outcome tokens", sellOutcomeTokens, setError);
     await lmsrMarketMaker.trade(tradeAmounts, collateralLimit, {
       from: account
     });
-  }
+  }, [
+    collateral,
+    stagedTradeAmounts,
+    stagedTransactionType,
+    pmSystem,
+    asWrappedTransaction,
+    account
+  ]);
 
   const marketStage = lmsrState && lmsrState.stage;
 
@@ -226,7 +235,7 @@ const Positions = ({
     );
   }, [positions, positionBalances, marketResolutionStates]);
 
-  async function redeemPositions() {
+  const redeemPositions = useCallback(async () => {
     if (!allMarketsResolved)
       throw new Error("Can't redeem until all markets resolved");
 
@@ -283,7 +292,7 @@ const Positions = ({
       markets.length,
       `0x${"0".repeat(64)}`
     );
-  }
+  }, [collateral, account, pmSystem]);
 
   if (positionGroups === null) {
     return (

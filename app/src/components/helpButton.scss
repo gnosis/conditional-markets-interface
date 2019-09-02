@@ -1,21 +1,23 @@
+@import "~scss/_variables.scss";
+
 .help-button {
   appearance: none;
   -webkit-appearance: none;
-  background: #009cb4;
-  border-radius: 100%;
+  background: $blue;
+  border-radius: 1.8rem;
+  width: 1.8rem;
+  height: 1.8rem;
   display: inline-block;
   border: none;
-  color: white;
-
-  line-height: 20px;
-  width: 18px;
-  height: 18px;
+  color: $white;
+  font-weight: $bold;
+  font-size: 1.2rem;
+  line-height: 1;
   padding: 0;
-
   transition: all .2s ease-in-out;
-  margin-left: 5px;
+  margin-left: .5rem;
 
   &:hover, &:focus {
-    background: darken(#009cb4, 20%);
+    background: darken($blue, 20%);
   }
 }

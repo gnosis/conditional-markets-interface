@@ -1,57 +1,53 @@
 {
-  "lmsrAddress": "0x067805E69e62E8bE56e8D13f4EBf53372D3dD02e",
-  "markets": [
-    {
-      "questionId": "0x000000000000000000000000000000000000000000000000000000000000000a",
-      "title": "A or B?",
-      "resolutionDate": "2019-09-15T10:56:28.457Z",
-      "outcomes": [
-        {
-          "title": "A",
-          "short": "A",
-          "when": "A"
+  "lmsrAddress": "0xca24282be001a428d27fdac4676561c2eb1de393",
+  "markets": [{
+      "questionId": "0xda66c02001000000000000000000000000000000000000000000000000000000",
+      "title": "Will Multi-Collateral Dai go live on Mainnet by November 1st 2019?",
+      "resolutionDate": "2019-09-01T16:00:00.000Z",
+      "outcomes": [{
+          "title": "Yes",
+          "short": "Yes",
+          "when": "MCD live Nov 1"
         },
         {
-          "title": "B",
-          "short": "B",
-          "when": "B"
+          "title": "No",
+          "short": "No",
+          "when": "MCD not live Nov 1"
         }
       ]
     },
     {
-      "questionId": "0x000000000000000000000000000000000000000000000000000000000000000b",
-      "title": "X or Y?",
-      "resolutionDate": "2019-09-15T10:56:28.457Z",
-      "outcomes": [
-        {
-          "title": "X",
-          "short": "X",
-          "when": "X"
+      "questionId": "0xda66c02002000000000000000000000000000000000000000000000000000000",
+      "title": "Will Multi-Collateral Dai overtake Single-Collateral Dai by March 31st 2020?",
+      "resolutionDate": "2020-03-31T16:00:00.000Z",
+      "outcomes": [{
+          "title": "Yes",
+          "short": "Yes",
+          "when": "MCD is Dai"
         },
         {
-          "title": "Y",
-          "short": "Y",
-          "when": "Y"
+          "title": "No",
+          "short": "No",
+          "when": "SCD is Dai"
         }
       ]
     },
     {
-      "questionId": "0x000000000000000000000000000000000000000000000000000000000000000c",
-      "title": "What will be the result of this longer question? It can be Foo or Bar, but it must be one of those.",
-      "resolutionDate": "2019-09-15T10:56:28.457Z",
-      "outcomes": [
-        {
-          "title": "Foo",
-          "short": "Foo",
-          "when": "Foo"
+      "questionId": "0xda66c02003000000000000000000000000000000000000000000000000000000",
+      "title": "Will the stability fee for Single-Collateral Dai go up from 20.5% before November 1st 2019?",
+      "resolutionDate": "2019-09-01T16:00:00.000Z",
+      "outcomes": [{
+          "title": "Yes",
+          "short": "Yes",
+          "when": "Dai stability fee > 20.5%"
         },
         {
-          "title": "Bar",
-          "short": "Bar",
-          "when": "Bar"
+          "title": "No",
+          "short": "No",
+          "when": "Dai stability fee ≤ 20.5%"
         }
       ]
     }
   ],
-  "networkId": 437894314312
+  "networkId": 437894314313
 }

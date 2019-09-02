@@ -1,19 +1,23 @@
+@import "~scss/_variables.scss";
 @import "../sidebar.scss";
 
 .buy {
   &-heading {
     @include sidebar-entry;
 
-    font-weight: 800;
+    font-weight: $bold;
   }
 
   &-subheading {
     @include sidebar-entry;
-
-    border-bottom: none;
+    font-weight: $bold;
+    font-size: 1.3rem;
+    color: $shadeBlue;
+    letter-spacing: 0;
     text-align: center;
-    font-size: 90%;
-    font-weight: 800;
+    border: 0;
+    justify-content: center;
+    padding: 1.8rem;
   }
 
   &-empty {
@@ -30,37 +34,48 @@
   &-summary {
     &-heading {
       @include sidebar-entry;
-      padding-top: 0.8rem;
-      padding-bottom: 0.8rem;
-      font-size: 80%;
-      color: #526877;
+      padding: 1rem 1.2rem;
+      font-size: 1.3rem;
+      color: $shadeBlue;
       border-bottom: none;
     }
 
     &-category {
       @include sidebar-entry;
-
-      padding-top: 0.5rem;
-      padding-bottom: 0.5rem;
-      background-color: #f7f8fb;
+      font-size: 1.5rem;
+      line-height: 1;
+      background-color: $grey;
       display: flex;
-      justify-content: space-between;
+      justify-content: flex-start;
+      align-items: center;
+      min-height: 4.6rem;
+      padding: 1rem 1.6rem 0;
+      flex-flow: row wrap;
     }
 
     .category-values {
+      margin: -1rem 0 0 auto;
+      flex: 0 1 auto;
+      font-size: 1.3rem;
+      letter-spacing: 0;
+      text-align: right;
+      line-height: 1;
+
       &-positive {
-        color: #02ae60;
+        color: $green;
       }
+
       &-negative {
-        color: #ff685e;
+        color: $red;
       }
 
       .category-value {
         text-align: right;
+        white-space: nowrap;
         margin: 0;
 
         &.value {
-          font-weight: 800;
+          font-weight: $bold;
         }
 
         &.margin {
@@ -71,13 +86,19 @@
 
     .category-entries {
       display: flex;
-      align-self: flex-start;
-      flex-wrap: wrap;
+      align-self: center;
+      flex-flow: row wrap;
+      flex: 1;
     }
   }
 
   &-investment {
     @include sidebar-entry;
+    padding: 1.6rem;
+    background-color: $white;
+    font-size: 1.5rem;
+    justify-content: space-between;
+    line-height: 1;
     display: flex;
     align-items: center;
     position: relative;
@@ -85,56 +106,71 @@
     padding-top: 0;
 
     .buy-invest {
-      -webkit-appearance: none;
       padding: 0;
+      -webkit-appearance: none;
       appearance: none;
       border: none;
+      cursor: pointer;
       background: none;
-      width: 24px;
-      height: 24px;
-      display: block;
-
-      font-size: 200%;
+      display: flex;
+      font-size: 3.4rem;
+      color: $blue;
+      outline: 0;
+      justify-content: center;
+      align-items: center;
       line-height: 0;
-      color: #009cb4;
+      height: 100%;
+      margin: -.7rem 0 0 1rem;
+      text-align: center;
+
+      &-minus {
+        margin: 0 1rem 0 0;
+      }
 
       &:hover, &:focus, &:active {
-        color: darken(#009cb4, 20%);
+        color: darken($blue, 20%);
       }
     }
 
     .input-group {
       position: relative;
-      margin: 0 0.4rem;
+      display: flex;
+      flex-flow: row nowrap;
+      height: 5rem;
+      padding: 0;
+      font-weight: normal;
+      border: .1rem solid $greyBorder2;
+      border-radius: .3rem;
+      flex: 1;
+      justify-content: space-between;
+      margin: 0;
     }
 
     .input {
-      height: 24px;
-      padding: 1.4rem 2rem 1.4rem 3rem;
+      border: 0;
+      font-size: 1.5rem;
+      color: $shadeBlue;
+      letter-spacing: 0;
       text-align: right;
-      font-weight: 100;
-      border: 1px solid #dedfed;
-      border-radius: 2px;
-      flex: 1;
+      font-weight: normal;
+      margin: 0 0 0 auto;
+      outline: 0;
 
-      &::-webkit-inner-spin-button, 
-      &::-webkit-outer-spin-button { 
-        -webkit-appearance: none; 
-        margin: 0; 
+      &::-webkit-inner-spin-button,
+      &::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
       }
     }
 
     .input-append {
-      position: absolute;
-      height: 100%;
+      font-weight: bold;
+      font-size: 1.3rem;
+      color: $blue;
+      letter-spacing: 0;
 
-      &:last-child {
-        right: 0;
-      }
-
-      &:first-child {
-        left: 0;
-      }
+      &:first-child {}
+      &:last-child {}
     }
   }
 }
@@ -143,16 +179,22 @@
   -webkit-appearance: none;
   appearance: none;
   border: none;
-  background-color: #02ae60;
-  border-radius: 2px;
   text-transform: uppercase;
   display: block;
   width: 100%;
-  padding: 1rem 0;
-  color: #ffffff;
+  cursor: pointer;
+  color: $white;
+  background: $green;
+  border-radius: .2rem;
+  height: 5.2rem;
+  padding: 0 1rem;
+  font-weight: $bold;
+  font-size: 1.4rem;
+  letter-spacing: 0.05rem;
 
   &.disabled, &:disabled {
-    opacity: 0.4;
+    opacity: 0.5;
+    cursor: auto;
   }
 }
 
@@ -161,18 +203,29 @@
   appearance: none;
   background: none;
   border: none;
-  color: #009cb4;
-  font-size: 90%;
+  color: $blue;
+  font-size: 1.4rem;
   text-align: right;
   text-decoration: underline;
   float: right;
+  cursor: pointer;
+  outline: 0;
 
   &:hover, &:focus, &:active {
-    color: darken(#009cb4, 20%);
+    color: darken($blue, 20%);
   }
 }
 
 .collateral-name {
-  line-height: 3rem;
-  padding: 0 0.7rem;
+    display: flex;
+    height: 100%;
+    justify-content: center;
+    align-items: center;
+    line-height: 1;
+    padding: 0 1rem;
+    font-weight: $bold;
+    font-size: 1.1rem;
+    color: $blue;
+    letter-spacing: 0;
+    text-align: right;
 }

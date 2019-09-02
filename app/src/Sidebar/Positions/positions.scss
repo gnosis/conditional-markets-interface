@@ -1,45 +1,49 @@
+@import "~scss/_variables.scss";
 @import "../sidebar.scss";
 
 .positions {
   &-heading {
     @include sidebar-entry;
 
-    font-weight: 800;
+    font-weight: $bold;
   }
 
   &-empty {
     @include sidebar-empty;
+    font-size: 1.4rem;
+    justify-content: center;
   }
 
   &-subheading {
     @include sidebar-entry;
     border-bottom: none;
-    font-weight: 100;
-    font-size: 90%;
-    color: rgb(90, 90, 90);
+    font-weight: $normal;
     display: flex;
-    padding-top: 0.5em;
-    padding-bottom: 0.5em;
+    font-size: 1.3rem;
+    color: $shadeBlue;
+    letter-spacing: 0;
+    height: 3.2rem;
+    padding: 1.6rem;
   }
 
   &-redeem {
+    @include sidebar-entry;
+    border-bottom: none;
 
     .redeem-all {
       -webkit-appearance: none;
-      padding: 0;
       appearance: none;
       border: none;
-      background: none;
-      width: 24px;
-      height: 24px;
+      background-color: $green;
+      border-radius: .2rem;
+      text-transform: uppercase;
       display: block;
+      width: 100%;
+      padding: 1rem 0;
+      color: $white;
 
-      font-size: 200%;
-      line-height: 0;
-      color: #009cb4;
-
-      &:hover, &:focus, &:active {
-        color: darken(#009cb4, 20%);
+      &.disabled, &:disabled {
+        opacity: 0.4;
       }
     }
   }
@@ -56,7 +60,7 @@
 
   .value {
     text-align: right;
-    padding: 0.3em;
+    padding: 0.3rem;
     margin: 0;
   }
 }
@@ -65,11 +69,16 @@
   .button {
     appearance: none;
     -webkit-appearance: none;
-    border-radius: 3px;
-    background-color: #ff685e;
-    padding: 0.3rem 0.8em;
-    color: #ffffff;
+    border-radius: .3rem;
+    background-color: $red;
+    color: $white;
     text-transform: uppercase;
+    border: 0;
+    font-weight: $bold;
+    font-size: 1.3rem;
+    letter-spacing: 0;
+    text-align: center;
+    padding: .5rem 1.2rem;
   }
 }
 

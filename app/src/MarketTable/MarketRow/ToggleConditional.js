@@ -8,7 +8,8 @@ const cx = cn.bind(style);
 const ToggleConditional = ({
   conditionId,
   conditionalActive,
-  toggleConditional
+  toggleConditional,
+  disabled
 }) => {
   const toggle = useCallback(e => {
     toggleConditional(e.target.checked);
@@ -18,6 +19,7 @@ const ToggleConditional = ({
       {conditionalActive}
       <input
         type="checkbox"
+        disabled={disabled}
         id={`${conditionId}-conditional-toggle`}
         onChange={toggle}
         checked={conditionalActive}

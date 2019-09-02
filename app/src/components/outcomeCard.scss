@@ -1,27 +1,43 @@
+@import "~scss/_variables.scss";
+
 .outcome-card {
   position: relative;
-  border-radius: 3px;
-  border: 1px solid #dedfde;
-  margin-top: 3px;
+  margin: 0 0 1rem;
   display: flex;
   white-space: nowrap;
-  
+
   :first-child {
-    border-top-left-radius: 2px;
-    border-bottom-left-radius: 2px;
+    border-top-left-radius: .3rem;
+    border-bottom-left-radius: .3rem;
   }
 
   .market {
-    background-color: #526877;
-    color: #ffffff;
-    padding: 0.3rem;
+    background-color: $shadeBlue;
+    color: $white;
+    font-size: 1.3rem;
+    font-weight: $bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0 .6rem;
+    letter-spacing: .1rem;
   }
 
   .outcome {
-    padding: 0.3rem;
+    border-top-right-radius: .3rem;
+    border-bottom-right-radius: .3rem;
+    border: 0.1rem solid $greyBorder2;
+    background: $white;
+    border-left: none;
+    font-weight: bold;
+    font-size: 1.3rem;
+    color: $darkBlue;
+    letter-spacing: 0;
+    line-height: 1;
+    padding: .5rem;
 
     .dot {
-      width: 12px;
+      width: 1.2rem;
       height: 0;
       display: inline-block;
       position: relative;
@@ -31,10 +47,10 @@
         display: block;
         background-color: currentColor;
         position: absolute;
-        left: calc(50% - 6px);
-        width: 12px;
-        height: 12px;
-        margin-top: -11px;
+        left: calc(50% - .6rem);
+        width: 1.2rem;
+        height: 1.2rem;
+        margin-top: -1.1rem;
         border-radius: 100%;
       }
     }
@@ -42,7 +58,6 @@
 
 
   &.glue-or {
-    margin-left: 20px;
 
     &:not(:last-of-type) {
       &::after {
@@ -52,7 +67,6 @@
   }
 
   &.glue-and {
-    margin-left: 20px;
 
     &:not(:last-of-type) {
       &::after {
@@ -64,32 +78,31 @@
   &.glue-or, &.glue-and {
     &:not(:last-of-type) {
       &::after {
-        display: block;
-        position: absolute;
-        width: 12px;
         height: 100%;
-        line-height: 28px;
-        right: -18px;
-        top: 0;
+        line-height: 1;
+        margin: 0 .5rem;
+        font-weight: bold;
+        font-size: 1.3rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
     }
   }
 
   &.prefix-IF {
-    &:first-of-type {
-      margin-left: 20px;
 
       &::before {
-        display: block;
-        position: absolute;
-        width: 12px;
         height: 100%;
-        line-height: 28px;
-        left: -18px;
-        top: 0;
         content: 'IF';
+        line-height: 1;
+        margin: 0 .5rem 0 0;
+        font-weight: bold;
+        font-size: 1.3rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
-    }
   }
 
 }

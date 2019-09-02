@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useEffect } from "react";
+import React, { Fragment, useState, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
 import Decimal from "decimal.js-light";
 
@@ -7,10 +7,8 @@ import Web3 from "web3";
 import cn from "classnames/bind";
 import style from "./buy.scss";
 
-import PositionGroupDetails from "position-group-details";
-import Spinner from "components/Spinner";
 import OutcomeCard from "components/OutcomeCard";
-import { maxUint256BN, outcomeColors } from "utils/constants";
+import { zeroDecimal, maxUint256BN } from "utils/constants";
 import { formatCollateral } from "utils/formatting";
 import {
   calcPositionGroups,
@@ -29,29 +27,42 @@ const Buy = ({
   collateralBalance,
   lmsrMarketMaker,
   lmsrState,
-  lmsrAllowance,
   marketSelections,
   stagedTradeAmounts,
   setStagedTradeAmounts,
   stagedTransactionType,
   setStagedTransactionType,
   ongoingTransactionType,
+  resetMarketSelections,
   asWrappedTransaction
 }) => {
   const [investmentAmount, setInvestmentAmount] = useState("");
   const [humanReadablePositions, setHumanReadablePositions] = useState(null);
   const [error, setError] = useState(null);
   useEffect(() => {
-    if (stagedTransactionType !== "buy outcome tokens") return;
+    //if (stagedTransactionType !== "buy outcome tokens") return;
 
-    if (investmentAmount === "") {
+    let hasEnteredInvestment = false;
+
+    try {
+      const decimalInvest = Decimal(investmentAmount);
+      hasEnteredInvestment = decimalInvest.gt(0);
+    } catch (e) {
+      //
+    }
+
+    if (
+      !(marketSelections || []).some(
+        ({ selectedOutcomeIndex }) => selectedOutcomeIndex > -1
+      )
+    ) {
       setStagedTradeAmounts(null);
-      setError(null);
       return;
     }
+
     try {
       const investmentAmountInUnits = collateral.toUnitsMultiplier.mul(
-        investmentAmount
+        hasEnteredInvestment ? investmentAmount : zeroDecimal
       );
 
       if (!investmentAmountInUnits.isInteger())
@@ -60,18 +71,6 @@ const Buy = ({
             collateral.decimals
           } decimals in value ${investmentAmount}`
         );
-
-      /*
-      if (investmentAmountInUnits.gt(collateralBalance.totalAmount.toString()))
-        throw new Error(
-          `Not enough collateral: missing ${formatCollateral(
-            investmentAmountInUnits.sub(
-              collateralBalance.totalAmount.toString()
-            ),
-            collateral
-          )}`
-        );
-      */
 
       setStagedTradeAmounts(
         calcOutcomeTokenCounts(
@@ -99,26 +98,30 @@ const Buy = ({
   const marketStage = lmsrState && lmsrState.stage;
 
   let hasAnyAllowance = false;
-  let hasEnoughAllowance = false;
-  let hasInfiniteAllowance = false;
-  if (lmsrAllowance != null)
-    try {
-      hasAnyAllowance = lmsrAllowance.gtn(0);
-      hasEnoughAllowance = collateral.toUnitsMultiplier
-        .mul(investmentAmount || "0")
-        .lte(lmsrAllowance.toString());
 
-      hasInfiniteAllowance = lmsrAllowance.eq(maxUint256BN);
-    } catch (e) {
-      // empty
-    }
-
-  async function buyOutcomeTokens() {
+  const buyOutcomeTokens = useCallback(async () => {
     if (stagedTradeAmounts == null) throw new Error(`No buy set yet`);
 
     if (stagedTransactionType !== "buy outcome tokens")
       throw new Error(
         `Can't buy outcome tokens while staged transaction is to ${stagedTransactionType}`
+      );
+
+    let investmentAmountInUnits;
+    try {
+      investmentAmountInUnits = collateral.toUnitsMultiplier.mul(
+        investmentAmount
+      );
+    } catch (err) {
+      investmentAmountInUnits = zeroDecimal;
+    }
+
+    if (investmentAmountInUnits.gt(collateralBalance.totalAmount.toString()))
+      throw new Error(
+        `Not enough collateral: missing ${formatCollateral(
+          investmentAmountInUnits.sub(collateralBalance.totalAmount.toString()),
+          collateral
+        )}`
       );
 
     const tradeAmounts = stagedTradeAmounts.map(amount => amount.toString());
@@ -131,20 +134,23 @@ const Buy = ({
       });
     }
 
-    await collateral.contract.approve(lmsrMarketMaker.address, maxUint256BN, {
-      from: account
-    });
+    if (!hasAnyAllowance) {
+      await collateral.contract.approve(lmsrMarketMaker.address, maxUint256BN, {
+        from: account
+      });
+    }
 
     await lmsrMarketMaker.trade(tradeAmounts, collateralLimit, {
       from: account
     });
-  }
-
-  async function setAllowance() {
-    await collateral.contract.approve(lmsrMarketMaker.address, maxUint256BN, {
-      from: account
-    });
-  }
+  }, [
+    hasAnyAllowance,
+    stagedTransactionType,
+    stagedTradeAmounts,
+    lmsrMarketMaker,
+    collateral,
+    account
+  ]);
 
   const [stagedTradePositionGroups, setStagedTradePositionGroups] = useState(
     []
@@ -156,18 +162,57 @@ const Buy = ({
     );
   }, [markets, positions, stagedTradeAmounts]);
 
-  let investmentAllowed = true;
   let problemText;
 
   if (!marketStage === "Closed") {
     problemText = "The Market is closed.";
-    investmentAllowed = false;
   } else if (!marketSelections) {
     problemText = "Select position(s) first.";
-    investmentAllowed = false;
   }
 
+  const makeStepper = useCallback(amount => {
+    return () => {
+      setStagedTransactionType("buy outcome tokens");
+      setInvestmentAmount(prevValue => {
+        let prevValueDecimal;
+        try {
+          if (prevValue === "") {
+            prevValueDecimal = Decimal(0);
+          } else {
+            prevValueDecimal = Decimal(prevValue);
+          }
+        } catch (err) {
+          return prevValue;
+        }
+
+        return prevValueDecimal.add(amount).toString();
+      });
+    };
+  }, []);
+
+  const setInvestmentMax = useCallback(() => {
+    if (collateralBalance != null && collateral != null) {
+      setStagedTransactionType("buy outcome tokens");
+      setInvestmentAmount(
+        Decimal(collateralBalance.totalAmount.toString())
+          .div(Math.pow(10, collateral.decimals))
+          .toFixed(4)
+      );
+    }
+  }, [collateralBalance, collateral]);
+
+  const clearAllPositions = useCallback(() => {
+    setStagedTransactionType(null);
+    setStagedTradeAmounts(null);
+    setInvestmentAmount("");
+    resetMarketSelections(null);
+    setError(null);
+  }, [setStagedTradeAmounts, setInvestmentAmount, setError]);
+
   useEffect(() => {
+    const hasConditional = (marketSelections || []).some(
+      ({ isAssumed }) => isAssumed
+    );
     let humanReadablePositions = {
       payOutWhen: {
         title: "Pay out when:",
@@ -178,7 +223,7 @@ const Buy = ({
       loseInvestmentWhen: {
         title: "Lose investment when:",
         positions: [],
-        getGlue: () => "or",
+        getGlue: () => (hasConditional ? "and" : "or"),
         getPrefix: () => "IF"
       },
       refundWhen: {
@@ -189,79 +234,85 @@ const Buy = ({
       }
     };
 
-    let processTradePositions = true;
+    (stagedTradePositionGroups || []).forEach(
+      ({ outcomeSet, runningAmount }) => {
+        let hasEnteredInvestment;
 
-    try {
-      Decimal(investmentAmount);
-    } catch (err) {
-      processTradePositions = false;
-    }
-
-    if (processTradePositions) {
-      (stagedTradePositionGroups || []).forEach(
-        ({ outcomeSet, runningAmount }, index) => {
-          //positions["payOutWhen"]
-
-          // all payouts
-          humanReadablePositions.payOutWhen.positions = outcomeSet;
-          humanReadablePositions.payOutWhen.runningAmount = runningAmount;
-
-          // all lose invests
-
-          // invert outcome sets
-          humanReadablePositions.loseInvestmentWhen.positions = outcomeSet.map(
-            outcome => {
-              if (outcome.outcomeIndex == -1) {
-                return outcome;
-              }
-
-              return {
-                ...outcome,
-                outcomeIndex: outcome.outcomeIndex == 0 ? 1 : 0
-              };
-            }
-          );
-          humanReadablePositions.loseInvestmentWhen.runningAmount = Decimal(
-            investmentAmount
-          )
-            .neg()
-            .mul(Math.pow(10, collateral.decimals));
-          humanReadablePositions.loseInvestmentWhen.margin = Decimal(-1.0);
-
-          // refund when
-
-          // invert outcome sets
-          humanReadablePositions.refundWhen.positions = outcomeSet
-            .filter(outcome => marketSelections[outcome.marketIndex].isAssumed)
-            .map(outcome => {
-              if (outcome.outcomeIndex == -1) {
-                return outcome;
-              }
-
-              return {
-                ...outcome,
-                ...markets[outcome.marketIndex].outcomes[
-                  outcome.outcomeIndex == 0 ? 1 : 0
-                ],
-                outcomeIndex: outcome.outcomeIndex == 0 ? 1 : 0
-              };
-            });
-          humanReadablePositions.refundWhen.runningAmount = Decimal(
-            investmentAmount
-          ).mul(Math.pow(10, collateral.decimals));
-          humanReadablePositions.refundWhen.margin = Decimal(1.0);
+        try {
+          const decimalInvest = Decimal(investmentAmount);
+          hasEnteredInvestment = decimalInvest.gt(0);
+        } catch (err) {
+          //
         }
-      );
 
-      setHumanReadablePositions(humanReadablePositions);
-    }
+        // all payouts
+        humanReadablePositions.payOutWhen.positions = outcomeSet;
+        humanReadablePositions.payOutWhen.runningAmount = hasEnteredInvestment
+          ? runningAmount
+          : zeroDecimal;
+
+        // all lose invests
+
+        // invert outcome sets
+        humanReadablePositions.loseInvestmentWhen.positions = outcomeSet.map(
+          outcome => {
+            if (outcome.outcomeIndex == -1) {
+              return outcome;
+            }
+
+            return {
+              ...outcome,
+              ...markets[outcome.marketIndex].outcomes[
+                outcome.outcomeIndex == 0 ? 1 : 0
+              ],
+              outcomeIndex: outcome.outcomeIndex == 0 ? 1 : 0
+            };
+          }
+        );
+        humanReadablePositions.loseInvestmentWhen.runningAmount = Decimal(
+          hasEnteredInvestment ? investmentAmount : zeroDecimal
+        )
+          .neg()
+          .mul(Math.pow(10, collateral.decimals));
+        humanReadablePositions.loseInvestmentWhen.margin = Decimal(-1.0);
+
+        // refund when
+
+        // invert outcome sets
+        humanReadablePositions.refundWhen.positions = outcomeSet
+          .filter(outcome => marketSelections[outcome.marketIndex].isAssumed)
+          .map(outcome => {
+            if (outcome.outcomeIndex == -1) {
+              return outcome;
+            }
+
+            return {
+              ...outcome,
+              ...markets[outcome.marketIndex].outcomes[
+                outcome.outcomeIndex == 0 ? 1 : 0
+              ],
+              outcomeIndex: outcome.outcomeIndex == 0 ? 1 : 0
+            };
+          });
+        humanReadablePositions.refundWhen.runningAmount = Decimal(
+          hasEnteredInvestment ? investmentAmount : zeroDecimal
+        ).mul(Math.pow(10, collateral.decimals));
+        humanReadablePositions.refundWhen.margin = Decimal(1.0);
+      }
+    );
+
+    setHumanReadablePositions(humanReadablePositions);
   }, [stagedTradePositionGroups]);
 
   return (
     <>
       <div className={cx("buy-heading")}>
         Order Position(s){" "}
-        <button type="button" className={cx("link-button", "clear")}>
+        <button
+          type="button"
+          className={cx("link-button", "clear")}
+          onClick={clearAllPositions}
+        >
           clear all
         </button>
       </div>
@@ -271,86 +322,83 @@ const Buy = ({
           {error === true ? "An error has occured" : error.message}
         </div>
       )}
-      {investmentAllowed && (
-        <>
-          <div className={cx("buy-summary")}>
-            {humanReadablePositions &&
-              [
-                humanReadablePositions.payOutWhen,
-                humanReadablePositions.refundWhen,
-                humanReadablePositions.loseInvestmentWhen
-              ]
-                .filter(category => category && category.positions.length)
-                .map(category => (
-                  <Fragment key={category.title}>
-                    <div className={cx("buy-summary-heading")}>
-                      {category.title}
-                    </div>
-                    <div className={cx("buy-summary-category")}>
-                      <div className={cx("category-entries")}>
-                        {category.positions.map(outcome => (
-                          <OutcomeCard
-                            key={`${outcome.marketIndex}-${
-                              outcome.outcomeIndex
-                            }`}
-                            glueType={category.getGlue()}
-                            prefixType={category.getPrefix()}
-                            {...outcome}
-                          />
-                        ))}
-                      </div>
-                      <div className={cx("category-values")}>
-                        <p className={cx("category-value", "value")}>
-                          {formatCollateral(category.runningAmount, collateral)}
-                        </p>
-                        {/*<p className={cx("category-value", "margin")}>
-                          ({category.margin > 0 && "+"}
-                          {category.margin * 100}%)
-                          </p>*/}
-                      </div>
-                    </div>
-                  </Fragment>
-                ))}
-          </div>
-          <div className={cx("buy-subheading")}>
-            Total Investment ({collateral.name})
-          </div>
-          <div className={cx("buy-investment")}>
-            <button
-              className={cx("buy-invest", "buy-invest-minus")}
-              type="button"
-            >
-              -
-            </button>
-            <div className={cx("input-group")}>
-              <button
-                type="button"
-                className={cx("input-append", "link-button", "invest-max")}
-              >
-                max
-              </button>
-              <input
-                type="number"
-                value={investmentAmount}
-                className={cx("input")}
-                onChange={e => {
-                  setStagedTransactionType("buy outcome tokens");
-                  setInvestmentAmount(e.target.value);
-                }}
-              />
-              <span className={cx("input-append", "collateral-name")}>
-                {collateral.symbol}
-              </span>
-            </div>
-            <button
-              className={cx("buy-invest", "buy-invest-plus")}
-              type="button"
-            >
-              +
-            </button>
-          </div>
-        </>
-      )}
+      <div className={cx("buy-summary")}>
+        {humanReadablePositions &&
+          [
+            humanReadablePositions.payOutWhen,
+            humanReadablePositions.refundWhen,
+            humanReadablePositions.loseInvestmentWhen
+          ]
+            .filter(category => category && category.positions.length)
+            .map(category => (
+              <Fragment key={category.title}>
+                <div className={cx("buy-summary-heading")}>
+                  {category.title}
+                </div>
+                <div className={cx("buy-summary-category")}>
+                  <div className={cx("category-entries")}>
+                    {category.positions.map(outcome => (
+                      <OutcomeCard
+                        key={`${outcome.marketIndex}-${outcome.outcomeIndex}`}
+                        glueType={category.getGlue()}
+                        prefixType={category.getPrefix()}
+                        {...outcome}
+                      />
+                    ))}
+                  </div>
+                  <div className={cx("category-values")}>
+                    <p className={cx("category-value", "value")}>
+                      {formatCollateral(category.runningAmount, collateral)}
+                    </p>
+                    {/*<p className={cx("category-value", "margin")}>
+                      ({category.margin > 0 && "+"}
+                      {category.margin * 100}%)
+                      </p>*/}
+                  </div>
+                </div>
+              </Fragment>
+            ))}
+      </div>
+      <div className={cx("buy-subheading")}>
+        Total Investment ({collateral.name})
+      </div>
+      <div className={cx("buy-investment")}>
+        <button
+          className={cx("buy-invest", "buy-invest-minus")}
+          onClick={makeStepper(-0.001)}
+          type="button"
+        >
+          –
+        </button>
+        <div className={cx("input-group")}>
+          <button
+            className={cx("input-append", "link-button", "invest-max")}
+            onClick={setInvestmentMax}
+            type="button"
+          >
+            max
+          </button>
+          <input
+            type="number"
+            value={investmentAmount}
+            className={cx("input")}
+            onChange={e => {
+              setStagedTransactionType("buy outcome tokens");
+              setInvestmentAmount(e.target.value);
+            }}
+          />
+          <span className={cx("input-append", "collateral-name")}>
+            {collateral.symbol}
+          </span>
+        </div>
+        <button
+          className={cx("buy-invest", "buy-invest-plus")}
+          onClick={makeStepper(0.001)}
+          type="button"
+        >
+          +
+        </button>
+      </div>
       <div className={cx("buy-confirm")}>
         <button
           className={cx("button")}
@@ -373,110 +421,6 @@ const Buy = ({
         </button>
       </div>
     </>
-  );
-
-  return (
-    <div className={cn("positions")}>
-      {collateralBalance != null && (
-        <p>{`Your balance: ${formatCollateral(
-          collateralBalance.amount,
-          collateral
-        )}`}</p>
-      )}
-      {collateralBalance != null && collateral.isWETH && (
-        <p>{`Your unwrapped balance: ${formatCollateral(
-          collateralBalance.unwrappedAmount,
-          collateral
-        )}`}</p>
-      )}
-      {marketStage === "Closed" ? (
-        <p>Market maker is closed.</p>
-      ) : (
-        <>
-          {lmsrAllowance != null && (
-            <p>{`Market maker allowance: ${
-              hasInfiniteAllowance
-                ? `∞ ${collateral.symbol}`
-                : formatCollateral(lmsrAllowance, collateral)
-            }`}</p>
-          )}
-          <input
-            type="text"
-            placeholder={`Investment amount in ${collateral &&
-              collateral.name}`}
-            value={investmentAmount}
-            onChange={e => {
-              setStagedTransactionType("buy outcome tokens");
-              setInvestmentAmount(e.target.value);
-            }}
-          />
-          <button
-            type="button"
-            disabled={
-              !hasEnoughAllowance ||
-              stagedTransactionType !== "buy outcome tokens" ||
-              stagedTradeAmounts == null ||
-              ongoingTransactionType != null ||
-              marketStage !== "Running" ||
-              error != null
-            }
-            onClick={asWrappedTransaction(
-              "buy outcome tokens",
-              buyOutcomeTokens,
-              setError
-            )}
-          >
-            {ongoingTransactionType === "buy outcome tokens" ? (
-              <Spinner centered inverted width={25} height={25} />
-            ) : marketStage === "Paused" ? (
-              <>[Market paused]</>
-            ) : (
-              <>Buy</>
-            )}
-          </button>
-          {((!hasAnyAllowance && stagedTradeAmounts == null) ||
-            !hasEnoughAllowance) && (
-            <button
-              type="button"
-              onClick={asWrappedTransaction(
-                "set allowance",
-                setAllowance,
-                setError
-              )}
-            >
-              {ongoingTransactionType === "set allowance" ? (
-                <Spinner centered inverted width={25} height={25} />
-              ) : (
-                "Approve Market Maker for Trades"
-              )}
-            </button>
-          )}
-        </>
-      )}
-      {error && (
-        <div className={cn("error")}>
-          {error === true ? "An error has occured" : error.message}
-        </div>
-      )}
-
-      {stagedTradePositionGroups != null && (
-        <div>
-          <div>You will receive:</div>
-          {stagedTradePositionGroups.map(positionGroup => (
-            <div key={positionGroup.collectionId} className={cn("position")}>
-              <div className={cn("row", "details")}>
-                <PositionGroupDetails
-                  {...{
-                    positionGroup,
-                    collateral
-                  }}
-                />
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
   );
 };
 
@@ -540,7 +484,8 @@ Buy.propTypes = {
   stagedTransactionType: PropTypes.string,
   setStagedTransactionType: PropTypes.func.isRequired,
   ongoingTransactionType: PropTypes.string,
-  asWrappedTransaction: PropTypes.func.isRequired
+  asWrappedTransaction: PropTypes.func.isRequired,
+  resetMarketSelections: PropTypes.func.isRequired
 };
 
 export default Buy;

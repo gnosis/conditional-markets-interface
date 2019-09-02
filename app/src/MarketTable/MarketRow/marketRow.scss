@@ -1,14 +1,61 @@
+@import "~scss/_variables.scss";
+
 .market-row {
-  height: 120px;
-  background-color: #ffffff;
+  height: auto;
+  min-height: 12rem;
+  background-color: transparent;
   border: none;
+  font-size: 1.5rem;
+  line-height: 1.5;
+
+  &-heading {
+    display: none;
+    white-space: nowrap;
+    color: rgba(0, 0, 0, .6);
+    text-transform: uppercase;
+    padding: 0.2rem;
+
+    @media #{$tablet-small-max} {
+      display: block;
+      font-weight: $bold;
+      font-size: 1.1rem;
+      color: $shadeBlue;
+      letter-spacing: 0.05rem;
+    }
+  }
 
   &:not(:last-child) {
-    border-bottom: 1px solid #dedfde;
+    border-bottom: .1rem solid $greyBorder2;
+  }
+
+  .mobile-index {
+    font-weight: $bold;
+    color: $darkBlue;
+    display: none;
+
+    @media #{$tablet-small-max} {
+      display: block;
+      font-weight: $bold;
+      font-size: 1.1rem;
+      color: $darkBlue;
+      letter-spacing: 0.05rem;
+      background: $greyBorder2;
+      padding: .5rem 1rem;
+      border-radius: .2rem;
+      margin: 1rem 0;
+    }
   }
 
   td {
+    text-align: center;
     border: none;
-    padding: 0.4em 0.8em;
+    padding: 1.2rem 0.8rem;
+    position: relative;
+
+      &:first-child {
+        @media #{$tablet-small-max} {
+          display: none;
+        }
+      }
   }
 }

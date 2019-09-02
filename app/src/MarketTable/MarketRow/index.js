@@ -18,6 +18,7 @@ const { BN } = Web3.utils;
 const Market = ({
   conditionId,
   title,
+  headings,
   resolutionDate,
   index,
   probabilities,
@@ -28,9 +29,20 @@ const Market = ({
 }) => {
   const handleMarketSelection = useCallback(
     selection => {
-      let outcomeSelections = [...marketSelections];
-      outcomeSelections[index].selectedOutcomeIndex = selection;
-      setMarketSelection(outcomeSelections);
+      setMarketSelection(prevValue => {
+        return prevValue.map((marketSelection, marketSelectionIndex) => {
+          if (index === marketSelectionIndex) {
+            return {
+              selectedOutcomeIndex: selection,
+              isAssumed: selection === -1 ? false : marketSelection.isAssumed
+            };
+          }
+
+          return {
+            ...marketSelection
+          };
+        });
+      });
     },
     [marketSelections]
   );
@@ -39,44 +51,66 @@ const Market = ({
     isAssumed => {
       let outcomeSelections = [...marketSelections];
       outcomeSelections[index].isAssumed = isAssumed;
-      setMarketSelection(outcomeSelections);
+      setMarketSelection(prevValue => {
+        return prevValue.map((marketSelection, marketSelectionIndex) => {
+          if (index === marketSelectionIndex) {
+            return {
+              selectedOutcomeIndex: marketSelection.selectedOutcomeIndex,
+              isAssumed
+            };
+          }
+          return {
+            ...marketSelection
+          };
+        });
+      });
     },
     [marketSelections]
   );
 
+  const entries = [
+    `${index + 1}`,
+    <>
+      <span className={cx("mobile-index")}>#{index + 1}</span> {title}
+    </>,
+    <Probabilities
+      key="probabilities"
+      outcomes={outcomes}
+      probabilities={probabilities}
+      stagedProbabilities={stagedProbabilities}
+    />,
+    <ResolutionDate key="res_date" date={resolutionDate} />,
+    marketSelections && (
+      <OutcomeSelection
+        key="selection"
+        outcomes={outcomes}
+        conditionId={conditionId}
+        marketSelection={marketSelections[index]}
+        setOutcomeSelection={handleMarketSelection}
+      />
+    ),
+    marketSelections && (
+      <ToggleConditional
+        key="conditional_topggle"
+        disabled={
+          !marketSelections[index].isAssumed &&
+          marketSelections[index].selectedOutcomeIndex === -1
+        }
+        conditionId={conditionId}
+        toggleConditional={handleToggleConditional}
+        conditionalActive={marketSelections[index].isAssumed}
+      />
+    )
+  ];
+
   return (
     <tr className={cx("market-row")} key={conditionId}>
-      <td>{index + 1}</td>
-      <td>{title}</td>
-      <td>
-        <Probabilities
-          outcomes={outcomes}
-          probabilities={probabilities}
-          stagedProbabilities={stagedProbabilities}
-        />
-      </td>
-      <td>
-        <ResolutionDate date={resolutionDate} />
-      </td>
-      <td>
-        {marketSelections && (
-          <OutcomeSelection
-            outcomes={outcomes}
-            conditionId={conditionId}
-            marketSelection={marketSelections[index]}
-            setOutcomeSelection={handleMarketSelection}
-          />
-        )}
-      </td>
-      <td>
-        {marketSelections && (
-          <ToggleConditional
-            conditionId={conditionId}
-            toggleConditional={handleToggleConditional}
-            conditionalActive={marketSelections[index].isAssumed}
-          />
-        )}
-      </td>
+      {entries.map((entry, index) => (
+        <td key={`tr_row_${index}_${conditionId}`}>
+          <div className={cx("market-row-heading")}>{headings[index]}</div>
+          <div className={cx("market-row-content")}>{entry}</div>
+        </td>
+      ))}
     </tr>
   );
 };
@@ -86,6 +120,7 @@ Market.propTypes = {
   index: PropTypes.number.isRequired,
 
   title: PropTypes.string.isRequired,
+  headings: PropTypes.arrayOf(PropTypes.node).isRequired,
   resolutionDate: PropTypes.string.isRequired,
   outcomes: PropTypes.arrayOf(
     PropTypes.shape({
