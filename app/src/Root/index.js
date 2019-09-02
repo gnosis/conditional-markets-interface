@@ -347,6 +347,7 @@ const RootComponent = ({ childComponents }) => {
         setLoading("FAILURE");
         // eslint-disable-next-line
         console.error(err);
+        throw err;
       })
       .finally(() => {
         setLoading("SUCCESS");
