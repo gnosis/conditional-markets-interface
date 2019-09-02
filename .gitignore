@@ -3,4 +3,4 @@ build
 .history
 app/dist
 .env
-app/config.json.bak
+app/config.json.bak.DS_Store
