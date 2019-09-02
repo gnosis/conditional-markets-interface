@@ -342,14 +342,13 @@ const RootComponent = ({ childComponents }) => {
         setCollateral(collateral);
         setMarkets(markets);
         setPositions(positions);
+
+        setLoading("SUCCESS");
       })
       .catch(err => {
         setLoading("FAILURE");
         // eslint-disable-next-line
         console.error(err);
-      })
-      .finally(() => {
-        setLoading("SUCCESS");
       });
   }, []);
 
