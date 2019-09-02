@@ -1,5 +1,5 @@
 {
-  "lmsrAddress": "0x51c1641159743d3264CF3c2282013A0Df8Ab6671",
+  "lmsrAddress": "0xF3137917b718f06AA8F2973aC44d60A1Aabe594d",
   "markets": [
     {
       "questionId": "0xda66c02001000000000000000000000000000000000000000000000000000000",
@@ -53,5 +53,5 @@
       ]
     }
   ],
-  "networkId": 1
+  "networkId": 4
 }
