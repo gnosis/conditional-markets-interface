@@ -1,6 +1,7 @@
 {
-  "lmsrAddress": "0xca24282be001a428d27fdac4676561c2eb1de393",
-  "markets": [{
+  "lmsrAddress": "0xCa24282be001a428d27FdAC4676561c2EB1DE393",
+  "markets": [
+    {
       "questionId": "0xda66c02001000000000000000000000000000000000000000000000000000000",
       "title": "Will Multi-Collateral Dai go live on Mainnet by November 1st 2019?",
       "resolutionDate": "2019-09-01T16:00:00.000Z",
