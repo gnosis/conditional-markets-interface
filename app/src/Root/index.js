@@ -6,6 +6,7 @@ import Decimal from "decimal.js-light";
 
 import Logo from "assets/img/conditional-logo@3x.png";
 import Spinner from "components/Spinner";
+import CrashPage from "components/Crash";
 import { loadWeb3 } from "utils/web3";
 
 import style from "./root.scss";
@@ -252,37 +253,7 @@ const makeLoadable = (Component, childComponents) => {
     }
 
     if (loadingState === "ERROR") {
-      return (
-        <div className={cx("failure-page")}>
-          <h2>Something went wrong.</h2>
-          <p>
-            Unfortunately something did not go right and the application has
-            crashed. Please reload the page or contact us via...:
-            <br />
-            <a
-              href="https://t.me/GnosisGeneral"
-              target="_BLANK"
-              rel="noreferrer noopener"
-            >
-              <i className={cx("icon", "telegram")} />
-            </a>
-            <a
-              href="mailto:support@gnosis.io"
-              target="_BLANK"
-              rel="noreferrer noopener"
-            >
-              <i className={cx("icon", "email")} />
-            </a>
-            <a
-              href="https://gitter.im/gnosis/Lobby"
-              target="_BLANK"
-              rel="noreferrer noopener"
-            >
-              <i className={cx("icon", "gitter")} />
-            </a>
-          </p>
-        </div>
-      );
+      return <CrashPage />;
     }
 
     if (loadingState === "SUCCESS") {
@@ -304,6 +275,7 @@ const RootComponent = ({ childComponents }) => {
   ] = childComponents;
 
   const [loading, setLoading] = useState("LOADING");
+  const [lastError, setLastError] = useState(null);
   const [syncTime, setSyncTime] = useState(moduleLoadTime);
   const triggerSync = useCallback(() => {
     setSyncTime(Date.now());
@@ -349,10 +321,8 @@ const RootComponent = ({ childComponents }) => {
         setLoading("FAILURE");
         // eslint-disable-next-line
         console.error(err);
+        setLastError(err.message);
         throw err;
-      })
-      .finally(() => {
-        setLoading("SUCCESS");
       });
   }, []);
 
@@ -588,37 +558,7 @@ const RootComponent = ({ childComponents }) => {
     );
   }
   if (loading === "FAILURE") {
-    return (
-      <div className={cx("failure-page")}>
-        <h2>Something went wrong.</h2>
-        <p>
-          Unfortunately something did not go right and the application has
-          crashed. Please reload the page or contact us via...:
-          <br />
-          <a
-            href="https://t.me/GnosisGeneral"
-            target="_BLANK"
-            rel="noreferrer noopener"
-          >
-            <i className={cx("icon", "telegram")} />
-          </a>
-          <a
-            href="mailto:support@gnosis.io"
-            target="_BLANK"
-            rel="noreferrer noopener"
-          >
-            <i className={cx("icon", "email")} />
-          </a>
-          <a
-            href="https://gitter.im/gnosis/Lobby"
-            target="_BLANK"
-            rel="noreferrer noopener"
-          >
-            <i className={cx("icon", "gitter")} />
-          </a>
-        </p>
-      </div>
-    );
+    return <CrashPage errorMessage={lastError} />;
   }
 };
 
