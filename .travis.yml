@@ -38,3 +38,19 @@ deploy:
     upload-dir: current
     on:
       branch: master
+
+  # Prepare legacy production deployment
+  - provider: s3
+    bucket: $STAGING_BUCKET_NAME
+    access_key_id: $AWS_ACCESS_KEY_ID
+    secret_access_key: $AWS_SECRET_ACCESS_KEY
+    skip_cleanup: true
+    local_dir: docs
+    upload-dir: releases/$TRAVIS_TAG
+    on:
+      tags: true
+  - provider: script
+    script: bash travis/prepare_production_deployment.sh
+    on:
+      tags: true
+      node: '9'
