@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 
 import cn from "classnames/bind";
 
-import style from "./toasts.scss";
+import style from "./Toasts.scss";
 
 const cx = cn.bind(style);
 
