@@ -1,10 +1,10 @@
-# hg-first-decentralized-market
-The original fully decentralized prediction markets, PM2.0 Mercury.
+# Conditional Markets Interface
+Frontend Interface to display and operate conditional markets, based on Gnosis' [Conditional Token Standard](https://github.com/gnosis/conditional-tokens-contracts).
 
 ## Development Instructions
 
 1. Run `npm install`
-2. In a separate terminal, run `ganache-cli -d`
+2. In a separate terminal, run `ganache-cli -d -i 437894314313`
 3. Run `npm run migrate`. If the migration finishes successfully, `app/src/config.json` will be updated accordingly.
 4. Start the webpack dev server with `npm start`. This makes a hot-reloading dev build of the interface.
 
