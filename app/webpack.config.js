@@ -2,6 +2,8 @@ const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const FaviconsWebpackPlugin = require("favicons-webpack-plugin");
 
+const webpack = require("webpack");
+
 const moduleStubPath = path.resolve(__dirname, "module-stub.js");
 
 module.exports = {
@@ -97,6 +99,10 @@ module.exports = {
     new FaviconsWebpackPlugin({
       logo: path.resolve(__dirname, "assets", "img", "favicon.png"),
       prefix: "assets"
+    }),
+    new webpack.EnvironmentPlugin({
+      NODE_ENV: "development",
+      NETWORK: "local"
     })
   ]
 };
