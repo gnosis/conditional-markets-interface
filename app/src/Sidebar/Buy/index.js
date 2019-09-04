@@ -7,8 +7,6 @@ import Web3 from "web3";
 import cn from "classnames/bind";
 import style from "./buy.scss";
 
-import PositionGroupDetails from "position-group-details";
-import Spinner from "components/Spinner";
 import OutcomeCard from "components/OutcomeCard";
 import { zeroDecimal, maxUint256BN } from "utils/constants";
 import { formatCollateral } from "utils/formatting";
@@ -29,7 +27,6 @@ const Buy = ({
   collateralBalance,
   lmsrMarketMaker,
   lmsrState,
-  lmsrAllowance,
   marketSelections,
   stagedTradeAmounts,
   setStagedTradeAmounts,
@@ -50,7 +47,9 @@ const Buy = ({
     try {
       const decimalInvest = Decimal(investmentAmount);
       hasEnteredInvestment = decimalInvest.gt(0);
-    } catch (e) {}
+    } catch (e) {
+      //
+    }
 
     if (
       !(marketSelections || []).some(
@@ -99,19 +98,6 @@ const Buy = ({
   const marketStage = lmsrState && lmsrState.stage;
 
   let hasAnyAllowance = false;
-  let hasEnoughAllowance = false;
-  let hasInfiniteAllowance = false;
-  if (lmsrAllowance != null)
-    try {
-      hasAnyAllowance = lmsrAllowance.gtn(0);
-      hasEnoughAllowance = collateral.toUnitsMultiplier
-        .mul(investmentAmount || "0")
-        .lte(lmsrAllowance.toString());
-
-      hasInfiniteAllowance = lmsrAllowance.eq(maxUint256BN);
-    } catch (e) {
-      // empty
-    }
 
   const buyOutcomeTokens = useCallback(async () => {
     if (stagedTradeAmounts == null) throw new Error(`No buy set yet`);
@@ -166,12 +152,6 @@ const Buy = ({
     account
   ]);
 
-  const setAllowance = useCallback(async () => {
-    await collateral.contract.approve(lmsrMarketMaker.address, maxUint256BN, {
-      from: account
-    });
-  }, [collateral, lmsrMarketMaker]);
-
   const [stagedTradePositionGroups, setStagedTradePositionGroups] = useState(
     []
   );
@@ -191,7 +171,7 @@ const Buy = ({
   }
 
   const makeStepper = useCallback(amount => {
-    return e => {
+    return () => {
       setStagedTransactionType("buy outcome tokens");
       setInvestmentAmount(prevValue => {
         let prevValueDecimal;
@@ -254,24 +234,16 @@ const Buy = ({
       }
     };
 
-    let stagePositionTradeAmount;
-
-    try {
-      stagePositionTradeAmount = Decimal(investmentAmount);
-    } catch (err) {
-      stagePositionTradeAmount = zeroDecimal;
-    }
-
     (stagedTradePositionGroups || []).forEach(
-      ({ outcomeSet, runningAmount }, index) => {
-        //positions["payOutWhen"]
-
+      ({ outcomeSet, runningAmount }) => {
         let hasEnteredInvestment;
 
         try {
           const decimalInvest = Decimal(investmentAmount);
           hasEnteredInvestment = decimalInvest.gt(0);
-        } catch (err) {}
+        } catch (err) {
+          //
+        }
 
         // all payouts
         humanReadablePositions.payOutWhen.positions = outcomeSet;
@@ -396,7 +368,7 @@ const Buy = ({
           onClick={makeStepper(-0.001)}
           type="button"
         >
-          -
+          –
         </button>
         <div className={cx("input-group")}>
           <button
@@ -449,110 +421,6 @@ const Buy = ({
         </button>
       </div>
     </>
-  );
-
-  return (
-    <div className={cn("positions")}>
-      {collateralBalance != null && (
-        <p>{`Your balance: ${formatCollateral(
-          collateralBalance.amount,
-          collateral
-        )}`}</p>
-      )}
-      {collateralBalance != null && collateral.isWETH && (
-        <p>{`Your unwrapped balance: ${formatCollateral(
-          collateralBalance.unwrappedAmount,
-          collateral
-        )}`}</p>
-      )}
-      {marketStage === "Closed" ? (
-        <p>Market maker is closed.</p>
-      ) : (
-        <>
-          {lmsrAllowance != null && (
-            <p>{`Market maker allowance: ${
-              hasInfiniteAllowance
-                ? `∞ ${collateral.symbol}`
-                : formatCollateral(lmsrAllowance, collateral)
-            }`}</p>
-          )}
-          <input
-            type="text"
-            placeholder={`Investment amount in ${collateral &&
-              collateral.name}`}
-            value={investmentAmount}
-            onChange={e => {
-              setStagedTransactionType("buy outcome tokens");
-              setInvestmentAmount(e.target.value);
-            }}
-          />
-          <button
-            type="button"
-            disabled={
-              !hasEnoughAllowance ||
-              stagedTransactionType !== "buy outcome tokens" ||
-              stagedTradeAmounts == null ||
-              ongoingTransactionType != null ||
-              marketStage !== "Running" ||
-              error != null
-            }
-            onClick={asWrappedTransaction(
-              "buy outcome tokens",
-              buyOutcomeTokens,
-              setError
-            )}
-          >
-            {ongoingTransactionType === "buy outcome tokens" ? (
-              <Spinner centered inverted width={25} height={25} />
-            ) : marketStage === "Paused" ? (
-              <>[Market paused]</>
-            ) : (
-              <>Buy</>
-            )}
-          </button>
-          {((!hasAnyAllowance && stagedTradeAmounts == null) ||
-            !hasEnoughAllowance) && (
-            <button
-              type="button"
-              onClick={asWrappedTransaction(
-                "set allowance",
-                setAllowance,
-                setError
-              )}
-            >
-              {ongoingTransactionType === "set allowance" ? (
-                <Spinner centered inverted width={25} height={25} />
-              ) : (
-                "Approve Market Maker for Trades"
-              )}
-            </button>
-          )}
-        </>
-      )}
-      {error && (
-        <div className={cn("error")}>
-          {error === true ? "An error has occured" : error.message}
-        </div>
-      )}
-
-      {stagedTradePositionGroups != null && (
-        <div>
-          <div>You will receive:</div>
-          {stagedTradePositionGroups.map(positionGroup => (
-            <div key={positionGroup.collectionId} className={cn("position")}>
-              <div className={cn("row", "details")}>
-                <PositionGroupDetails
-                  {...{
-                    positionGroup,
-                    collateral
-                  }}
-                />
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
   );
 };
 
@@ -616,7 +484,8 @@ Buy.propTypes = {
   stagedTransactionType: PropTypes.string,
   setStagedTransactionType: PropTypes.func.isRequired,
   ongoingTransactionType: PropTypes.string,
-  asWrappedTransaction: PropTypes.func.isRequired
+  asWrappedTransaction: PropTypes.func.isRequired,
+  resetMarketSelections: PropTypes.func.isRequired
 };
 
 export default Buy;

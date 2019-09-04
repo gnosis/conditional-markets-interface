@@ -17,7 +17,9 @@ export function calcOutcomeTokenCounts(
         isAssumed || selectedOutcomeIndex === -1
     )
   )
-    throw new Error("At least one outcome selection must be made");
+    throw new Error(
+      "Pick at least one non-conditional market outcome (any row below THEN ↓)."
+    );
 
   const invB = new Decimal(positions.length).ln().dividedBy(funding.toString());
 

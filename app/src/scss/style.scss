@@ -1,14 +1,32 @@
+@import "./_variables.scss";
 @import "./fonts.scss";
 
 :global {
   body {
-    font-family: 'Averta', sans-serif;
-    background-color: #f7f8fb;
-    color: #000;
+    font-family: $font;
+    margin: 0;
   }
-  
+
+  ::selection {
+    color: $white;
+    background: $blue;
+  }
+
   html {
     box-sizing: border-box;
+    margin: 0;
+    font-family: $font;
+    background-color: $grey;
+    color: $darkBlue;
+    padding: 0;
+    margin: 0;
+    font-size: 62.5%; // Percentage allows us to use 1rem = 10px and e.g. 1.6rem = 16px. Helps to render correct on larger screen / high pixel density devices.
+    line-height: $base-line-height;
+    margin: 0;
+    scroll-behavior: smooth;
+    text-rendering: geometricPrecision;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   html, body, #root, .page {
@@ -17,5 +35,5 @@
 
   *, *:before, *:after {
     box-sizing: inherit;
-  }  
+  }
 }

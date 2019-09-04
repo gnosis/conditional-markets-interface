@@ -1,27 +1,42 @@
+@import "~scss/_variables.scss";
+
 .modal {
   height: auto;
-  background-color: #ffffff;
-  padding: 1rem 4rem;
-  border-radius: 3px;
-  box-shadow: 0 1px 15px 0 rgba(0, 30, 59, 0.15);
-  max-width: 760px;
+  background-color: $white;
+  padding: 1.6rem;
+  border-radius: .3rem;
+  box-shadow: 0 1rem 1.5rem 0 rgba(0, 30, 59, 0.15);
+  max-width: 76rem;
   width: 100%;
   position: relative;
   margin: 1rem 0;
 
   &-close {
-    content: '\00D7';
     position: absolute;
-    top: 1rem;
-    right: 1rem;
-    font-size: 150%;
-    color: black;
-    transition: filter .4s ease;
+    top: 2rem;
+    right: 2rem;
+    color: $shadeBlue;
+    font-size: 2.8rem;
+    font-weight: bold;
+    transition: color .3s ease-in-out;
     text-decoration: none;
+
+    &::after {
+      content: $x;
+      color: inherit;
+      display: flex;
+      font-size: inherit;
+      height: 2rem;
+      width: 2rem;
+      line-height: 1;
+      align-items: center;
+      justify-content: center;
+      font-family: $arial;
+    }
 
     &:focus, &:active, &:hover {
       text-decoration: none;
-      filter: drop-shadow(2px 4px 6px rgba(0, 0, 0, 0.4));;
+      color: $darkBlue;
     }
 
     &:visited {
@@ -32,12 +47,26 @@
 
   &-body {
     padding: 1rem;
+    text-align: center;
+
+      p {
+        font-weight: $normal;
+        font-size: 1.6rem;
+        color: $shadeBlue;
+        letter-spacing: 0;
+        text-align: center;
+        line-height: 1.2;
+      }
   }
 
   &-header {
-    padding: 2rem 1rem;
+    font-weight: $bold;
+    font-size: 2.6rem;
+    color: $darkBlue;
+    letter-spacing: 0;
     text-align: center;
-    font-size: 150%;
-    font-weight: bold;
+    margin: 5rem 0;
+    padding: 0;
+    line-height: 1;
   }
 }

@@ -4,3 +4,4 @@ build
 app/dist
 .env
 app/config.json.bak
+.DS_Store

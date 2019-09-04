@@ -1,19 +1,26 @@
-.header {
-  background: #ffffff;
-  display: flex;
-  flex-direction: row;
+@import "~scss/_variables.scss";
 
+.header {
+  background: $white;
+  display: flex;
+  flex-flow: row nowrap;
   width: 100%;
   position: relative;
+  border-bottom: .1rem solid $greyBorder2;
+  height: 7.5rem;
 
-  border-bottom: 1px solid #dedfde;
-  align-items: stretch;
+  @media #{$tablet-small-max} {
+    height: 4.6rem;
+    justify-content: space-between;
+  }
 
-  .logo, .menu, .avatar {
+  .logo,
+  .menu,
+  .avatar {
     height: auto;
 
     &:not(:last-child) {
-      border-right: 1px solid #dedfde;
+      border-right: .1rem solid $greyBorder2;
     }
   }
 
@@ -22,18 +29,28 @@
     -webkit-appearance: none;
     border: none;
     background: none;
-    
+    padding: 0;
+
     img {
+      display: flex;
       height: 100%;
-      width: auto;
+      width: 90%;
+      margin: 0 auto;
+
+        @media #{$tablet-small-max} {
+          height: 2.8rem;
+          width: 10.4rem;
+          margin: 0 1rem 0 1rem;
+        }
     }
 
-    //flex-basis: 10%;
-    padding: 0.7rem 1rem;
   }
 
-  .menu {  
+  .menu {
     flex: 1;
+    @media #{$tablet-small-max} {
+      display: none;
+    }
   }
 }
 
