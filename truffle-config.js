@@ -47,10 +47,16 @@ const config = {
       },
       mainnet: {
         provider: () =>
-          new HDWalletProvider(seed, "https://node-green.mainnet.gnosis.pm"),
+          new HDWalletProvider(
+            seed,
+            "https://node-green.mainnet.gnosis.pm",
+            0,
+            1,
+            false
+          ),
         network_id: "1",
         skipDryRun: true,
-        gasPrice: 3e9
+        gasPrice: 10000000002
       },
       rinkeby: {
         provider: () =>

@@ -15,8 +15,12 @@ module.exports = function(deployer) {
       )
     );
 
-    const WETH9 = artifacts.require("WETH9");
-    const collateralToken = await WETH9.deployed();
+    // const WETH9 = artifacts.require("WETH9");
+    const TokenInterface = artifacts.require("ERC20Detailed");
+    // const collateralToken = await WETH9.deployed();
+    const collateralToken = await TokenInterface.at(
+      "0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359"
+    );
 
     const lmsrMarketMakerFactory = await artifacts
       .require("LMSRMarketMakerFactory")
@@ -24,7 +28,7 @@ module.exports = function(deployer) {
 
     const { ammFunding } = deployConfig;
 
-    await collateralToken.deposit({ value: ammFunding });
+    // await collateralToken.deposit({ value: ammFunding });
 
     await collateralToken.approve(lmsrMarketMakerFactory.address, ammFunding);
 
