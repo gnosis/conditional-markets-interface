@@ -1,57 +1,52 @@
 module.exports = [
   {
     questionId:
-      "0xda66c02001000000000000000000000000000000000000000000000000000000",
-    title: "Will Multi-Collateral Dai go live on Mainnet by November 1st 2019?",
-    resolutionDate: "2019-09-01T16:00:00.000Z",
+      "0x5505d5484e553768506d8997e0d2f1fd7398b00a0d2517d139bcd38babc04e28",
+    title:
+      "Will Britain leave  the EU on the 31st of October 2019 with no deal ?",
+    resolutionDate: "2019-11-01T00:00:01.000Z",
     outcomes: [
       {
         title: "Yes",
-        short: "Yes",
-        when: "MCD live Nov 1"
+        short: "Yes"
       },
       {
         title: "No",
-        short: "No",
-        when: "MCD not live Nov 1"
+        short: "No"
       }
     ]
   },
   {
     questionId:
-      "0xda66c02002000000000000000000000000000000000000000000000000000000",
+      "0x94b1c932f45a189f5c86f0fc921747f86a57adb434dfe75f8d48080b7deee4f3",
     title:
-      "Will Multi-Collateral Dai overtake Single-Collateral Dai by March 31st 2020?",
-    resolutionDate: "2020-03-31T16:00:00.000Z",
+      "Will a vote of no confidence of her majesty’s government be passed before 31st October?",
+    resolutionDate: "2019-10-31T00:00:01.000Z",
     outcomes: [
       {
         title: "Yes",
-        short: "Yes",
-        when: "MCD is Dai"
+        short: "Yes"
       },
       {
         title: "No",
-        short: "No",
-        when: "SCD is Dai"
+        short: "No"
       }
     ]
   },
   {
     questionId:
-      "0xda66c02003000000000000000000000000000000000000000000000000000000",
+      "0x313a9c4b581cf33f07f0ef58ebcf71bb911658b6c2a5cb6223cc67a4ee702b83",
     title:
-      "Will the stability fee for Single-Collateral Dai go up from 20.5% before November 1st 2019?",
-    resolutionDate: "2019-09-01T16:00:00.000Z",
+      "Will there be a hard border between Northern Ireland and the Republic of Ireland on the 1st of November?",
+    resolutionDate: "2019-11-02T00:00:01.000Z",
     outcomes: [
       {
         title: "Yes",
-        short: "Yes",
-        when: "Dai stability fee > 20.5%"
+        short: "Yes"
       },
       {
         title: "No",
-        short: "No",
-        when: "Dai stability fee ≤ 20.5%"
+        short: "No"
       }
     ]
   }
