@@ -12,7 +12,7 @@ install:
    - npm install -g sass@1.22.10
    - npm install -g truffle@5.0.33
 before_script:
-  - if [ "$TRAVIS_BRANCH" == "development" ]; then NETWORK="rinkeby"; else NETWORK="mainnet"; fi;
+  - if [ "$TRAVIS_BRANCH" == "development" ]; then export NETWORK="rinkeby"; else export NETWORK="mainnet"; fi;
   - npm run compile && npm run build
 
 script:

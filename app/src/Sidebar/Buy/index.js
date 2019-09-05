@@ -263,9 +263,16 @@ const Buy = ({
             return {
               ...outcome,
               ...markets[outcome.marketIndex].outcomes[
-                outcome.outcomeIndex == 0 ? 1 : 0
+                outcome.outcomeIndex == 0 &&
+                !marketSelections[outcome.marketIndex].isAssumed
+                  ? 1
+                  : 0
               ],
-              outcomeIndex: outcome.outcomeIndex == 0 ? 1 : 0
+              outcomeIndex:
+                outcome.outcomeIndex == 0 &&
+                !marketSelections[outcome.marketIndex].isAssumed
+                  ? 1
+                  : 0
             };
           }
         );

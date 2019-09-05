@@ -6,6 +6,8 @@ const webpack = require("webpack");
 
 const moduleStubPath = path.resolve(__dirname, "module-stub.js");
 
+console.log(`Building for Network ${process.env.NETWORK || "local"}`);
+
 module.exports = {
   entry: "./src/index.js",
   devtool: "eval-source-map",
@@ -102,7 +104,7 @@ module.exports = {
     }),
     new webpack.EnvironmentPlugin({
       NODE_ENV: "development",
-      NETWORK: "local"
+      NETWORK: false
     })
   ]
 };

@@ -271,7 +271,8 @@ const RootComponent = ({ childComponents }) => {
     Header,
     Menu,
     UserWallet,
-    Toasts
+    Toasts,
+    Footer
   ] = childComponents;
 
   const [loading, setLoading] = useState("LOADING");
@@ -293,8 +294,21 @@ const RootComponent = ({ childComponents }) => {
   const [positions, setPositions] = useState(null);
 
   const init = useCallback(() => {
-    import(`../../config.${process.env.NETWORK || "local"}.json`)
+    const networkToUse = process.env.NETWORK || "local";
+    import(
+      /* webpackChunkName: "config" */
+      /* webpackInclude: /\.json$/ */
+      /* webpackMode: "lazy" */
+      /* webpackPrefetch: true */
+      /* webpackPreload: true */
+      `../../config.${networkToUse}.json`
+    )
       .then(async ({ default: config }) => {
+        /* eslint-disable no-console */
+        console.groupCollapsed("Configuration");
+        console.log(config);
+        console.groupEnd();
+        /* eslint-enable no-console */
         //setNetworkId(config.networkId);
         const { web3, account } = await loadWeb3(config.networkId);
 
@@ -547,6 +561,7 @@ const RootComponent = ({ childComponents }) => {
             />
           </div>
         </div>
+        <Footer />
       </div>
     );
 
@@ -554,11 +569,17 @@ const RootComponent = ({ childComponents }) => {
     return (
       <div className={cx("loading-page")}>
         <Spinner centered width={100} height={100} />
+        <Footer />
       </div>
     );
   }
   if (loading === "FAILURE") {
-    return <CrashPage errorMessage={lastError} />;
+    return (
+      <div>
+        <CrashPage errorMessage={lastError} />;
+        <Footer />
+      </div>
+    );
   }
 };
 
@@ -569,6 +590,7 @@ export default hot(
     () => import("Header"),
     () => import("components/Menu"),
     () => import("components/UserWallet"),
-    () => import("components/Toasts")
+    () => import("components/Toasts"),
+    () => import("components/Footer")
   ])
 );
