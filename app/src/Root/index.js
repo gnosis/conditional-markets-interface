@@ -271,7 +271,8 @@ const RootComponent = ({ childComponents }) => {
     Header,
     Menu,
     UserWallet,
-    Toasts
+    Toasts,
+    Footer
   ] = childComponents;
 
   const [loading, setLoading] = useState("LOADING");
@@ -547,6 +548,7 @@ const RootComponent = ({ childComponents }) => {
             />
           </div>
         </div>
+        <Footer />
       </div>
     );
 
@@ -554,11 +556,17 @@ const RootComponent = ({ childComponents }) => {
     return (
       <div className={cx("loading-page")}>
         <Spinner centered width={100} height={100} />
+        <Footer />
       </div>
     );
   }
   if (loading === "FAILURE") {
-    return <CrashPage errorMessage={lastError} />;
+    return (
+      <div>
+        <CrashPage errorMessage={lastError} />;
+        <Footer />
+      </div>
+    );
   }
 };
 
@@ -569,6 +577,7 @@ export default hot(
     () => import("Header"),
     () => import("components/Menu"),
     () => import("components/UserWallet"),
-    () => import("components/Toasts")
+    () => import("components/Toasts"),
+    () => import("components/Footer")
   ])
 );
