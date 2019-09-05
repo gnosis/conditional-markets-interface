@@ -78,6 +78,6 @@ deploy:
       branch: release/alpha
 
   - provider: script
-    script: bash TRAVIS_TAG=alpha travis/prepare_production_deployment.sh
+    script: TRAVIS_TAG=alpha bash travis/prepare_production_deployment.sh
     on:
       branch: release/alpha
