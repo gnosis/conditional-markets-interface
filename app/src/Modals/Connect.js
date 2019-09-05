@@ -73,9 +73,7 @@ const Connect = ({ closeModal, reinit }) => {
   return (
     <div className={cx("modal")}>
       <div className={cx("modal-header")}>
-        <a href="#" className={cx("modal-close")} onClick={closeModal}>
-          &times;
-        </a>{" "}
+        <a href="#" className={cx("modal-close")} onClick={closeModal}></a>{" "}
         Connect with your Web3 wallet
       </div>
       <div className={cx("modal-body")}>
