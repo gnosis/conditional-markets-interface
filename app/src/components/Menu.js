@@ -17,13 +17,7 @@ const Menu = () => (
   <nav className={cx("menu")}>
     <ul>
       {menuItems.map(({ label, target, active }) => (
-        <li
-          className={cx("menu-item", {
-            active,
-            legal: location.search === "?legal"
-          })}
-          key={target}
-        >
+        <li className={cx("menu-item", { active })} key={target}>
           <span>{label}</span>
         </li>
       ))}
