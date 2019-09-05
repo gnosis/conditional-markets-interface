@@ -12,8 +12,9 @@ const ConditionalExplanation = ({ closeModal }) => {
   return (
     <div className={cx("modal")}>
       <div className={cx("modal-header")}>
-        <a href="#" className={cx("modal-close")} onClick={closeModal} /> What
-        is a conditional market?
+        <a href="#" className={cx("modal-close")} onClick={closeModal}>
+        </a>{" "}
+        What is a conditional market?
       </div>
       <div className={cx("modal-body")}>
         <img
@@ -29,11 +30,9 @@ const ConditionalExplanation = ({ closeModal }) => {
           When the outcome(s) of conditional markets in the end are not met,
           you&apos;ll receive a refund.
         </p>
-        <p>
-          <strong>
-            Enable the &apos;conditional&apos; toggle on the market that you
-            want your other trades to depend on.
-          </strong>
+        <p><strong>
+          Enable the &apos;conditional&apos; toggle on the market that you want
+          your other trades to depend on.</strong>
         </p>
       </div>
     </div>

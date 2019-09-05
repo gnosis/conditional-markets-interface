@@ -40,6 +40,17 @@ deploy:
     on:
       branch: master
 
+  # ALPHA STAGING deployment
+  - provider: s3
+    bucket: $ALPHA_BUCKET_NAME
+    access_key_id: $AWS_ACCESS_KEY_ID
+    secret_access_key: $AWS_SECRET_ACCESS_KEY
+    skip_cleanup: true
+    local_dir: docs
+    upload-dir: current
+    on:
+      branch: release/alpha
+
   # Prepare legacy production deployment
   - provider: s3
     bucket: $STAGING_BUCKET_NAME
