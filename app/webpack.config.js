@@ -104,7 +104,7 @@ module.exports = {
     }),
     new webpack.EnvironmentPlugin({
       NODE_ENV: "development",
-      NETWORK: "local"
+      NETWORK: false
     })
   ]
 };

@@ -294,14 +294,21 @@ const RootComponent = ({ childComponents }) => {
   const [positions, setPositions] = useState(null);
 
   const init = useCallback(() => {
-    const loaders = {
-      local: () => import("../../config.local.json"),
-      rinkeby: () => import("../../config.rinkeby.json"),
-      mainnet: () => import("../../config.mainnet.json")
-    };
-
-    loaders[process.env.NETWORK || "local"]()
+    const networkToUse = process.env.NETWORK || "local";
+    import(
+      /* webpackChunkName: "config" */
+      /* webpackInclude: /\.json$/ */
+      /* webpackMode: "lazy" */
+      /* webpackPrefetch: true */
+      /* webpackPreload: true */
+      `../../config.${networkToUse}.json`
+    )
       .then(async ({ default: config }) => {
+        /* eslint-disable no-console */
+        console.groupCollapsed("Configuration");
+        console.log(config);
+        console.groupEnd();
+        /* eslint-enable no-console */
         //setNetworkId(config.networkId);
         const { web3, account } = await loadWeb3(config.networkId);
 
