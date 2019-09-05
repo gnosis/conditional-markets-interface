@@ -16,4 +16,4 @@ export const minDisplayedProbability = new Decimal(10)
   .mul("0.01");
 export const collateralSignificantDigits = 5;
 
-export const outcomeColors = [Color("#d9f6fb"), Color("#ffe6ea")];
+export const outcomeColors = [Color("#D9F6FB"), Color("#FFE6EA")];

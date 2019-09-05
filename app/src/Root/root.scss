@@ -1,0 +1,89 @@
+@import "~scss/_variables.scss";
+
+.page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding-bottom: 32px;
+}
+
+.loading-page {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sections {
+  display: flex;
+  flex: 1;
+
+  .section {
+    &-markets {
+      flex: 1;
+      border-right: .1rem solid $greyBorder2;
+        @media #{$tablet-small-max} {
+          border: 0;
+        }
+    }
+
+    &-positions {
+      background: $white;
+      flex-basis: 20%;
+        @media #{$tablet-small-max} {
+          display: none;
+        }
+    }
+  }
+}
+
+.modal-space {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-flow: column wrap;
+  min-height: 100%;
+  background: $blue;
+
+  &:not(.modal-open) {
+    display: none;
+  }
+
+  .logo {
+    max-height: 4.5rem;
+    width: auto;
+    margin: 1rem;
+  }
+
+  .footer {
+    list-style: none;
+    padding: 0;
+
+    li {
+      display: inline-block;
+      margin: 0 1rem;
+      color: $white;
+
+      a {
+        color: inherit;
+        transition: all .4s ease;
+        text-decoration: none;
+
+        &:focus, &:active, &:visited, &:hover {
+          color: inherit;
+          opacity: .8;
+        }
+      }
+    }
+  }
+}
+
+.app-space {
+  display: flex;
+  flex-flow: column wrap;
+
+  &.modal-open {
+    display: none;
+  }
+}

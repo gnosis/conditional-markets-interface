@@ -1,20 +1,36 @@
+@import "~scss/_variables.scss";
+
 .user-wallet {
   display: flex;
-  padding: 1rem 0.8rem;
+  padding: 1rem 1.6rem;
   justify-content: center;
   align-items: center;
   height: 100%;
 
-  > * {
-    margin: 0 4px;
+
+  > span {
+    font-size: 1.5rem;
+    color: $darkBlue;
+    letter-spacing: 0.05rem;
+    text-align: right;
+    margin: 0 1rem 0 0;
+
+      @media #{$tablet-small-max} {
+        font-size: 1.2rem;
+        margin: 0 .5rem 0 0;
+      }
   }
 
   .avatar {
-    height: 42px;
-    width: 42px;
+    height: 4.2rem;
+    width: 4.2rem;
     position: relative;
     border-radius: 100%;
     overflow: hidden;
+      @media #{$tablet-small-max} {
+        height: 2.4rem;
+        width: 2.4rem;
+      }
 
     &-image {
       max-height: 100%;
@@ -31,13 +47,12 @@
   text-transform: uppercase;
   font-weight: bolder;
   padding: 1rem 0.8rem;
-  border-radius: 3px;
-  border: 1px solid #dedfed;
-
-  background-color: #02ae60;
-  color: #ffffff;
+  border-radius: .3rem;;
+  border: .1rem solid $greyBorder2;
+  background-color: $green;
+  color: $white;
 
   &:hover, &:focus, &:active {
-    background-color: darken(#02ae60, 20%);
+    background-color: darken($green, 20%);
   }
 }

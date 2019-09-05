@@ -1,23 +1,30 @@
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
-const { BundleAnalyzerPlugin } = require("webpack-bundle-analyzer");
+const FaviconsWebpackPlugin = require("favicons-webpack-plugin");
+
+const webpack = require("webpack");
 
 const moduleStubPath = path.resolve(__dirname, "module-stub.js");
+
+console.log(`Building for Network ${process.env.NETWORK || "local"}`);
 
 module.exports = {
   entry: "./src/index.js",
   devtool: "eval-source-map",
   output: {
-    path: __dirname + "/../docs",
+    path: path.resolve(__dirname, "..", "docs"),
+    publicPath: "/",
     filename: "bundle.js"
   },
   target: "web",
   resolve: {
     symlinks: false,
     alias: {
-      assets: `${__dirname}/assets`,
+      "react-dom": "@hot-loader/react-dom",
+      assets: path.resolve(__dirname, "assets"),
+      scss: path.resolve(__dirname, "src", "scss"),
       // manually deduplicate these modules
-      "bn.js": path.resolve(__dirname, "../node_modules/bn.js"),
+      "bn.js": path.resolve(__dirname, "..", "node_modules", "bn.js"),
       // stub out these modules
       "web3-shh": moduleStubPath,
       "web3-bzz": moduleStubPath,
@@ -28,7 +35,7 @@ module.exports = {
     modules: ["node_modules", "src", "assets"]
   },
   devServer: {
-    contentBase: __dirname + "/assets",
+    contentBase: path.resolve(__dirname, "assets"),
     overlay: true
   },
   module: {
@@ -62,12 +69,12 @@ module.exports = {
             outputPath: "fonts/"
           }
         },
-        include: [`${__dirname}/assets/fonts`]
+        include: [path.resolve(__dirname, "assets", "fonts")]
       },
       {
         test: /\.(png|svg|jpg|gif)$/,
         use: ["file-loader"],
-        exclude: [`${__dirname}/assets/icons`]
+        exclude: [path.resolve(__dirname, "assets", "icons")]
       },
       {
         test: /.*\/icons\/.*\.svg$/,
@@ -89,12 +96,15 @@ module.exports = {
   plugins: [
     new HtmlWebpackPlugin({
       filename: "index.html",
-      template: __dirname + "/src/index.html"
+      template: path.resolve(__dirname, "src", "index.html")
+    }),
+    new FaviconsWebpackPlugin({
+      logo: path.resolve(__dirname, "assets", "img", "favicon.png"),
+      prefix: "assets"
+    }),
+    new webpack.EnvironmentPlugin({
+      NODE_ENV: "development",
+      NETWORK: false
     })
-    /*
-    new BundleAnalyzerPlugin({
-      analyzerPort: process.env.NODE_ENV !== "production" ? 8888 : 8889
-    })
-    */
   ]
 };

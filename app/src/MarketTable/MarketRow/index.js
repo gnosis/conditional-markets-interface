@@ -29,9 +29,20 @@ const Market = ({
 }) => {
   const handleMarketSelection = useCallback(
     selection => {
-      let outcomeSelections = [...marketSelections];
-      outcomeSelections[index].selectedOutcomeIndex = selection;
-      setMarketSelection(outcomeSelections);
+      setMarketSelection(prevValue => {
+        return prevValue.map((marketSelection, marketSelectionIndex) => {
+          if (index === marketSelectionIndex) {
+            return {
+              selectedOutcomeIndex: selection,
+              isAssumed: selection === -1 ? false : marketSelection.isAssumed
+            };
+          }
+
+          return {
+            ...marketSelection
+          };
+        });
+      });
     },
     [marketSelections]
   );
@@ -40,7 +51,19 @@ const Market = ({
     isAssumed => {
       let outcomeSelections = [...marketSelections];
       outcomeSelections[index].isAssumed = isAssumed;
-      setMarketSelection(outcomeSelections);
+      setMarketSelection(prevValue => {
+        return prevValue.map((marketSelection, marketSelectionIndex) => {
+          if (index === marketSelectionIndex) {
+            return {
+              selectedOutcomeIndex: marketSelection.selectedOutcomeIndex,
+              isAssumed
+            };
+          }
+          return {
+            ...marketSelection
+          };
+        });
+      });
     },
     [marketSelections]
   );
@@ -69,7 +92,10 @@ const Market = ({
     marketSelections && (
       <ToggleConditional
         key="conditional_topggle"
-        disabled={marketSelections[index].selectedOutcomeIndex === -1}
+        disabled={
+          !marketSelections[index].isAssumed &&
+          marketSelections[index].selectedOutcomeIndex === -1
+        }
         conditionId={conditionId}
         toggleConditional={handleToggleConditional}
         conditionalActive={marketSelections[index].isAssumed}
@@ -94,6 +120,7 @@ Market.propTypes = {
   index: PropTypes.number.isRequired,
 
   title: PropTypes.string.isRequired,
+  headings: PropTypes.arrayOf(PropTypes.node).isRequired,
   resolutionDate: PropTypes.string.isRequired,
   outcomes: PropTypes.arrayOf(
     PropTypes.shape({

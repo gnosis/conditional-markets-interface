@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" aria-labelledby="title"
-aria-describedby="desc" role="img" xmlns:xlink="http://www.w3.org/1999/xlink">
-  <title>Arrow Down</title>
-  <desc>A line styled icon from Orion Icon Library.</desc>
-  <path data-name="layer1"
-  fill="none" stroke="#a8b3bb" stroke-miterlimit="10" stroke-width="2" d="M16 36l16 16 16-16-4.242-4.243-8.759 8.759V12h-6v28.514l-8.757-8.757L16 36z"
-  stroke-linejoin="round" stroke-linecap="round"></path>
-</svg>

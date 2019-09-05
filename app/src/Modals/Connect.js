@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
+import PropTypes from "prop-types";
 import cn from "classnames/bind";
 
 import metamask from "assets/img/metamask-fox.svg";
@@ -14,13 +15,14 @@ const Connect = ({ closeModal, reinit }) => {
   const [validProvider, setValidProvider] = useState(false);
 
   const troubleshootMetamask = useCallback(async () => {
-    const { default: config } = await import("../../config.json");
+    const config = await import(
+      `../../config.${process.env.NETWORK || "local"}.json`
+    );
 
-    let account, web3;
+    let account;
     try {
       const web3Data = await tryProvider(Web3.givenProvider, config.networkId);
       account = web3Data.account;
-      web3 = web3Data.web3;
     } catch (err) {
       if (err.message === "provider not available") {
         setErrorMessages({
@@ -95,6 +97,11 @@ const Connect = ({ closeModal, reinit }) => {
       </div>
     </div>
   );
+};
+
+Connect.propTypes = {
+  closeModal: PropTypes.func.isRequired,
+  reinit: PropTypes.func.isRequired
 };
 
 export default Connect;

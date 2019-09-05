@@ -1,0 +1,94 @@
+// File paths
+$images: '~assets/img/';
+$fonts: '~assets/fonts/';
+
+// Media Query Ranges
+$tiny-screen: 340px !default;
+// --------------------------
+$small-screen: 736px !default;
+$small-screen-up: 737px !default;
+$medium-smallresolutions: 850px !default;
+$medium-smallresolutions-up: 851px !default;
+$medium-end: 1024px !default;
+// --------------------------
+$desktop-screen: 1025px !default;
+
+$tiny-and-down: "only screen and (max-width : #{$tiny-screen})" !default;
+$mobile: "only screen and (max-width : #{$small-screen})" !default;
+// --------------------------
+$medium-and-up: "only screen and (min-width : #{$small-screen-up})" !default;
+// --------------------------
+$desktop: "only screen and (min-width : #{$desktop-screen})" !default;
+
+$desktop-1250: "only screen and (min-width : 1250px)" !default;
+$desktop-1250-max: "only screen and (max-width : 1250px)" !default;
+
+$desktop-1400: "only screen and (min-width : 1401px)" !default;
+$desktop-1400-max: "only screen and (max-width : 1400px)" !default;
+
+$desktop-1500: "only screen and (min-width : 1500px)" !default;
+$desktop-1600: "only screen and (min-width : 1600px)" !default;
+$desktop-1800: "only screen and (min-width : 1800px)" !default;
+$desktop-1900: "only screen and (min-width : 1900px)" !default;
+$desktop-2000: "only screen and (min-width : 2000px)" !default;
+$desktop-2400: "only screen and (min-width : 2400px)" !default;
+$desktop-2800: "only screen and (min-width : 2800px)" !default;
+$desktop-3200: "only screen and (min-width : 3200px)" !default;
+$desktop-3600: "only screen and (min-width : 3600px)" !default;
+$desktop-4000: "only screen and (min-width : 4000px)" !default;
+$desktop-5000: "only screen and (min-width : 5000px)" !default;
+$desktop-7000: "only screen and (min-width : 7000px)" !default;
+// --------------------------
+// --------------------------
+$tiny-and-down: "only screen and (max-width : #{$tiny-screen})" !default;
+$mobile: "only screen and (max-width : #{$small-screen})" !default;
+$medium-and-up: "only screen and (min-width : #{$small-screen-up})" !default;
+$medium-and-down: "only screen and (max-width : #{$medium-end})" !default;
+$medium-only: "only screen and (min-width : #{$small-screen-up}) and (max-width : #{$medium-end})" !default;
+$desktop: "only screen and (min-width : #{$desktop-screen})" !default;
+$desktop-large: $desktop-3600;
+$desktop-xlarge: $desktop-5000;
+
+// Tablet orientations
+$tablet-portrait: "(min-device-width: #{$small-screen-up}) and (max-device-width: #{$medium-end}) and (orientation: portrait)" !default;
+$tablet-landscape: "(min-device-width: #{$small-screen-up}) and (max-device-width: #{$medium-end}) and (orientation: landscape)" !default;
+$tablet: "(min-width: #{$small-screen-up}) and (max-width: #{$medium-end}), #{$tablet-portrait}, #{$tablet-landscape}";
+$tablet-no-portrait: "(min-width: #{$small-screen-up}) and (max-width: #{$medium-end}), #{$tablet-landscape}";
+$tablet-small-only: "(min-width: #{$small-screen-up}) and (max-width: #{$medium-smallresolutions})";
+$tablet-small-max: "only screen and (max-width: #{$medium-smallresolutions})";
+$tablet-small-up: "only screen and (min-width: #{$medium-smallresolutions-up})";
+// $ipad-pro-portrait-breakpoint: "(min-device-width: 1024px) and (max-device-height: 1366px) and (orientation:portrait) and (-webkit-min-device-pixel-ratio: 2)";
+// $ipad-pro-landscape-breakpoint: "(min-device-width: 1024px) and (max-device-height: 1366px) and (orientation:landscape) and (-webkit-min-device-pixel-ratio: 2)";
+
+// Global HEX Colors
+$black: #000;
+$white: #FFF;
+$blue: #009CB4;
+$shadeBlue: #526877;
+$darkBlue: #00193C;
+$grey: #F7F8FB;
+$greyBorder: #D8D8D8;
+$greyBorder2: #dedfde;
+$red: #FF685E;
+$green: #02AE60;
+
+// Fonts
+$arial: Arial, Helvetica, sans-serif;
+$averta: "Averta", Helvetica, sans-serif;
+$helvetica: "Helvetica Neue", Helvetica, sans-serif;
+
+// Set main font
+$font: $averta;
+
+// Font weights
+$lighter: 100;
+$normal: 400;
+$medium: 500;
+$bold: 700;
+
+// Font sizes
+$base-font-size: 10px;
+$base-line-height: 10px;
+
+// HTML Entity characters (e.g. for use with pseudo-elements)
+$x: "\2715"; // $x: "✕";
