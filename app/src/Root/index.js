@@ -294,7 +294,13 @@ const RootComponent = ({ childComponents }) => {
   const [positions, setPositions] = useState(null);
 
   const init = useCallback(() => {
-    import(`../../config.${process.env.NETWORK || "local"}.json`)
+    const loaders = {
+      local: () => import("../../config.local.json"),
+      rinkeby: () => import("../../config.rinkeby.json"),
+      mainnet: () => import("../../config.mainnet.json")
+    };
+
+    loaders[process.env.NETWORK || "local"]()
       .then(async ({ default: config }) => {
         //setNetworkId(config.networkId);
         const { web3, account } = await loadWeb3(config.networkId);
