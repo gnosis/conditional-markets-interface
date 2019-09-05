@@ -561,7 +561,6 @@ const RootComponent = ({ childComponents }) => {
             />
           </div>
         </div>
-        <Footer />
       </div>
     );
 
@@ -569,15 +568,13 @@ const RootComponent = ({ childComponents }) => {
     return (
       <div className={cx("loading-page")}>
         <Spinner centered width={100} height={100} />
-        <Footer />
       </div>
     );
   }
   if (loading === "FAILURE") {
     return (
       <div>
-        <CrashPage errorMessage={lastError} />;
-        <Footer />
+        <CrashPage errorMessage={lastError} />
       </div>
     );
   }

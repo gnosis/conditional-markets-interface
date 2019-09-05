@@ -23,7 +23,7 @@
     font-weight: $bold;
     height: auto;
     font-size: 1.6rem;
-    line-break: 1;
+    line-height: 1;
     padding: 0 1rem;
     display: flex;
     flex-flow: column wrap;
@@ -33,5 +33,43 @@
     &.active {
       border-bottom: .4rem solid $blue;
     }
+  }
+}
+
+@keyframes legalflash {
+  0% {
+    transform: rotate(20deg) scale(2);
+    color: red;
+  }
+  40% {
+    transform: rotate(-120deg) scale(.8);
+    color: black;
+  }
+  70% {
+    transform: rotate(120deg) scale(2.5);
+    color: yellow;
+  }
+  100% {
+    transform: rotate(20deg) scale(2);
+    color: red;
+  }
+}
+
+.legal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-bottom: none !important;
+  z-index: 9999;
+  width: auto;
+  display: block;
+
+  span {
+    animation: legalflash 5s linear infinite;
+    width: auto;
+    font-size: 500%;
+    text-align: center;
+    line-height: 1;
   }
 }
