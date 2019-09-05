@@ -1,0 +1,14 @@
+{
+  "version": "0.5.0",
+  "name": "hg-first-decentralized-market",
+  "description": "PM 2.0 Experiments Showcase/Alpha Development",
+  "icons": {
+    "60": "/assets/firefox_app_60x60.png",
+    "128": "/assets/firefox_app_128x128.png",
+    "512": "/assets/firefox_app_512x512.png"
+  },
+  "developer": {
+    "name": "Gnosis",
+    "url": null
+  }
+}
