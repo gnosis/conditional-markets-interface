@@ -65,3 +65,19 @@ deploy:
     script: bash travis/prepare_production_deployment.sh
     on:
       tags: true
+
+  # Prepare alpha production deployment
+  - provider: s3
+    bucket: $STAGING_BUCKET_NAME
+    access_key_id: $AWS_ACCESS_KEY_ID
+    secret_access_key: $AWS_SECRET_ACCESS_KEY
+    skip_cleanup: true
+    local_dir: docs
+    upload-dir: releases/alpha
+    on:
+      branch: release/alpha
+
+  - provider: script
+    script: bash TRAVIS_TAG=alpha travis/prepare_production_deployment.sh
+    on:
+      branch: release/alpha
