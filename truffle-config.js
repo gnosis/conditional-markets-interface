@@ -50,7 +50,7 @@ const config = {
           new HDWalletProvider(seed, "https://node-green.mainnet.gnosis.pm"),
         network_id: "1",
         skipDryRun: true,
-        gasPrice: 3e9
+        gasPrice: 13000000001
       },
       rinkeby: {
         provider: () =>
