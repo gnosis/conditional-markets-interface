@@ -269,24 +269,26 @@ const Buy = ({
 
         // invert outcome sets
         humanReadablePositions.loseInvestmentWhen.positions = outcomeSet.map(
-          outcome => {
-            if (outcome.outcomeIndex == -1) {
-              return outcome;
+          selectedOutcome => {
+            if (selectedOutcome.outcomeIndex == -1) {
+              return selectedOutcome;
+            }
+
+            if (marketSelections[selectedOutcome.marketIndex].isAssumed) {
+              return {
+                ...selectedOutcome,
+                ...markets[selectedOutcome.marketIndex].outcomes[
+                  selectedOutcome.outcomeIndex
+                ]
+              };
             }
 
             return {
-              ...outcome,
-              ...markets[outcome.marketIndex].outcomes[
-                outcome.outcomeIndex == 0 &&
-                !marketSelections[outcome.marketIndex].isAssumed
-                  ? 1
-                  : 0
+              ...selectedOutcome,
+              ...markets[selectedOutcome.marketIndex].outcomes[
+                selectedOutcome.outcomeIndex == 0 ? 1 : 0
               ],
-              outcomeIndex:
-                outcome.outcomeIndex == 0 &&
-                !marketSelections[outcome.marketIndex].isAssumed
-                  ? 1
-                  : 0
+              outcomeIndex: selectedOutcome.outcomeIndex == 0 ? 1 : 0
             };
           }
         );
