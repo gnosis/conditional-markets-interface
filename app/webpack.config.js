@@ -6,6 +6,7 @@ const webpack = require("webpack");
 
 const moduleStubPath = path.resolve(__dirname, "module-stub.js");
 
+// eslint-disable-next-line no-console
 console.log(`Building for Network ${process.env.NETWORK || "local"}`);
 
 module.exports = {
@@ -13,7 +14,7 @@ module.exports = {
   devtool: "eval-source-map",
   output: {
     path: path.resolve(__dirname, "..", "docs"),
-    publicPath: "/",
+    publicPath: "./",
     filename: "bundle.js"
   },
   target: "web",

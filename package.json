@@ -3,6 +3,7 @@
   "version": "0.5.0",
   "description": "PM 2.0 Experiments Showcase/Alpha Development",
   "main": "truffle-config.js",
+  "homepage": "./",
   "directories": {
     "test": "test"
   },
