@@ -26,6 +26,7 @@ const Buy = ({
   collateral,
   collateralBalance,
   lmsrMarketMaker,
+  lmsrAllowance,
   lmsrState,
   marketSelections,
   stagedTradeAmounts,
@@ -98,6 +99,16 @@ const Buy = ({
   const marketStage = lmsrState && lmsrState.stage;
 
   let hasAnyAllowance = false;
+  let hasEnoughAllowance = false;
+  if (lmsrAllowance != null)
+    try {
+      hasAnyAllowance = lmsrAllowance.gtn(0);
+      hasEnoughAllowance = collateral.toUnitsMultiplier
+        .mul(investmentAmount || "0")
+        .lte(lmsrAllowance.toString());
+    } catch (e) {
+      // empty
+    }
 
   const buyOutcomeTokens = useCallback(async () => {
     if (stagedTradeAmounts == null) throw new Error(`No buy set yet`);
@@ -134,7 +145,7 @@ const Buy = ({
       });
     }
 
-    if (!hasAnyAllowance) {
+    if (!hasAnyAllowance || !hasEnoughAllowance) {
       await collateral.contract.approve(lmsrMarketMaker.address, maxUint256BN, {
         from: account
       });
@@ -143,8 +154,11 @@ const Buy = ({
     await lmsrMarketMaker.trade(tradeAmounts, collateralLimit, {
       from: account
     });
+
+    clearAllPositions();
   }, [
     hasAnyAllowance,
+    hasEnoughAllowance,
     stagedTransactionType,
     stagedTradeAmounts,
     lmsrMarketMaker,

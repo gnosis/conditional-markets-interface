@@ -308,6 +308,7 @@ const RootComponent = ({ childComponents }) => {
         console.groupCollapsed("Configuration");
         console.log(config);
         console.groupEnd();
+
         /* eslint-enable no-console */
         //setNetworkId(config.networkId);
         const { web3, account } = await loadWeb3(config.networkId);
