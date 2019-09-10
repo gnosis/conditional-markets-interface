@@ -5,7 +5,13 @@ import style from "./menu.scss";
 
 const cx = cn.bind(style);
 
-const menuItems = [{ label: "Markets", target: "/", active: true }];
+const menuItems = [
+  {
+    label: "MARKETS ONLY FOR DEMONSTRATION PURPOSES",
+    target: "/",
+    active: true
+  }
+];
 
 const Menu = () => (
   <nav className={cx("menu")}>
