@@ -2,7 +2,6 @@ import React from "react";
 import cn from "classnames/bind";
 
 import style from "./outcomeCard.scss";
-import { outcomeColors } from "utils/constants";
 
 const cx = cn.bind(style);
 
@@ -22,13 +21,7 @@ const OutcomeCard = ({
   >
     <span className={cx("market")}>#{marketIndex + 1}</span>
     <span className={cx("outcome")}>
-      <i
-        className={cx("dot")}
-        style={{
-          color: outcomeColors[outcomeIndex].darken(0.5).toString()
-        }}
-      />{" "}
-      {title}
+      <i className={cx("dot", outcomeIndex ? "no" : "yes")} /> {title}
     </span>
   </div>
 );

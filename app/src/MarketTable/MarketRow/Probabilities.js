@@ -32,12 +32,7 @@ const Probabilities = ({ outcomes, probabilities, stagedProbabilities }) => {
                   }}
                 >
                   <div className={cx("label", "outcome")}>
-                    <i
-                      className={cx("dot")}
-                      style={{
-                        color: outcomeColors[index].darken(0.5).toString()
-                      }}
-                    />{" "}
+                    <i className={cx("dot", index ? "no" : "yes")} />{" "}
                     <span>{outcome.title}</span>
                   </div>
                   <div

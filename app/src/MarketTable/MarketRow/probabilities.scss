@@ -42,6 +42,14 @@
       top: 50%;
       position: absolute;
 
+      .dot.yes {
+        color: $blue;
+      }
+
+      .dot.no {
+        color: $red;
+      }
+
       .dot {
         width: 2.4rem;
         height: 0;
