@@ -356,7 +356,7 @@ const Positions = ({
                       {...outcome}
                       key={`${outcome.marketIndex}-${outcome.outcomeIndex}`}
                       glueType="and"
-                      prefixType="IF"
+                      // prefixType="IF"
                     />
                   ))}
                 </div>

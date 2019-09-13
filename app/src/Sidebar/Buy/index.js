@@ -364,7 +364,7 @@ const Buy = ({
                       <OutcomeCard
                         key={`${outcome.marketIndex}-${outcome.outcomeIndex}`}
                         glueType={category.getGlue()}
-                        prefixType={category.getPrefix()}
+                        // prefixType={category.getPrefix()}
                         {...outcome}
                       />
                     ))}
