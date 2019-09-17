@@ -7,51 +7,30 @@ import Decimal from "decimal.js-light";
 import Logo from "assets/img/conditional-logo@3x.png";
 import Spinner from "components/Spinner";
 import CrashPage from "components/Crash";
+import loadContracts from "loadContracts";
 import { loadWeb3 } from "utils/web3";
 
 import style from "./root.scss";
 const cx = cn.bind(style);
 
+import getMarketMakersRepo from "../repositories/MarketMakersRepo";
+import getConditionalTokensRepo from "../repositories/ConditionalTokensRepo";
+
 async function loadBasicData({ lmsrAddress, markets }, web3, Decimal) {
   const { soliditySha3 } = web3.utils;
 
-  const [
-    { default: TruffleContract },
-    { product },
-    ERC20DetailedArtifact,
-    IDSTokenArtifact,
-    WETH9Artifact,
-    PredictionMarketSystemArtifact,
-    LMSRMarketMakerArtifact
-  ] = await Promise.all([
-    import("truffle-contract"),
-    import("utils/itertools"),
-    import("../../../build/contracts/ERC20Detailed.json"),
-    import("../../../build/contracts/IDSToken.json"),
-    import("../../../build/contracts/WETH9.json"),
-    import("../../../build/contracts/PredictionMarketSystem.json"),
-    import("../../../build/contracts/LMSRMarketMaker.json")
-  ]);
-
-  const ERC20Detailed = TruffleContract(ERC20DetailedArtifact);
-  const IDSToken = TruffleContract(IDSTokenArtifact);
-  const WETH9 = TruffleContract(WETH9Artifact);
-  const PredictionMarketSystem = TruffleContract(
-    PredictionMarketSystemArtifact
-  );
-  const LMSRMarketMaker = TruffleContract(LMSRMarketMakerArtifact);
-  for (const Contract of [
+  // Load application contracts
+  const marketMakersRepo = await getMarketMakersRepo();
+  const conditionalTokensRepo = await getConditionalTokensRepo();
+  const {
     ERC20Detailed,
     IDSToken,
     WETH9,
-    PredictionMarketSystem,
-    LMSRMarketMaker
-  ]) {
-    Contract.setProvider(web3.currentProvider);
-  }
+    pmSystem,
+    lmsrMarketMaker
+  } = await loadContracts();
 
-  const lmsrMarketMaker = await LMSRMarketMaker.at(lmsrAddress);
-
+  const { product } = require("utils/itertools");
   const collateral = await require("utils/collateral-info")(
     web3,
     Decimal,
@@ -59,16 +38,13 @@ async function loadBasicData({ lmsrAddress, markets }, web3, Decimal) {
     lmsrMarketMaker
   );
 
-  const pmSystem = await PredictionMarketSystem.at(
-    await lmsrMarketMaker.pmSystem()
-  );
-  const atomicOutcomeSlotCount = (await lmsrMarketMaker.atomicOutcomeSlotCount()).toNumber();
+  const atomicOutcomeSlotCount = (await marketMakersRepo.atomicOutcomeSlotCount()).toNumber();
 
   let curAtomicOutcomeSlotCount = 1;
   for (let i = 0; i < markets.length; i++) {
     const market = markets[i];
-    const conditionId = await lmsrMarketMaker.conditionIds(i);
-    const numSlots = (await pmSystem.getOutcomeSlotCount(
+    const conditionId = await marketMakersRepo.conditionIds(i);
+    const numSlots = (await conditionalTokensRepo.getOutcomeSlotCount(
       conditionId
     )).toNumber();
 
@@ -280,7 +256,7 @@ const RootComponent = ({ childComponents }) => {
   const triggerSync = useCallback(() => {
     setSyncTime(Date.now());
   });
-  useInterval(triggerSync, 2000);
+  useInterval(triggerSync, 7000);
   const [toasts, setToasts] = useState([]);
 
   //const [networkId, setNetworkId] = useState(null);
@@ -293,14 +269,14 @@ const RootComponent = ({ childComponents }) => {
   const [positions, setPositions] = useState(null);
 
   const init = useCallback(() => {
-    const networkToUse = process.env.NETWORK || "local";
+    // const networkToUse = process.env.NETWORK || "local";
     import(
       /* webpackChunkName: "config" */
       /* webpackInclude: /\.json$/ */
       /* webpackMode: "lazy" */
       /* webpackPrefetch: true */
       /* webpackPreload: true */
-      `../../config.${networkToUse}.json`
+      `../conf`
     )
       .then(async ({ default: config }) => {
         /* eslint-disable no-console */
@@ -350,6 +326,9 @@ const RootComponent = ({ childComponents }) => {
 
   const [modal, setModal] = useState(null);
 
+  // Add effect when 'syncTime' is updated this functions are triggered
+  // As 'syncTime' is setted to 2 seconds all this getters are triggered and setted
+  // in the state.
   for (const [loader, dependentParams, setter] of [
     [getLMSRState, [web3, pmSystem, lmsrMarketMaker, positions], setLMSRState],
     [getMarketResolutionStates, [pmSystem, markets], setMarketResolutionStates],
