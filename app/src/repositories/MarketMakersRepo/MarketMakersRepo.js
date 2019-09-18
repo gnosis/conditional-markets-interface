@@ -26,6 +26,10 @@ class MarketMakersRepo {
   async stage() {
     return this._lmsrMarketMaker.stage();
   }
+
+  async fee() {
+    return this._lmsrMarketMaker.fee();
+  }
 }
 
 module.exports = MarketMakersRepo;

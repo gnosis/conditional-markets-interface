@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
 import Web3 from "web3";
 import Decimal from "decimal.js-light";
@@ -35,6 +35,7 @@ function calcNetCost({ funding, positionBalances }, tradeAmounts) {
 
 const Positions = ({
   account,
+  conditionalTokensRepo,
   pmSystem,
   markets,
   marketResolutionStates,
@@ -146,9 +147,15 @@ const Positions = ({
       await setStagedTransactionType("sell outcome tokens");
 
       if (
-        !(await pmSystem.isApprovedForAll(account, lmsrMarketMaker.address))
+        !(await conditionalTokensRepo.isApprovedForAll(
+          account,
+          lmsrMarketMaker.address
+        ))
       ) {
-        await pmSystem.setApprovalForAll(lmsrMarketMaker.address, true, {
+        await conditionalTokensRepo.setApprovalForAll(
+          lmsrMarketMaker.address,
+          true,
+          {
           from: account
         });
       }
@@ -181,8 +188,8 @@ const Positions = ({
         `Can't sell outcome tokens while staged transaction is to ${stagedTransactionType}`
       );
 
-    if (!(await pmSystem.isApprovedForAll(account, lmsrMarketMaker.address))) {
-      await pmSystem.setApprovalForAll(lmsrMarketMaker.address, true, {
+    if (!(await conditionalTokensRepo.isApprovedForAll(account, lmsrMarketMaker.address))) {
+      await conditionalTokensRepo.setApprovalForAll(lmsrMarketMaker.address, true, {
         from: account
       });
     }
@@ -272,13 +279,13 @@ const Positions = ({
           childCollectionId
         );
 
-        if ((await pmSystem.balanceOf(account, childPositionId)).gtn(0)) {
+        if ((await conditionalTokensRepo.balanceOf(account, childPositionId)).gtn(0)) {
           indexSets.push(toBN(1).shln(outcomeIndex));
         }
       }
 
       if (indexSets.length > 0) {
-        await pmSystem.redeemPositions(
+        await conditionalTokensRepo.redeemPositions(
           collateral.address,
           parentCollectionId,
           market.conditionId,
