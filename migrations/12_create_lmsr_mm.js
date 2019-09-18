@@ -28,11 +28,15 @@ module.exports = function(deployer) {
 
     await collateralToken.approve(lmsrMarketMakerFactory.address, ammFunding);
 
+    // Create whitelist
+    const whitelist = await artifacts.require("Whitelist").deployed();
+
     const lmsrFactoryTx = await lmsrMarketMakerFactory.createLMSRMarketMaker(
-      artifacts.require("PredictionMarketSystem").address,
+      artifacts.require("ConditionalTokens").address,
       collateralToken.address,
       conditionIds,
       0,
+      whitelist.address,
       ammFunding
     );
 

@@ -1,11 +1,11 @@
 pragma solidity ^0.5.1;
 
-import { PredictionMarketSystem } from "@gnosis.pm/hg-contracts/contracts/PredictionMarketSystem.sol";
+import { ConditionalTokens } from "@gnosis.pm/conditional-tokens-contracts/contracts/ConditionalTokens.sol";
 import { TargetValueOracle } from "./TargetValueOracle.sol";
 
 contract DifficultyOracle is TargetValueOracle {
     constructor (
-        PredictionMarketSystem pmSystem,
+        ConditionalTokens pmSystem,
         uint resolutionTime,
         uint difficultyTarget,
         bytes32 questionId

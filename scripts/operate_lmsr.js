@@ -1,7 +1,7 @@
 const ERC20Detailed = artifacts.require("ERC20Detailed");
 const IDSToken = artifacts.require("IDSToken");
 const WETH9 = artifacts.require("WETH9");
-const PredictionMarketSystem = artifacts.require("PredictionMarketSystem");
+const ConditionalTokens = artifacts.require("ConditionalTokens");
 const LMSRMarketMaker = artifacts.require("LMSRMarketMaker");
 
 const fs = require("fs");
@@ -32,7 +32,7 @@ module.exports = function(callback) {
       );
 
     const lmsrMarketMaker = await LMSRMarketMaker.at(config.lmsrAddress);
-    const pmSystem = await PredictionMarketSystem.at(
+    const pmSystem = await ConditionalTokens.at(
       await lmsrMarketMaker.pmSystem()
     );
 

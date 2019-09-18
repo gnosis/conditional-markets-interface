@@ -156,8 +156,9 @@ const Positions = ({
           lmsrMarketMaker.address,
           true,
           {
-          from: account
-        });
+            from: account
+          }
+        );
       }
 
       const stagedTradeAmounts = Array.from(
@@ -188,10 +189,19 @@ const Positions = ({
         `Can't sell outcome tokens while staged transaction is to ${stagedTransactionType}`
       );
 
-    if (!(await conditionalTokensRepo.isApprovedForAll(account, lmsrMarketMaker.address))) {
-      await conditionalTokensRepo.setApprovalForAll(lmsrMarketMaker.address, true, {
-        from: account
-      });
+    if (
+      !(await conditionalTokensRepo.isApprovedForAll(
+        account,
+        lmsrMarketMaker.address
+      ))
+    ) {
+      await conditionalTokensRepo.setApprovalForAll(
+        lmsrMarketMaker.address,
+        true,
+        {
+          from: account
+        }
+      );
     }
 
     const tradeAmounts = stagedTradeAmounts.map(amount => amount.toString());
@@ -279,7 +289,11 @@ const Positions = ({
           childCollectionId
         );
 
-        if ((await conditionalTokensRepo.balanceOf(account, childPositionId)).gtn(0)) {
+        if (
+          (await conditionalTokensRepo.balanceOf(account, childPositionId)).gtn(
+            0
+          )
+        ) {
           indexSets.push(toBN(1).shln(outcomeIndex));
         }
       }

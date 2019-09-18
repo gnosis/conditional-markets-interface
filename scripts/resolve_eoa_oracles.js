@@ -1,5 +1,5 @@
 const LMSRMarketMaker = artifacts.require("LMSRMarketMaker");
-const PredictionMarketSystem = artifacts.require("PredictionMarketSystem");
+const ConditionalTokens = artifacts.require("ConditionalTokens");
 
 const fs = require("fs");
 const path = require("path");
@@ -25,7 +25,7 @@ module.exports = function(callback) {
       );
 
     const lmsrMarketMaker = await LMSRMarketMaker.at(appConfig.lmsrAddress);
-    const pmSystem = await PredictionMarketSystem.at(
+    const pmSystem = await ConditionalTokens.at(
       await lmsrMarketMaker.pmSystem()
     );
 
@@ -134,7 +134,7 @@ module.exports = function(callback) {
       )
     );
 
-    await pmSystem.receiveResult(marketToResolve.questionId, resultPayload, {
+    await pmSystem.reportPayouts(marketToResolve.questionId, resultPayload, {
       from: oracle
     });
   })().then(() => callback(), callback);
