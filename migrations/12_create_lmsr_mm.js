@@ -23,16 +23,19 @@ module.exports = function(deployer) {
       .deployed();
 
     const { ammFunding } = deployConfig;
-
     await collateralToken.deposit({ value: ammFunding });
-
     await collateralToken.approve(lmsrMarketMakerFactory.address, ammFunding);
 
-    // Create whitelist
+    // Get whitelist
     const whitelist = await artifacts.require("Whitelist").deployed();
 
+    // Get conditional tokens
+    const conditionalTokens = await artifacts
+      .require("ConditionalTokens")
+      .deployed();
+
     const lmsrFactoryTx = await lmsrMarketMakerFactory.createLMSRMarketMaker(
-      artifacts.require("ConditionalTokens").address,
+      conditionalTokens.address,
       collateralToken.address,
       conditionIds,
       0,

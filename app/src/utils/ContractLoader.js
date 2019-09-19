@@ -44,7 +44,11 @@ class ContractLoader {
       Contract.setProvider(this._web3.currentProvider);
     }
 
+    // console.log('loadContracts')
+    // console.log(LMSRMarketMaker)
+    // console.log(this._lmsrAddress)
     const lmsrMarketMaker = await LMSRMarketMaker.at(this._lmsrAddress);
+    // console.log(lmsrMarketMaker)
 
     const pmSystem = await ConditionalTokens.at(
       await lmsrMarketMaker.pmSystem()

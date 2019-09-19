@@ -72,7 +72,12 @@ const config = {
   ),
   compilers: {
     solc: {
-      version: "0.5.1"
+      version: "0.5.1",
+      settings: {
+        optimizer: {
+          enabled: true
+        }
+      }
     }
   },
   build: "webpack"
