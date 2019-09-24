@@ -6,6 +6,18 @@ import { outcomeColors } from "utils/constants";
 
 const cx = cn.bind(style);
 
+export const Dot = ({ index }) => (
+  <i
+    className={cx("dot")}
+    style={{
+      color: (index > -1
+        ? outcomeColors[index].darken(0.5)
+        : "#ececec"
+      ).toString()
+    }}
+  />
+);
+
 const OutcomeCard = ({
   marketIndex,
   outcomeIndex,
@@ -16,19 +28,17 @@ const OutcomeCard = ({
 }) => (
   <div
     className={cx("outcome-card", {
-      [`glue-${glueType}`]: !!glueType,
-      [`prefix-${prefixType}`]: !!prefixType
+      [`glue`]: !!glueType,
+      [`glue--${glueType}`]: !!glueType,
+      [`prefix`]: !!prefixType,
+      [`prefix--${prefixType}`]: !!prefixType
     })}
   >
-    <span className={cx("market")}>#{marketIndex + 1}</span>
+    <span className={cx("market")}>
+      {marketIndex !== "*" ? `#${marketIndex + 1}` : ' /'}
+    </span>
     <span className={cx("outcome")}>
-      <i
-        className={cx("dot")}
-        style={{
-          color: outcomeColors[outcomeIndex].darken(0.5).toString()
-        }}
-      />{" "}
-      {title}
+      <Dot index={outcomeIndex} /> {title}
     </span>
   </div>
 );

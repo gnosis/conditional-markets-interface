@@ -2,7 +2,7 @@
 
 .outcome-card {
   position: relative;
-  margin: 0 0 1rem;
+  margin: .6rem 0;
   display: flex;
   white-space: nowrap;
 
@@ -35,52 +35,31 @@
     letter-spacing: 0;
     line-height: 1;
     padding: .5rem;
-
-    .dot {
-      width: 1.2rem;
-      height: 0;
-      display: inline-block;
-      position: relative;
-
-      &::after {
-        content: '';
-        display: block;
-        background-color: currentColor;
-        position: absolute;
-        left: calc(50% - .6rem);
-        width: 1.2rem;
-        height: 1.2rem;
-        margin-top: -1.1rem;
-        border-radius: 100%;
-      }
-    }
   }
 
-
-  &.glue-or {
-
-    &:not(:last-of-type) {
-      &::after {
-        content: 'or';
+  &.glue {
+    &--or {
+      &:not(:last-of-type) {
+        &::after {
+          content: 'or';
+        }
       }
     }
-  }
 
-  &.glue-and {
-
-    &:not(:last-of-type) {
-      &::after {
-        content: '&';
+    &--and {
+      &:not(:last-of-type) {
+        &::after {
+          content: '&';
+        }
       }
     }
-  }
 
-  &.glue-or, &.glue-and {
+
     &:not(:last-of-type) {
       &::after {
         height: 100%;
         line-height: 1;
-        margin: 0 .5rem;
+        margin: .6rem .4rem;
         font-weight: bold;
         font-size: 1.3rem;
         display: flex;
@@ -89,20 +68,43 @@
       }
     }
   }
+  
+  &.prefix {
+    &::before {
+      height: 100%;
+      line-height: 1;
+      margin: .6rem .4rem;
+      font-weight: bold;
+      font-size: 1.3rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
 
-  &.prefix-IF {
-
+    &--IF {
       &::before {
-        height: 100%;
         content: 'IF';
-        line-height: 1;
-        margin: 0 .5rem 0 0;
-        font-weight: bold;
-        font-size: 1.3rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
       }
+    }
   }
+}
 
+.dot {
+  width: 1.2rem;
+  height: 0;
+  display: inline-block;
+  position: relative;
+  margin-right: .2rem;
+
+  &::after {
+    content: '';
+    display: block;
+    background-color: currentColor;
+    position: absolute;
+    left: calc(50% - .6rem);
+    width: 1.2rem;
+    height: 1.2rem;
+    margin-top: -1.1rem;
+    border-radius: 100%;
+  }
 }

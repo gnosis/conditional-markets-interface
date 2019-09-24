@@ -66,6 +66,7 @@ const Positions = ({
   }, [markets, positions, positionBalances]);
 
   const [salePositionGroup, setSalePositionGroup] = useState(null);
+  const [currentSellingPosition, setCurrentSellingPosition] = useState(null);
 
   useEffect(() => {
     if (positionGroups == null) {
@@ -143,6 +144,7 @@ const Positions = ({
 
   const sellAllTokensOfGroup = useCallback(
     async salePositionGroup => {
+      setCurrentSellingPosition(salePositionGroup);
       await setStagedTransactionType("sell outcome tokens");
 
       if (
@@ -202,8 +204,6 @@ const Positions = ({
     asWrappedTransaction,
     account
   ]);
-
-  const marketStage = lmsrState && lmsrState.stage;
 
   const allMarketsResolved =
     marketResolutionStates &&
@@ -351,6 +351,15 @@ const Positions = ({
             {positionGroups.map((positionGroup, index) => (
               <div className={cx("position-entry")} key={index}>
                 <div className={cx("position-col-outcome")}>
+                  {positionGroup.outcomeSet.length === 0 && (
+                    <OutcomeCard
+                      {...positionGroup.positions[0].outcomes[0]}
+                      outcomeIndex={-1}
+                      marketIndex="*"
+                      title={"Any"}
+                      prefixType="IF"
+                    />
+                  )}
                   {positionGroup.outcomeSet.map(outcome => (
                     <OutcomeCard
                       {...outcome}
@@ -377,7 +386,10 @@ const Positions = ({
                       setError
                     )}
                   >
-                    {ongoingTransactionType === "sell outcome tokens" ? (
+                    {ongoingTransactionType === "sell outcome tokens" &&
+                    (currentSellingPosition &&
+                      currentSellingPosition.collectionId ===
+                        positionGroup.collectionId) ? (
                       <Spinner width={16} height={16} centered inverted />
                     ) : (
                       "Sell"
