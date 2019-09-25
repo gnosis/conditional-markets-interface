@@ -1,5 +1,5 @@
 const ContractLoader = require("./utils/ContractLoader");
-import { loadWeb3 } from "utils/web3";
+import { loadWeb3 } from "./utils/web3";
 
 const conf = require("./conf");
 

@@ -20,7 +20,7 @@ class ContractLoader {
       ConditionalTokensArtifact,
       LMSRMarketMakerArtifact
     ] = await Promise.all([
-      import("truffle-contract"),
+      import("@truffle/contract"),
       import("../../../build/contracts/ERC20Detailed.json"),
       import("../../../build/contracts/IDSToken.json"),
       import("../../../build/contracts/WETH9.json"),
@@ -44,11 +44,7 @@ class ContractLoader {
       Contract.setProvider(this._web3.currentProvider);
     }
 
-    // console.log('loadContracts')
-    // console.log(LMSRMarketMaker)
-    // console.log(this._lmsrAddress)
     const lmsrMarketMaker = await LMSRMarketMaker.at(this._lmsrAddress);
-    // console.log(lmsrMarketMaker)
 
     const pmSystem = await ConditionalTokens.at(
       await lmsrMarketMaker.pmSystem()

@@ -50,6 +50,6 @@ const makeLoadable = (Component, childComponents) => {
   };
 
   return loadableWrapped;
-}
+};
 
 export default makeLoadable;

@@ -1,5 +1,5 @@
 module.exports = {
-  verbose: true,
-  browser: true,
-  roots: ["<rootDir>/app/src/"]
+  verbose: true // ,
+  // testMatch: ["**/?(*.)(spec|test).js?(x)"]// ,
+  // browser: true
 };

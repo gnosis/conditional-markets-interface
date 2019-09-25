@@ -64,11 +64,17 @@ async function loadBasicData({ markets }, web3, Decimal) {
 
     market.marketIndex = i;
     market.conditionId = conditionId;
-    market.outcomes.forEach((outcome, i) => {
-      outcome.collectionId = soliditySha3(
-        { t: "bytes32", v: conditionId },
-        { t: "uint", v: 1 << i }
+    const getOutcomesPromises = market.outcomes.map((outcome, i) => {
+      return conditionalTokensRepo.getCollectionId(
+        web3.utils.padLeft(0, 32),
+        conditionId,
+        i
       );
+    });
+
+    const outcomes = await Promise.all(getOutcomesPromises);
+    market.outcomes.forEach((outcome, i) => {
+      outcome.collectionId = outcomes[i];
     });
 
     curAtomicOutcomeSlotCount *= numSlots;

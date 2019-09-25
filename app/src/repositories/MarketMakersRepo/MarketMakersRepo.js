@@ -7,16 +7,20 @@ class MarketMakersRepo {
     this._lmsrMarketMaker = contracts.lmsrMarketMaker;
   }
 
-  async atomicOutcomeSlotCount() {
-    return this._lmsrMarketMaker.atomicOutcomeSlotCount();
-  }
-
   async conditionIds(index) {
     return this._lmsrMarketMaker.conditionIds(index);
   }
 
+  async atomicOutcomeSlotCount() {
+    return this._lmsrMarketMaker.atomicOutcomeSlotCount();
+  }
+
   async owner() {
     return this._lmsrMarketMaker.owner();
+  }
+
+  async fee() {
+    return this._lmsrMarketMaker.fee();
   }
 
   async funding() {
@@ -27,8 +31,12 @@ class MarketMakersRepo {
     return this._lmsrMarketMaker.stage();
   }
 
-  async fee() {
-    return this._lmsrMarketMaker.fee();
+  async calcNetCost(outcomeTokenAmounts) {
+    return this._lmsrMarketMaker.calcNetCost(outcomeTokenAmounts);
+  }
+
+  async trade(tradeAmounts, collateralLimit, from) {
+    return this._lmsrMarketMaker.trade(tradeAmounts, collateralLimit, { from });
   }
 }
 
