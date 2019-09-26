@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback } from "react";
 import { hot } from "react-hot-loader/root";
 import cn from "classnames/bind";
 import useInterval from "@use-it/interval";
-import Decimal from "decimal.js-light";
 
 import Logo from "assets/img/conditional-logo@3x.png";
 import Spinner from "components/Spinner";
@@ -20,7 +19,7 @@ let marketMakersRepo;
 let conditionalTokensRepo;
 let conditionalTokensService;
 
-async function loadBasicData({ markets }, web3, Decimal) {
+async function loadBasicData({ markets }, web3) {
   const { soliditySha3 } = web3.utils;
 
   // Load application contracts
@@ -28,19 +27,12 @@ async function loadBasicData({ markets }, web3, Decimal) {
   conditionalTokensRepo = await getConditionalTokensRepo();
   conditionalTokensService = await getConditionalTokensService();
   const {
-    ERC20Detailed,
-    IDSToken,
-    WETH9,
+    collateralToken: collateral,
     pmSystem,
     lmsrMarketMaker
   } = await loadContracts();
 
   const { product } = require("utils/itertools");
-  const collateral = await require("utils/collateral-info")(
-    web3,
-    { ERC20Detailed, IDSToken, WETH9 },
-    lmsrMarketMaker
-  );
 
   const atomicOutcomeSlotCount = (await marketMakersRepo.atomicOutcomeSlotCount()).toNumber();
 
@@ -168,10 +160,7 @@ async function getLMSRState(web3, lmsrMarketMaker, positions) {
       .stage()
       .then(stage => ["Running", "Paused", "Closed"][stage.toNumber()]),
     marketMakersRepo.fee().then(fee => fromWei(fee)),
-    conditionalTokensService.getPositionBalances(
-      positions,
-      lmsrMarketMaker.address
-    )
+    getPositionBalances(positions, lmsrMarketMaker.address)
   ]);
   return { owner, funding, stage, fee, positionBalances };
 }
@@ -319,7 +308,7 @@ const RootComponent = ({ childComponents }) => {
           collateral,
           markets,
           positions
-        } = await loadBasicData(config, web3, Decimal);
+        } = await loadBasicData(config, web3);
 
         setConditionalTokensService(conditionalTokensService);
         setPMSystem(pmSystem);
