@@ -1,6 +1,7 @@
 // const environment = process.env.NODE_ENV;
 // const isLocal = environment === 'local';
 const assert = require("assert");
+import Decimal from "decimal.js-light";
 
 class ContractLoader {
   constructor({ lmsrAddress, web3 }) {
@@ -50,13 +51,28 @@ class ContractLoader {
       await lmsrMarketMaker.pmSystem()
     );
 
+    const collateralToken = await this.loadCollateralInfo(
+      { ERC20Detailed, IDSToken, WETH9 },
+      lmsrMarketMaker
+    );
+
     return {
       ERC20Detailed,
       IDSToken,
       WETH9,
+      collateralToken,
       pmSystem,
       lmsrMarketMaker
     };
+  }
+
+  async loadCollateralInfo(contractsObject, lmsrMarketMaker) {
+    return require("./collateral-info")(
+      this._web3,
+      Decimal,
+      contractsObject,
+      lmsrMarketMaker
+    );
   }
 }
 

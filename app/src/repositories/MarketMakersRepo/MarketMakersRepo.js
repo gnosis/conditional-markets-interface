@@ -4,7 +4,18 @@ class MarketMakersRepo {
   constructor({ contracts }) {
     assert(contracts, '"contracts" is required');
 
-    this._lmsrMarketMaker = contracts.lmsrMarketMaker;
+    const { lmsrMarketMaker, collateralToken } = contracts;
+
+    this._lmsrMarketMaker = lmsrMarketMaker;
+    this._collateralToken = collateralToken;
+  }
+
+  async getAddress() {
+    return this._lmsrMarketMaker.address;
+  }
+
+  async getCollateralToken() {
+    return this._collateralToken;
   }
 
   async conditionIds(index) {

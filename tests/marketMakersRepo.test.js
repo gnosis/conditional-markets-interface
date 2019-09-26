@@ -1,5 +1,5 @@
-// import Web3 from "web3";
-// const { BN } = Web3.utils;
+import Web3 from "web3";
+const { toBN } = Web3.utils;
 
 import getMarketMakersRepo from "../app/src/repositories/MarketMakersRepo";
 
@@ -63,5 +63,23 @@ test("It should return expected calcNetCost", async () => {
     "-1",
     "0"
   ]);
+  console.log(result.toString());
+});
+
+test.only("It should return expected calcNetCost", async () => {
+  const marketMakersRepo = await getMarketMakersRepo();
+  const collateralToken = await marketMakersRepo.getCollateralToken();
+  const marketMakersAddress = await marketMakersRepo.getAddress();
+  // console.log(collateralToken)
+  // console.log(collateralToken.address)
+  await collateralToken.contract.deposit({ value: toBN('1000000000000000000'), from: '0x90F8bf6A479f320ead074411a4B0e7944Ea8c9C1' });
+  await collateralToken.contract.approve(
+    marketMakersAddress,
+    toBN("1000000000000000000"),
+    { from: "0x90F8bf6A479f320ead074411a4B0e7944Ea8c9C1" }
+  );
+  const allowance = await collateralToken.contract.allowance("0x90F8bf6A479f320ead074411a4B0e7944Ea8c9C1", marketMakersAddress)
+  console.log("marketMaker allowance", allowance.toString());
+  const result = await marketMakersRepo.trade([toBN('9999999999999999'), toBN('0')], toBN('5849625007211562'), '0x90F8bf6A479f320ead074411a4B0e7944Ea8c9C1');
   console.log(result.toString());
 });

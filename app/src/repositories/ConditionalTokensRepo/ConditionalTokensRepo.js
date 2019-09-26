@@ -19,6 +19,14 @@ class ConditionalTokensRepo {
     return this._conditionalTokens.conditionIds(index);
   }
 
+  async getCollectionId(parentCollectionId, conditionId, indexSet) {
+    return this._conditionalTokens.getCollectionId(
+      parentCollectionId,
+      conditionId,
+      indexSet
+    );
+  }
+
   async payoutDenominator(conditionId) {
     return this._conditionalTokens.payoutDenominator(conditionId);
   }
