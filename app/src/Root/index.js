@@ -38,7 +38,6 @@ async function loadBasicData({ markets }, web3, Decimal) {
   const { product } = require("utils/itertools");
   const collateral = await require("utils/collateral-info")(
     web3,
-    Decimal,
     { ERC20Detailed, IDSToken, WETH9 },
     lmsrMarketMaker
   );

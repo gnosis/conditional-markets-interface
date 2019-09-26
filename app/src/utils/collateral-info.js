@@ -1,6 +1,7 @@
+const Decimal = require("decimal.js-light");
+
 module.exports = async function getCollateralInfo(
   web3,
-  Decimal,
   { ERC20Detailed, IDSToken, WETH9 },
   lmsrMarketMaker
 ) {

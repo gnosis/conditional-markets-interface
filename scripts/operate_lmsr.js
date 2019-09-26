@@ -41,7 +41,6 @@ module.exports = function(callback) {
 
     const collateral = await require("../app/src/utils/collateral-info")(
       web3,
-      Decimal,
       { ERC20Detailed, IDSToken, WETH9 },
       lmsrMarketMaker
     );
