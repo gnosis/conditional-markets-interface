@@ -8,6 +8,11 @@ import Spinner from "components/Spinner";
 import CrashPage from "components/Crash";
 import loadContracts from "loadContracts";
 import { loadWeb3 } from "utils/web3";
+import {
+  getCollectionId,
+  getPositionId,
+  combineCollectionIds
+} from "utils/getIdsUtil";
 
 import style from "./root.scss";
 const cx = cn.bind(style);
@@ -20,7 +25,7 @@ let conditionalTokensRepo;
 let conditionalTokensService;
 
 async function loadBasicData({ markets }, web3) {
-  const { soliditySha3 } = web3.utils;
+  const { toBN } = web3.utils;
 
   // Load application contracts
   marketMakersRepo = await getMarketMakersRepo();
@@ -55,17 +60,18 @@ async function loadBasicData({ markets }, web3) {
 
     market.marketIndex = i;
     market.conditionId = conditionId;
-    const getOutcomesPromises = market.outcomes.map((outcome, i) => {
-      return conditionalTokensRepo.getCollectionId(
-        web3.utils.padLeft(0, 32),
-        conditionId,
-        i
-      );
-    });
-
-    const outcomes = await Promise.all(getOutcomesPromises);
+    // TODO delete when tests passed (should be correctly working now)
+    // const getOutcomesPromises = market.outcomes.map((outcome, i) => {
+    //   return conditionalTokensRepo.getCollectionId(
+    //     web3.utils.padLeft(0, 32),
+    //     conditionId,
+    //     i
+    //   );
+    // });
+    //
+    // const outcomes = await Promise.all(getOutcomesPromises);
     market.outcomes.forEach((outcome, i) => {
-      outcome.collectionId = outcomes[i];
+      outcome.collectionId = getCollectionId(conditionId, toBN(1).shln(i));
     });
 
     curAtomicOutcomeSlotCount *= numSlots;
@@ -90,17 +96,20 @@ async function loadBasicData({ markets }, web3) {
         }))
       )
   )) {
-    const positionId = soliditySha3(
-      { t: "address", v: collateral.address },
-      {
-        t: "uint",
-        v: outcomes
-          .map(({ collectionId }) => collectionId)
-          .map(id => web3.utils.toBN(id))
-          .reduce((a, b) => a.add(b))
-          .maskn(256)
-      }
+    const combinedCollectionIds = combineCollectionIds(
+      outcomes.map(({ collectionId }) => collectionId)
     );
+
+    const positionId = getPositionId(collateral.address, combinedCollectionIds);
+    // TODO delete when tests passed (should be correctly working now)
+    // soliditySha3(
+    //   { t: "address", v: collateral.address },
+    //   {
+    //     t: "uint",
+    //     v: outcomes
+    //       .map(({ collectionId }) => collectionId)
+    //   }
+    // );
     positions.push({
       id: positionId,
       outcomes

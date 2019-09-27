@@ -35,6 +35,7 @@ class ConditionalTokensRepo {
     return this._conditionalTokens.payoutNumerators(conditionId, outcomeIndex);
   }
 
+  // Queries the approval status of an operator for a given owner.
   async isApprovedForAll(account, lmsrMarketMakerAddress) {
     return this._conditionalTokens.isApprovedForAll(
       account,
@@ -42,6 +43,7 @@ class ConditionalTokensRepo {
     );
   }
 
+  // Sets or unsets the approval of a given operator
   async setApprovalForAll(lmsrMarketMakerAddress, approved, from) {
     return this._conditionalTokens.setApprovalForAll(
       lmsrMarketMakerAddress,

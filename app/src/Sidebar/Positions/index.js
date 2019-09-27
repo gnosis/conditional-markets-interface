@@ -6,6 +6,11 @@ import Spinner from "components/Spinner";
 import { zeroDecimal } from "utils/constants";
 import { formatCollateral } from "utils/formatting";
 import { calcPositionGroups } from "utils/position-groups";
+import {
+  getCollectionId,
+  getPositionId,
+  combineCollectionIds
+} from "utils/getIdsUtil";
 
 import cn from "classnames/bind";
 import style from "./positions.scss";
@@ -13,6 +18,19 @@ import OutcomeCard from "../../components/OutcomeCard";
 
 const cx = cn.bind(style);
 const { toBN } = Web3.utils;
+
+import getConditionalTokensRepo from "../../repositories/ConditionalTokensRepo";
+import getConditionalTokensService from "../../services/ConditionalTokensService";
+let conditionalTokensRepo;
+let conditionalTokensService;
+
+function loadRepo() {
+  async function getRepo() {
+    conditionalTokensRepo = await getConditionalTokensRepo();
+    conditionalTokensService = await getConditionalTokensService();
+  }
+  getRepo();
+}
 
 function calcNetCost({ funding, positionBalances }, tradeAmounts) {
   const invB = new Decimal(positionBalances.length)
@@ -35,7 +53,6 @@ function calcNetCost({ funding, positionBalances }, tradeAmounts) {
 
 const Positions = ({
   account,
-  conditionalTokensRepo,
   pmSystem,
   markets,
   marketResolutionStates,
@@ -51,6 +68,7 @@ const Positions = ({
   ongoingTransactionType,
   asWrappedTransaction
 }) => {
+  loadRepo();
   const [positionGroups, setPositionGroups] = useState(null);
 
   useEffect(() => {
@@ -146,18 +164,16 @@ const Positions = ({
     async salePositionGroup => {
       await setStagedTransactionType("sell outcome tokens");
 
-      if (
-        !(await conditionalTokensRepo.isApprovedForAll(
-          account,
-          lmsrMarketMaker.address
-        ))
-      ) {
+      const isOperatorApprovedByOwner = await conditionalTokensRepo.isApprovedForAll(
+        account,
+        lmsrMarketMaker.address
+      );
+
+      if (!isOperatorApprovedByOwner) {
         await conditionalTokensRepo.setApprovalForAll(
           lmsrMarketMaker.address,
           true,
-          {
-            from: account
-          }
+          account
         );
       }
 
@@ -173,7 +189,6 @@ const Positions = ({
 
       const tradeAmounts = stagedTradeAmounts.map(amount => amount.toString());
       const collateralLimit = await lmsrMarketMaker.calcNetCost(tradeAmounts);
-
       await lmsrMarketMaker.trade(tradeAmounts, collateralLimit, {
         from: account
       });
@@ -264,20 +279,34 @@ const Positions = ({
 
       const market = markets[marketsLeft - 1];
       const indexSets = [];
+
+      // FIXME -------------- Alan should take a look from here
+      // ID generation should be reviewed. Library is imported in line 9
+      const getCollectionIdPromises = market.outcomes.map((outcome, i) => {
+        return conditionalTokensRepo.getCollectionId(
+          parentCollectionId,
+          market.conditionId,
+          i
+        );
+      });
+
+      const collectionIds = await Promise.all(getCollectionIdPromises);
+
       for (
         let outcomeIndex = 0;
         outcomeIndex < market.outcomes.length;
         outcomeIndex++
       ) {
         const outcome = market.outcomes[outcomeIndex];
-        const childCollectionId = padLeft(
-          toHex(
-            toBN(parentCollectionId)
-              .add(toBN(outcome.collectionId))
-              .maskn(256)
-          ),
-          64
-        );
+        const childCollectionId = collectionIds[outcomeIndex];
+        // padLeft(
+        //   toHex(
+        //     toBN(parentCollectionId)
+        //       .add(toBN(outcome.collectionId))
+        //       .maskn(256)
+        //   ),
+        //   64
+        // );
 
         const childPositionId = soliditySha3(
           { t: "address", v: collateral.address },

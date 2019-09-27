@@ -1,9 +1,10 @@
 import Web3 from "web3";
 import { maxUint256BN, zeroDecimal } from "./constants";
 import { product, combinations } from "./itertools";
+import { combineCollectionIds } from "./getIdsUtil";
 
 import Decimal from "decimal.js-light";
-const { toBN, toHex, padLeft } = Web3.utils;
+const { toBN } = Web3.utils;
 
 export function calcOutcomeTokenCounts(
   positions,
@@ -126,16 +127,22 @@ export function calcPositionGroups(markets, positions, positionAmounts) {
         );
 
         if (groupRunningAmount.gtn(0)) {
+          const collectionIds = outcomeSet.map(({ collectionId }) => {
+            return collectionId;
+          });
+          const combinedCollectionIds = combineCollectionIds(collectionIds);
           positionGroups.push({
-            collectionId: padLeft(
-              toHex(
-                outcomeSet.reduce(
-                  (acc, { collectionId }) => acc.add(toBN(collectionId)),
-                  toBN(0)
-                )
-              ),
-              64
-            ),
+            collectionId: combinedCollectionIds,
+            // TODO delete when tests passed (should be correctly working now)
+            // padLeft(
+            //   toHex(
+            //     outcomeSet.reduce(
+            //       (acc, { collectionId }) => acc.add(toBN(collectionId)),
+            //       toBN(0)
+            //     )
+            //   ),
+            //   64
+            // ),
             outcomeSet,
             amount: groupAmount,
             runningAmount: groupRunningAmount,
