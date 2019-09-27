@@ -33,7 +33,7 @@ export function calcOutcomeTokenCounts(
         ({ marketIndex, outcomeIndex }) =>
           marketSelections[marketIndex].isAssumed &&
           outcomeIndex !== marketSelections[marketIndex].selectedOutcomeIndex
-      )
+      ) // Evaluate refund amount
     ) {
       refundedTerm = refundedTerm.add(
         amount
@@ -42,7 +42,7 @@ export function calcOutcomeTokenCounts(
           .exp()
       );
       positionTypes[positionIndex] = "refunded";
-    } else if (
+    } else if ( // Evaluate earn amount
       outcomes.every(
         ({ marketIndex, outcomeIndex }) =>
           marketSelections[marketIndex].selectedOutcomeIndex == -1 ||
@@ -56,7 +56,7 @@ export function calcOutcomeTokenCounts(
           .exp()
       );
       positionTypes[positionIndex] = "taken";
-    } else {
+    } else { // Evaluate loss amount
       refusedTerm = refusedTerm.add(
         invB
           .mul(balance)
