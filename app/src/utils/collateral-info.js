@@ -34,10 +34,12 @@ module.exports = async function getCollateralInfo(
     collateral.decimals === 18;
 
   if (collateral.isWETH) {
-    collateral.symbol = "\u039E";
+    collateral.symbol = "ETH";
+    collateral.name = "Wrapped Ether";
     collateral.contract = await WETH9.at(collateral.address);
   } else if (collateral.isDAI) {
-    collateral.symbol = "\u25C8";
+    collateral.symbol = "DAI";
+    collateral.name = "DAI";
   }
 
   return collateral;

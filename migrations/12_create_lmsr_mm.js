@@ -51,6 +51,7 @@ module.exports = function(deployer) {
     const lmsrAddress = creationLogEntry.args.lmsrMarketMaker;
 
     writeToConfig({
+      network: process.env.NETWORK || "local",
       networkId: await web3.eth.net.getId(),
       lmsrAddress,
       markets

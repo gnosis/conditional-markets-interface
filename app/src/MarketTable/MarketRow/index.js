@@ -25,6 +25,7 @@ const Market = ({
   stagedProbabilities,
   outcomes,
   marketSelections,
+  disableConditional,
   setMarketSelection
 }) => {
   const handleMarketSelection = useCallback(
@@ -89,7 +90,7 @@ const Market = ({
         setOutcomeSelection={handleMarketSelection}
       />
     ),
-    marketSelections && (
+    marketSelections && !disableConditional && (
       <ToggleConditional
         key="conditional_topggle"
         disabled={
@@ -148,7 +149,8 @@ Market.propTypes = {
       isAssumed: PropTypes.bool.isRequired
     })
   ),
-  setMarketSelection: PropTypes.any.isRequired
+  setMarketSelection: PropTypes.any.isRequired,
+  disableConditional: PropTypes.bool.isRequired
 };
 
 export default Market;

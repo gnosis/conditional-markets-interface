@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from "react";
+import React, { useEffect } from "react";
 import PropTypes from "prop-types";
 import Web3 from "web3";
 import cn from "classnames/bind";
@@ -78,6 +78,8 @@ const MarketTable = ({
     }
   }
 
+  const conditionalDisabled = markets.length === 1;
+
   let isStaging = false;
 
   (marketSelections || []).forEach(({ selectedOutcomeIndex }) => {
@@ -116,9 +118,11 @@ const MarketTable = ({
     <>Outcome Probability {isStaging && <em>(Predicted)</em>}</>,
     "Ends In",
     "Outcome",
-    <>
-      <span>Conditional</span> <HelpButton openModal={openModal} />
-    </>
+    !conditionalDisabled && (
+      <>
+        <span>Conditional</span> <HelpButton openModal={openModal} />
+      </>
+    )
   ];
 
   return (
@@ -184,6 +188,7 @@ const MarketTable = ({
                 ? marketProbabilitiesAfterStagedTrade[market.index]
                 : null
             }
+            disableConditional={conditionalDisabled}
             marketSelections={marketSelections}
             setMarketSelection={setMarketSelections}
             {...market}
