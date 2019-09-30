@@ -333,7 +333,7 @@ const Positions = ({
           parentCollectionId,
           market.conditionId,
           indexSets,
-          { from: account }
+          account
         );
       }
     }
