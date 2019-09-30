@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import cn from "classnames/bind";
 
 import style from "Root/root.scss";

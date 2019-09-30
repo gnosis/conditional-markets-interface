@@ -6,6 +6,7 @@ import useInterval from "@use-it/interval";
 import Logo from "assets/img/conditional-logo@3x.png";
 import Spinner from "components/Spinner";
 import CrashPage from "components/Crash";
+import makeLoadable from "../utils/make-loadable";
 import loadContracts from "loadContracts";
 import { loadWeb3 } from "utils/web3";
 import {
@@ -160,22 +161,26 @@ async function getCollateralBalance(web3, collateral, account) {
   return collateralBalance;
 }
 
-async function getLMSRState(web3, lmsrMarketMaker, positions) {
+async function getLMSRState(web3, positions) {
   const { fromWei } = web3.utils;
-  const [owner, funding, stage, fee, positionBalances] = await Promise.all([
+  const [owner, funding, stage, fee, marketMakerAddress] = await Promise.all([
     marketMakersRepo.owner(),
     marketMakersRepo.funding(),
     marketMakersRepo
       .stage()
       .then(stage => ["Running", "Paused", "Closed"][stage.toNumber()]),
     marketMakersRepo.fee().then(fee => fromWei(fee)),
-    getPositionBalances(positions, lmsrMarketMaker.address)
+    marketMakersRepo.getAddress()
   ]);
+  const positionBalances = await getPositionBalances(
+    positions,
+    marketMakerAddress
+  );
   return { owner, funding, stage, fee, positionBalances };
 }
 
 async function getPositionBalances(positions, account) {
-  return await Promise.all(
+  return Promise.all(
     positions.map(position =>
       conditionalTokensRepo.balanceOf(account, position.id)
     )
@@ -183,7 +188,7 @@ async function getPositionBalances(positions, account) {
 }
 
 async function getMarketResolutionStates(markets) {
-  return await Promise.all(
+  return Promise.all(
     markets.map(async ({ conditionId, outcomes }) => {
       const payoutDenominator = await conditionalTokensRepo.payoutDenominator(
         conditionId
@@ -205,56 +210,12 @@ async function getMarketResolutionStates(markets) {
   );
 }
 
-async function getLMSRAllowance(collateral, lmsrMarketMaker, account) {
-  return await collateral.contract.allowance(account, lmsrMarketMaker.address);
+async function getLMSRAllowance(collateral, account) {
+  const marketMakerAddress = await marketMakersRepo.getAddress();
+  return collateral.contract.allowance(account, marketMakerAddress);
 }
 
 const moduleLoadTime = Date.now();
-
-const makeLoadable = (Component, childComponents) => {
-  const loadableWrapped = () => {
-    const [loadingState, setLoadingState] = useState("LOADING");
-    const [loadedComponents, setLoadedComponents] = useState([]);
-
-    useEffect(() => {
-      (async () => {
-        setLoadingState("LOADING");
-        try {
-          const loadedChildren = await Promise.all(
-            childComponents.map(loader => loader())
-          );
-
-          setLoadedComponents(
-            loadedChildren.map(
-              ({ default: exportedComponent }) => exportedComponent
-            )
-          );
-          setLoadingState("SUCCESS");
-        } catch (err) {
-          setLoadingState("ERROR");
-        }
-      })();
-    }, ["hot"]);
-
-    if (loadingState === "LOADING") {
-      return (
-        <div className={cx("loading-page")}>
-          <Spinner centered width={100} height={100} />
-        </div>
-      );
-    }
-
-    if (loadingState === "ERROR") {
-      return <CrashPage />;
-    }
-
-    if (loadingState === "SUCCESS") {
-      return <Component childComponents={loadedComponents} />;
-    }
-  };
-
-  return loadableWrapped;
-};
 
 const RootComponent = ({ childComponents }) => {
   const [
@@ -278,9 +239,6 @@ const RootComponent = ({ childComponents }) => {
   //const [networkId, setNetworkId] = useState(null);
   const [web3, setWeb3] = useState(null);
   const [account, setAccount] = useState(null);
-  const [conditionalTokensService, setConditionalTokensService] = useState(
-    null
-  );
   const [pmSystem, setPMSystem] = useState(null);
   const [lmsrMarketMaker, setLMSRMarketMaker] = useState(null);
   const [collateral, setCollateral] = useState(null);
@@ -319,7 +277,6 @@ const RootComponent = ({ childComponents }) => {
           positions
         } = await loadBasicData(config, web3);
 
-        setConditionalTokensService(conditionalTokensService);
         setPMSystem(pmSystem);
         setLMSRMarketMaker(lmsrMarketMaker);
         setCollateral(collateral);
@@ -351,11 +308,11 @@ const RootComponent = ({ childComponents }) => {
   // As 'syncTime' is setted to 2 seconds all this getters are triggered and setted
   // in the state.
   for (const [loader, dependentParams, setter] of [
-    [getLMSRState, [web3, lmsrMarketMaker, positions], setLMSRState],
+    [getLMSRState, [web3, positions], setLMSRState],
     [getMarketResolutionStates, [markets], setMarketResolutionStates],
     [getCollateralBalance, [web3, collateral, account], setCollateralBalance],
     [getPositionBalances, [positions, account], setPositionBalances],
-    [getLMSRAllowance, [collateral, lmsrMarketMaker, account], setLMSRAllowance]
+    [getLMSRAllowance, [collateral, account], setLMSRAllowance]
   ])
     useEffect(() => {
       if (dependentParams.every(p => p != null))

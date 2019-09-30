@@ -16,7 +16,7 @@ class ConditionalTokensService {
   }
 
   async getMarketResolutionStates(markets) {
-    return await Promise.all(
+    return Promise.all(
       markets.map(async ({ conditionId, outcomes }) => {
         const payoutDenominator = await this._conditionalTokensRepo.payoutDenominator(
           conditionId
