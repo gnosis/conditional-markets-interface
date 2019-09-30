@@ -15,6 +15,7 @@ const altBN128P = toBN(
 );
 const altBN128PRed = BN.red(altBN128P);
 const altBN128B = toBN(3).toRed(altBN128PRed);
+const zeroPRed = toBN(0).toRed(altBN128PRed);
 const onePRed = toBN(1).toRed(altBN128PRed);
 const twoPRed = toBN(2).toRed(altBN128PRed);
 const fourPRed = toBN(4).toRed(altBN128PRed);
@@ -45,15 +46,25 @@ export function getCollectionId(conditionId, indexSet) {
 }
 
 export function combineCollectionIds(collectionIds) {
+  if (Array.isArray(collectionIds) && collectionIds.length === 0) {
+    return `0x${"0".repeat(64)}`;
+  }
+
   const points = collectionIds.map(id => {
     let x = toBN(id);
+    if (x.eqn(0)) {
+      // a zero collection ID represents EC group identity
+      // which is the point at infinity
+      // satisfying projective equation
+      // Y^2 = X^3 + 3*Z^6, Z=0
+      return [onePRed, onePRed, zeroPRed];
+    }
     const odd = x.and(oddToggle).eq(oddToggle);
     if (odd) x.ixor(oddToggle);
     x = x.toRed(altBN128PRed);
     let y, yy;
     yy = x.redSqr();
-    yy.redIMul(x);
-    yy = yy.mod(altBN128P); // this might be a BN.js bug workaround
+    yy = yy.redMul(x); // this might be a BN.js bug workaround
     yy.redIAdd(altBN128B);
     y = yy.redSqrt();
     if (!y.redSqr().eq(yy)) throw new Error(`got invalid collection ID ${id}`);
@@ -65,6 +76,10 @@ export function combineCollectionIds(collectionIds) {
     // https://www.hyperelliptic.org/EFD/g1p/auto-shortw-jacobian-0.html#addition-madd-2007-bl
     if (Z1 == null) {
       Z1 = onePRed;
+    }
+
+    if (Z1.eqn(0)) {
+      return [x2, y2];
     }
 
     // source 2007 Bernstein--Lange
@@ -106,11 +121,15 @@ export function combineCollectionIds(collectionIds) {
 
   let x, y;
   if (Z) {
-    const invZ = Z.redInvm();
-    const invZZ = invZ.redSqr();
-    const invZZZ = invZZ.redMul(invZ);
-    x = X.redMul(invZZ);
-    y = Y.redMul(invZZZ);
+    if (Z.eqn(0)) {
+      return `0x${"0".repeat(64)}`;
+    } else {
+      const invZ = Z.redInvm();
+      const invZZ = invZ.redSqr();
+      const invZZZ = invZZ.redMul(invZ);
+      x = X.redMul(invZZ);
+      y = Y.redMul(invZZZ);
+    }
   } else {
     x = X;
     y = Y;
@@ -127,10 +146,3 @@ export function getPositionId(collateralToken, collectionId) {
     { t: "uint", v: collectionId }
   );
 }
-
-// module.exports = {
-//   getConditionId,
-//   getCollectionId,
-//   combineCollectionIds,
-//   getPositionId
-// };
