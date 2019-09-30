@@ -1,6 +1,6 @@
 import Web3 from "web3";
 import { maxUint256BN, zeroDecimal } from "./constants";
-import { product, combinations } from "./itertools";
+import { product, combinations, permutations } from "./itertools";
 import { combineCollectionIds } from "./getIdsUtil";
 
 import Decimal from "decimal.js-light";
@@ -18,7 +18,9 @@ export function calcOutcomeTokenCounts(
         isAssumed || selectedOutcomeIndex === -1
     )
   )
-    throw new Error("Pick at least one non-conditional market outcome (any row below THEN ↓).");
+    throw new Error(
+      "Pick at least one non-conditional market outcome (any row below THEN ↓)."
+    );
 
   const invB = new Decimal(positions.length).ln().dividedBy(funding.toString());
 
@@ -43,7 +45,8 @@ export function calcOutcomeTokenCounts(
           .exp()
       );
       positionTypes[positionIndex] = "refunded";
-    } else if ( // Evaluate earn amount
+    } else if (
+      // Evaluate earn amount
       outcomes.every(
         ({ marketIndex, outcomeIndex }) =>
           marketSelections[marketIndex].selectedOutcomeIndex == -1 ||
@@ -57,7 +60,8 @@ export function calcOutcomeTokenCounts(
           .exp()
       );
       positionTypes[positionIndex] = "taken";
-    } else { // Evaluate loss amount
+    } else {
+      // Evaluate loss amount
       refusedTerm = refusedTerm.add(
         invB
           .mul(balance)
@@ -86,78 +90,94 @@ export function calcOutcomeTokenCounts(
 }
 
 export function calcPositionGroups(markets, positions, positionAmounts) {
-  const positionGroups = [];
+  let bestPositionGroups = null;
+  let bestPositionGroupsScore = Infinity;
 
-  let positionAmountsCopy = positionAmounts.map(amount =>
-    toBN(amount.toFixed ? amount.toFixed(0) : amount.toString())
-  );
-  let runningPositionAmounts = positionAmountsCopy.slice();
+  positionGroupSearch: for (const marketsPermutation of permutations(markets)) {
+    const positionGroups = [];
+    let positionGroupsScore = 0;
 
-  let outcomesToCombine = markets.map((market, marketIndex) =>
-    market.outcomes.map((outcome, outcomeIndex) => ({
-      ...outcome,
-      marketIndex,
-      outcomeIndex
-    }))
-  );
+    let positionAmountsCopy = positionAmounts.map(amount =>
+      toBN(amount.toFixed ? amount.toFixed(0) : amount.toString())
+    );
+    let runningPositionAmounts = positionAmountsCopy.slice();
 
-  for (let numMarkets = 0; numMarkets <= markets.length; ++numMarkets) {
-    for (const outcomesTuples of combinations(outcomesToCombine, numMarkets)) {
-      for (const outcomeSet of product(...outcomesTuples)) {
-        const groupPositions = outcomeSet.reduce(
-          (positionsIntersection, { positions: outcomePositions }) =>
-            positionsIntersection.filter(
-              ({ id }) =>
-                outcomePositions.find(({ id: otherId }) => id === otherId) !=
-                null
-            ),
-          positions
-        );
+    let outcomesToCombine = marketsPermutation.map(market =>
+      market.outcomes.map((outcome, outcomeIndex) => ({
+        ...outcome,
+        marketIndex: market.marketIndex,
+        outcomeIndex
+      }))
+    );
 
-        const [groupAmount, groupRunningAmount] = groupPositions.reduce(
-          ([accAmount, accRunningAmount], { positionIndex }) => [
-            accAmount.lte(positionAmountsCopy[positionIndex])
-              ? accAmount
-              : positionAmountsCopy[positionIndex],
-            accRunningAmount.lte(runningPositionAmounts[positionIndex])
-              ? accRunningAmount
-              : runningPositionAmounts[positionIndex]
-          ],
-          [maxUint256BN, maxUint256BN]
-        );
+    for (let numMarkets = 1; numMarkets <= markets.length; ++numMarkets) {
+      for (const outcomesTuples of combinations(
+        outcomesToCombine,
+        numMarkets
+      )) {
+        for (const outcomeSet of product(...outcomesTuples)) {
+          const groupPositions = outcomeSet.reduce(
+            (positionsIntersection, { positions: outcomePositions }) =>
+              positionsIntersection.filter(
+                ({ id }) =>
+                  outcomePositions.find(({ id: otherId }) => id === otherId) !=
+                  null
+              ),
+            positions
+          );
 
-        if (groupRunningAmount.gtn(0)) {
-          const collectionIds = outcomeSet.map(({ collectionId }) => {
-            return collectionId;
-          });
-          const combinedCollectionIds = combineCollectionIds(collectionIds);
-          positionGroups.push({
-            collectionId: combinedCollectionIds,
-            // TODO delete when tests passed (should be correctly working now)
-            // padLeft(
-            //   toHex(
-            //     outcomeSet.reduce(
-            //       (acc, { collectionId }) => acc.add(toBN(collectionId)),
-            //       toBN(0)
-            //     )
-            //   ),
-            //   64
-            // ),
-            outcomeSet,
-            amount: groupAmount,
-            runningAmount: groupRunningAmount,
-            positions: groupPositions
-          });
+          const [groupAmount, groupRunningAmount] = groupPositions.reduce(
+            ([accAmount, accRunningAmount], { positionIndex }) => [
+              accAmount.lte(positionAmountsCopy[positionIndex])
+                ? accAmount
+                : positionAmountsCopy[positionIndex],
+              accRunningAmount.lte(runningPositionAmounts[positionIndex])
+                ? accRunningAmount
+                : runningPositionAmounts[positionIndex]
+            ],
+            [maxUint256BN, maxUint256BN]
+          );
 
-          for (const { positionIndex } of groupPositions) {
-            runningPositionAmounts[positionIndex] = runningPositionAmounts[
-              positionIndex
-            ].sub(groupRunningAmount);
+          if (groupRunningAmount.gtn(0)) {
+            if (positionGroupsScore + numMarkets >= bestPositionGroupsScore)
+              continue positionGroupSearch;
+            positionGroupsScore += numMarkets;
+
+            const collectionIds = outcomeSet.map(({ collectionId }) => {
+              return collectionId;
+            });
+            const combinedCollectionIds = combineCollectionIds(collectionIds);
+            positionGroups.push({
+              collectionId: combinedCollectionIds,
+              // TODO delete when tests passed (should be correctly working now)
+              // padLeft(
+              //   toHex(
+              //     outcomeSet.reduce(
+              //       (acc, { collectionId }) => acc.add(toBN(collectionId)),
+              //       toBN(0)
+              //     )
+              //   ),
+              //   64
+              // ),
+              outcomeSet,
+              amount: groupAmount,
+              runningAmount: groupRunningAmount,
+              positions: groupPositions
+            });
+
+            for (const { positionIndex } of groupPositions) {
+              runningPositionAmounts[positionIndex] = runningPositionAmounts[
+                positionIndex
+              ].sub(groupRunningAmount);
+            }
           }
         }
       }
     }
+
+    bestPositionGroups = positionGroups;
+    bestPositionGroupsScore = positionGroupsScore;
   }
 
-  return positionGroups;
+  return bestPositionGroups;
 }
