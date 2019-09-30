@@ -127,11 +127,9 @@ module.exports = function(callback) {
 
     if (resolutionOutcome == null) return;
 
-    const resultPayload = web3.eth.abi.encodeParameters(
-      new Array(marketToResolve.outcomes.length).fill("uint256"),
-      Array.from({ length: marketToResolve.outcomes.length }, (_, i) =>
-        i === resolutionOutcome.index ? 1 : 0
-      )
+    const resultPayload = Array.from(
+      { length: marketToResolve.outcomes.length },
+      (_, i) => (i === resolutionOutcome.index ? 1 : 0)
     );
 
     await pmSystem.reportPayouts(marketToResolve.questionId, resultPayload, {
