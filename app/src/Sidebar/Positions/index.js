@@ -342,7 +342,7 @@ const Positions = ({
       markets.length,
       `0x${"0".repeat(64)}`
     );
-  }, [collateral, account, pmSystem]);
+  }, [collateral, account, pmSystem, allMarketsResolved]);
 
   if (positionGroups === null) {
     return (
