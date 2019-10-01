@@ -6,11 +6,7 @@ import Spinner from "components/Spinner";
 import { zeroDecimal } from "utils/constants";
 import { formatCollateral } from "utils/formatting";
 import { calcPositionGroups } from "utils/position-groups";
-import {
-  getCollectionId,
-  getPositionId,
-  combineCollectionIds
-} from "utils/getIdsUtil";
+import { getPositionId, combineCollectionIds } from "utils/getIdsUtil";
 
 import cn from "classnames/bind";
 import style from "./positions.scss";
@@ -213,9 +209,7 @@ const Positions = ({
       await conditionalTokensRepo.setApprovalForAll(
         lmsrMarketMaker.address,
         true,
-        {
-          from: account
-        }
+        account
       );
     }
 
@@ -234,8 +228,6 @@ const Positions = ({
     asWrappedTransaction,
     account
   ]);
-
-  const marketStage = lmsrState && lmsrState.stage;
 
   const allMarketsResolved =
     marketResolutionStates &&
@@ -280,37 +272,20 @@ const Positions = ({
       const market = markets[marketsLeft - 1];
       const indexSets = [];
 
-      // FIXME -------------- Alan should take a look from here
-      // ID generation should be reviewed. Library is imported in line 9
-      const getCollectionIdPromises = market.outcomes.map((outcome, i) => {
-        return conditionalTokensRepo.getCollectionId(
-          parentCollectionId,
-          market.conditionId,
-          i
-        );
-      });
-
-      const collectionIds = await Promise.all(getCollectionIdPromises);
-
       for (
         let outcomeIndex = 0;
         outcomeIndex < market.outcomes.length;
         outcomeIndex++
       ) {
         const outcome = market.outcomes[outcomeIndex];
-        const childCollectionId = collectionIds[outcomeIndex];
-        // padLeft(
-        //   toHex(
-        //     toBN(parentCollectionId)
-        //       .add(toBN(outcome.collectionId))
-        //       .maskn(256)
-        //   ),
-        //   64
-        // );
+        const childCollectionId = combineCollectionIds([
+          parentCollectionId,
+          outcome.collectionId
+        ]);
 
-        const childPositionId = soliditySha3(
-          { t: "address", v: collateral.address },
-          { t: "uint", v: childCollectionId }
+        const childPositionId = getPositionId(
+          collateral.address,
+          childCollectionId
         );
 
         await redeemPositionsThroughAllMarkets(
@@ -333,7 +308,7 @@ const Positions = ({
           parentCollectionId,
           market.conditionId,
           indexSets,
-          { from: account }
+          account
         );
       }
     }
@@ -342,7 +317,7 @@ const Positions = ({
       markets.length,
       `0x${"0".repeat(64)}`
     );
-  }, [collateral, account, pmSystem]);
+  }, [collateral, account, pmSystem, allMarketsResolved]);
 
   if (positionGroups === null) {
     return (
