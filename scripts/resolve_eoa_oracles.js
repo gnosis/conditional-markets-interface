@@ -1,5 +1,5 @@
 const LMSRMarketMaker = artifacts.require("LMSRMarketMaker");
-const PredictionMarketSystem = artifacts.require("PredictionMarketSystem");
+const ConditionalTokens = artifacts.require("ConditionalTokens");
 
 const fs = require("fs");
 const path = require("path");
@@ -25,7 +25,7 @@ module.exports = function(callback) {
       );
 
     const lmsrMarketMaker = await LMSRMarketMaker.at(appConfig.lmsrAddress);
-    const pmSystem = await PredictionMarketSystem.at(
+    const pmSystem = await ConditionalTokens.at(
       await lmsrMarketMaker.pmSystem()
     );
 
@@ -127,14 +127,12 @@ module.exports = function(callback) {
 
     if (resolutionOutcome == null) return;
 
-    const resultPayload = web3.eth.abi.encodeParameters(
-      new Array(marketToResolve.outcomes.length).fill("uint256"),
-      Array.from({ length: marketToResolve.outcomes.length }, (_, i) =>
-        i === resolutionOutcome.index ? 1 : 0
-      )
+    const resultPayload = Array.from(
+      { length: marketToResolve.outcomes.length },
+      (_, i) => (i === resolutionOutcome.index ? 1 : 0)
     );
 
-    await pmSystem.receiveResult(marketToResolve.questionId, resultPayload, {
+    await pmSystem.reportPayouts(marketToResolve.questionId, resultPayload, {
       from: oracle
     });
   })().then(() => callback(), callback);

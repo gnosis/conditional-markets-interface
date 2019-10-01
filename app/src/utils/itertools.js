@@ -21,3 +21,17 @@ export function* combinations(arr, n) {
         yield [arr[i], ...subTuple];
     }
 }
+
+export function* permutations(arr) {
+  if (arr.length === 0) return;
+  if (arr.length === 1) yield arr;
+  const firstElem = arr[0];
+  const restArr = arr.slice(1);
+  for (const subPerm of permutations(restArr)) {
+    for (let i = 0; i <= restArr.length; i++) {
+      const newPerm = subPerm.slice();
+      newPerm.splice(i, 0, firstElem);
+      yield newPerm;
+    }
+  }
+}

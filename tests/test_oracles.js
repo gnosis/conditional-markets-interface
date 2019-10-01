@@ -3,7 +3,7 @@ const assert = require("chai").assert;
 const rlp = require("rlp");
 const { toHex, padLeft, keccak256, toBN, toChecksumAddress } = web3.utils;
 
-const PredictionMarketSystem = artifacts.require("PredictionMarketSystem");
+const ConditionalTokens = artifacts.require("ConditionalTokens");
 const DifficultyOracle = artifacts.require("DifficultyOracle");
 const GasLimitOracle = artifacts.require("GasLimitOracle");
 const LMSRMarketMaker = artifacts.require("LMSRMarketMaker");
@@ -25,7 +25,7 @@ contract("Oracles", function(accounts) {
   let positionId1, positionId2, positionId3, positionId4;
 
   before(async () => {
-    pmSystem = await PredictionMarketSystem.deployed();
+    pmSystem = await ConditionalTokens.deployed();
     lmsrFactory = await LMSRMarketMakerFactory.deployed();
     collateralToken = await WETH9.deployed();
 

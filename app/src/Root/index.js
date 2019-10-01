@@ -2,73 +2,51 @@ import React, { useState, useEffect, useCallback } from "react";
 import { hot } from "react-hot-loader/root";
 import cn from "classnames/bind";
 import useInterval from "@use-it/interval";
-import Decimal from "decimal.js-light";
 
 import Logo from "assets/img/conditional-logo@3x.png";
 import Spinner from "components/Spinner";
 import CrashPage from "components/Crash";
+import makeLoadable from "../utils/make-loadable";
+import loadContracts from "loadContracts";
 import { loadWeb3 } from "utils/web3";
+import {
+  getCollectionId,
+  getPositionId,
+  combineCollectionIds
+} from "utils/getIdsUtil";
 
 import style from "./root.scss";
 const cx = cn.bind(style);
 
-async function loadBasicData({ lmsrAddress, markets }, web3, Decimal) {
-  const { soliditySha3 } = web3.utils;
+import getMarketMakersRepo from "../repositories/MarketMakersRepo";
+import getConditionalTokensRepo from "../repositories/ConditionalTokensRepo";
+import getConditionalTokensService from "../services/ConditionalTokensService";
+let marketMakersRepo;
+let conditionalTokensRepo;
+let conditionalTokensService;
 
-  const [
-    { default: TruffleContract },
-    { product },
-    ERC20DetailedArtifact,
-    IDSTokenArtifact,
-    WETH9Artifact,
-    PredictionMarketSystemArtifact,
-    LMSRMarketMakerArtifact
-  ] = await Promise.all([
-    import("truffle-contract"),
-    import("utils/itertools"),
-    import("../../../build/contracts/ERC20Detailed.json"),
-    import("../../../build/contracts/IDSToken.json"),
-    import("../../../build/contracts/WETH9.json"),
-    import("../../../build/contracts/PredictionMarketSystem.json"),
-    import("../../../build/contracts/LMSRMarketMaker.json")
-  ]);
+async function loadBasicData({ markets }, web3) {
+  const { toBN } = web3.utils;
 
-  const ERC20Detailed = TruffleContract(ERC20DetailedArtifact);
-  const IDSToken = TruffleContract(IDSTokenArtifact);
-  const WETH9 = TruffleContract(WETH9Artifact);
-  const PredictionMarketSystem = TruffleContract(
-    PredictionMarketSystemArtifact
-  );
-  const LMSRMarketMaker = TruffleContract(LMSRMarketMakerArtifact);
-  for (const Contract of [
-    ERC20Detailed,
-    IDSToken,
-    WETH9,
-    PredictionMarketSystem,
-    LMSRMarketMaker
-  ]) {
-    Contract.setProvider(web3.currentProvider);
-  }
-
-  const lmsrMarketMaker = await LMSRMarketMaker.at(lmsrAddress);
-
-  const collateral = await require("utils/collateral-info")(
-    web3,
-    Decimal,
-    { ERC20Detailed, IDSToken, WETH9 },
+  // Load application contracts
+  marketMakersRepo = await getMarketMakersRepo();
+  conditionalTokensRepo = await getConditionalTokensRepo();
+  conditionalTokensService = await getConditionalTokensService();
+  const {
+    collateralToken: collateral,
+    pmSystem,
     lmsrMarketMaker
-  );
+  } = await loadContracts();
 
-  const pmSystem = await PredictionMarketSystem.at(
-    await lmsrMarketMaker.pmSystem()
-  );
-  const atomicOutcomeSlotCount = (await lmsrMarketMaker.atomicOutcomeSlotCount()).toNumber();
+  const { product } = require("utils/itertools");
+
+  const atomicOutcomeSlotCount = (await marketMakersRepo.atomicOutcomeSlotCount()).toNumber();
 
   let curAtomicOutcomeSlotCount = 1;
   for (let i = 0; i < markets.length; i++) {
     const market = markets[i];
-    const conditionId = await lmsrMarketMaker.conditionIds(i);
-    const numSlots = (await pmSystem.getOutcomeSlotCount(
+    const conditionId = await marketMakersRepo.conditionIds(i);
+    const numSlots = (await conditionalTokensRepo.getOutcomeSlotCount(
       conditionId
     )).toNumber();
 
@@ -83,11 +61,18 @@ async function loadBasicData({ lmsrAddress, markets }, web3, Decimal) {
 
     market.marketIndex = i;
     market.conditionId = conditionId;
+    // TODO delete when tests passed (should be correctly working now)
+    // const getOutcomesPromises = market.outcomes.map((outcome, i) => {
+    //   return conditionalTokensRepo.getCollectionId(
+    //     web3.utils.padLeft(0, 32),
+    //     conditionId,
+    //     i
+    //   );
+    // });
+    //
+    // const outcomes = await Promise.all(getOutcomesPromises);
     market.outcomes.forEach((outcome, i) => {
-      outcome.collectionId = soliditySha3(
-        { t: "bytes32", v: conditionId },
-        { t: "uint", v: 1 << i }
-      );
+      outcome.collectionId = getCollectionId(conditionId, toBN(1).shln(i));
     });
 
     curAtomicOutcomeSlotCount *= numSlots;
@@ -112,17 +97,20 @@ async function loadBasicData({ lmsrAddress, markets }, web3, Decimal) {
         }))
       )
   )) {
-    const positionId = soliditySha3(
-      { t: "address", v: collateral.address },
-      {
-        t: "uint",
-        v: outcomes
-          .map(({ collectionId }) => collectionId)
-          .map(id => web3.utils.toBN(id))
-          .reduce((a, b) => a.add(b))
-          .maskn(256)
-      }
+    const combinedCollectionIds = combineCollectionIds(
+      outcomes.map(({ collectionId }) => collectionId)
     );
+
+    const positionId = getPositionId(collateral.address, combinedCollectionIds);
+    // TODO delete when tests passed (should be correctly working now)
+    // soliditySha3(
+    //   { t: "address", v: collateral.address },
+    //   {
+    //     t: "uint",
+    //     v: outcomes
+    //       .map(({ collectionId }) => collectionId)
+    //   }
+    // );
     positions.push({
       id: positionId,
       outcomes
@@ -147,6 +135,7 @@ async function loadBasicData({ lmsrAddress, markets }, web3, Decimal) {
   }
 
   return {
+    conditionalTokensService,
     pmSystem,
     lmsrMarketMaker,
     collateral,
@@ -172,28 +161,42 @@ async function getCollateralBalance(web3, collateral, account) {
   return collateralBalance;
 }
 
-async function getLMSRState(web3, pmSystem, lmsrMarketMaker, positions) {
+async function getLMSRState(web3, positions) {
   const { fromWei } = web3.utils;
-  const [owner, funding, stage, fee, positionBalances] = await Promise.all([
-    lmsrMarketMaker.owner(),
-    lmsrMarketMaker.funding(),
-    lmsrMarketMaker
+  const [owner, funding, stage, fee, marketMakerAddress] = await Promise.all([
+    marketMakersRepo.owner(),
+    marketMakersRepo.funding(),
+    marketMakersRepo
       .stage()
       .then(stage => ["Running", "Paused", "Closed"][stage.toNumber()]),
-    lmsrMarketMaker.fee().then(fee => fromWei(fee)),
-    getPositionBalances(pmSystem, positions, lmsrMarketMaker.address)
+    marketMakersRepo.fee().then(fee => fromWei(fee)),
+    marketMakersRepo.getAddress()
   ]);
+  const positionBalances = await getPositionBalances(
+    positions,
+    marketMakerAddress
+  );
   return { owner, funding, stage, fee, positionBalances };
 }
 
-async function getMarketResolutionStates(pmSystem, markets) {
-  return await Promise.all(
+async function getPositionBalances(positions, account) {
+  return Promise.all(
+    positions.map(position =>
+      conditionalTokensRepo.balanceOf(account, position.id)
+    )
+  );
+}
+
+async function getMarketResolutionStates(markets) {
+  return Promise.all(
     markets.map(async ({ conditionId, outcomes }) => {
-      const payoutDenominator = await pmSystem.payoutDenominator(conditionId);
+      const payoutDenominator = await conditionalTokensRepo.payoutDenominator(
+        conditionId
+      );
       if (payoutDenominator.gtn(0)) {
         const payoutNumerators = await Promise.all(
           outcomes.map((_, outcomeIndex) =>
-            pmSystem.payoutNumerators(conditionId, outcomeIndex)
+            conditionalTokensRepo.payoutNumerators(conditionId, outcomeIndex)
           )
         );
 
@@ -207,62 +210,12 @@ async function getMarketResolutionStates(pmSystem, markets) {
   );
 }
 
-async function getPositionBalances(pmSystem, positions, account) {
-  return await Promise.all(
-    positions.map(position => pmSystem.balanceOf(account, position.id))
-  );
-}
-
-async function getLMSRAllowance(collateral, lmsrMarketMaker, account) {
-  return await collateral.contract.allowance(account, lmsrMarketMaker.address);
+async function getLMSRAllowance(collateral, account) {
+  const marketMakerAddress = await marketMakersRepo.getAddress();
+  return collateral.contract.allowance(account, marketMakerAddress);
 }
 
 const moduleLoadTime = Date.now();
-
-const makeLoadable = (Component, childComponents) => {
-  const loadableWrapped = () => {
-    const [loadingState, setLoadingState] = useState("LOADING");
-    const [loadedComponents, setLoadedComponents] = useState([]);
-
-    useEffect(() => {
-      (async () => {
-        setLoadingState("LOADING");
-        try {
-          const loadedChildren = await Promise.all(
-            childComponents.map(loader => loader())
-          );
-
-          setLoadedComponents(
-            loadedChildren.map(
-              ({ default: exportedComponent }) => exportedComponent
-            )
-          );
-          setLoadingState("SUCCESS");
-        } catch (err) {
-          setLoadingState("ERROR");
-        }
-      })();
-    }, ["hot"]);
-
-    if (loadingState === "LOADING") {
-      return (
-        <div className={cx("loading-page")}>
-          <Spinner centered width={100} height={100} />
-        </div>
-      );
-    }
-
-    if (loadingState === "ERROR") {
-      return <CrashPage />;
-    }
-
-    if (loadingState === "SUCCESS") {
-      return <Component childComponents={loadedComponents} />;
-    }
-  };
-
-  return loadableWrapped;
-};
 
 const RootComponent = ({ childComponents }) => {
   const [
@@ -274,16 +227,16 @@ const RootComponent = ({ childComponents }) => {
     Toasts
   ] = childComponents;
 
+  // Init and set base state
   const [loading, setLoading] = useState("LOADING");
   const [lastError, setLastError] = useState(null);
   const [syncTime, setSyncTime] = useState(moduleLoadTime);
   const triggerSync = useCallback(() => {
     setSyncTime(Date.now());
   });
-  useInterval(triggerSync, 2000);
+  useInterval(triggerSync, 8000);
   const [toasts, setToasts] = useState([]);
 
-  //const [networkId, setNetworkId] = useState(null);
   const [web3, setWeb3] = useState(null);
   const [account, setAccount] = useState(null);
   const [pmSystem, setPMSystem] = useState(null);
@@ -293,14 +246,14 @@ const RootComponent = ({ childComponents }) => {
   const [positions, setPositions] = useState(null);
 
   const init = useCallback(() => {
-    const networkToUse = process.env.NETWORK || "local";
+    // const networkToUse = process.env.NETWORK || "local";
     import(
       /* webpackChunkName: "config" */
       /* webpackInclude: /\.json$/ */
       /* webpackMode: "lazy" */
       /* webpackPrefetch: true */
       /* webpackPreload: true */
-      `../../config.${networkToUse}.json`
+      `../conf`
     )
       .then(async ({ default: config }) => {
         /* eslint-disable no-console */
@@ -309,19 +262,19 @@ const RootComponent = ({ childComponents }) => {
         console.groupEnd();
 
         /* eslint-enable no-console */
-        //setNetworkId(config.networkId);
         const { web3, account } = await loadWeb3(config.networkId);
 
         setWeb3(web3);
         setAccount(account);
 
         const {
+          conditionalTokensService,
           pmSystem,
           lmsrMarketMaker,
           collateral,
           markets,
           positions
-        } = await loadBasicData(config, web3, Decimal);
+        } = await loadBasicData(config, web3);
 
         setPMSystem(pmSystem);
         setLMSRMarketMaker(lmsrMarketMaker);
@@ -350,12 +303,15 @@ const RootComponent = ({ childComponents }) => {
 
   const [modal, setModal] = useState(null);
 
+  // Add effect when 'syncTime' is updated this functions are triggered
+  // As 'syncTime' is setted to 2 seconds all this getters are triggered and setted
+  // in the state.
   for (const [loader, dependentParams, setter] of [
-    [getLMSRState, [web3, pmSystem, lmsrMarketMaker, positions], setLMSRState],
-    [getMarketResolutionStates, [pmSystem, markets], setMarketResolutionStates],
+    [getLMSRState, [web3, positions], setLMSRState],
+    [getMarketResolutionStates, [markets], setMarketResolutionStates],
     [getCollateralBalance, [web3, collateral, account], setCollateralBalance],
-    [getPositionBalances, [pmSystem, positions, account], setPositionBalances],
-    [getLMSRAllowance, [collateral, lmsrMarketMaker, account], setLMSRAllowance]
+    [getPositionBalances, [positions, account], setPositionBalances],
+    [getLMSRAllowance, [collateral, account], setLMSRAllowance]
   ])
     useEffect(() => {
       if (dependentParams.every(p => p != null))
@@ -531,6 +487,7 @@ const RootComponent = ({ childComponents }) => {
                 <Sidebar
                   {...{
                     account,
+                    conditionalTokensRepo,
                     pmSystem,
                     markets,
                     positions,
