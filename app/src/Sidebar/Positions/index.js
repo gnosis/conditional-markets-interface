@@ -6,11 +6,7 @@ import Spinner from "components/Spinner";
 import { zeroDecimal } from "utils/constants";
 import { formatCollateral } from "utils/formatting";
 import { calcPositionGroups } from "utils/position-groups";
-import {
-  getCollectionId,
-  getPositionId,
-  combineCollectionIds
-} from "utils/getIdsUtil";
+import { getPositionId, combineCollectionIds } from "utils/getIdsUtil";
 
 import cn from "classnames/bind";
 import style from "./positions.scss";
@@ -213,9 +209,7 @@ const Positions = ({
       await conditionalTokensRepo.setApprovalForAll(
         lmsrMarketMaker.address,
         true,
-        {
-          from: account
-        }
+        account
       );
     }
 
@@ -234,8 +228,6 @@ const Positions = ({
     asWrappedTransaction,
     account
   ]);
-
-  const marketStage = lmsrState && lmsrState.stage;
 
   const allMarketsResolved =
     marketResolutionStates &&
@@ -279,16 +271,6 @@ const Positions = ({
 
       const market = markets[marketsLeft - 1];
       const indexSets = [];
-
-      const getCollectionIdPromises = market.outcomes.map((outcome, i) => {
-        return conditionalTokensRepo.getCollectionId(
-          parentCollectionId,
-          market.conditionId,
-          i
-        );
-      });
-
-      const collectionIds = await Promise.all(getCollectionIdPromises);
 
       for (
         let outcomeIndex = 0;
