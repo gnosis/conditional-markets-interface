@@ -6,6 +6,7 @@ const webpack = require("webpack");
 
 const moduleStubPath = path.resolve(__dirname, "module-stub.js");
 
+// eslint-disable-next-line no-console
 console.log(`Building for Network ${process.env.NETWORK || "local"}`);
 
 module.exports = {

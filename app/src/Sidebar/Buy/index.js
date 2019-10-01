@@ -26,6 +26,7 @@ const Buy = ({
   collateral,
   collateralBalance,
   lmsrMarketMaker,
+  lmsrAllowance,
   lmsrState,
   marketSelections,
   stagedTradeAmounts,
@@ -98,6 +99,16 @@ const Buy = ({
   const marketStage = lmsrState && lmsrState.stage;
 
   let hasAnyAllowance = false;
+  let hasEnoughAllowance = false;
+  if (lmsrAllowance != null)
+    try {
+      hasAnyAllowance = lmsrAllowance.gtn(0);
+      hasEnoughAllowance = collateral.toUnitsMultiplier
+        .mul(investmentAmount || "0")
+        .lte(lmsrAllowance.toString());
+    } catch (e) {
+      // empty
+    }
 
   const buyOutcomeTokens = useCallback(async () => {
     if (stagedTradeAmounts == null) throw new Error(`No buy set yet`);
@@ -134,7 +145,7 @@ const Buy = ({
       });
     }
 
-    if (!hasAnyAllowance) {
+    if (!hasAnyAllowance || !hasEnoughAllowance) {
       await collateral.contract.approve(lmsrMarketMaker.address, maxUint256BN, {
         from: account
       });
@@ -143,8 +154,11 @@ const Buy = ({
     await lmsrMarketMaker.trade(tradeAmounts, collateralLimit, {
       from: account
     });
+
+    clearAllPositions();
   }, [
     hasAnyAllowance,
+    hasEnoughAllowance,
     stagedTransactionType,
     stagedTradeAmounts,
     lmsrMarketMaker,
@@ -255,24 +269,26 @@ const Buy = ({
 
         // invert outcome sets
         humanReadablePositions.loseInvestmentWhen.positions = outcomeSet.map(
-          outcome => {
-            if (outcome.outcomeIndex == -1) {
-              return outcome;
+          selectedOutcome => {
+            if (selectedOutcome.outcomeIndex == -1) {
+              return selectedOutcome;
+            }
+
+            if (marketSelections[selectedOutcome.marketIndex].isAssumed) {
+              return {
+                ...selectedOutcome,
+                ...markets[selectedOutcome.marketIndex].outcomes[
+                  selectedOutcome.outcomeIndex
+                ]
+              };
             }
 
             return {
-              ...outcome,
-              ...markets[outcome.marketIndex].outcomes[
-                outcome.outcomeIndex == 0 &&
-                !marketSelections[outcome.marketIndex].isAssumed
-                  ? 1
-                  : 0
+              ...selectedOutcome,
+              ...markets[selectedOutcome.marketIndex].outcomes[
+                selectedOutcome.outcomeIndex == 0 ? 1 : 0
               ],
-              outcomeIndex:
-                outcome.outcomeIndex == 0 &&
-                !marketSelections[outcome.marketIndex].isAssumed
-                  ? 1
-                  : 0
+              outcomeIndex: selectedOutcome.outcomeIndex == 0 ? 1 : 0
             };
           }
         );
@@ -348,7 +364,7 @@ const Buy = ({
                       <OutcomeCard
                         key={`${outcome.marketIndex}-${outcome.outcomeIndex}`}
                         glueType={category.getGlue()}
-                        prefixType={category.getPrefix()}
+                        // prefixType={category.getPrefix()}
                         {...outcome}
                       />
                     ))}

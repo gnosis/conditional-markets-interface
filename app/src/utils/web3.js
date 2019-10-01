@@ -68,11 +68,19 @@ export async function tryProvider(providerCandidate, networkId) {
 export async function loadWeb3(networkId) {
   const { default: Web3 } = await import("web3");
 
+  // wait for safe
+  await new Promise(resolve => window.setTimeout(resolve, 1000));
+
   const web3InitErrors = [];
   let web3, account;
   let foundWeb3 = false;
+  //console.log(Web3.givenProvider)
   for (const [providerType, providerCandidate] of [
     ["injected provider", Web3.givenProvider],
+    [
+      "injected legacy provider",
+      window["web3"] && window["web3"]["currentProvider"]
+    ],
     ["local websocket", "ws://localhost:8546"],
     ["local http", "http://localhost:8545"],
     [
@@ -81,7 +89,11 @@ export async function loadWeb3(networkId) {
     ]
   ]) {
     try {
-      const providerValues = await tryProvider(providerCandidate, networkId);
+      const candidateEvalulated =
+        typeof providerCandidate === "function"
+          ? providerCandidate()
+          : providerCandidate;
+      const providerValues = await tryProvider(candidateEvalulated, networkId);
       foundWeb3 = true;
       web3 = providerValues.web3;
       account = providerValues.account;
