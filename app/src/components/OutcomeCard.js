@@ -2,6 +2,7 @@ import React from "react";
 import cn from "classnames/bind";
 
 import style from "./outcomeCard.scss";
+import { outcomeColors } from "utils/constants";
 
 const cx = cn.bind(style);
 
