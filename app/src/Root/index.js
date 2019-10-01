@@ -227,6 +227,7 @@ const RootComponent = ({ childComponents }) => {
     Toasts
   ] = childComponents;
 
+  // Init and set base state
   const [loading, setLoading] = useState("LOADING");
   const [lastError, setLastError] = useState(null);
   const [syncTime, setSyncTime] = useState(moduleLoadTime);
@@ -236,7 +237,6 @@ const RootComponent = ({ childComponents }) => {
   useInterval(triggerSync, 8000);
   const [toasts, setToasts] = useState([]);
 
-  //const [networkId, setNetworkId] = useState(null);
   const [web3, setWeb3] = useState(null);
   const [account, setAccount] = useState(null);
   const [pmSystem, setPMSystem] = useState(null);
@@ -262,7 +262,6 @@ const RootComponent = ({ childComponents }) => {
         console.groupEnd();
 
         /* eslint-enable no-console */
-        //setNetworkId(config.networkId);
         const { web3, account } = await loadWeb3(config.networkId);
 
         setWeb3(web3);

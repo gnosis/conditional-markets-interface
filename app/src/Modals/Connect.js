@@ -15,7 +15,7 @@ const Connect = ({ closeModal, reinit }) => {
   const [validProvider, setValidProvider] = useState(false);
 
   const troubleshootMetamask = useCallback(async () => {
-    const config = await import(`../conf`);
+    const config = import(`../conf`);
 
     let account;
     try {

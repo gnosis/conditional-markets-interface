@@ -20,14 +20,6 @@ import getConditionalTokensService from "../../services/ConditionalTokensService
 let conditionalTokensRepo;
 let conditionalTokensService;
 
-function loadRepo() {
-  async function getRepo() {
-    conditionalTokensRepo = await getConditionalTokensRepo();
-    conditionalTokensService = await getConditionalTokensService();
-  }
-  getRepo();
-}
-
 function calcNetCost({ funding, positionBalances }, tradeAmounts) {
   const invB = new Decimal(positionBalances.length)
     .ln()
@@ -64,7 +56,20 @@ const Positions = ({
   ongoingTransactionType,
   asWrappedTransaction
 }) => {
-  loadRepo();
+  // Memoize fetching data files
+  const loadDataLayer = useCallback(() => {
+    async function getRepo() {
+      conditionalTokensRepo = await getConditionalTokensRepo();
+      conditionalTokensService = await getConditionalTokensService();
+    }
+    getRepo();
+  });
+
+  // Load data layer just on page load
+  useEffect(() => {
+    loadDataLayer();
+  }, []);
+
   const [positionGroups, setPositionGroups] = useState(null);
 
   useEffect(() => {

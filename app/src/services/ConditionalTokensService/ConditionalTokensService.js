@@ -8,7 +8,7 @@ class ConditionalTokensService {
   }
 
   async getPositionBalances(positions, account) {
-    return await Promise.all(
+    return Promise.all(
       positions.map(position =>
         this._conditionalTokensRepo.balanceOf(account, position.id)
       )
