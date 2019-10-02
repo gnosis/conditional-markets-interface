@@ -3,7 +3,7 @@ import { hot } from "react-hot-loader/root";
 import cn from "classnames/bind";
 import useInterval from "@use-it/interval";
 
-import Logo from "assets/img/conditional-logo@3x.png";
+import Logo from "assets/img/conditional-logo.png";
 import Spinner from "components/Spinner";
 import CrashPage from "components/Crash";
 import makeLoadable from "../utils/make-loadable";
@@ -225,7 +225,8 @@ const RootComponent = ({ childComponents }) => {
     Header,
     Menu,
     UserWallet,
-    Toasts
+    Toasts,
+    Footer
   ] = childComponents;
 
   // Init and set base state
@@ -549,6 +550,7 @@ const RootComponent = ({ childComponents }) => {
               addToast={addToast}
               toasts={toasts}
             />
+            <Footer />
           </div>
         </div>
       </div>
