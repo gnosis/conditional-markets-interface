@@ -5,8 +5,30 @@
   bottom: 0;
   width: 100%;
   height: 32px;
-  background-color: rgb(255, 50, 50);
+  background: #fff;
+  border-top: 1px solid $greyBorder;
   text-transform: uppercase;
   text-align: center;
   color: #111;
+  padding: 1rem;
+}
+
+.footer-links {
+  list-style: none;
+  display: inline;
+  padding: 0;
+  margin: 0 0.5rem;
+  li {
+    padding: 0;
+    display: inline;
+    margin: 0 0.5rem;
+
+    a, a:visited {
+      color: #009bb4;
+    }
+    a:hover {
+      color: #00193c;
+      text-decoration: underline;
+    }
+  }
 }

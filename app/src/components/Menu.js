@@ -7,7 +7,7 @@ const cx = cn.bind(style);
 
 const menuItems = [
   {
-    label: "MARKETS ONLY FOR DEMONSTRATION PURPOSES",
+    label: "MARKETS",
     target: "/",
     active: true
   }
