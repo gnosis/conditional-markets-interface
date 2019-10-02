@@ -9,6 +9,8 @@ const moduleStubPath = path.resolve(__dirname, "module-stub.js");
 // eslint-disable-next-line no-console
 console.log(`Building for Network ${process.env.NETWORK || "local"}`);
 
+const isProduction = process.env.NODE_ENV === "production";
+
 module.exports = {
   entry: "./src/index.js",
   devtool: "eval-source-map",
@@ -116,7 +118,9 @@ module.exports = {
       NODE_ENV: "development",
       NETWORK: false,
       WHITELIST_ENABLED: true,
-      WHITELIST_API: "/api"
+      WHITELIST_API: isProduction
+        ? "https://sight-whitelist.staging.gnosisdev.com/api/v1"
+        : "/api"
     })
   ]
 };
