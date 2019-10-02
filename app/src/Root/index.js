@@ -14,6 +14,7 @@ import {
   getPositionId,
   combineCollectionIds
 } from "utils/getIdsUtil";
+import getWhitelistState from "api/whitelist";
 
 import style from "./root.scss";
 const cx = cn.bind(style);
@@ -24,6 +25,8 @@ import getConditionalTokensService from "../services/ConditionalTokensService";
 let marketMakersRepo;
 let conditionalTokensRepo;
 let conditionalTokensService;
+
+const whitelistEnabled = process.env.WHITELIST_ENABLED;
 
 async function loadBasicData({ markets }, web3) {
   const { toBN } = web3.utils;
@@ -54,9 +57,7 @@ async function loadBasicData({ markets }, web3) {
       throw new Error(`condition ${conditionId} not set up yet`);
     if (numSlots !== market.outcomes.length)
       throw new Error(
-        `condition ${conditionId} outcome slot count ${numSlots} does not match market outcome descriptions array with length ${
-          market.outcomes.length
-        }`
+        `condition ${conditionId} outcome slot count ${numSlots} does not match market outcome descriptions array with length ${market.outcomes.length}`
       );
 
     market.marketIndex = i;
@@ -268,7 +269,6 @@ const RootComponent = ({ childComponents }) => {
         setAccount(account);
 
         const {
-          conditionalTokensService,
           pmSystem,
           lmsrMarketMaker,
           collateral,
@@ -434,6 +434,32 @@ const RootComponent = ({ childComponents }) => {
     }
   }, []);
 
+  const [whitelistState, setWhitelistState] = useState("LOADING");
+  const [whitelistIntervalTime, setWhitelistCheckIntervalTime] = useState(
+    30000
+  );
+
+  const updateWhitelist = useCallback(() => {
+    if (account) {
+      (async () => {
+        const whitelistStatus = await getWhitelistState(account);
+        setWhitelistState(whitelistStatus);
+
+        if (
+          whitelistStatus === "WHITELISTED" ||
+          whitelistStatus === "BLOCKED"
+        ) {
+          setWhitelistCheckIntervalTime(null); // stops the refresh
+        }
+      })();
+    }
+  }, [account]);
+  useInterval(updateWhitelist, whitelistIntervalTime);
+
+  useEffect(() => {
+    updateWhitelist();
+  }, [account]);
+
   useInterval(updateToasts, 1000);
 
   if (loading === "SUCCESS")
@@ -462,7 +488,13 @@ const RootComponent = ({ childComponents }) => {
         </div>
         <div className={cx("app-space", { "modal-open": !!modal })}>
           <Header
-            avatar={<UserWallet address={account} openModal={openModal} />}
+            avatar={
+              <UserWallet
+                address={account}
+                openModal={openModal}
+                whitelistState={whitelistState}
+              />
+            }
             menu={<Menu />}
           />
           <div className={cx("sections")}>
@@ -482,35 +514,36 @@ const RootComponent = ({ childComponents }) => {
                 }}
               />
             </section>
-            {account != null && (
-              <section className={cx("section", "section-positions")}>
-                <Sidebar
-                  {...{
-                    account,
-                    conditionalTokensRepo,
-                    pmSystem,
-                    markets,
-                    positions,
-                    marketResolutionStates,
-                    marketSelections,
-                    collateral,
-                    collateralBalance,
-                    lmsrMarketMaker,
-                    lmsrState,
-                    lmsrAllowance,
-                    positionBalances,
-                    stagedTradeAmounts,
-                    setStagedTradeAmounts,
-                    stagedTransactionType,
-                    setStagedTransactionType,
-                    ongoingTransactionType,
-                    asWrappedTransaction,
-                    resetMarketSelections,
-                    addToast
-                  }}
-                />
-              </section>
-            )}
+            {account != null && // account available
+            (!whitelistEnabled || whitelistState === "WHITELISTED") && ( // whitelisted or whitelist functionality disabled
+                <section className={cx("section", "section-positions")}>
+                  <Sidebar
+                    {...{
+                      account,
+                      conditionalTokensRepo,
+                      pmSystem,
+                      markets,
+                      positions,
+                      marketResolutionStates,
+                      marketSelections,
+                      collateral,
+                      collateralBalance,
+                      lmsrMarketMaker,
+                      lmsrState,
+                      lmsrAllowance,
+                      positionBalances,
+                      stagedTradeAmounts,
+                      setStagedTradeAmounts,
+                      stagedTransactionType,
+                      setStagedTransactionType,
+                      ongoingTransactionType,
+                      asWrappedTransaction,
+                      resetMarketSelections,
+                      addToast
+                    }}
+                  />
+                </section>
+              )}
             <Toasts
               deleteToast={deleteToast}
               addToast={addToast}
