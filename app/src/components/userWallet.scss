@@ -56,3 +56,22 @@
     background-color: darken($green, 20%);
   }
 }
+
+
+.link-button {
+  -webkit-appearance: none;
+  appearance: none;
+  background: none;
+  border: none;
+  color: $blue;
+  font-size: 1.4rem;
+  text-align: right;
+  text-decoration: underline;
+  float: right;
+  cursor: pointer;
+  outline: 0;
+
+  &:hover, &:focus, &:active {
+    color: darken($blue, 20%);
+  }
+}
