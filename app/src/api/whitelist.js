@@ -1,5 +1,5 @@
-const WHITELIST_ENABLED = process.env.WHITELIST_ENABLED;
-const WHITELIST_API_URL = process.env.WHITELIST_API;
+const conf = require("../conf");
+const { WHITELIST_ENABLED, WHITELIST_API_URL } = conf;
 
 const getWhitelistState = async accountAddress => {
   if (!WHITELIST_ENABLED) {

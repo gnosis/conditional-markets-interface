@@ -117,7 +117,8 @@ module.exports = {
     new webpack.EnvironmentPlugin({
       NODE_ENV: "development",
       NETWORK: false,
-      WHITELIST_ENABLED: true,
+      // Use default configuration instead
+      // WHITELIST_ENABLED: true,
       WHITELIST_API: isProduction
         ? "https://sight-whitelist.staging.gnosisdev.com/api/v1"
         : "/api"
