@@ -16,8 +16,8 @@ module.exports = {
   devtool: "eval-source-map",
   output: {
     path: path.resolve(__dirname, "..", "docs"),
-    publicPath: "/",
-    filename: "bundle.[chunkhash].js"
+    publicPath: "./",
+    filename: "bundle.[hash].js"
   },
   target: "web",
   resolve: {
