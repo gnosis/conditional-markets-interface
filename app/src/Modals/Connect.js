@@ -15,9 +15,7 @@ const Connect = ({ closeModal, reinit }) => {
   const [validProvider, setValidProvider] = useState(false);
 
   const troubleshootMetamask = useCallback(async () => {
-    const config = await import(
-      `../../config.${process.env.NETWORK || "local"}.json`
-    );
+    const config = import(`../conf`);
 
     let account;
     try {
@@ -73,7 +71,7 @@ const Connect = ({ closeModal, reinit }) => {
   return (
     <div className={cx("modal")}>
       <div className={cx("modal-header")}>
-        <a href="#" className={cx("modal-close")} onClick={closeModal}></a>{" "}
+        <a href="#" className={cx("modal-close")} onClick={closeModal} />{" "}
         Connect with your Web3 wallet
       </div>
       <div className={cx("modal-body")}>

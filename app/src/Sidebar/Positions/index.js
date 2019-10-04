@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
 import Web3 from "web3";
 import Decimal from "decimal.js-light";
@@ -6,6 +6,7 @@ import Spinner from "components/Spinner";
 import { zeroDecimal } from "utils/constants";
 import { formatCollateral } from "utils/formatting";
 import { calcPositionGroups } from "utils/position-groups";
+import { getPositionId, combineCollectionIds } from "utils/getIdsUtil";
 
 import cn from "classnames/bind";
 import style from "./positions.scss";
@@ -13,6 +14,11 @@ import OutcomeCard from "../../components/OutcomeCard";
 
 const cx = cn.bind(style);
 const { toBN } = Web3.utils;
+
+import getConditionalTokensRepo from "../../repositories/ConditionalTokensRepo";
+import getConditionalTokensService from "../../services/ConditionalTokensService";
+let conditionalTokensRepo;
+let conditionalTokensService;
 
 function calcNetCost({ funding, positionBalances }, tradeAmounts) {
   const invB = new Decimal(positionBalances.length)
@@ -50,6 +56,20 @@ const Positions = ({
   ongoingTransactionType,
   asWrappedTransaction
 }) => {
+  // Memoize fetching data files
+  const loadDataLayer = useCallback(() => {
+    async function getRepo() {
+      conditionalTokensRepo = await getConditionalTokensRepo();
+      conditionalTokensService = await getConditionalTokensService();
+    }
+    getRepo();
+  });
+
+  // Load data layer just on page load
+  useEffect(() => {
+    loadDataLayer();
+  }, []);
+
   const [positionGroups, setPositionGroups] = useState(null);
 
   useEffect(() => {
@@ -147,12 +167,17 @@ const Positions = ({
       setCurrentSellingPosition(salePositionGroup);
       await setStagedTransactionType("sell outcome tokens");
 
-      if (
-        !(await pmSystem.isApprovedForAll(account, lmsrMarketMaker.address))
-      ) {
-        await pmSystem.setApprovalForAll(lmsrMarketMaker.address, true, {
-          from: account
-        });
+      const isOperatorApprovedByOwner = await conditionalTokensRepo.isApprovedForAll(
+        account,
+        lmsrMarketMaker.address
+      );
+
+      if (!isOperatorApprovedByOwner) {
+        await conditionalTokensRepo.setApprovalForAll(
+          lmsrMarketMaker.address,
+          true,
+          account
+        );
       }
 
       const stagedTradeAmounts = Array.from(
@@ -167,7 +192,6 @@ const Positions = ({
 
       const tradeAmounts = stagedTradeAmounts.map(amount => amount.toString());
       const collateralLimit = await lmsrMarketMaker.calcNetCost(tradeAmounts);
-
       await lmsrMarketMaker.trade(tradeAmounts, collateralLimit, {
         from: account
       });
@@ -183,10 +207,17 @@ const Positions = ({
         `Can't sell outcome tokens while staged transaction is to ${stagedTransactionType}`
       );
 
-    if (!(await pmSystem.isApprovedForAll(account, lmsrMarketMaker.address))) {
-      await pmSystem.setApprovalForAll(lmsrMarketMaker.address, true, {
-        from: account
-      });
+    if (
+      !(await conditionalTokensRepo.isApprovedForAll(
+        account,
+        lmsrMarketMaker.address
+      ))
+    ) {
+      await conditionalTokensRepo.setApprovalForAll(
+        lmsrMarketMaker.address,
+        true,
+        account
+      );
     }
 
     const tradeAmounts = stagedTradeAmounts.map(amount => amount.toString());
@@ -247,24 +278,21 @@ const Positions = ({
 
       const market = markets[marketsLeft - 1];
       const indexSets = [];
+
       for (
         let outcomeIndex = 0;
         outcomeIndex < market.outcomes.length;
         outcomeIndex++
       ) {
         const outcome = market.outcomes[outcomeIndex];
-        const childCollectionId = padLeft(
-          toHex(
-            toBN(parentCollectionId)
-              .add(toBN(outcome.collectionId))
-              .maskn(256)
-          ),
-          64
-        );
+        const childCollectionId = combineCollectionIds([
+          parentCollectionId,
+          outcome.collectionId
+        ]);
 
-        const childPositionId = soliditySha3(
-          { t: "address", v: collateral.address },
-          { t: "uint", v: childCollectionId }
+        const childPositionId = getPositionId(
+          collateral.address,
+          childCollectionId
         );
 
         await redeemPositionsThroughAllMarkets(
@@ -272,18 +300,22 @@ const Positions = ({
           childCollectionId
         );
 
-        if ((await pmSystem.balanceOf(account, childPositionId)).gtn(0)) {
+        if (
+          (await conditionalTokensRepo.balanceOf(account, childPositionId)).gtn(
+            0
+          )
+        ) {
           indexSets.push(toBN(1).shln(outcomeIndex));
         }
       }
 
       if (indexSets.length > 0) {
-        await pmSystem.redeemPositions(
+        await conditionalTokensRepo.redeemPositions(
           collateral.address,
           parentCollectionId,
           market.conditionId,
           indexSets,
-          { from: account }
+          account
         );
       }
     }
@@ -292,7 +324,7 @@ const Positions = ({
       markets.length,
       `0x${"0".repeat(64)}`
     );
-  }, [collateral, account, pmSystem]);
+  }, [collateral, account, pmSystem, allMarketsResolved]);
 
   if (positionGroups === null) {
     return (
@@ -365,7 +397,7 @@ const Positions = ({
                       {...outcome}
                       key={`${outcome.marketIndex}-${outcome.outcomeIndex}`}
                       glueType="and"
-                      prefixType="IF"
+                      // prefixType="IF"
                     />
                   ))}
                 </div>

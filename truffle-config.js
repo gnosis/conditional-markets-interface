@@ -47,10 +47,16 @@ const config = {
       },
       mainnet: {
         provider: () =>
-          new HDWalletProvider(seed, "https://node-green.mainnet.gnosis.pm"),
+          new HDWalletProvider(
+            seed,
+            "https://node-green.mainnet.gnosis.pm",
+            0,
+            1,
+            false
+          ),
         network_id: "1",
         skipDryRun: true,
-        gasPrice: 13000000001
+        gasPrice: 10000000002
       },
       rinkeby: {
         provider: () =>
@@ -66,7 +72,12 @@ const config = {
   ),
   compilers: {
     solc: {
-      version: "0.5.1"
+      version: "0.5.1",
+      settings: {
+        optimizer: {
+          enabled: true
+        }
+      }
     }
   },
   build: "webpack"

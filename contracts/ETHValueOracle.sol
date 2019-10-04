@@ -1,5 +1,5 @@
 pragma solidity ^0.5.1;
-import { PredictionMarketSystem } from "@gnosis.pm/hg-contracts/contracts/PredictionMarketSystem.sol";
+import { ConditionalTokens } from "@gnosis.pm/conditional-tokens-contracts/contracts/ConditionalTokens.sol";
 import { TargetValueOracle } from "./TargetValueOracle.sol";
 
 interface Medianizer {
@@ -11,7 +11,7 @@ contract ETHValueOracle is TargetValueOracle {
     Medianizer public priceFeed;
 
     constructor (
-        PredictionMarketSystem pmSystem,
+        ConditionalTokens pmSystem,
         Medianizer _priceFeed,
         uint resolutionTime,
         uint targetETHPrice,

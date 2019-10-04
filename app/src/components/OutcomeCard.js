@@ -2,20 +2,11 @@ import React from "react";
 import cn from "classnames/bind";
 
 import style from "./outcomeCard.scss";
-import { outcomeColors } from "utils/constants";
 
 const cx = cn.bind(style);
 
 export const Dot = ({ index }) => (
-  <i
-    className={cx("dot")}
-    style={{
-      color: (index > -1
-        ? outcomeColors[index].darken(0.5)
-        : "#ececec"
-      ).toString()
-    }}
-  />
+  <i className={cx("dot", index ? "no" : "yes")} />
 );
 
 const OutcomeCard = ({

@@ -96,6 +96,14 @@
   position: relative;
   margin-right: .2rem;
 
+  &.yes {
+    color: $blue;
+  }
+
+  &.no {
+    color: $red;
+  }
+
   &::after {
     content: '';
     display: block;

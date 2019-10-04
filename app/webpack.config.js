@@ -6,7 +6,10 @@ const webpack = require("webpack");
 
 const moduleStubPath = path.resolve(__dirname, "module-stub.js");
 
+// eslint-disable-next-line no-console
 console.log(`Building for Network ${process.env.NETWORK || "local"}`);
+
+const isProduction = process.env.NODE_ENV === "production";
 
 module.exports = {
   entry: "./src/index.js",
@@ -36,6 +39,15 @@ module.exports = {
   },
   devServer: {
     contentBase: path.resolve(__dirname, "assets"),
+    proxy: {
+      // Needed to emulate whitelist service, as it is blocked by cors/corb
+      "/api": {
+        target: "https://sight-whitelist.staging.gnosisdev.com",
+        pathRewrite: { "/api": "/api/v1" },
+        changeOrigin: true,
+        secure: false
+      }
+    },
     overlay: true
   },
   module: {
@@ -104,7 +116,12 @@ module.exports = {
     }),
     new webpack.EnvironmentPlugin({
       NODE_ENV: "development",
-      NETWORK: false
+      NETWORK: false,
+      // Use default configuration instead
+      // WHITELIST_ENABLED: true,
+      WHITELIST_API: isProduction
+        ? "https://sight-whitelist.staging.gnosisdev.com/api/v1"
+        : "/api"
     })
   ]
 };
