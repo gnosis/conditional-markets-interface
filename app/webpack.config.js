@@ -17,7 +17,7 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, "..", "docs"),
     publicPath: "/",
-    filename: "bundle.js"
+    filename: "bundle.[chunkhash].js"
   },
   target: "web",
   resolve: {
