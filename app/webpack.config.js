@@ -108,10 +108,12 @@ module.exports = {
   plugins: [
     new HtmlWebpackPlugin({
       filename: "index.html",
-      template: path.resolve(__dirname, "src", "index.html")
+      template: path.resolve(__dirname, "src", "index.html"),
+      publicPath: ""
     }),
     new FaviconsWebpackPlugin({
       logo: path.resolve(__dirname, "assets", "img", "favicon.png"),
+      publicPath: "",
       prefix: "assets"
     }),
     new webpack.EnvironmentPlugin({
