@@ -53,12 +53,22 @@ async function loadBasicData({ markets }, web3) {
       conditionId
     )).toNumber();
 
-    if (numSlots === 0)
+    if (numSlots === 0) {
       throw new Error(`condition ${conditionId} not set up yet`);
-    if (numSlots !== market.outcomes.length)
+    } else if (market.type === "SCALAR") {
+      if (numSlots !== 2) {
+        throw new Error(
+          `condition ${conditionId} outcome slot not valid for scalar market - requires long and short outcomes`
+        );
+      }
+
+      // set outcomes to enable calculations on outcome count
+      market.outcomes = [{ title: "short" }, { title: "long" }];
+    } else if (numSlots !== market.outcomes.length) {
       throw new Error(
         `condition ${conditionId} outcome slot count ${numSlots} does not match market outcome descriptions array with length ${market.outcomes.length}`
       );
+    }
 
     market.marketIndex = i;
     market.conditionId = conditionId;
@@ -282,6 +292,14 @@ const RootComponent = ({ childComponents }) => {
         setCollateral(collateral);
         setMarkets(markets);
         setPositions(positions);
+
+        console.groupCollapsed("Global Debug Variables");
+        console.log("PMSystem Contract:", pmSystem);
+        console.log("LMSRMarketMaker (Instance) Contract:", lmsrMarketMaker);
+        console.log("Collateral Settings:", collateral);
+        console.log("Market Settings:", markets);
+        console.log("Account Positions:", positions);
+        console.groupEnd();
 
         setLoading("SUCCESS");
       })
@@ -572,14 +590,14 @@ const RootComponent = ({ childComponents }) => {
   }
 };
 
-export default hot(
-  makeLoadable(RootComponent, [
-    () => import("MarketTable"),
-    () => import("Sidebar"),
-    () => import("Header"),
-    () => import("components/Menu"),
-    () => import("components/UserWallet"),
-    () => import("components/Toasts"),
-    () => import("components/Footer")
-  ])
-);
+const RootApplication = makeLoadable(RootComponent, [
+  () => import("MarketTable_WithScalar"),
+  () => import("Sidebar_WithScalar"),
+  () => import("Header"),
+  () => import("components/Menu"),
+  () => import("components/UserWallet"),
+  () => import("components/Toasts"),
+  () => import("components/Footer")
+]);
+
+export default hot(RootApplication);

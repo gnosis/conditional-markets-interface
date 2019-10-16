@@ -1,0 +1,54 @@
+@import "~scss/_variables.scss";
+
+.buy {
+  font-size: 1.6rem;
+  padding: 2rem;
+
+  .outcomes {
+    display: flex;
+    margin: 1rem 0;
+    justify-content: space-between;
+
+    .outcome-button {
+      appearance: none;
+      -webkit-appearance: none;
+  
+      padding: 2.4rem;
+      border: 2px solid $greyBorder;
+      border-radius: 2px;
+      width: 100%;
+
+      &:first-of-type {
+        margin-right: 1rem;
+      }
+      &:last-of-type {
+        margin-left: 1rem;
+      }
+    }
+    .icon {
+      display: inline;
+      padding-left: 2rem;
+      
+      margin-right: 0.5rem;
+
+      &-arrow-up {
+        background: url("~assets/icons/arrow-thin.svg") center center no-repeat;
+      }
+      &-arrow-down {
+        background: url("~assets/icons/arrow-thin.svg") center center no-repeat;
+      }
+    }
+  }
+
+  .slider {
+    display: flex;
+
+    input[type="range"] {
+      flex: 1;
+    }
+  }
+
+  .fieldset-label {
+    font-size: 1.5rem;
+  }
+}
