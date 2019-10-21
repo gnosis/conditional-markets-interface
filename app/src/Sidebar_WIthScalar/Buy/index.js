@@ -37,16 +37,33 @@ const Buy = ({ market, lmsrState, probabilities }) => {
     const probabilitySim = new Decimal(sliderValue)
       .sub(decimalLower)
       .div(decimalUpper.sub(decimalLower));
-    console.log(probabilitySim.toString());
+    //console.log(probabilitySim.toString());
     const probabilityToMove = probabilitySim.sub(probabilities[0]);
-    console.log(probabilityToMove.toString());
-    const balance = new Decimal(Math.abs(probabilityToMove))
+    //console.log(probabilityToMove.toString());
+    const normalizer = new Decimal(Math.abs(probabilityToMove))
       .ln()
       .neg()
       .div(invB);
+
+    if (probabilityToMove.ispos()) {
+      // invest long
+    }
     console.log(
-      balance.div(1e17).toString(),
-      positionBalances.map(n => n.toString())
+      positionBalances
+        .map((n, index) => {
+          const isLong = index === 1;
+
+          if (probabilityToMove.ispos() && isLong) {
+            return new Decimal(n.toString()).div(normalizer);
+          }
+
+          if (probabilityToMove.isneg() && !isLong) {
+            return new Decimal(n.toString()).div(normalizer);
+          }
+
+          return 0;
+        })
+        .map(n => n.toString())
     );
   }
 
@@ -65,19 +82,37 @@ const Buy = ({ market, lmsrState, probabilities }) => {
       </div>
       <div className={cx("selected-invest")}>
         <label className={cx("fieldset-label")}>Specify Amount</label>
-        <input type="text" className={cx("investment")} />
+        <div className={cx("input")}>
+          <button type="button" className={cx("input-max")}>
+            MAX
+          </button>
+          <input type="text" className={cx("investment")} defaultValue={0} />
+          <span className={cx("input-right")}>DAI</span>
+        </div>
       </div>
       <div className={cx("pl-sim")}>
         <div className={cx("slider")}>
-          <span>{market.lowerBound}</span>
-          <input
-            type="range"
-            min={market.lowerBound}
-            max={market.upperBound}
-            defaultValue={sliderValue} /* uncontrolled for better UX */
-            onInput={handleSliderChange}
-          />
-          <span>{market.upperBound}</span>
+          <div className={cx("labels")}>
+            <span>
+              {market.lowerBound} {market.unit}
+            </span>
+            <span>
+              {(market.upperBound - market.lowerBound) / 2 + market.lowerBound}{" "}
+              {market.unit}
+            </span>
+            <span>
+              {market.upperBound} {market.unit}
+            </span>
+          </div>
+          <div className={cx("input")}>
+            <input
+              type="range"
+              min={market.lowerBound}
+              max={market.upperBound}
+              defaultValue={sliderValue} /* uncontrolled for better UX */
+              onInput={handleSliderChange}
+            />
+          </div>
         </div>
         <dl className={cx("pl-summary")}>
           <dt>Simulated Outcome</dt>

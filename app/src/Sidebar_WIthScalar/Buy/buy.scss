@@ -40,12 +40,61 @@
     }
   }
 
-  .slider {
-    display: flex;
+  .selected-invest {
+    .input {
+      display: block;
+      position: relative;
 
-    input[type="range"] {
-      flex: 1;
+      &-max {
+        position: absolute;
+        left: 1rem;
+        height: 100%;
+        appearance: none;
+        -webkit-appearance: none;
+        border: none;
+        background: none;
+        color: $blue;
+        line-height: 0;
+        text-decoration: underline;
+        top: 0;
+      }
+
+      &-right {
+        position: absolute;
+        right: 1rem;
+        line-height: 0;
+        top: 0;
+        line-height: 4;
+        height: 100%;
+      }
+
+      .investment {
+        display: block;
+        padding: 1rem;
+        font-size: 3.6rem;
+        text-align: right;
+        margin: 1rem 0;
+        width: 100%;
+        border: 2px solid $greyBorder;
+        border-radius: 2px;
+        padding-right: 5rem;
+      }
+    
     }
+  }
+
+  .slider {
+    input[type="range"] {
+      width: 100%;
+    }
+
+    .labels {
+      display: flex;
+      width: 100%;
+      justify-content: space-between;
+    }
+
+    
   }
 
   .fieldset-label {

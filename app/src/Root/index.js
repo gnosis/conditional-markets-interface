@@ -22,6 +22,7 @@ const cx = cn.bind(style);
 import getMarketMakersRepo from "../repositories/MarketMakersRepo";
 import getConditionalTokensRepo from "../repositories/ConditionalTokensRepo";
 import getConditionalTokensService from "../services/ConditionalTokensService";
+import Decimal from "decimal.js-light";
 let marketMakersRepo;
 let conditionalTokensRepo;
 let conditionalTokensService;
@@ -187,7 +188,7 @@ async function getLMSRState(web3, positions) {
     positions,
     marketMakerAddress
   );
-  return { owner, funding, stage, fee, positionBalances };
+  return { owner, funding: new Decimal(1e18), stage, fee, positionBalances };
 }
 
 async function getPositionBalances(positions, account) {
