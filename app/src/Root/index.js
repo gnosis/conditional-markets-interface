@@ -558,6 +558,7 @@ const RootComponent = ({ childComponents }) => {
                       setStagedTransactionType,
                       ongoingTransactionType,
                       asWrappedTransaction,
+                      setMarketSelections,
                       resetMarketSelections,
                       addToast
                     }}

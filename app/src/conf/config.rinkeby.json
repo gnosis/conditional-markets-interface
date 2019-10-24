@@ -8,7 +8,7 @@
       "type": "SCALAR",
       "lowerBound": 1000,
       "upperBound": 5000,
-      "decimals": 8,
+      "decimals": 2,
       "unit": "Cats"
     }
   ],

@@ -3,14 +3,21 @@ import cn from "classnames/bind";
 import Spinner from "components/Spinner";
 
 import { fromProbabilityToSlider } from "utils/scalar";
+import { formatScalarValue } from "utils/formatting";
 
 import style from "./buy.scss";
 import Decimal from "decimal.js-light";
 
 const cx = cn.bind(style);
 
-const Buy = ({ market, lmsrState, probabilities }) => {
-  const [sliderValue, setSliderValue] = useState(market.lowerBound);
+const Buy = ({
+  market,
+  lmsrState,
+  probabilities,
+  marketSelection,
+  setMarketSelections
+}) => {
+  const [sliderValue, setSliderValue] = useState(parseFloat(market.lowerBound));
   useEffect(() => {
     if (probabilities) {
       const value = fromProbabilityToSlider(market, probabilities[0]);
@@ -19,8 +26,26 @@ const Buy = ({ market, lmsrState, probabilities }) => {
   }, []);
 
   const handleSliderChange = useCallback(e => {
-    setSliderValue(e.target.value);
+    setSliderValue(parseFloat(e.target.value));
   }, []);
+
+  const forMarketIndex = 0; // TODO: Multiple scalar markets will break this
+  const makeOutcomeSelectHandler = useCallback(
+    outcomeIndex => () => {
+      setMarketSelections(prevValues =>
+        prevValues.map((marketSelection, marketIndex) => {
+          if (marketIndex === forMarketIndex) {
+            return {
+              selectedOutcomeIndex: outcomeIndex,
+              isAssumed: false
+            };
+          }
+          return marketSelection;
+        })
+      );
+    },
+    []
+  );
 
   if (!probabilities) {
     return <Spinner />;
@@ -45,9 +70,7 @@ const Buy = ({ market, lmsrState, probabilities }) => {
       .neg()
       .div(invB);
 
-    if (probabilityToMove.ispos()) {
-      // invest long
-    }
+    /*
     console.log(
       positionBalances
         .map((n, index) => {
@@ -65,6 +88,7 @@ const Buy = ({ market, lmsrState, probabilities }) => {
         })
         .map(n => n.toString())
     );
+    */
   }
 
   return (
@@ -72,10 +96,22 @@ const Buy = ({ market, lmsrState, probabilities }) => {
       <div className={cx("selected-outcome")}>
         <label className={cx("fieldset-label")}>Pick Outcome</label>
         <div className={cx("outcomes")}>
-          <button type="button" className={cx("outcome-button")}>
+          <button
+            type="button"
+            className={cx("outcome-button", {
+              active: marketSelection.selectedOutcomeIndex === 0
+            })}
+            onClick={makeOutcomeSelectHandler(0)}
+          >
             <i className={cx("icon", "icon-arrow-down")} /> Short
           </button>
-          <button type="button" className={cx("outcome-button")}>
+          <button
+            type="button"
+            className={cx("outcome-button", {
+              active: marketSelection.selectedOutcomeIndex === 1
+            })}
+            onClick={makeOutcomeSelectHandler(1)}
+          >
             <i className={cx("icon", "icon-arrow-up")} /> Long
           </button>
         </div>
@@ -91,18 +127,22 @@ const Buy = ({ market, lmsrState, probabilities }) => {
         </div>
       </div>
       <div className={cx("pl-sim")}>
+        <div className={cx("desc")}>
+          <label className={cx("fieldset-label")}>
+            Profit/loss Simulator <small>(drag to slide)</small>
+          </label>
+          <p>Based on your current position</p>
+        </div>
         <div className={cx("slider")}>
           <div className={cx("labels")}>
+            <span>{formatScalarValue(market.lowerBound, market.unit)}</span>
             <span>
-              {market.lowerBound} {market.unit}
+              {formatScalarValue(
+                (market.upperBound - market.lowerBound) / 2 + market.lowerBound,
+                market.unit
+              )}
             </span>
-            <span>
-              {(market.upperBound - market.lowerBound) / 2 + market.lowerBound}{" "}
-              {market.unit}
-            </span>
-            <span>
-              {market.upperBound} {market.unit}
-            </span>
+            <span>{formatScalarValue(market.upperBound, market.unit)}</span>
           </div>
           <div className={cx("input")}>
             <input
@@ -114,24 +154,44 @@ const Buy = ({ market, lmsrState, probabilities }) => {
             />
           </div>
         </div>
-        <dl className={cx("pl-summary")}>
-          <dt>Simulated Outcome</dt>
-          <dd>P/L &amp; payout</dd>
-
-          <dt>
-            {sliderValue} {market.unit}
-          </dt>
-          <dd>-1.23% (1.123 DAI)</dd>
-        </dl>
+        <div className={cx("summary", "profit-loss-sim")}>
+          <div className={cx("row")}>
+            <span className={cx("label")}>Simulated Outcome</span>
+            <span className={cx("spacer")} />
+            <span className={cx("label")}>P/L &amp; payout</span>
+          </div>
+          <div className={cx("row")}>
+            <span className={cx("value")}>
+              {sliderValue.toFixed(market.decimals)} {market.unit}
+            </span>
+            <span className={cx("spacer")} />
+            <span className={cx("value")}>-1.23% (1.123 DAI)</span>
+          </div>
+        </div>
       </div>
       <div className={cx("invest-summary")}>
-        <dl className={cx("summary")}>
-          <dt>Max Payout</dt>
-          <dd>123 DAI</dd>
-
-          <dt>Max loss</dt>
-          <dd>213 DAI</dd>
-        </dl>
+        <div className={cx("summary")}>
+          <div className={cx("row")}>
+            <span className={cx("label")}>Max Payout</span>
+            <span className={cx("spacer")} />
+            <span className={cx("value")}>123 DAI</span>
+          </div>
+          <div className={cx("row")}>
+            <span className={cx("label")}>Max Loss</span>
+            <span className={cx("spacer")} />
+            <span className={cx("value")}>123 DAI</span>
+          </div>
+          <div className={cx("row")}>
+            <span className={cx("label")}>Fees (0.5%)</span>
+            <span className={cx("spacer")} />
+            <span className={cx("value")}>0.00223 DAI</span>
+          </div>
+          <div className={cx("row")}>
+            <span className={cx("label")}>Total Cost</span>
+            <span className={cx("spacer")} />
+            <span className={cx("value")}>123.23 DAI</span>
+          </div>
+        </div>
       </div>
     </div>
   );

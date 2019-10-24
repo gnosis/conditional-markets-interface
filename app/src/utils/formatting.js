@@ -18,6 +18,10 @@ export const formatCollateral = (amount, collateral) => {
     .toString()} ${collateral.symbol}`;
 };
 
+export const formatScalarValue = (value, unit, decimals = 0) => {
+  return `${value.toFixed(Math.min(decimals, 2))} ${unit}`
+}
+
 const REPLACEMENT_RULES = [[/_(.*)_/g, "<em>$1</em>"]];
 
 export const pseudoMarkdown = string => {

@@ -5,7 +5,6 @@
 }
 
 .tabs {
-  height: 5rem;
   list-style: none;
   padding: 0;
   margin: 0;
@@ -21,18 +20,31 @@
     background: none;
     width: 100%;
     height: 100%;
+
+    text-transform: uppercase;
+    font-size: 1.6rem;
+    font-weight: bold;
+    padding: 2rem;
+    color: inherit;
+    outline: none;
   }
 
   li {
+    transition: all .4s ease;
+
+    &.active, &:hover {
+      outline: none;
+      color: #009cb4;
+      margin-bottom: 0px;
+      border-bottom: 2px solid #009cb4;
+    }
     line-height: 5rem;
     padding: 0;
     margin: 0;
     width: 50%;
+    color: #a0a0a0;
 
-    text-transform: uppercase;
-
-    &:hover {
-      border-bottom: 1px solid $shadeBlue;
-    }
+    margin-bottom: 1px;
+    border-bottom: 1px solid $greyBorder;
   }
 }

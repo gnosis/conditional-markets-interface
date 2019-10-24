@@ -23,7 +23,9 @@ const Sidebar = ({
   lmsrState,
   stagedTradeAmounts,
   positions,
-  marketSelections
+  marketSelections,
+  setMarketSelections,
+  resetMarketSelections
 }) => {
   const [selectedTab, setSelectedTab] = useState("Buy");
   const makeButtonSelectCallback = useCallback(
@@ -57,7 +59,7 @@ const Sidebar = ({
       markets,
       positions,
       marketSelections,
-      positionProbabilities,
+      positionProbabilities
     );
     // [ 0.4, 0.6 ]
 
@@ -91,14 +93,17 @@ const Sidebar = ({
   const SelectedComponent = TabComponents[selectedTab];
   const targetProps = {
     market: markets[0],
+    marketSelection: marketSelections[0],
     probabilities: marketProbabilities && marketProbabilities[0],
     lmsrState,
+    setMarketSelections,
+    resetMarketSelections
   };
 
   return (
     <div className={cx("sidebar")}>
       <ul className={cx("tabs")}>
-        <li>
+        <li className={cx({ active: selectedTab === "Buy" })}>
           <button
             type="button"
             className={cx("tab-select")}
@@ -107,7 +112,7 @@ const Sidebar = ({
             Buy
           </button>
         </li>
-        <li>
+        <li className={cx({ active: selectedTab === "Sell" })}>
           <button
             type="button"
             className={cx("tab-select")}
