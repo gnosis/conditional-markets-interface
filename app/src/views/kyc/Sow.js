@@ -83,9 +83,9 @@ const Sow = props => {
   };
 
   return (
-    <main className="sow">
+    <main className={cx("sow")}>
       <nav>
-        <a href="/" className="logo" title="Sight - Sign Up">
+        <a href="/" className={cx("logo")} title="Sight - Sign Up">
           <img
             src="/img/conditional-logo-color.svg"
             height="40"
@@ -94,14 +94,14 @@ const Sow = props => {
           />
         </a>
       </nav>
-      <div className="column">
+      <div className={cx("contentInner column")}>
         <h1>
           Sight Self Declared <br />
           Source of Funds
         </h1>
 
         <form
-          className="form"
+          className={cx("form")}
           id="sow_form"
           name="sow_form"
           onSubmit={handleSubmit}
@@ -113,13 +113,13 @@ const Sow = props => {
           </p>
           <br />
           <p>
-            <span className="text-red">*</span> Required
+            <span className={cx("text-red")}>*</span> Required
           </p>
 
           <span>
             <strong>
               What is your main source of funds?{" "}
-              <small className="text-red">*</small>
+              <small className={cx("text-red")}>*</small>
             </strong>
             <select
               name="source_of_funds"
@@ -162,7 +162,7 @@ const Sow = props => {
               <h3>Company Sale</h3>
               <strong>
                 Please insert the name of the company{" "}
-                <small className="text-red">*</small>
+                <small className={cx("text-red")}>*</small>
               </strong>
               <input name="company_name" required {...bindCompanyName} />
             </span>
@@ -173,7 +173,7 @@ const Sow = props => {
               <h3>Pension</h3>
               <strong>
                 Please indicate if private or government pension{" "}
-                <small className="text-red">*</small>
+                <small className={cx("text-red")}>*</small>
               </strong>
               <input name="pension" required />
             </span>
@@ -182,7 +182,7 @@ const Sow = props => {
             <h3>Source of Funds Description</h3>
             <strong>
               Add specifics to your source of funds. Like "Sale of property in
-              UK", "Family inheritance" <small className="text-red">*</small>
+              UK", "Family inheritance" <small className={cx("text-red")}>*</small>
             </strong>
             <input
               name="source_description"
@@ -195,7 +195,7 @@ const Sow = props => {
             <h3>Salary</h3>
             <strong>
               Please insert the name of your employer and you current job title.{" "}
-              <small className="text-red">*</small>
+              <small className={cx("text-red")}>*</small>
             </strong>
             <input name="current_job" required {...bindCurrentJob} />
           </span>
@@ -204,7 +204,7 @@ const Sow = props => {
             <h3>Expected Annual Trading Volume</h3>
             <strong>
               How much do you intend to trade on Sight annually?{" "}
-              <small className="text-red">*</small>
+              <small className={cx("text-red")}>*</small>
             </strong>
             <select name="trading_volume" required {...bindTradingVolume}>
               <option value="0" disabled>
@@ -216,7 +216,7 @@ const Sow = props => {
             </select>
           </span>
 
-          <button className="button">Finish KYC</button>
+          <button className={cx("button")}>Finish KYC</button>
         </form>
       </div>
 
