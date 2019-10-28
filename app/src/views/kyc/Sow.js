@@ -30,7 +30,7 @@ const getEmail = location => {
   return searchParams.get("email") || "";
 };
 
-const Sow = (props) => {
+const Sow = props => {
   const [email, setEmail] = useState("");
   // setEmail(getEmail(props.location));
 
@@ -67,7 +67,7 @@ const Sow = (props) => {
   const handleChange = () => {};
 
   const renderCompanySale = () => {
-    return sourceOfFunds === "company-earnings"|| sourceOfFunds == "0";
+    return sourceOfFunds === "company-earnings" || sourceOfFunds == "0";
   };
 
   const renderPension = () => {
@@ -131,17 +131,25 @@ const Sow = (props) => {
                 - Choose -
               </option>
               <option value="salaried">Employment income (salaried)</option>
-              <option value="self-employed">Employment income (self-employed)</option>
+              <option value="self-employed">
+                Employment income (self-employed)
+              </option>
               <option value="gift">Gift</option>
               <option value="pension">Pension</option>
-              <option value="investments-income">Income from Investments</option>
+              <option value="investments-income">
+                Income from Investments
+              </option>
               <option value="tax-rebates">Tax Rebates</option>
-              <option value="cryptocurrency-trading">Cryptocurrency Trading</option>
+              <option value="cryptocurrency-trading">
+                Cryptocurrency Trading
+              </option>
               <option value="investments">
                 Proceeds from sale of investments/liquidation of investment
                 portfolio
               </option>
-              <option value="property-sale">Proceeds from sale of property</option>
+              <option value="property-sale">
+                Proceeds from sale of property
+              </option>
               <option value="company-earnings">
                 Proceeds from sale of company or interest in a company
               </option>
@@ -149,7 +157,7 @@ const Sow = (props) => {
               <option value="other">Other</option>
             </select>
           </span>
-          {renderCompanySale() ?
+          {renderCompanySale() ? (
             <span>
               <h3>Company Sale</h3>
               <strong>
@@ -158,9 +166,9 @@ const Sow = (props) => {
               </strong>
               <input name="company_name" required {...bindCompanyName} />
             </span>
-          : null}
+          ) : null}
 
-          {renderPension() ?
+          {renderPension() ? (
             <span>
               <h3>Pension</h3>
               <strong>
@@ -169,7 +177,7 @@ const Sow = (props) => {
               </strong>
               <input name="pension" required />
             </span>
-          : null}
+          ) : null}
           <span>
             <h3>Source of Funds Description</h3>
             <strong>
