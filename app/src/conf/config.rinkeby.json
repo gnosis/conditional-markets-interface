@@ -17,9 +17,9 @@
           "when": "Dai stability fee ≤ 20.5%"
         }
       ],
-      "description": "# Stability Fee\nThe stability fee is determined from a thing from somewhere",
-      "dataSource": "Andre"
-
+      "description": "This would explain which stability fee is meant and where this value is received from for market resolution\r\n# A Title\r\nThsi would explain more things",
+      "dataSource": "Example",
+      "dataSourceURL": "http://example.org"
     }
   ],
   "networkId": 4

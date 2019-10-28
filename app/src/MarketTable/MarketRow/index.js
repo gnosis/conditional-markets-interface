@@ -158,7 +158,7 @@ const Market = ({
           <div className={cx("detail-content")}>
             {dataSource && (
               <>
-                <h1>Oracle Source</h1>
+                <h1>Data Source</h1>
                 {dataSourceURL ? (
                   <a
                     href={dataSourceURL}
