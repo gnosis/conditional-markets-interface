@@ -237,7 +237,7 @@ main {
       display: flex;
       flex-flow: row nowrap;
       font-size: 1.5rem;
-      color: $grey;
+      color: $shadeBlue;
       line-height: 1;
       margin: 3.5rem 0;
       justify-content: center;
@@ -266,7 +266,7 @@ main {
     }
 
     >ul>li>a {
-      color: inherit;
+      color: $blue;
     }
 
     >ul>li>a:hover,
