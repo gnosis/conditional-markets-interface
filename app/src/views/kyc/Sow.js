@@ -94,7 +94,7 @@ const Sow = (props) => {
           />
         </a>
       </nav>
-      <div className="contentInner column">
+      <div className="column">
         <h1>
           Sight Self Declared <br />
           Source of Funds
