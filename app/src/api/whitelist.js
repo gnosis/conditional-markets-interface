@@ -1,7 +1,7 @@
 const conf = require("../conf");
 const { WHITELIST_ENABLED, WHITELIST_API_URL } = conf;
 
-const getWhitelistState = async accountAddress => {
+export const getWhitelistState = async accountAddress => {
   if (!WHITELIST_ENABLED) {
     return true;
   }
@@ -20,4 +20,22 @@ const getWhitelistState = async accountAddress => {
   return json.status; // 'PENDING_KYC', 'BLOCKED', 'WHITELISTED'
 };
 
-export default getWhitelistState;
+export const setSourceOfFunds = async sowInformation => {
+  const { email, ...data } = sowInformation;
+  const url = `${WHITELIST_API_URL}/users/${email}/sow`;
+
+  const response = await fetch(url, {
+    method: "POST",
+    body: JSON.stringify(data), // data can be `string` or {object}!
+    headers: {
+      "Content-Type": "application/json"
+    }
+  }).then(res => {
+    console.log(res);
+    console.log(res.data);
+  });
+
+  const json = await response.json();
+
+  return json;
+};

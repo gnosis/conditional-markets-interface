@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { setSourceOfFunds } from "api/whitelist";
 import cn from "classnames/bind";
 
 import style from "./sow.scss";
@@ -31,10 +32,8 @@ const getEmail = location => {
 };
 
 const Sow = props => {
-  const [email, setEmail] = useState("");
-  // setEmail(getEmail(props.location));
+  const [email, setEmail] = useState(getEmail(props.location));
 
-  console.log(getEmail(props.location));
   const {
     value: sourceOfFunds,
     bind: bindSourceOfFunds,
@@ -74,12 +73,27 @@ const Sow = props => {
     return sourceOfFunds === "pension" || sourceOfFunds == "0";
   };
 
-  const handleSubmit = evt => {
-    evt.preventDefault();
-    alert(`Submitting Name ${sourceOfFunds}`);
-    resetCompanyName();
-    resetPension();
-    resetSourceDescription();
+  const handleSubmit = event => {
+    event.preventDefault();
+    const sow = {
+      email,
+      mainSource: sourceOfFunds || undefined,
+      companySale: companyName || undefined,
+      pension: pension || undefined,
+      description: sourceDescription || undefined,
+      salary: currentJob || undefined,
+      expectedAnnualTradingVolume: tradingVolume || undefined
+    };
+
+    setSourceOfFunds(sow).then(result => {
+      console.log(result);
+      resetSourceOfFunds();
+      resetCompanyName();
+      resetPension();
+      resetSourceDescription();
+    }).catch(e => {
+      console.log(e);
+    });
   };
 
   useBodyClass(style.sow);
@@ -176,7 +190,7 @@ const Sow = props => {
                 Please indicate if private or government pension{" "}
                 <small className={cx("text-red")}>*</small>
               </strong>
-              <input name="pension" required />
+              <input name="pension" required {...bindPension} />
             </span>
           ) : null}
           <span>
