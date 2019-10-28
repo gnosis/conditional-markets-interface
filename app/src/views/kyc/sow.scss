@@ -1,7 +1,7 @@
 @import "~scss/_variables.scss";
 @import "~scss/fonts.scss";
 
-html {
+.sow {
   width: 100%;
   height: 100%;
   padding: 0;
@@ -16,112 +16,108 @@ html {
   text-rendering: geometricPrecision;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-}
 
-::selection {
-  color: $white;
-  background: $blue;
-}
+      @media #{$tablet} {
+        height: 100vh;
+      }
 
-body {
-  margin: 0;
-  font-family: $font;
-
-  @media #{$tablet} {
-    height: 100vh;
+  ::selection {
+    color: $white;
+    background: $blue;
   }
-}
 
-a,
-a:visited {
-  color: $darkBlue;
-  text-decoration: underline;
-}
-
-.button,
-a.button {
-  background: $blue;
-  border-radius: 60rem;
-  font-weight: $bold;
-  color: $white;
-  letter-spacing: .05rem;
-  text-align: center;
-  box-sizing: border-box;
-  padding: 2.3rem 5.4rem;
-  text-decoration: none;
-  margin: 0;
-  line-height: 1;
-  will-change: box-shadow transform;
-  transition: box-shadow .3s ease-in-out, transform .3s ease-in-out;
-  height: 5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.5rem;
-  letter-spacing: 0.1rem;
-  text-align: center;
-  text-decoration: none;
-  border-radius: .5rem;
-  padding: 0 4rem;
-  border: 0;
-  outline: 0;
-  cursor: pointer;
-
-  &.white {
-    background: $white;
+  a,
+  a:visited {
     color: $darkBlue;
-    height: 6.4rem;
-    font-size: 1.8rem;
-    width: 30rem;
-    margin: 4rem auto 0;
+    text-decoration: underline;
+  }
+
+  .button,
+  a.button {
+    background: $blue;
+    border-radius: 60rem;
+    font-weight: $bold;
+    color: $white;
+    letter-spacing: .05rem;
     text-align: center;
-    box-shadow: 0 .4rem .6rem rgba(0, 25, 60, .15), 0 .1rem .3rem rgba(0, 0, 0, .08);
+    box-sizing: border-box;
+    padding: 2.3rem 5.4rem;
+    text-decoration: none;
+    margin: 0;
+    line-height: 1;
+    will-change: box-shadow transform;
+    transition: box-shadow .3s ease-in-out, transform .3s ease-in-out;
+    height: 5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    letter-spacing: 0.1rem;
+    text-align: center;
+    text-decoration: none;
+    border-radius: .5rem;
+    padding: 0 4rem;
+    border: 0;
+    outline: 0;
+    cursor: pointer;
 
-    &:hover {}
+    &.white {
+      background: $white;
+      color: $darkBlue;
+      height: 6.4rem;
+      font-size: 1.8rem;
+      width: 30rem;
+      margin: 4rem auto 0;
+      text-align: center;
+      box-shadow: 0 .4rem .6rem rgba(0, 25, 60, .15), 0 .1rem .3rem rgba(0, 0, 0, .08);
+
+      &:hover {}
+    }
+
+    @media #{$mobile} {
+      font-size: 2rem;
+      margin: 0 auto;
+    }
+
+    &:hover {
+      box-shadow: 0 7px 14px rgba(0, 25, 60, .15), 0 3px 6px rgba(0, 0, 0, .08);
+      transform: translateY(-1px);
+    }
+
+    main {
+      width: 100%;
+      display: flex;
+      flex-flow: row wrap;
+      width: 100%;
+      align-items: center;
+      height: 100%;
+      margin: 0 auto;
+      justify-content: space-between;
+      position: relative;
+      padding: 0;
+      box-sizing: border-box;
+    }
   }
 
-  @media #{$mobile} {
-    font-size: 2rem;
-    margin: 0 auto;
-  }
-
-  &:hover {
-    box-shadow: 0 7px 14px rgba(0, 25, 60, .15), 0 3px 6px rgba(0, 0, 0, .08);
-    transform: translateY(-1px);
-  }
-}
-
-nav {
-  width: 100%;
-  display: flex;
-  position: relative;
-  top: 0;
-  background: $white;
-  margin: 0;
-  z-index: 10;
-  justify-content: center;
-  padding: 3.5rem 0;
 }
 
 .logo {
   margin: 0 auto;
 }
 
-main {
-  width: 100%;
-  display: flex;
-  flex-flow: row wrap;
-  width: 100%;
-  align-items: center;
-  height: 100%;
-  margin: 0 auto;
-  justify-content: space-between;
-  position: relative;
-  padding: 0;
-  box-sizing: border-box;
-}
+.sow-content {
 
-.sow {
+  nav {
+    width: 100%;
+    display: flex;
+    position: relative;
+    top: 0;
+    background: $white;
+    margin: 0;
+    z-index: 10;
+    justify-content: center;
+    padding: 3.5rem 0;
+  }
 
   .column {
     width: 100%;
@@ -237,7 +233,7 @@ main {
       display: flex;
       flex-flow: row nowrap;
       font-size: 1.5rem;
-      color: $grey;
+      color: $shadeBlue;
       line-height: 1;
       margin: 3.5rem 0;
       justify-content: center;
@@ -266,7 +262,7 @@ main {
     }
 
     >ul>li>a {
-      color: inherit;
+      color: $blue;
     }
 
     >ul>li>a:hover,
