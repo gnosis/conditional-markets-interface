@@ -5,6 +5,7 @@
   body {
     font-family: $font;
     margin: 0;
+    background: $grey;
   }
 
   ::selection {
@@ -16,7 +17,6 @@
     box-sizing: border-box;
     margin: 0;
     font-family: $font;
-    background-color: $grey;
     color: $darkBlue;
     padding: 0;
     margin: 0;

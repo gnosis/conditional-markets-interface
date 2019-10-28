@@ -82,9 +82,9 @@ const Sow = props => {
     resetSourceDescription();
   };
 
-  useBodyClass(`sow`);
+  useBodyClass(style.sow);
   return (
-    <main className={cx("sow")}>
+    <main className={cx("sow-content")}>
       <nav>
         <a href="/" className={cx("logo")} title="Sight - Sign Up">
           <img
