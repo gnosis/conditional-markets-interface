@@ -41,7 +41,7 @@ a:visited {
 .button,
 a.button {
   background: $blue;
-  border-radius: 50rem;
+  border-radius: 60rem;
   font-weight: $bold;
   color: $white;
   letter-spacing: .05rem;
@@ -94,94 +94,17 @@ a.button {
 nav {
   width: 100%;
   display: flex;
-  position: fixed;
+  position: relative;
   top: 0;
   background: $white;
   margin: 0;
   z-index: 10;
-
-  @media #{$tablet} {}
-
-  > span {
-    display: flex;
-    flex-flow: row nowrap;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    max-width: 125rem;
-    margin: 0 auto;
-    padding: 2rem 2.4rem;
-
-    @media #{$mobile} {
-      height: 6rem;
-      box-sizing: border-box;
-      padding: 1.6rem;
-    }
-  }
-
-  >span a {
-    margin: 0 3rem 0 0;
-    text-decoration: none;
-    font-size: 1.5rem;
-    color: $grey;
-    letter-spacing: 0;
-    text-align: right;
-    line-height: 1;
-
-    @media #{$mobile} {
-      font-size: 1.3rem;
-      display: flex;
-      align-items: center;
-
-      &:last-of-type {
-        margin: 0;
-      }
-    }
-  }
-
-  >span a>img {
-    @media #{$mobile} {
-      height: 3.2rem;
-      width: auto;
-    }
-  }
-
-  >span>span {
-    @media #{$mobile} {
-      display: flex;
-      width: 100%;
-      flex: 1;
-      justify-content: flex-end;
-    }
-  }
-
-  .contentPage & {
-    justify-content: center;
-    padding: 3.5rem 0;
-  }
-
-  a.button {
-    @media #{$mobile} {
-      position: fixed;
-      bottom: 0;
-      font-size: 1.3rem;
-      padding: 0 1.6rem;
-      height: 4.2rem;
-      left: 0;
-      width: 100%;
-      border-radius: 0;
-      text-transform: uppercase;
-      letter-spacing: .1rem;
-    }
-  }
+  justify-content: center;
+  padding: 3.5rem 0;
 }
 
 .logo {
-  margin: 0 auto 0 0;
-
-  .contentPage & {
-    margin: 0 auto;
-  }
+  margin: 0 auto;
 }
 
 main {
@@ -208,7 +131,7 @@ main {
     justify-content: flex-start;
     flex-flow: row wrap;
     display: flex;
-    margin: 12rem auto 0;
+    margin: 0 auto ;
     flex-direction: column;
     align-items: stretch;
 
@@ -220,7 +143,7 @@ main {
     }
   }
 
-  > h1 {
+  h1 {
     font-weight: $bold;
     font-size: 3.8rem;
     color: $darkBlue;
@@ -245,9 +168,21 @@ main {
     > span {
       display: flex;
       flex-flow: column;
-      max-width: 40rem;
+      max-width: 60rem;
       margin: 0 auto;
       width: 100%;
+    }
+
+    p {
+      color: $shadeBlue;
+      font-weight: $normal;
+      font-size: 1.8rem;
+      letter-spacing: 0;
+      line-height: 1.4;
+      max-width: 60rem;
+      font-family: inherit;
+      margin: 0 auto 4rem;
+      text-align: center;
     }
 
     >span>strong {
@@ -261,7 +196,7 @@ main {
     select {
       margin: 0;
       height: 4rem;
-      border: .1rem solid $grey;
+      border: .1rem solid $shadeBlue;
       background: $white;
       font-size: 1.3rem;
       padding: 1rem;
@@ -276,7 +211,7 @@ main {
 
     input {
       margin: 0;
-      border: .1rem solid $grey;
+      border: .1rem solid $shadeBlue;
       background: $white;
       font-size: 1.3rem;
       padding: 1rem;
@@ -297,7 +232,7 @@ main {
       margin: 0 auto 12rem;
     }
 
-    >ul {
+    > ul {
       list-style: none;
       display: flex;
       flex-flow: row nowrap;
