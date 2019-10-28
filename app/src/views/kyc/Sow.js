@@ -4,8 +4,8 @@ import cn from "classnames/bind";
 import style from "./sow.scss";
 const cx = cn.bind(style);
 
-// Externals
-// import PropTypes from 'prop-types'
+// Utils
+import useBodyClass from "../../utils/use-body-class";
 
 // const marketId = ({ this.props.match }) => match.params.id
 
@@ -82,6 +82,7 @@ const Sow = props => {
     resetSourceDescription();
   };
 
+  useBodyClass(`sow`);
   return (
     <main className={cx("sow")}>
       <nav>
@@ -182,7 +183,8 @@ const Sow = props => {
             <h3>Source of Funds Description</h3>
             <strong>
               Add specifics to your source of funds. Like "Sale of property in
-              UK", "Family inheritance" <small className={cx("text-red")}>*</small>
+              UK", "Family inheritance"{" "}
+              <small className={cx("text-red")}>*</small>
             </strong>
             <input
               name="source_description"
