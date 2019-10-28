@@ -94,7 +94,6 @@ const Sow = props => {
           />
         </a>
       </nav>
-
       <div className={cx("column")}>
         <h1>
           Sight Self Declared <br />
