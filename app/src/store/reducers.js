@@ -15,9 +15,9 @@ import { combineReducers } from "redux";
 
 export const createRootReducer = history =>
   combineReducers({
-    router: connectRouter(history),
+    router: connectRouter(history)
     // blockchain,
     // relayer,
     // ui,
     // market
-  })
+  });

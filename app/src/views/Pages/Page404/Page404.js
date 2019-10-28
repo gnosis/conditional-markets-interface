@@ -1,7 +1,7 @@
-import React, { Component } from 'react'
+import React, { Component } from "react";
 
 // Externals
-import PropTypes from 'prop-types'
+import PropTypes from "prop-types";
 
 // Material helpers
 // import { withStyles } from '@material-ui/core'
@@ -15,20 +15,20 @@ const styles = theme => ({
     padding: theme.spacing.unit * 4
   },
   content: {
-    marginTop: '150px',
-    textAlign: 'center'
+    marginTop: "150px",
+    textAlign: "center"
   },
   image: {
-    display: 'inline-block',
-    marginTop: '50px',
-    maxWidth: '100%',
-    width: '554px'
+    display: "inline-block",
+    marginTop: "50px",
+    maxWidth: "100%",
+    width: "554px"
   }
-})
+});
 
 class NotFound extends Component {
-  render () {
-    const { classes } = this.props
+  render() {
+    const { classes } = this.props;
 
     return (
       <div className={classes.root}>
@@ -51,12 +51,12 @@ class NotFound extends Component {
           </Grid>
         </Grid>
       </div>
-    )
+    );
   }
 }
 
 NotFound.propTypes = {
   classes: PropTypes.object.isRequired
-}
+};
 
-export default withStyles(styles)(NotFound)
+export default withStyles(styles)(NotFound);
