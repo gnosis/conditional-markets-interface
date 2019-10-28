@@ -16,7 +16,10 @@
           "short": "No",
           "when": "Dai stability fee ≤ 20.5%"
         }
-      ]
+      ],
+      "description": "# Stability Fee\nThe stability fee is determined from a thing from somewhere",
+      "dataSource": "Andre"
+
     }
   ],
   "networkId": 4
