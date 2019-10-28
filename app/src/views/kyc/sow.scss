@@ -1,1 +1,278 @@
 @import "~scss/_variables.scss";
+@import "~scss/fonts.scss";
+
+html {
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  margin: 0;
+  background: $white;
+  color: $blue;
+  font-family: $font;
+  font-size: 62.5%;
+  line-height: $base-line-height;
+  margin: 0;
+  scroll-behavior: smooth;
+  text-rendering: geometricPrecision;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  color: $white;
+  background: $blue;
+}
+
+body {
+  margin: 0;
+  font-family: $font;
+
+  @media #{$tablet} {
+    height: 100vh;
+  }
+}
+
+a,
+a:visited {
+  color: $darkBlue;
+  text-decoration: underline;
+}
+
+.button,
+a.button {
+  background: $blue;
+  border-radius: 60rem;
+  font-weight: $bold;
+  color: $white;
+  letter-spacing: .05rem;
+  text-align: center;
+  box-sizing: border-box;
+  padding: 2.3rem 5.4rem;
+  text-decoration: none;
+  margin: 0;
+  line-height: 1;
+  will-change: box-shadow transform;
+  transition: box-shadow .3s ease-in-out, transform .3s ease-in-out;
+  height: 5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  letter-spacing: 0.1rem;
+  text-align: center;
+  text-decoration: none;
+  border-radius: .5rem;
+  padding: 0 4rem;
+  border: 0;
+  outline: 0;
+  cursor: pointer;
+
+  &.white {
+    background: $white;
+    color: $darkBlue;
+    height: 6.4rem;
+    font-size: 1.8rem;
+    width: 30rem;
+    margin: 4rem auto 0;
+    text-align: center;
+    box-shadow: 0 .4rem .6rem rgba(0, 25, 60, .15), 0 .1rem .3rem rgba(0, 0, 0, .08);
+
+    &:hover {}
+  }
+
+  @media #{$mobile} {
+    font-size: 2rem;
+    margin: 0 auto;
+  }
+
+  &:hover {
+    box-shadow: 0 7px 14px rgba(0, 25, 60, .15), 0 3px 6px rgba(0, 0, 0, .08);
+    transform: translateY(-1px);
+  }
+}
+
+nav {
+  width: 100%;
+  display: flex;
+  position: relative;
+  top: 0;
+  background: $white;
+  margin: 0;
+  z-index: 10;
+  justify-content: center;
+  padding: 3.5rem 0;
+}
+
+.logo {
+  margin: 0 auto;
+}
+
+main {
+  width: 100%;
+  display: flex;
+  flex-flow: row wrap;
+  width: 100%;
+  align-items: center;
+  height: 100%;
+  margin: 0 auto;
+  justify-content: space-between;
+  position: relative;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.sow {
+
+  .column {
+    width: 100%;
+    height: auto;
+    position: relative;
+    max-width: 80rem;
+    justify-content: flex-start;
+    flex-flow: row wrap;
+    display: flex;
+    margin: 0 auto ;
+    flex-direction: column;
+    align-items: stretch;
+
+    @media #{$mobile} {
+      max-width: 100%;
+      padding: 0 2.4rem;
+      box-sizing: border-box;
+      flex-flow: column nowrap;
+    }
+  }
+
+  h1 {
+    font-weight: $bold;
+    font-size: 3.8rem;
+    color: $darkBlue;
+    text-align: center;
+    line-height: 1.2;
+    margin: 0 0 2.4rem;
+    padding: 0 5vw;
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+
+      @media #{$mobile} {
+        font-size: 3rem;
+      }
+  }
+
+  .text-red {
+    color: $red;
+  }
+
+  .form {
+    > span {
+      display: flex;
+      flex-flow: column;
+      max-width: 60rem;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    p {
+      color: $shadeBlue;
+      font-weight: $normal;
+      font-size: 1.8rem;
+      letter-spacing: 0;
+      line-height: 1.4;
+      max-width: 60rem;
+      font-family: inherit;
+      margin: 0 auto 4rem;
+      text-align: center;
+    }
+
+    >span>strong {
+      font-size: 1.8rem;
+      line-height: 1.3;
+      color: $darkBlue;
+      margin: 0 0 1rem;
+      letter-spacing: .01rem;
+    }
+
+    select {
+      margin: 0;
+      height: 4rem;
+      border: .1rem solid $shadeBlue;
+      background: $white;
+      font-size: 1.3rem;
+      padding: 1rem;
+      border-radius: .6rem;
+    }
+
+    h3 {
+      font-size: 2.4rem;
+      line-height: 1.2;
+      margin: 4rem 0 1rem;
+    }
+
+    input {
+      margin: 0;
+      border: .1rem solid $shadeBlue;
+      background: $white;
+      font-size: 1.3rem;
+      padding: 1rem;
+      border-radius: .6rem;
+    }
+  }
+
+  .button {
+    width: 100%;
+    max-width: 400px;
+    margin: 5rem auto;
+  }
+
+  footer {
+    width: 100%;
+
+    .contentPage & {
+      margin: 0 auto 12rem;
+    }
+
+    > ul {
+      list-style: none;
+      display: flex;
+      flex-flow: row nowrap;
+      font-size: 1.5rem;
+      color: $grey;
+      line-height: 1;
+      margin: 3.5rem 0;
+      justify-content: center;
+      padding: 0;
+      font-weight: $normal;
+
+      @media #{$mobile} {
+        flex-flow: column wrap;
+        margin: 3.5rem 0 7rem;
+      }
+
+      .contentPage & {
+        justify-content: center;
+      }
+    }
+
+    >ul>li {
+      margin: 0 2rem 0 0;
+      will-change: color;
+      transition: color .3s ease-in-out;
+
+      @media #{$mobile} {
+        margin: 0 0 1rem 0;
+        text-align: center;
+      }
+    }
+
+    >ul>li>a {
+      color: inherit;
+    }
+
+    >ul>li>a:hover,
+    >ul>li>a:visited {
+      color: $blue;
+    }
+  }
+
+} // END .sow
