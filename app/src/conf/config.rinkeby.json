@@ -16,7 +16,10 @@
           "short": "No",
           "when": "Dai stability fee ≤ 20.5%"
         }
-      ]
+      ],
+      "description": "This would explain which stability fee is meant and where this value is received from for market resolution\r\n# A Title\r\nThsi would explain more things",
+      "dataSource": "Example",
+      "dataSourceURL": "http://example.org"
     }
   ],
   "networkId": 4

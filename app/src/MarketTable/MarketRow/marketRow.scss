@@ -8,6 +8,23 @@
   font-size: 1.5rem;
   line-height: 1.5;
 
+  td {
+    text-align: center;
+    border: none;
+    padding: 1.2rem 0.8rem;
+    position: relative;
+
+      &:first-child {
+        @media #{$tablet-small-max} {
+          display: none;
+        }
+      }
+  }
+
+  td:nth-child(2) {
+    text-align: left;
+  }
+
   &-heading {
     display: none;
     white-space: nowrap;
@@ -21,6 +38,86 @@
       font-size: 1.1rem;
       color: $shadeBlue;
       letter-spacing: 0.05rem;
+    }
+  }
+
+  &-details {
+    &.disable {
+      display: none;
+    }
+    line-height: normal;
+  
+    h1 {
+      font-weight: 600;
+      font-size: 1.6rem;
+      margin: 2rem 0;
+    }
+    h2 {
+      font-weight: 600;
+      font-size: 1.6rem;
+      margin: 2rem 0;
+    }
+    h3 {
+      font-weight: 600;
+      font-size: 1.6rem;
+      margin: 2rem 0;
+    }
+    h4, h5, h6 {
+      font-weight: 600;
+      font-size: 1.6rem;
+    }
+
+    a {
+      color: #009CB4;
+    }
+
+    &.hidden {
+      .detail-content {
+        display: none; 
+      }
+    }
+
+    background-color: #f7f8fb;
+
+    td {
+      text-align: left;
+      padding: 1.2rem 0.8rem;
+      font-weight: normal;
+      font-size: 1.6rem;
+    }
+
+    &:not(.hidden) {
+      .market-details-header {
+        margin-bottom: 4rem;
+      }
+    }
+
+    .market-details-header {
+      color: #00193c;
+      line-height: normal;
+      margin: 1rem 0;
+    }
+
+    .expand-collapse {
+      padding: 0;
+      width: 100%;
+      font-size: 1.6rem;
+      font-weight: 600;
+
+      display: flex;
+      appearance: none;
+      -webkit-appearance: none;
+      background: none;
+
+      border: none;
+      outline: none;
+
+      &-icon {
+        font-weight: 400;
+        font-size: 2.4rem;
+        line-height: 1.6rem;
+        margin-left: auto;
+      }
     }
   }
 
@@ -44,18 +141,5 @@
       border-radius: .2rem;
       margin: 1rem 0;
     }
-  }
-
-  td {
-    text-align: center;
-    border: none;
-    padding: 1.2rem 0.8rem;
-    position: relative;
-
-      &:first-child {
-        @media #{$tablet-small-max} {
-          display: none;
-        }
-      }
   }
 }
