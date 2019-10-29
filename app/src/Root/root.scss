@@ -22,6 +22,7 @@
   .section {
     &-markets {
       flex: 1;
+      padding: 0 2rem;
       border-right: .1rem solid $greyBorder2;
         @media #{$tablet-small-max} {
           border: 0;
