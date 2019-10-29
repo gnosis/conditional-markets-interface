@@ -115,6 +115,7 @@ const MarketTable = ({
   const headings = [
     "#",
     "Market",
+    "",
     <>Outcome Probability {isStaging && <em>(Predicted)</em>}</>,
     "Ends In",
     "Outcome",
@@ -129,9 +130,18 @@ const MarketTable = ({
     <table className={cx("market-table")}>
       <thead>
         <tr>
-          {headings.map((node, i) => (
-            <th key={`heading_${i}`}>{node}</th>
-          ))}
+          <th>#</th>
+          <th>Market</th>
+          <th colSpan={2}>
+            Outcome Probability {isStaging && <em>(Predicted)</em>}
+          </th>
+          <th>Ends In</th>
+          <th>Outcome</th>
+          {!conditionalDisabled && (
+            <>
+              <span>Conditional</span> <HelpButton openModal={openModal} />
+            </>
+          )}
         </tr>
       </thead>
       <tbody>
