@@ -10,13 +10,13 @@ export default class Routes extends Component {
   render() {
     return (
       <Switch>
-        <Redirect exact from="/" to="/markets" />
-        <Route component={Root} exact path="/markets" />
+        <Route component={Root} exact path="/" />
         <Route component={Sow} exact path="/kyc/sow" />
       </Switch>
     );
   }
 }
 
+// <Redirect exact from="/" to="/markets" />
 // <Route component={NotFound} exact path="/not-found"/>
 // <Redirect to="/not-found" />
