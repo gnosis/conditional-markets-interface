@@ -78,22 +78,37 @@ const Sow = props => {
     const sow = {
       email,
       mainSource: sourceOfFunds || undefined,
-      companySale: companyName || undefined,
+      saleCompanyName: companyName || undefined,
       pension: pension || undefined,
       description: sourceDescription || undefined,
-      salary: currentJob || undefined,
+      currentJob: currentJob || undefined,
       expectedAnnualTradingVolume: tradingVolume || undefined
     };
 
-    setSourceOfFunds(sow).then(result => {
-      console.log(result);
-      resetSourceOfFunds();
-      resetCompanyName();
-      resetPension();
-      resetSourceDescription();
-    }).catch(e => {
-      console.log(e);
-    });
+    setSourceOfFunds(sow)
+      .then(result => {
+        console.log(result);
+        switch (result.status) {
+          case 302:
+            resetSourceOfFunds();
+            resetCompanyName();
+            resetPension();
+            resetSourceDescription();
+            break;
+          case 400:
+            console.log("Error in data params");
+            break;
+          case 401:
+            console.log("Data already added");
+            break;
+          case 404:
+            console.log("Email not found");
+            break;
+        }
+      })
+      .catch(e => {
+        console.log(e);
+      });
   };
 
   useBodyClass(style.sow);
