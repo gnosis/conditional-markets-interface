@@ -14,7 +14,7 @@ import {
   getPositionId,
   combineCollectionIds
 } from "utils/getIdsUtil";
-import getWhitelistState from "api/whitelist";
+import { getWhitelistState } from "api/whitelist";
 
 import style from "./root.scss";
 const cx = cn.bind(style);

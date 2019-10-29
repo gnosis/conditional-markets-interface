@@ -1,5 +1,9 @@
+// Router
+import { ConnectedRouter } from "connected-react-router";
+
 import React from "react";
 import { render } from "react-dom";
+import { Provider } from "react-redux";
 
 // CSS Reset
 import "normalize.css/normalize.css";
@@ -9,12 +13,23 @@ import "./scss/style.scss";
 
 import Decimal from "decimal.js-light";
 
-import RootComponent from "./Root";
+// Routes
+import Routes from "./Routes";
+
+import { history, store } from "./store";
 
 Decimal.config({
   precision: 80,
   rounding: Decimal.ROUND_FLOOR
 });
 
+const RouterWrappedApp = (
+  <Provider store={store}>
+    <ConnectedRouter history={history}>
+      <Routes />
+    </ConnectedRouter>
+  </Provider>
+);
+
 const rootElement = document.getElementById("root");
-render(<RootComponent />, rootElement);
+render(RouterWrappedApp, rootElement);
