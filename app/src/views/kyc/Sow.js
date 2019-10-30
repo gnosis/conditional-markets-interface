@@ -86,15 +86,14 @@ const Sow = props => {
     };
 
     setSourceOfFunds(sow)
-      .then(result => {
-        console.log(result);
-        switch (result.status) {
-          case 302:
+      .then(response => {
+        switch (response.status) {
+          case 201:
             resetSourceOfFunds();
             resetCompanyName();
             resetPension();
             resetSourceDescription();
-            break;
+            return response.json();
           case 400:
             console.log("Error in data params");
             break;
@@ -104,6 +103,12 @@ const Sow = props => {
           case 404:
             console.log("Email not found");
             break;
+        }
+      })
+      .then(result => {
+        if (result) {
+          const { url } = result;
+          window.location.href = url;
         }
       })
       .catch(e => {
