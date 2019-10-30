@@ -1,5 +1,8 @@
 import React, { useState } from "react";
 import { setSourceOfFunds } from "api/whitelist";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 import cn from "classnames/bind";
 
 import style from "./sow.scss";
@@ -9,6 +12,7 @@ const cx = cn.bind(style);
 import useBodyClass from "../../utils/use-body-class";
 
 // const marketId = ({ this.props.match }) => match.params.id
+toast.configure();
 
 const useInput = initialValue => {
   const [value, setValue] = useState(initialValue);
@@ -33,6 +37,7 @@ const getEmail = location => {
 
 const Sow = props => {
   const [email, setEmail] = useState(getEmail(props.location));
+  const [error, setError] = useState(null);
 
   const {
     value: sourceOfFunds,
@@ -66,11 +71,11 @@ const Sow = props => {
   const handleChange = () => {};
 
   const renderCompanySale = () => {
-    return sourceOfFunds === "company-earnings" || sourceOfFunds == "0";
+    return sourceOfFunds === "company-earnings";
   };
 
   const renderPension = () => {
-    return sourceOfFunds === "pension" || sourceOfFunds == "0";
+    return sourceOfFunds === "pension";
   };
 
   const handleSubmit = event => {
@@ -86,28 +91,36 @@ const Sow = props => {
     };
 
     setSourceOfFunds(sow)
-      .then(result => {
-        console.log(result);
-        switch (result.status) {
-          case 302:
+      .then(response => {
+        switch (response.status) {
+          case 201:
             resetSourceOfFunds();
             resetCompanyName();
             resetPension();
             resetSourceDescription();
-            break;
+            resetCurrentJob();
+            resetTradingVolume();
+            return response.json();
           case 400:
-            console.log("Error in data params");
+            setError("Error in data params");
             break;
           case 401:
-            console.log("Data already added");
+            setError("Error: KYC was already sent for this email");
             break;
           case 404:
-            console.log("Email not found");
+            setError("Error: Email not found");
             break;
+        }
+      })
+      .then(result => {
+        if (result) {
+          const { url } = result;
+          window.location.href = url;
         }
       })
       .catch(e => {
         console.log(e);
+        setError("Error: Internal error, please try later");
       });
   };
 
@@ -248,9 +261,13 @@ const Sow = props => {
           </span>
 
           <button className={cx("button")}>Finish KYC</button>
+          {error ? (
+            <p>
+              <span className={cx("text-red")}>{error}</span>
+            </p>
+          ) : null}
         </form>
       </div>
-
       <footer>
         <ul>
           <li>
