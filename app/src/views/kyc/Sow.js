@@ -3,6 +3,7 @@ import { setSourceOfFunds } from "api/whitelist";
 
 import cn from "classnames/bind";
 
+import Logo from "img/conditional-logo-color.svg";
 import style from "./sow.scss";
 const cx = cn.bind(style);
 
@@ -151,12 +152,7 @@ const Sow = props => {
     <main className={cx("sow-content")}>
       <nav>
         <a href="/" className={cx("logo")} title="Sight - Sign Up">
-          <img
-            src="/img/conditional-logo-color.svg"
-            height="40"
-            width="116"
-            alt="Sight - Logo"
-          />
+          <img src={Logo} height="40" width="116" alt="Sight - Logo" />
         </a>
       </nav>
       <div className={cx("column")}>
