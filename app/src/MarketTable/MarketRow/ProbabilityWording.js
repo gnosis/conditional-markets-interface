@@ -1,10 +1,8 @@
 import React from "react";
+import PropTypes from "prop-types";
 import cn from "classnames/bind";
 
 import style from "./probabilityWording.scss";
-import { outcomeColors, probabilityDecimalPlaces } from "utils/constants";
-
-import { formatProbability } from "utils/formatting";
 
 const cx = cn.bind(style);
 
@@ -61,6 +59,12 @@ const ProbabilityWording = ({
       )}
     </div>
   );
+};
+
+ProbabilityWording.propTypes = {
+  outcomes: PropTypes.arrayOf(PropTypes.object),
+  probabilities: PropTypes.arrayOf(PropTypes.number),
+  stagedProbabilities: PropTypes.arrayOf(PropTypes.object)
 };
 
 export default ProbabilityWording;
