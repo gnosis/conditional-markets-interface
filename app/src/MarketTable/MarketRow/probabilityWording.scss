@@ -1,0 +1,17 @@
+.outcome-probability-wording {
+  display: flex;
+  align-items: center;
+  height: 38px;
+}
+
+.words-of-probability {
+  line-height: normal;
+  margin: 0 1rem;
+  font-size: 1.4rem;
+  white-space: nowrap;
+}
+
+.wordings {
+  display: flex;
+  flex-direction: column;;
+}

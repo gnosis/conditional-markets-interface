@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 import cn from "classnames/bind";
 
 import style from "./probabilities.scss";
@@ -24,7 +25,12 @@ const Probabilities = ({ outcomes, probabilities, stagedProbabilities }) => {
               .mul(100)
               .toDecimalPlaces(probabilityDecimalPlaces);
             return (
-              <div className={cx("outcome-bar")} key={outcome.short}>
+              <div
+                className={cx("outcome-bar", {
+                  "staged-display": changeInProbability.abs().gt(0.01)
+                })}
+                key={outcome.short}
+              >
                 <div
                   className={cx("probability")}
                   style={{
@@ -65,6 +71,12 @@ const Probabilities = ({ outcomes, probabilities, stagedProbabilities }) => {
       )}
     </div>
   );
+};
+
+Probabilities.propTypes = {
+  outcomes: PropTypes.arrayOf(PropTypes.object),
+  probabilities: PropTypes.arrayOf(PropTypes.number),
+  stagedProbabilities: PropTypes.arrayOf(PropTypes.object)
 };
 
 export default Probabilities;
