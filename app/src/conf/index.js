@@ -7,6 +7,9 @@ const network = process.env.NETWORK
   : "local";
 const networkConfig = network ? require(`./config.${network}.json`) : {};
 
+// Operator conf
+const operatorConfig = require("./config-operator");
+
 // Whitelist conf
 const whitelistConfig = require(`./config-whitelist`);
 
@@ -16,6 +19,7 @@ let customConfig = customConfigFile ? require(customConfigFile) : {};
 
 let config = {
   ...networkConfig,
+  ...operatorConfig,
   ...whitelistConfig,
   ...customConfig
 };

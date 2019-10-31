@@ -15,6 +15,7 @@ import {
   combineCollectionIds
 } from "utils/getIdsUtil";
 import { getWhitelistState } from "api/whitelist";
+import { getQuestions } from "api/operator";
 
 import style from "./root.scss";
 const cx = cn.bind(style);
@@ -28,8 +29,20 @@ let conditionalTokensService;
 
 const whitelistEnabled = process.env.WHITELIST_ENABLED;
 
-async function loadBasicData({ markets }, web3) {
+async function loadBasicData({ lmsrAddress }, web3) {
   const { toBN } = web3.utils;
+
+  let markets = await getQuestions(undefined, lmsrAddress).then(
+    ({ results }) => results
+  );
+
+  markets = markets.map(market => {
+    market.outcomes = market.outcomeNames.map(outcome => {
+      return { title: outcome, short: outcome };
+    });
+
+    return market;
+  });
 
   // Load application contracts
   marketMakersRepo = await getMarketMakersRepo();
