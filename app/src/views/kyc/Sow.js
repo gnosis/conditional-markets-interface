@@ -168,8 +168,8 @@ const Sow = props => {
           onSubmit={handleSubmit}
         >
           <p>
-            To be regulated under Gibraltar's Distributed Technology Ledger
-            Licence we are required to collect information on your source of
+            To be regulated under Gibraltar's Distributed Ledger Technology
+            (DTL) framework we are required to collect information on your source of
             funds.
           </p>
           <br />
