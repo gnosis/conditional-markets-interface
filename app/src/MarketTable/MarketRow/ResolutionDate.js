@@ -34,7 +34,11 @@ const ResolutionDate = ({ date }) => {
   const updateCountdown = useCallback(() => {
     // use for testing many different random dates
     //setDate(Date.now() + (Math.random() * 100000000))
-    setTimeUntil(moment(date).fromNow(true));
+    if (moment(date).isAfter()) {
+      setTimeUntil("CLOSED");
+    } else {
+      setTimeUntil(moment(date).fromNow(true));
+    }
   });
 
   useEffect(updateCountdown, []);
