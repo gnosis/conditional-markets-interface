@@ -146,7 +146,7 @@ const Buy = ({
     }
 
     if (!hasAnyAllowance || !hasEnoughAllowance) {
-      await collateral.contract.approve(lmsrMarketMaker.address, maxUint256BN, {
+      await collateral.contract.approve(lmsrMarketMaker.address, maxUint256BN.toString(10), {
         from: account
       });
     }
