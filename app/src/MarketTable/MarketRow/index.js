@@ -10,6 +10,7 @@ import style from "./marketRow.scss";
 
 import ResolutionDate from "./ResolutionDate";
 import Probabilities from "./Probabilities";
+import ProbabilityWording from "./ProbabilityWording";
 import OutcomeSelection from "./OutcomeSelection";
 import ToggleConditional from "./ToggleConditional";
 
@@ -93,6 +94,12 @@ const Market = ({
     <>
       <span className={cx("mobile-index")}>#{index + 1}</span> {title}
     </>,
+    <ProbabilityWording
+      key="probabilityWording"
+      outcomes={outcomes}
+      probabilities={probabilities}
+      stagedProbabilities={stagedProbabilities}
+    />,
     <Probabilities
       key="probabilities"
       outcomes={outcomes}

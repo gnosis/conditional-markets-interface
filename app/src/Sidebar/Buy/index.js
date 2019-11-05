@@ -163,9 +163,13 @@ const Buy = ({
 
     if (!hasAnyAllowance || !hasEnoughAllowance) {
       const marketMakerAddress = await marketMakersRepo.getAddress();
-      await collateral.contract.approve(marketMakerAddress, maxUint256BN, {
-        from: account
-      });
+      await collateral.contract.approve(
+        marketMakerAddress,
+        maxUint256BN.toString(10),
+        {
+          from: account
+        }
+      );
     }
 
     await marketMakersRepo.trade(tradeAmounts, collateralLimit, account);
