@@ -1,6 +1,6 @@
-const isProduction = process.env.NODE_ENV === "production";
+const isMainnet = process.env.NETWORK === "mainnet";
 
-const defaultOperatorApi = isProduction
+const defaultOperatorApi = isMainnet
   ? "https://sight-operator.staging.gnosisdev.com/api/v1"
   : "https://sight-operator.dev.gnosisdev.com/api/v1";
 
