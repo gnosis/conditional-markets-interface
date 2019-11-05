@@ -1,5 +1,5 @@
 {
-  "lmsrAddress": "0x80be9493b0908831Fe3B05f26e0138c1cDC278DA",
+  "lmsrAddress": "0xE7640763CDecd3dfEA63846AFC0F62a1A3BB6063",
   "markets": [
     {
       "questionId": "0xda66c02003000000000000000000000000000000000000000000000000000000",
@@ -16,6 +16,10 @@
           "short": "No",
           "when": "Dai stability fee ≤ 20.5%"
         }
+      ],
+      "outcomeNames": [
+        "Yes",
+        "No"
       ],
       "description": "This would explain which stability fee is meant and where this value is received from for market resolution\r\n# A Title\r\nThsi would explain more things",
       "dataSource": "Example",

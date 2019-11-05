@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import { setSourceOfFunds } from "api/whitelist";
+
 import cn from "classnames/bind";
 
+import Logo from "img/conditional-logo-color.svg";
 import style from "./sow.scss";
 const cx = cn.bind(style);
 
@@ -16,7 +18,7 @@ const useInput = initialValue => {
   return {
     value,
     setValue,
-    reset: () => setValue(""),
+    reset: () => setValue(initialValue),
     bind: {
       value,
       onChange: event => {
@@ -33,6 +35,7 @@ const getEmail = location => {
 
 const Sow = props => {
   const [email, setEmail] = useState(getEmail(props.location));
+  const [error, setError] = useState(null);
 
   const {
     value: sourceOfFunds,
@@ -58,6 +61,11 @@ const Sow = props => {
     reset: resetCurrentJob
   } = useInput("");
   const {
+    value: selfEmployedActivity,
+    bind: bindSelfEmployedActivity,
+    reset: resetSelfEmployedActivity
+  } = useInput("");
+  const {
     value: tradingVolume,
     bind: bindTradingVolume,
     reset: resetTradingVolume
@@ -65,12 +73,30 @@ const Sow = props => {
 
   const handleChange = () => {};
 
+  const renderSalary = () => {
+    return sourceOfFunds === "salaried";
+  };
+
+  const renderSelfEmployed = () => {
+    return sourceOfFunds === "self-employed";
+  };
+
   const renderCompanySale = () => {
-    return sourceOfFunds === "company-earnings" || sourceOfFunds == "0";
+    return sourceOfFunds === "company-earnings";
   };
 
   const renderPension = () => {
-    return sourceOfFunds === "pension" || sourceOfFunds == "0";
+    return sourceOfFunds === "pension";
+  };
+
+  const renderSourceOfFundsDescription = () => {
+    return (
+      sourceOfFunds !== "salaried" &&
+      sourceOfFunds !== "self-employed" &&
+      sourceOfFunds !== "company-earnings" &&
+      sourceOfFunds !== "pension" &&
+      sourceOfFunds !== "0"
+    );
   };
 
   const handleSubmit = event => {
@@ -82,32 +108,42 @@ const Sow = props => {
       pension: pension || undefined,
       description: sourceDescription || undefined,
       currentJob: currentJob || undefined,
+      selfEmployedActivity: selfEmployedActivity || undefined,
       expectedAnnualTradingVolume: tradingVolume || undefined
     };
 
     setSourceOfFunds(sow)
-      .then(result => {
-        console.log(result);
-        switch (result.status) {
-          case 302:
+      .then(response => {
+        switch (response.status) {
+          case 201:
             resetSourceOfFunds();
             resetCompanyName();
             resetPension();
             resetSourceDescription();
-            break;
+            resetCurrentJob();
+            resetSelfEmployedActivity();
+            resetTradingVolume();
+            return response.json();
           case 400:
-            console.log("Error in data params");
+            setError("Error in data params");
             break;
           case 401:
-            console.log("Data already added");
+            setError("Error: KYC was already sent for this email");
             break;
           case 404:
-            console.log("Email not found");
+            setError("Error: Email not found");
             break;
+        }
+      })
+      .then(result => {
+        if (result) {
+          const { url } = result;
+          window.location.href = url;
         }
       })
       .catch(e => {
         console.log(e);
+        setError("Error: Internal error, please try later");
       });
   };
 
@@ -116,12 +152,7 @@ const Sow = props => {
     <main className={cx("sow-content")}>
       <nav>
         <a href="/" className={cx("logo")} title="Sight - Sign Up">
-          <img
-            src="/img/conditional-logo-color.svg"
-            height="40"
-            width="116"
-            alt="Sight - Logo"
-          />
+          <img src={Logo} height="40" width="116" alt="Sight - Logo" />
         </a>
       </nav>
       <div className={cx("column")}>
@@ -137,8 +168,8 @@ const Sow = props => {
           onSubmit={handleSubmit}
         >
           <p>
-            To be regulated under Gibraltar's Distributed Technology Ledger
-            Licence we are required to collect information on your source of
+            To be regulated under Gibraltar's Distributed Ledger Technology
+            (DTL) framework we are required to collect information on your source of
             funds.
           </p>
           <br />
@@ -187,6 +218,7 @@ const Sow = props => {
               <option value="other">Other</option>
             </select>
           </span>
+
           {renderCompanySale() ? (
             <span>
               <h3>Company Sale</h3>
@@ -208,28 +240,44 @@ const Sow = props => {
               <input name="pension" required {...bindPension} />
             </span>
           ) : null}
-          <span>
-            <h3>Source of Funds Description</h3>
-            <strong>
+
+          {renderSourceOfFundsDescription() ? (
+            <span>
+              <h3>Source of Funds Description</h3>
+              <strong>
               Add specifics to your source of funds. Like "Sale of property in
               UK", "Family inheritance"{" "}
               <small className={cx("text-red")}>*</small>
-            </strong>
-            <input
+              </strong>
+              <input
               name="source_description"
               required
               {...bindSourceDescription}
-            />
-          </span>
+              />
+            </span>
+          ) : null}
 
-          <span>
-            <h3>Salary</h3>
-            <strong>
-              Please insert the name of your employer and you current job title.{" "}
-              <small className={cx("text-red")}>*</small>
-            </strong>
-            <input name="current_job" required {...bindCurrentJob} />
-          </span>
+          {renderSalary() ? (
+            <span>
+              <h3>Salary</h3>
+              <strong>
+                Please insert the name of your employer and you current job
+                title. <small className={cx("text-red")}>*</small>
+              </strong>
+              <input name="current_job" required {...bindCurrentJob} />
+            </span>
+          ) : null}
+
+          {renderSelfEmployed() ? (
+            <span>
+              <h3>Self Employed</h3>
+              <strong>
+                Please describe your main economic activity{" "}
+                <small className={cx("text-red")}>*</small>
+              </strong>
+              <input name="pension" required {...bindSelfEmployedActivity} />
+            </span>
+          ) : null}
 
           <span>
             <h3>Expected Annual Trading Volume</h3>
@@ -248,9 +296,13 @@ const Sow = props => {
           </span>
 
           <button className={cx("button")}>Finish KYC</button>
+          {error ? (
+            <p>
+              <span className={cx("text-red")}>{error}</span>
+            </p>
+          ) : null}
         </form>
       </div>
-
       <footer>
         <ul>
           <li>
