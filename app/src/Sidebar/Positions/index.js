@@ -16,8 +16,10 @@ const cx = cn.bind(style);
 const { toBN } = Web3.utils;
 
 import getConditionalTokensRepo from "../../repositories/ConditionalTokensRepo";
+import getMarketMakersRepo from "../../repositories/MarketMakersRepo";
 import getConditionalTokensService from "../../services/ConditionalTokensService";
 let conditionalTokensRepo;
+let marketMakersRepo;
 let conditionalTokensService;
 
 function calcNetCost({ funding, positionBalances }, tradeAmounts) {
@@ -41,12 +43,10 @@ function calcNetCost({ funding, positionBalances }, tradeAmounts) {
 
 const Positions = ({
   account,
-  pmSystem,
   markets,
   marketResolutionStates,
   positions,
   collateral,
-  lmsrMarketMaker,
   lmsrState,
   positionBalances,
   stagedTradeAmounts,
@@ -60,10 +60,11 @@ const Positions = ({
   const loadDataLayer = useCallback(() => {
     async function getRepo() {
       conditionalTokensRepo = await getConditionalTokensRepo();
+      marketMakersRepo = await getMarketMakersRepo();
       conditionalTokensService = await getConditionalTokensService();
     }
     getRepo();
-  });
+  }, []);
 
   // Load data layer just on page load
   useEffect(() => {
@@ -166,15 +167,16 @@ const Positions = ({
     async salePositionGroup => {
       setCurrentSellingPosition(salePositionGroup);
       await setStagedTransactionType("sell outcome tokens");
+      const marketMakerAddress = await marketMakersRepo.getAddress();
 
       const isOperatorApprovedByOwner = await conditionalTokensRepo.isApprovedForAll(
         account,
-        lmsrMarketMaker.address
+        marketMakerAddress
       );
 
       if (!isOperatorApprovedByOwner) {
         await conditionalTokensRepo.setApprovalForAll(
-          lmsrMarketMaker.address,
+          marketMakerAddress,
           true,
           account
         );
@@ -191,12 +193,10 @@ const Positions = ({
       );
 
       const tradeAmounts = stagedTradeAmounts.map(amount => amount.toString());
-      const collateralLimit = await lmsrMarketMaker.calcNetCost(tradeAmounts);
-      await lmsrMarketMaker.trade(tradeAmounts, collateralLimit, {
-        from: account
-      });
+      const collateralLimit = await marketMakersRepo.calcNetCost(tradeAmounts);
+      await marketMakersRepo.trade(tradeAmounts, collateralLimit, account);
     },
-    [account, lmsrMarketMaker, collateral]
+    [account, marketMakersRepo, collateral]
   );
 
   const sellOutcomeTokens = useCallback(async () => {
@@ -207,31 +207,30 @@ const Positions = ({
         `Can't sell outcome tokens while staged transaction is to ${stagedTransactionType}`
       );
 
+    const marketMakerAddress = await marketMakersRepo.getAddress();
     if (
       !(await conditionalTokensRepo.isApprovedForAll(
         account,
-        lmsrMarketMaker.address
+        marketMakerAddress
       ))
     ) {
       await conditionalTokensRepo.setApprovalForAll(
-        lmsrMarketMaker.address,
+        marketMakerAddress,
         true,
         account
       );
     }
 
     const tradeAmounts = stagedTradeAmounts.map(amount => amount.toString());
-    const collateralLimit = await lmsrMarketMaker.calcNetCost(tradeAmounts);
+    const collateralLimit = await marketMakersRepo.calcNetCost(tradeAmounts);
 
     asWrappedTransaction("sell outcome tokens", sellOutcomeTokens, setError);
-    await lmsrMarketMaker.trade(tradeAmounts, collateralLimit, {
-      from: account
-    });
+    await marketMakersRepo.trade(tradeAmounts, collateralLimit, account);
   }, [
     collateral,
     stagedTradeAmounts,
     stagedTransactionType,
-    pmSystem,
+    conditionalTokensRepo,
     asWrappedTransaction,
     account
   ]);
@@ -324,7 +323,7 @@ const Positions = ({
       markets.length,
       `0x${"0".repeat(64)}`
     );
-  }, [collateral, account, pmSystem, allMarketsResolved]);
+  }, [collateral, account, conditionalTokensRepo, allMarketsResolved]);
 
   if (positionGroups === null) {
     return (
