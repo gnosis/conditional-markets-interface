@@ -1,5 +1,3 @@
-import "isomorphic-fetch";
-
 const conf = require("../conf");
 const { OPERATOR_API_URL } = conf;
 
@@ -31,7 +29,13 @@ export const getQuestions = async (status, marketMaker, limit, offset) => {
   });
 };
 
-export const getMarketMakers = async (status, factory, address, limit, offset) => {
+export const getMarketMakers = async (
+  status,
+  factory,
+  address,
+  limit,
+  offset
+) => {
   const apiUrl = `${OPERATOR_API_URL}/market-makers/`;
   const params = {
     status,
