@@ -30,7 +30,7 @@ const UserWallet = ({ address, openModal, whitelistState }) => {
           target="_BLANK"
           rel="noreferrer noopener"
         >
-          Sign Up for our closed Beta
+          Apply for our closed Beta
         </a>
       </div>
     );

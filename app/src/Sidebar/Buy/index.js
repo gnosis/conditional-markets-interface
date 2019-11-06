@@ -19,13 +19,17 @@ const { BN } = Web3.utils;
 
 const cx = cn.bind(style);
 
+import getMarketMakersRepo from "../../repositories/MarketMakersRepo";
+import getConditionalTokensService from "../../services/ConditionalTokensService";
+let marketMakersRepo;
+let conditionalTokensService;
+
 const Buy = ({
   account,
   markets,
   positions,
   collateral,
   collateralBalance,
-  lmsrMarketMaker,
   lmsrAllowance,
   lmsrState,
   marketSelections,
@@ -37,6 +41,20 @@ const Buy = ({
   resetMarketSelections,
   asWrappedTransaction
 }) => {
+  // Memoize fetching data files
+  const loadDataLayer = useCallback(() => {
+    async function getRepo() {
+      marketMakersRepo = await getMarketMakersRepo();
+      conditionalTokensService = await getConditionalTokensService();
+    }
+    getRepo();
+  }, []);
+
+  // Load data layer just on page load
+  useEffect(() => {
+    loadDataLayer();
+  }, []);
+
   const [investmentAmount, setInvestmentAmount] = useState("");
   const [humanReadablePositions, setHumanReadablePositions] = useState(null);
   const [error, setError] = useState(null);
@@ -68,9 +86,7 @@ const Buy = ({
 
       if (!investmentAmountInUnits.isInteger())
         throw new Error(
-          `Got more than ${
-            collateral.decimals
-          } decimals in value ${investmentAmount}`
+          `Got more than ${collateral.decimals} decimals in value ${investmentAmount}`
         );
 
       setStagedTradeAmounts(
@@ -136,7 +152,7 @@ const Buy = ({
       );
 
     const tradeAmounts = stagedTradeAmounts.map(amount => amount.toString());
-    const collateralLimit = await lmsrMarketMaker.calcNetCost(tradeAmounts);
+    const collateralLimit = await marketMakersRepo.calcNetCost(tradeAmounts);
 
     if (collateral.isWETH && collateralLimit.gt(collateralBalance.amount)) {
       await collateral.contract.deposit({
@@ -146,14 +162,17 @@ const Buy = ({
     }
 
     if (!hasAnyAllowance || !hasEnoughAllowance) {
-      await collateral.contract.approve(lmsrMarketMaker.address, maxUint256BN.toString(10), {
-        from: account
-      });
+      const marketMakerAddress = await marketMakersRepo.getAddress();
+      await collateral.contract.approve(
+        marketMakerAddress,
+        maxUint256BN.toString(10),
+        {
+          from: account
+        }
+      );
     }
 
-    await lmsrMarketMaker.trade(tradeAmounts, collateralLimit, {
-      from: account
-    });
+    await marketMakersRepo.trade(tradeAmounts, collateralLimit, account);
 
     clearAllPositions();
   }, [
@@ -161,7 +180,7 @@ const Buy = ({
     hasEnoughAllowance,
     stagedTransactionType,
     stagedTradeAmounts,
-    lmsrMarketMaker,
+    marketMakersRepo,
     collateral,
     account
   ]);
@@ -486,7 +505,6 @@ Buy.propTypes = {
     unwrappedAmount: PropTypes.instanceOf(BN),
     totalAmount: PropTypes.instanceOf(BN).isRequired
   }),
-  lmsrMarketMaker: PropTypes.object.isRequired,
   lmsrState: PropTypes.shape({
     funding: PropTypes.instanceOf(BN).isRequired,
     positionBalances: PropTypes.arrayOf(PropTypes.instanceOf(BN).isRequired)
