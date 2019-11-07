@@ -9,7 +9,7 @@ const cx = cn.bind(style);
 const PROBABILITY_WORDING = [
   [[0, 1], "Impossible"],
   [[1, 20], "Almost certainly not"],
-  [[20, 45], "Probaby not"],
+  [[20, 45], "Probably not"],
   [[45, 55], "Chances about even"],
   [[55, 80], "Probable"],
   [[80, 99], "Almost certain"],
