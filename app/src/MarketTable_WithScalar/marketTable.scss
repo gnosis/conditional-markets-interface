@@ -8,10 +8,10 @@
   height: 100%;
   display: flex;
   align-content: center;
-  justify-content: center;
 
   &-row {
-    margin: auto;
+    margin: 0 auto;
+    padding-top: 1rem;
     width: 40vw;
 
     .header {

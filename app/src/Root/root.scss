@@ -19,19 +19,19 @@
   display: flex;
   flex: 1;
   height: 100%;
+  padding: 4rem 8rem;
 
   .section {
     &-markets {
       flex: 1;
-      border-right: .1rem solid $greyBorder2;
+      
         @media #{$tablet-small-max} {
           border: 0;
         }
     }
 
     &-positions {
-      background: $white;
-      flex-basis: 20%;
+      flex-basis: 25%;
         @media #{$tablet-small-max} {
           display: none;
         }
