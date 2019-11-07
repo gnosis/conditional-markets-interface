@@ -193,6 +193,14 @@ const Buy = ({
           </div>
         </div>
       </div>
+      <div className={cx("invest-ctrls")}>
+        {marketSelection.selectedOutcomeIndex > -1 && (
+          <button className={cx("buy-button")} type="button">
+            Buy {market.outcomes[marketSelection.selectedOutcomeIndex].title}{" "}
+            Position
+          </button>
+        )}
+      </div>
     </div>
   );
 };
