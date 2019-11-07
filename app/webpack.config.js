@@ -122,7 +122,8 @@ module.exports = {
       // WHITELIST_ENABLED: true,
       WHITELIST_API: isProduction
         ? "https://sight-whitelist.staging.gnosisdev.com/api/v1"
-        : "/api"
+        : "/api",
+      OPERATOR_API: ""
     })
   ]
 };
