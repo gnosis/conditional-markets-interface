@@ -1,26 +1,4 @@
 {
-  "lmsrAddress": "0x607D86EE18Ecfb9C99C1241fBfd6a30c21846C53",
-  "markets": [
-    {
-      "questionId": "0x57696c6c2053696768742042657461206861766520323030204b5943e2809964",
-      "title": "Will Sight Beta have 200 KYC’d users by 1st December 2020 UTC 12:00?",
-      "resolutionDate": "2019-12-01T12:00:00.000Z",
-      "outcomes": [
-        {
-          "title": "Yes",
-          "short": "Yes",
-          "when": "Users greater than 200"
-        },
-        {
-          "title": "No",
-          "short": "No",
-          "when": "Users are equal or less than 200"
-        }
-      ],
-      "description": null,
-      "dataSource": null,
-      "dataSourceURL": null
-    }
-  ],
+  "lmsrAddress": "0x2D23DE93B6353B54E05f8e998a064b00bd779942",
   "networkId": 1
 }
