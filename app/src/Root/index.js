@@ -31,21 +31,13 @@ let conditionalTokensService;
 
 const whitelistEnabled = conf.whitelistEnabled;
 
-async function loadBasicData({ lmsrAddress }, web3) {
+async function loadBasicData({ lmsrAddress, markets }, web3) {
   const { toBN } = web3.utils;
 
-  let markets = await getQuestions(undefined, lmsrAddress).then(
-    ({ results }) => results
-  );
-
-  markets = markets.map(market => {
-    market.outcomes = market.outcomeNames.map(outcome => {
-      return { title: outcome, short: outcome };
-    });
-
-    return market;
-  });
-
+  //let markets = await getQuestions(undefined, lmsrAddress).then(
+  //  ({ results }) => results
+  //);
+  
   // Load application contracts
   marketMakersRepo = await getMarketMakersRepo();
   conditionalTokensRepo = await getConditionalTokensRepo();
@@ -293,7 +285,7 @@ const RootComponent = ({ childComponents }) => {
 
         console.groupCollapsed("Global Debug Variables");
         console.log("PMSystem Contract:", pmSystem);
-        console.log("LMSRMarketMaker (Instance) Contract:", lmsrMarketMaker);
+        console.log("LMSRMarketMaker (Instance) Contract:", marketMakersRepo);
         console.log("Collateral Settings:", collateral);
         console.log("Market Settings:", markets);
         console.log("Account Positions:", positions);

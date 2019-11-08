@@ -7,17 +7,61 @@ import { formatScalarValue } from "utils/formatting";
 
 import style from "./buy.scss";
 import Decimal from "decimal.js-light";
+import { zeroDecimal, maxUint256BN } from "../../utils/constants";
+import {
+  calcOutcomeTokenCounts
+} from "utils/position-groups";
 
 const cx = cn.bind(style);
+
+import getMarketMakersRepo from "../../repositories/MarketMakersRepo";
+import getConditionalTokensService from "../../services/ConditionalTokensService";
+let marketMakersRepo;
+let conditionalTokensService;
 
 const Buy = ({
   market,
   lmsrState,
   probabilities,
   marketSelection,
-  setMarketSelections
+  setMarketSelections,
+  stagedTradeAmounts,
+  stagedTransactionType,
+  collateral,
+  collateralBalance,
+  account,
+  lmsrAllowance,
+  positions,
+  marketSelections,
+  setStagedTradeAmounts,
+  setStagedTransactionType,
+  ongoingTransactionType,
+  resetMarketSelections,
+  asWrappedTransaction
 }) => {
+  // Memoize fetching data files
+  const loadDataLayer = useCallback(() => {
+    async function getRepo() {
+      marketMakersRepo = await getMarketMakersRepo();
+      conditionalTokensService = await getConditionalTokensService();
+    }
+    getRepo();
+  }, []);
+
+  // Load data layer just on page load
+  useEffect(() => {
+    loadDataLayer();
+  }, []);
+
+  const [profitSim, setProfitSim] = useState({
+    value: 0,
+    percent: "0"
+  });
+
+  const [investmentAmount, setInvestmentAmount] = useState("");
   const [sliderValue, setSliderValue] = useState(parseFloat(market.lowerBound));
+  const [error, setError] = useState(null);
+
   useEffect(() => {
     if (probabilities) {
       const value = fromProbabilityToSlider(market, probabilities[0]);
@@ -29,9 +73,86 @@ const Buy = ({
     setSliderValue(parseFloat(e.target.value));
   }, []);
 
+  useEffect(() => {
+    if (lmsrState != null) {
+      const { funding, positionBalances } = lmsrState;
+
+      const decimalUpper = new Decimal(market.upperBound);
+      const decimalLower = new Decimal(market.lowerBound);
+
+      const maxPayout = new Decimal(1337);
+      //const minPayout = zeroDecimal;
+
+      const normalizedSlider = new Decimal(sliderValue)
+        .sub(decimalLower)
+        .div(decimalUpper.sub(decimalLower));
+
+      const profitAmount = maxPayout.mul(normalizedSlider);
+      setProfitSim({
+        value: profitAmount.toNumber(),
+        percent: 0 // diff to cur position
+      });
+    }
+  }, [lmsrState, sliderValue]);
+
+  useEffect(() => {
+    //if (stagedTransactionType !== "buy outcome tokens") return;
+
+    let hasEnteredInvestment = false;
+
+    try {
+      const decimalInvest = Decimal(investmentAmount);
+      hasEnteredInvestment = decimalInvest.gt(0);
+    } catch (e) {
+      //
+    }
+
+    if (
+      !(marketSelections || []).some(
+        ({ selectedOutcomeIndex }) => selectedOutcomeIndex > -1
+      )
+    ) {
+      setStagedTradeAmounts(null);
+      return;
+    }
+
+    try {
+      const investmentAmountInUnits = collateral.toUnitsMultiplier.mul(
+        hasEnteredInvestment ? investmentAmount : zeroDecimal
+      );
+
+      if (!investmentAmountInUnits.isInteger())
+        throw new Error(
+          `Got more than ${collateral.decimals} decimals in value ${investmentAmount}`
+        );
+
+      setStagedTradeAmounts(
+        calcOutcomeTokenCounts(
+          positions,
+          lmsrState,
+          investmentAmountInUnits,
+          marketSelections
+        )
+      );
+      setError(null);
+    } catch (e) {
+      setStagedTradeAmounts(null);
+      setError(e);
+    }
+  }, [
+    stagedTransactionType,
+    positions,
+    collateral,
+    collateralBalance,
+    lmsrState,
+    investmentAmount,
+    marketSelections
+  ]);
+
   const forMarketIndex = 0; // TODO: Multiple scalar markets will break this
   const makeOutcomeSelectHandler = useCallback(
     outcomeIndex => () => {
+      setStagedTransactionType("buy outcome tokens");
       setMarketSelections(prevValues =>
         prevValues.map((marketSelection, marketIndex) => {
           if (marketIndex === forMarketIndex) {
@@ -47,48 +168,99 @@ const Buy = ({
     []
   );
 
-  if (!probabilities) {
-    return <Spinner />;
+  let hasAnyAllowance = false;
+  let hasEnoughAllowance = false;
+  if (lmsrAllowance != null) {
+    try {
+      hasAnyAllowance = lmsrAllowance.gtn(0);
+      hasEnoughAllowance = collateral.toUnitsMultiplier
+        .mul(investmentAmount || "0")
+        .lte(lmsrAllowance.toString());
+    } catch (e) {
+      // empty
+    }
   }
 
-  if (lmsrState != null) {
-    const { funding, positionBalances } = lmsrState;
-    const invB = new Decimal(positionBalances.length)
-      .ln()
-      .div(funding.toString());
+  const setInvestmentMax = useCallback(() => {
+    if (collateralBalance != null && collateral != null) {
+      setStagedTransactionType("buy outcome tokens");
+      setInvestmentAmount(
+        Decimal(collateralBalance.totalAmount.toString())
+          .div(Math.pow(10, collateral.decimals))
+          .toFixed(4)
+      );
+    }
+  }, [collateralBalance, collateral]);
 
-    const decimalUpper = new Decimal(market.upperBound);
-    const decimalLower = new Decimal(market.lowerBound);
-    const probabilitySim = new Decimal(sliderValue)
-      .sub(decimalLower)
-      .div(decimalUpper.sub(decimalLower));
-    //console.log(probabilitySim.toString());
-    const probabilityToMove = probabilitySim.sub(probabilities[0]);
-    //console.log(probabilityToMove.toString());
-    const normalizer = new Decimal(Math.abs(probabilityToMove))
-      .ln()
-      .neg()
-      .div(invB);
+  const clearAllPositions = useCallback(() => {
+    setStagedTransactionType(null);
+    setStagedTradeAmounts(null);
+    setInvestmentAmount("");
+    resetMarketSelections(null);
+    setError(null);
+  }, [setStagedTradeAmounts, setInvestmentAmount, setError]);
 
-    /*
-    console.log(
-      positionBalances
-        .map((n, index) => {
-          const isLong = index === 1;
+  const buyOutcomeTokens = useCallback(async () => {
+    if (stagedTradeAmounts == null) throw new Error(`No buy set yet`);
 
-          if (probabilityToMove.ispos() && isLong) {
-            return new Decimal(n.toString()).div(normalizer);
-          }
+    if (stagedTransactionType !== "buy outcome tokens")
+      throw new Error(
+        `Can't buy outcome tokens while staged transaction is to ${stagedTransactionType}`
+      );
 
-          if (probabilityToMove.isneg() && !isLong) {
-            return new Decimal(n.toString()).div(normalizer);
-          }
+    let investmentAmountInUnits;
+    try {
+      investmentAmountInUnits = collateral.toUnitsMultiplier.mul(
+        investmentAmount
+      );
+    } catch (err) {
+      investmentAmountInUnits = zeroDecimal;
+    }
 
-          return 0;
-        })
-        .map(n => n.toString())
-    );
-    */
+    if (investmentAmountInUnits.gt(collateralBalance.totalAmount.toString()))
+      throw new Error(
+        `Not enough collateral: missing ${formatCollateral(
+          investmentAmountInUnits.sub(collateralBalance.totalAmount.toString()),
+          collateral
+        )}`
+      );
+
+    const tradeAmounts = stagedTradeAmounts.map(amount => amount.toString());
+    const collateralLimit = await marketMakersRepo.calcNetCost(tradeAmounts);
+
+    if (collateral.isWETH && collateralLimit.gt(collateralBalance.amount)) {
+      await collateral.contract.deposit({
+        value: collateralLimit.sub(collateralBalance.amount),
+        from: account
+      });
+    }
+
+    if (!hasAnyAllowance || !hasEnoughAllowance) {
+      const marketMakerAddress = await marketMakersRepo.getAddress();
+      await collateral.contract.approve(
+        marketMakerAddress,
+        maxUint256BN.toString(10),
+        {
+          from: account
+        }
+      );
+    }
+
+    await marketMakersRepo.trade(tradeAmounts, collateralLimit, account);
+
+    clearAllPositions();
+  }, [
+    hasAnyAllowance,
+    hasEnoughAllowance,
+    stagedTransactionType,
+    stagedTradeAmounts,
+    marketMakersRepo,
+    collateral,
+    account
+  ]);
+
+  if (!probabilities) {
+    return <Spinner />;
   }
 
   return (
@@ -119,11 +291,25 @@ const Buy = ({
       <div className={cx("selected-invest")}>
         <label className={cx("fieldset-label")}>Specify Amount</label>
         <div className={cx("input")}>
-          <button type="button" className={cx("input-max")}>
+          <button
+            type="button"
+            className={cx("input-max")}
+            onClick={setInvestmentMax}
+          >
             MAX
           </button>
-          <input type="text" className={cx("investment")} defaultValue={0} />
-          <span className={cx("input-right")}>DAI</span>
+          <input
+            type="text"
+            className={cx("investment")}
+            value={investmentAmount}
+            onChange={e => {
+              setStagedTransactionType("buy outcome tokens");
+              setInvestmentAmount(e.target.value);
+            }}
+          />
+          <span className={cx("input-right")}>
+            {collateral.symbol}
+          </span>
         </div>
       </div>
       <div className={cx("pl-sim")}>
@@ -165,7 +351,9 @@ const Buy = ({
               {sliderValue.toFixed(market.decimals)} {market.unit}
             </span>
             <span className={cx("spacer")} />
-            <span className={cx("value")}>-1.23% (1.123 DAI)</span>
+            <span className={cx("value")}>
+              {profitSim.percent}% ({profitSim.value})
+            </span>
           </div>
         </div>
       </div>
@@ -195,7 +383,15 @@ const Buy = ({
       </div>
       <div className={cx("invest-ctrls")}>
         {marketSelection.selectedOutcomeIndex > -1 && (
-          <button className={cx("buy-button")} type="button">
+          <button
+            className={cx("buy-button")}
+            type="button"
+            onClick={asWrappedTransaction(
+              "buy outcome tokens",
+              buyOutcomeTokens,
+              setError
+            )}
+          >
             Buy {market.outcomes[marketSelection.selectedOutcomeIndex].title}{" "}
             Position
           </button>
