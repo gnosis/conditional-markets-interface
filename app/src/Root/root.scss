@@ -18,6 +18,9 @@
 .sections {
   display: flex;
   flex: 1;
+  @media #{$tablet-small-max} {
+    flex-flow: column;
+  }
 
   .section {
     &-markets {
@@ -32,9 +35,9 @@
     &-positions {
       background: $white;
       flex-basis: 20%;
-        @media #{$tablet-small-max} {
-          display: none;
-        }
+        // @media #{$tablet-small-max} {
+        //   flex-wrap: wrap;
+        // }
     }
   }
 }

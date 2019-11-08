@@ -540,7 +540,8 @@ const RootComponent = ({ childComponents }) => {
                       ongoingTransactionType,
                       asWrappedTransaction,
                       resetMarketSelections,
-                      addToast
+                      addToast,
+                      openModal
                     }}
                   />
                 </section>
