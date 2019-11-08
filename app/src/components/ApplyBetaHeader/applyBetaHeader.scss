@@ -1,0 +1,11 @@
+@import "~scss/_variables.scss";
+
+.apply-banner {
+  background-color: $blue;
+  display: flex;
+  flex-flow: row nowrap;
+  width: 100%;
+  position: relative;
+  border-bottom: .1rem solid $greyBorder2;
+  height: 5.5rem;
+}

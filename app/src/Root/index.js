@@ -224,6 +224,7 @@ const RootComponent = ({ childComponents }) => {
     Header,
     Menu,
     UserWallet,
+    ApplyBetaHeader,
     Toasts,
     Footer
   ] = childComponents;
@@ -484,6 +485,10 @@ const RootComponent = ({ childComponents }) => {
             </ul>*/}
         </div>
         <div className={cx("app-space", { "modal-open": !!modal })}>
+          <ApplyBetaHeader
+            openModal={openModal}
+            whitelistState={whitelistState}
+          />
           <Header
             avatar={
               <UserWallet
@@ -574,6 +579,7 @@ export default hot(
     () => import("Header"),
     () => import("components/Menu"),
     () => import("components/UserWallet"),
+    () => import("components/ApplyBetaHeader"),
     () => import("components/Toasts"),
     () => import("components/Footer")
   ])
