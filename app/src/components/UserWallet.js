@@ -37,7 +37,7 @@ const UserWallet = ({
           target="_BLANK"
           rel="noreferrer noopener"
         >
-          Sign Up for our closed Beta
+          Apply for our closed Beta
         </a>
       </div>
     );

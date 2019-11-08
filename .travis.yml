@@ -17,7 +17,9 @@ before_script:
 matrix:
   include:
   - if: branch =~ /^master$/ OR tag IS present
-    env: WHITELIST_API=https://sight-whitelist.gnosis.io/api/v1
+    env:
+      - WHITELIST_API=https://sight-whitelist.gnosis.io/api/v1
+      - OPERATOR_API=https://sight-operator.gnosis.io/api/v1
   - if: NOT (branch =~ /^master$/) AND NOT (tag IS present)
     env: WHITELIST_API=https://sight-whitelist.staging.gnosisdev.com/api/v1
 
@@ -43,6 +45,17 @@ deploy:
     skip_cleanup: true
     local_dir: docs
     upload-dir: current
+    on:
+      branch: master
+
+  # STAGING_WITH_LANDING deployment
+  - provider: s3
+    bucket: $STAGING_WITH_LANDING_BUCKET_NAME
+    access_key_id: $AWS_ACCESS_KEY_ID
+    secret_access_key: $AWS_SECRET_ACCESS_KEY
+    skip_cleanup: true
+    local_dir: docs
+    upload-dir: current/app
     on:
       branch: master
 

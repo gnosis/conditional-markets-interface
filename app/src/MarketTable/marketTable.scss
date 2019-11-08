@@ -68,34 +68,33 @@
       }
     }
 
-    td {
-      text-align: left;
-
-      @media #{$tablet-small-max} {
-        display: block;
-        width: 100%;
-      }
-
-      // Index
-      &:nth-child(1) {
-        text-align: center;
-        font-weight: $bold;
-      }
-
-      &:nth-child(2) {
-      }
-
-      // Probability
-      &:nth-child(3) {
-        width: auto;
-        @media #{$desktop} {
-          width: 30rem;
-        }
+    .market-row {
+      td {
+        text-align: left;
+  
         @media #{$tablet-small-max} {
+          display: block;
           width: 100%;
         }
+  
+        // Index
+        &:nth-child(1) {
+          text-align: center;
+          font-weight: $bold;
+        }
+  
+        // Probability
+        &:nth-child(3) {
+          width: auto;
+          @media #{$desktop} {
+            width: 30rem;
+          }
+          @media #{$tablet-small-max} {
+            width: 100%;
+          }
+        }
+  
       }
-
     }
 
     .explanation-row {

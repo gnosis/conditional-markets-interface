@@ -2,11 +2,9 @@
   "lmsrAddress": "0xF9D049dE636736A8f2a84e9464D657a1aEb47128",
   "markets": [
     {
-      "questionId":
-        "0x53534a04d1e89da2d3f3e324f990af37668a5ca2298accb76bc8a93c8fd66268",
-      "title":
-        "Will the fees earned by miners on the Ethereum blockchain for the preceding 24 hours be greater than 510 ETH on October the 30th, 2019 at UTC 00:00:00?",
-      "resolutionDate": "2019-10-30T00:00:01.000Z",
+      "questionId": "0x53534a04d1e89da2d3f3e324f990af37668a5ca2298accb76bc8a93c8fd66268",
+      "title": "Will the fees earned by miners on the Ethereum blockchain for the preceding 24 hours be greater than 510 ETH on 30 October 2019 at UTC 00:00:00?",
+      "resolutionDate": "2019-10-30T00:00:00.000Z",
       "outcomes": [
         {
           "title": "Yes",

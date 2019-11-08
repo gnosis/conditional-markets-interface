@@ -24,10 +24,6 @@
   .section {
     &-markets {
       flex: 1;
-      
-        @media #{$tablet-small-max} {
-          border: 0;
-        }
     }
 
     &-positions {

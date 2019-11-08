@@ -14,10 +14,13 @@ import {
   getPositionId,
   combineCollectionIds
 } from "utils/getIdsUtil";
-import getWhitelistState from "api/whitelist";
+import { getWhitelistState } from "api/whitelist";
+import { getQuestions } from "api/operator";
 
 import style from "./root.scss";
 const cx = cn.bind(style);
+
+import conf from "../conf";
 
 import getMarketMakersRepo from "../repositories/MarketMakersRepo";
 import getConditionalTokensRepo from "../repositories/ConditionalTokensRepo";
@@ -26,20 +29,28 @@ let marketMakersRepo;
 let conditionalTokensRepo;
 let conditionalTokensService;
 
-const whitelistEnabled = process.env.WHITELIST_ENABLED;
+const whitelistEnabled = conf.whitelistEnabled;
 
-async function loadBasicData({ markets }, web3) {
+async function loadBasicData({ lmsrAddress }, web3) {
   const { toBN } = web3.utils;
+
+  let markets = await getQuestions(undefined, lmsrAddress).then(
+    ({ results }) => results
+  );
+
+  markets = markets.map(market => {
+    market.outcomes = market.outcomeNames.map(outcome => {
+      return { title: outcome, short: outcome };
+    });
+
+    return market;
+  });
 
   // Load application contracts
   marketMakersRepo = await getMarketMakersRepo();
   conditionalTokensRepo = await getConditionalTokensRepo();
   conditionalTokensService = await getConditionalTokensService();
-  const {
-    collateralToken: collateral,
-    pmSystem,
-    lmsrMarketMaker
-  } = await loadContracts();
+  const { collateralToken: collateral, pmSystem } = await loadContracts();
 
   const { product } = require("utils/itertools");
 
@@ -72,22 +83,13 @@ async function loadBasicData({ markets }, web3) {
 
     market.marketIndex = i;
     market.conditionId = conditionId;
-    // TODO delete when tests passed (should be correctly working now)
-    // const getOutcomesPromises = market.outcomes.map((outcome, i) => {
-    //   return conditionalTokensRepo.getCollectionId(
-    //     web3.utils.padLeft(0, 32),
-    //     conditionId,
-    //     i
-    //   );
-    // });
-    //
-    // const outcomes = await Promise.all(getOutcomesPromises);
     market.outcomes.forEach((outcome, i) => {
       outcome.collectionId = getCollectionId(conditionId, toBN(1).shln(i));
     });
 
     curAtomicOutcomeSlotCount *= numSlots;
   }
+
   if (curAtomicOutcomeSlotCount !== atomicOutcomeSlotCount) {
     throw new Error(
       `mismatch in counted atomic outcome slot ${curAtomicOutcomeSlotCount} and contract reported value ${atomicOutcomeSlotCount}`
@@ -148,7 +150,6 @@ async function loadBasicData({ markets }, web3) {
   return {
     conditionalTokensService,
     pmSystem,
-    lmsrMarketMaker,
     collateral,
     markets,
     positions
@@ -252,7 +253,6 @@ const RootComponent = ({ childComponents }) => {
   const [web3, setWeb3] = useState(null);
   const [account, setAccount] = useState(null);
   const [pmSystem, setPMSystem] = useState(null);
-  const [lmsrMarketMaker, setLMSRMarketMaker] = useState(null);
   const [collateral, setCollateral] = useState(null);
   const [markets, setMarkets] = useState(null);
   const [positions, setPositions] = useState(null);
@@ -281,14 +281,12 @@ const RootComponent = ({ childComponents }) => {
 
         const {
           pmSystem,
-          lmsrMarketMaker,
           collateral,
           markets,
           positions
         } = await loadBasicData(config, web3);
 
         setPMSystem(pmSystem);
-        setLMSRMarketMaker(lmsrMarketMaker);
         setCollateral(collateral);
         setMarkets(markets);
         setPositions(positions);
@@ -471,6 +469,8 @@ const RootComponent = ({ childComponents }) => {
           setWhitelistCheckIntervalTime(null); // stops the refresh
         }
       })();
+    } else {
+      setWhitelistState("NOT_FOUND");
     }
   }, [account]);
   useInterval(updateWhitelist, whitelistIntervalTime);
@@ -549,7 +549,6 @@ const RootComponent = ({ childComponents }) => {
                       marketSelections,
                       collateral,
                       collateralBalance,
-                      lmsrMarketMaker,
                       lmsrState,
                       lmsrAllowance,
                       positionBalances,
