@@ -18,6 +18,8 @@
 .sections {
   display: flex;
   flex: 1;
+  height: 100%;
+  padding: 4rem 8rem;
 
   .section {
     &-markets {
@@ -30,8 +32,7 @@
     }
 
     &-positions {
-      background: $white;
-      flex-basis: 20%;
+      flex-basis: 25%;
         @media #{$tablet-small-max} {
           display: none;
         }
@@ -83,6 +84,7 @@
 .app-space {
   display: flex;
   flex-flow: column wrap;
+  height: 100%;
 
   &.modal-open {
     display: none;
