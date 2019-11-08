@@ -34,7 +34,7 @@ const Market = ({
   resolutionDate,
   description,
   dataSource,
-  dataSourceURL,
+  dataSourceUrl,
   index,
   probabilities,
   stagedProbabilities,
@@ -130,7 +130,7 @@ const Market = ({
     )
   ];
 
-  const disableCollapse = !description && !dataSource && !dataSourceURL;
+  const disableCollapse = !description && !dataSource && !dataSourceUrl;
 
   return (
     <>
@@ -150,25 +150,23 @@ const Market = ({
       >
         <td />
         <td colSpan={headings.length - 2}>
-          <h1 className={cx("market-details-header")}>
-            <button
-              type="button"
-              className={cx("expand-collapse")}
-              onClick={handleToggleCollapse}
-            >
-              View market details
-              <span className={cx("expand-collapse-icon")}>
-                {detailsOpen ? "–" : "+"}
-              </span>
-            </button>
-          </h1>
+          <button
+            type="button"
+            className={cx("expand-collapse")}
+            onClick={handleToggleCollapse}
+          >
+            View market details
+            <span className={cx("expand-collapse-icon")}>
+              {detailsOpen ? "–" : "+"}
+            </span>
+          </button>
           <div className={cx("detail-content")}>
             {dataSource && (
               <>
                 <h1>Data Source</h1>
-                {dataSourceURL ? (
+                {dataSourceUrl ? (
                   <a
-                    href={dataSourceURL}
+                    href={dataSourceUrl}
                     rel="noopener noreferrer"
                     target="_blank"
                   >
@@ -229,13 +227,13 @@ Market.propTypes = {
   disableConditional: PropTypes.bool.isRequired,
   description: PropTypes.string,
   dataSource: PropTypes.string,
-  dataSourceURL: PropTypes.string
+  dataSourceUrl: PropTypes.string
 };
 
 Market.defaultProps = {
   description: "",
   dataSource: "",
-  dataSourceURL: ""
+  dataSourceUrl: ""
 };
 
 export default Market;
