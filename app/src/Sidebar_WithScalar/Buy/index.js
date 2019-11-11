@@ -102,6 +102,7 @@ const Buy = ({
         .sub(decimalLower)
         .div(decimalUpper.sub(decimalLower));
 
+      // the inverted version of this slider, going from 1 to 0 instead of 1 to 0, to show the opposite outcome
       const invertSlider = oneDecimal.sub(normalizedSlider);
 
       const profitAmount = maxPayout.mul(
