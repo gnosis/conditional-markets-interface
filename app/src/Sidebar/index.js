@@ -4,6 +4,15 @@ import Media from "react-media";
 import Button from "@material-ui/core/Button";
 import ButtonGroup from "@material-ui/core/ButtonGroup";
 
+import Tabs from "@material-ui/core/Tabs";
+import Tab from "@material-ui/core/Tab";
+import Typography from "@material-ui/core/Typography";
+import Box from "@material-ui/core/Box";
+
+import Drawer from "@material-ui/core/Drawer";
+import IconButton from "@material-ui/core/IconButton";
+import CloseIcon from "@material-ui/icons/Close";
+
 import cn from "classnames/bind";
 import style from "./sidebar.scss";
 
@@ -33,29 +42,97 @@ const SidebarDesktop = props => {
   );
 };
 
+function TabPanel(props) {
+  const { children, value, index, ...other } = props;
+
+  return (
+    <Typography
+      component="div"
+      role="tabpanel"
+      hidden={value !== index}
+      id={`full-width-tabpanel-${index}`}
+      aria-labelledby={`full-width-tab-${index}`}
+      {...other}
+    >
+      <Box p={3}>{children}</Box>
+    </Typography>
+  );
+}
+
+TabPanel.propTypes = {
+  children: PropTypes.node,
+  index: PropTypes.any.isRequired,
+  value: PropTypes.any.isRequired
+};
+
+function a11yProps(index) {
+  return {
+    id: `full-width-tab-${index}`,
+    "aria-controls": `full-width-tabpanel-${index}`
+  };
+}
+
 const SidebarMobile = props => {
-  const { openModal } = props;
+  const [open, setOpen] = React.useState(false);
+
+  const handleDrawerOpen = tab => {
+    setOpen(true);
+    setValue(tab);
+  };
+
+  const handleDrawerClose = () => {
+    setOpen(false);
+  };
+
+  const [value, setValue] = React.useState(0);
+
+  const handleChange = (event, newValue) => {
+    setValue(newValue);
+  };
 
   return (
     <div className={cx("sidebar")}>
       <ButtonGroup fullWidth>
         <Button
           className={cx("order-button")}
-          onClick={() =>
-            openModal("SidebarMobile", { ...props, positionsTab: 0 })
-          }
+          onClick={() => handleDrawerOpen(0)}
         >
           Order positions
         </Button>
         <Button
           className={cx("your-positions-button")}
-          onClick={() =>
-            openModal("SidebarMobile", { ...props, positionsTab: 1 })
-          }
+          onClick={() => handleDrawerOpen(1)}
         >
           Your positions
         </Button>
       </ButtonGroup>
+
+      <Drawer
+        variant="persistent"
+        anchor="bottom"
+        open={open}
+        classes={{
+          paper: cx("drawer-paper")
+        }}
+      >
+        <div className={cx("drawer-header")}>
+          <IconButton onClick={handleDrawerClose}>
+            <CloseIcon />
+          </IconButton>
+        </div>
+
+        <Tabs value={value} onChange={handleChange} variant="fullWidth">
+          <Tab label="Order positions" {...a11yProps(0)}></Tab>
+          <Tab label="Your positions" {...a11yProps(1)}></Tab>
+        </Tabs>
+        <TabPanel value={value} index={0}>
+          <BuySection {...props} />
+        </TabPanel>
+        <TabPanel value={value} index={1}>
+          <PositionsSections {...props} />
+        </TabPanel>
+        <Balance {...props} />
+      </Drawer>
     </div>
   );
 };

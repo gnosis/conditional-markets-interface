@@ -12,6 +12,17 @@
   @media #{$tablet-small-max} {
     height: 100%;
   }
+
+  .drawer-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: $greyBorder;
+  }
+
+  .drawer-paper {
+    height: 100%;
+  }
 }
 
 @mixin sidebar-entry {
