@@ -56,25 +56,65 @@
 
   .details {
     &-header {
-      font-weight: 600;
-      font-size: 1.6rem;
-      color: $darkBlue;
       display: flex;
       align-items: center;
+      margin-top: 2rem;
     }
 
     &-expand {
-      margin-left: auto;
       appearance: none;
       -webkit-appearance: none;
       border: none;
       background: none;
 
-      font-size: 3.2rem;
+      font-weight: 600;
+      font-size: 1.6rem;
+      line-height: 3.2rem;
+
+      display: flex;
+      color: $darkBlue;
+      width: 100%;
+      overflow: hidden;
+
+      .expand-button {
+        color: $darkBlue;
+        margin-left: auto;
+        font-weight: 400;
+        font-size: 3.2rem;
+        outline: none;
+      }
     }
 
     &-content {
-      display: none;
+      line-height: normal;
+    
+      h1 {
+        font-weight: 600;
+        font-size: 1.6rem;
+        margin: 2rem 0;
+      }
+      h2 {
+        font-weight: 600;
+        font-size: 1.6rem;
+        margin: 2rem 0;
+      }
+      h3 {
+        font-weight: 600;
+        font-size: 1.6rem;
+        margin: 2rem 0;
+      }
+      h4, h5, h6 {
+        font-weight: 600;
+        font-size: 1.6rem;
+      }
+  
+      a {
+        color: #009CB4;
+      }
+  
+      &.hidden {
+        display: none;
+      }
     }
 
     padding-bottom: 1.2rem;

@@ -3,6 +3,8 @@
   "markets": [
     {
       "questionId": "0xda66c02003000000000000000000000000000000000000000000000000000000",
+      "dataSource": "DataSource",
+      "dataSourceUrl": "https://example.org",
       "title": "What will be the X?",
       "resolutionDate": "2019-11-01T16:00:00.000Z",
       "type": "SCALAR",
