@@ -3,7 +3,7 @@ import cn from "classnames/bind";
 import Spinner from "components/Spinner";
 
 import { fromProbabilityToSlider } from "utils/scalar";
-import { formatScalarValue } from "utils/formatting";
+import { formatScalarValue, formatCollateral } from "utils/formatting";
 
 import style from "./buy.scss";
 import Decimal from "decimal.js-light";
@@ -14,6 +14,7 @@ const cx = cn.bind(style);
 
 import getMarketMakersRepo from "../../repositories/MarketMakersRepo";
 import getConditionalTokensService from "../../services/ConditionalTokensService";
+import PercentageFormat from "../../components/Formatting/PercentageFormat";
 let marketMakersRepo;
 let conditionalTokensService;
 
@@ -53,7 +54,7 @@ const Buy = ({
 
   const [profitSim, setProfitSim] = useState({
     value: 0,
-    percent: "0"
+    percent: 0
   });
 
   const [investmentAmount, setInvestmentAmount] = useState("");
@@ -109,11 +110,13 @@ const Buy = ({
           : normalizedSlider
       );
       setProfitSim({
-        value: profitAmount.div(collateral.toUnitsMultiplier).toNumber(),
-        percent: profitAmount
-          .div(investmentAmountInUnits)
-          .mul(100)
-          .toNumber() // diff to cur position
+        value: profitAmount.toString(),
+        percent: investmentAmountInUnits.gt(0)
+          ? profitAmount
+              .div(investmentAmountInUnits)
+              .mul(100)
+              .toNumber()
+          : 0
       });
     }
   }, [lmsrState, sliderValue, marketSelection, stagedTradeAmounts]);
@@ -388,7 +391,13 @@ const Buy = ({
                   </span>
                   <span className={cx("spacer")} />
                   <span className={cx("value")}>
-                    {profitSim.percent}% ({profitSim.value})
+                    <PercentageFormat
+                      value={profitSim.percent}
+                      classNamePositive={cx("percentage-pos")}
+                      classNameNegative={cx("percentage-neg")}
+                    />
+                    &nbsp;
+                    {formatCollateral(profitSim.value, collateral)}
                   </span>
                 </div>
               </div>
