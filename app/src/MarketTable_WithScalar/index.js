@@ -10,22 +10,12 @@ import style from "./marketTable.scss";
 import ResolutionTime from "./ResolutionTime";
 import Spinner from "components/Spinner";
 
-//import { oneDecimal } from "utils/constants";
+import { markdownRenderers } from "utils/markdown";
 import { calcSelectedMarketProbabilitiesFromPositionProbabilities } from "utils/probabilities";
 
 const { BN } = Web3.utils;
 
 const cx = cn.bind(style);
-
-/* eslint-disable */
-const markdownRenderers = {
-  link: props => (
-    <a href={props.href} target="_blank" rel="noopener noreferrer">
-      {props.children}
-    </a>
-  ),
-}
-/* eslint-enable */
 
 const MarketTable = ({
   markets,
