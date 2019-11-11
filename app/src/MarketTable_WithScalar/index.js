@@ -23,8 +23,7 @@ const MarketTable = ({
   lmsrState,
   marketSelections,
   setMarketSelections,
-  resetMarketSelections,
-  stagedTradeAmounts
+  resetMarketSelections
 }) => {
   useEffect(() => {
     resetMarketSelections();
@@ -57,30 +56,6 @@ const MarketTable = ({
       marketSelections,
       positionProbabilities
     );
-
-    if (stagedTradeAmounts != null) {
-      /*
-      const unnormalizedPositionProbabilitiesAfterStagedTrade = positionProbabilities.map(
-        (probability, i) =>
-          probability.mul(stagedTradeAmounts[i].mul(invB).exp())
-      );
-      const normalizer = oneDecimal.div(
-        unnormalizedPositionProbabilitiesAfterStagedTrade.reduce((a, b) =>
-          a.add(b)
-        )
-      );
-      const positionProbabilitiesAfterStagedTrade = unnormalizedPositionProbabilitiesAfterStagedTrade.map(
-        probability => probability.mul(normalizer)
-      );
-
-      marketProbabilitiesAfterStagedTrade = calcSelectedMarketProbabilitiesFromPositionProbabilities(
-        markets,
-        positions,
-        marketSelections,
-        positionProbabilitiesAfterStagedTrade
-      );
-      */
-    }
   }
 
   if (!lmsrState) {
