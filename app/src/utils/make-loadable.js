@@ -8,7 +8,7 @@ import Spinner from "components/Spinner";
 import CrashPage from "components/Crash";
 
 const makeLoadable = (Component, childComponents) => {
-  console.log("make loadable rendered")
+  console.log("make loadable rendered");
   const loadableWrapped = () => {
     const [loadingState, setLoadingState] = useState("LOADING");
     const [loadedComponents, setLoadedComponents] = useState([]);
