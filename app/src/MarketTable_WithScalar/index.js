@@ -1,14 +1,16 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import PropTypes from "prop-types";
 import Web3 from "web3";
 import cn from "classnames/bind";
 import Decimal from "decimal.js-light";
 
+import Markdown from "react-markdown";
+
 import style from "./marketTable.scss";
 import ResolutionTime from "./ResolutionTime";
 import Spinner from "components/Spinner";
 
-import { oneDecimal } from "utils/constants";
+import { markdownRenderers } from "utils/markdown";
 import { calcSelectedMarketProbabilitiesFromPositionProbabilities } from "utils/probabilities";
 
 const { BN } = Web3.utils;
@@ -17,13 +19,11 @@ const cx = cn.bind(style);
 
 const MarketTable = ({
   markets,
-  marketResolutionStates,
   positions,
   lmsrState,
   marketSelections,
   setMarketSelections,
-  resetMarketSelections,
-  stagedTradeAmounts
+  resetMarketSelections
 }) => {
   useEffect(() => {
     resetMarketSelections();
@@ -31,9 +31,13 @@ const MarketTable = ({
       setMarketSelections(null);
     };
   }, []);
+  const [isExpanded, setExpanded] = useState(false);
+  const handleToggleExpand = useCallback(() => {
+    setExpanded(!isExpanded);
+  }, [isExpanded]);
 
   let marketProbabilities = null;
-  let marketProbabilitiesAfterStagedTrade = null;
+
   if (lmsrState != null) {
     const { funding, positionBalances } = lmsrState;
     const invB = new Decimal(positionBalances.length)
@@ -52,28 +56,6 @@ const MarketTable = ({
       marketSelections,
       positionProbabilities
     );
-
-    if (stagedTradeAmounts != null) {
-      const unnormalizedPositionProbabilitiesAfterStagedTrade = positionProbabilities.map(
-        (probability, i) =>
-          probability.mul(stagedTradeAmounts[i].mul(invB).exp())
-      );
-      const normalizer = oneDecimal.div(
-        unnormalizedPositionProbabilitiesAfterStagedTrade.reduce((a, b) =>
-          a.add(b)
-        )
-      );
-      const positionProbabilitiesAfterStagedTrade = unnormalizedPositionProbabilitiesAfterStagedTrade.map(
-        probability => probability.mul(normalizer)
-      );
-
-      marketProbabilitiesAfterStagedTrade = calcSelectedMarketProbabilitiesFromPositionProbabilities(
-        markets,
-        positions,
-        marketSelections,
-        positionProbabilitiesAfterStagedTrade
-      );
-    }
   }
 
   if (!lmsrState) {
@@ -82,36 +64,73 @@ const MarketTable = ({
 
   return (
     <div className={cx("markettable")}>
-      {markets.map(({ conditionId, title, resolutionDate }, index) => (
-        <div className={cx("markettable-row")} key={`market-${conditionId}`}>
-          <div className={cx("header")}>{title}</div>
-          <div className={cx("subheader")}>
-            <div className={cx("property")}>
-              <i className={cx("icon", "icon-time")} />{" "}
-              <ResolutionTime date={resolutionDate} />
+      {markets.map(
+        ({
+          conditionId,
+          title,
+          resolutionDate,
+          dataSource,
+          dataSourceUrl,
+          description
+        }) => (
+          <div className={cx("markettable-row")} key={`market-${conditionId}`}>
+            <div className={cx("header")}>{title}</div>
+            <div className={cx("subheader")}>
+              <div className={cx("property")}>
+                <i className={cx("icon", "icon-time")} />{" "}
+                <ResolutionTime date={resolutionDate} />
+              </div>
+              <div className={cx("property")}>
+                <i className={cx("icon", "icon-oracle")} /> Oracle Name
+              </div>
+              <div className={cx("property")}>
+                <i className={cx("icon", "icon-volume")} />{" "}
+                {lmsrState.funding.toString()} DAI
+              </div>
             </div>
-            <div className={cx("property")}>
-              <i className={cx("icon", "icon-oracle")} /> Oracle Name
+            <div className={cx("prediction")}>
+              {marketProbabilities[0][0].toFixed(2)}%
             </div>
-            <div className={cx("property")}>
-              <i className={cx("icon", "icon-volume")} />{" "}
-              {lmsrState.funding.toString()} DAI
+            <div className={cx("details")}>
+              <div className={cx("details-header")}>
+                <button
+                  type="button"
+                  className={cx("details-expand")}
+                  onClick={handleToggleExpand}
+                >
+                  Market Details
+                  <span className={cx("expand-button")}>
+                    {isExpanded ? "–" : "+"}
+                  </span>
+                </button>
+              </div>
+              <div className={cx("details-content", { hidden: !isExpanded })}>
+                {dataSource && (
+                  <>
+                    <h1>Data Source</h1>
+                    {dataSourceUrl ? (
+                      <a
+                        href={dataSourceUrl}
+                        rel="noopener noreferrer"
+                        target="_blank"
+                      >
+                        {dataSource}
+                      </a>
+                    ) : (
+                      <>{dataSource}</>
+                    )}
+                  </>
+                )}
+                <Markdown
+                  className={cx("description")}
+                  source={description || "*No Description for this Market*"}
+                  renderers={markdownRenderers}
+                />
+              </div>
             </div>
           </div>
-          <div className={cx("prediction")}>
-            {marketProbabilities[0][0].toFixed(2)}%
-          </div>
-          <div className={cx("details")}>
-            <div className={cx("details-header")}>
-              Market Details
-              <button type="button" className={cx("details-expand")}>
-                +
-              </button>
-            </div>
-            <div className={cx("details-content")}>Bleh</div>
-          </div>
-        </div>
-      ))}
+        )
+      )}
     </div>
   );
 };
