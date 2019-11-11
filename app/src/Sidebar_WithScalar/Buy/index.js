@@ -7,10 +7,8 @@ import { formatScalarValue } from "utils/formatting";
 
 import style from "./buy.scss";
 import Decimal from "decimal.js-light";
-import { zeroDecimal, maxUint256BN } from "../../utils/constants";
-import {
-  calcOutcomeTokenCounts
-} from "utils/position-groups";
+import { zeroDecimal, maxUint256BN, oneDecimal } from "../../utils/constants";
+import { calcOutcomeTokenCounts } from "utils/position-groups";
 
 const cx = cn.bind(style);
 
@@ -74,26 +72,51 @@ const Buy = ({
   }, []);
 
   useEffect(() => {
-    if (lmsrState != null) {
-      const { funding, positionBalances } = lmsrState;
-
+    if (
+      lmsrState != null &&
+      stagedTradeAmounts &&
+      marketSelection.selectedOutcomeIndex > -1
+    ) {
       const decimalUpper = new Decimal(market.upperBound);
       const decimalLower = new Decimal(market.lowerBound);
 
-      const maxPayout = new Decimal(1337);
-      //const minPayout = zeroDecimal;
+      const maxPayout = new Decimal(
+        stagedTradeAmounts[marketSelection.selectedOutcomeIndex]
+      );
+
+      let hasEnteredInvestment = false;
+
+      try {
+        const decimalInvest = Decimal(investmentAmount);
+        hasEnteredInvestment = decimalInvest.gt(0);
+      } catch (e) {
+        //
+      }
+
+      const investmentAmountInUnits = collateral.toUnitsMultiplier.mul(
+        hasEnteredInvestment ? investmentAmount : zeroDecimal
+      );
 
       const normalizedSlider = new Decimal(sliderValue)
         .sub(decimalLower)
         .div(decimalUpper.sub(decimalLower));
 
-      const profitAmount = maxPayout.mul(normalizedSlider);
+      const invertSlider = oneDecimal.sub(normalizedSlider);
+
+      const profitAmount = maxPayout.mul(
+        marketSelection.selectedOutcomeIndex === 0
+          ? invertSlider
+          : normalizedSlider
+      );
       setProfitSim({
-        value: profitAmount.toNumber(),
-        percent: 0 // diff to cur position
+        value: profitAmount.div(collateral.toUnitsMultiplier).toNumber(),
+        percent: profitAmount
+          .div(investmentAmountInUnits)
+          .mul(100)
+          .toNumber() // diff to cur position
       });
     }
-  }, [lmsrState, sliderValue]);
+  }, [lmsrState, sliderValue, marketSelection, stagedTradeAmounts]);
 
   useEffect(() => {
     //if (stagedTransactionType !== "buy outcome tokens") return;
@@ -263,6 +286,9 @@ const Buy = ({
     return <Spinner />;
   }
 
+  const showProfitSim =
+    lmsrState != null && marketSelection.selectedOutcomeIndex > -1;
+
   return (
     <div className={cx("buy")}>
       <div className={cx("selected-outcome")}>
@@ -307,9 +333,7 @@ const Buy = ({
               setInvestmentAmount(e.target.value);
             }}
           />
-          <span className={cx("input-right")}>
-            {collateral.symbol}
-          </span>
+          <span className={cx("input-right")}>{collateral.symbol}</span>
         </div>
       </div>
       <div className={cx("pl-sim")}>
@@ -317,85 +341,100 @@ const Buy = ({
           <label className={cx("fieldset-label")}>
             Profit/loss Simulator <small>(drag to slide)</small>
           </label>
-          <p>Based on your current position</p>
+          {showProfitSim ? (
+            <p>Based on your current position</p>
+          ) : (
+            <p>Pick outcome and specify investment first</p>
+          )}
         </div>
-        <div className={cx("slider")}>
-          <div className={cx("labels")}>
-            <span>{formatScalarValue(market.lowerBound, market.unit)}</span>
-            <span>
-              {formatScalarValue(
-                (market.upperBound - market.lowerBound) / 2 + market.lowerBound,
-                market.unit
-              )}
-            </span>
-            <span>{formatScalarValue(market.upperBound, market.unit)}</span>
-          </div>
-          <div className={cx("input")}>
-            <input
-              type="range"
-              min={market.lowerBound}
-              max={market.upperBound}
-              defaultValue={sliderValue} /* uncontrolled for better UX */
-              onInput={handleSliderChange}
-            />
-          </div>
-        </div>
-        <div className={cx("summary", "profit-loss-sim")}>
-          <div className={cx("row")}>
-            <span className={cx("label")}>Simulated Outcome</span>
-            <span className={cx("spacer")} />
-            <span className={cx("label")}>P/L &amp; payout</span>
-          </div>
-          <div className={cx("row")}>
-            <span className={cx("value")}>
-              {sliderValue.toFixed(market.decimals)} {market.unit}
-            </span>
-            <span className={cx("spacer")} />
-            <span className={cx("value")}>
-              {profitSim.percent}% ({profitSim.value})
-            </span>
-          </div>
-        </div>
-      </div>
-      <div className={cx("invest-summary")}>
-        <div className={cx("summary")}>
-          <div className={cx("row")}>
-            <span className={cx("label")}>Max Payout</span>
-            <span className={cx("spacer")} />
-            <span className={cx("value")}>123 DAI</span>
-          </div>
-          <div className={cx("row")}>
-            <span className={cx("label")}>Max Loss</span>
-            <span className={cx("spacer")} />
-            <span className={cx("value")}>123 DAI</span>
-          </div>
-          <div className={cx("row")}>
-            <span className={cx("label")}>Fees (0.5%)</span>
-            <span className={cx("spacer")} />
-            <span className={cx("value")}>0.00223 DAI</span>
-          </div>
-          <div className={cx("row")}>
-            <span className={cx("label")}>Total Cost</span>
-            <span className={cx("spacer")} />
-            <span className={cx("value")}>123.23 DAI</span>
-          </div>
-        </div>
-      </div>
-      <div className={cx("invest-ctrls")}>
-        {marketSelection.selectedOutcomeIndex > -1 && (
-          <button
-            className={cx("buy-button")}
-            type="button"
-            onClick={asWrappedTransaction(
-              "buy outcome tokens",
-              buyOutcomeTokens,
-              setError
-            )}
-          >
-            Buy {market.outcomes[marketSelection.selectedOutcomeIndex].title}{" "}
-            Position
-          </button>
+        {showProfitSim && (
+          <>
+            <div>
+              <div className={cx("slider")}>
+                <div className={cx("labels")}>
+                  <span>
+                    {formatScalarValue(market.lowerBound, market.unit)}
+                  </span>
+                  <span>
+                    {formatScalarValue(
+                      (market.upperBound - market.lowerBound) / 2 +
+                        market.lowerBound,
+                      market.unit
+                    )}
+                  </span>
+                  <span>
+                    {formatScalarValue(market.upperBound, market.unit)}
+                  </span>
+                </div>
+                <div className={cx("input")}>
+                  <input
+                    type="range"
+                    min={market.lowerBound}
+                    max={market.upperBound}
+                    defaultValue={sliderValue} /* uncontrolled for better UX */
+                    onInput={handleSliderChange}
+                  />
+                </div>
+              </div>
+              <div className={cx("summary", "profit-loss-sim")}>
+                <div className={cx("row")}>
+                  <span className={cx("label")}>Simulated Outcome</span>
+                  <span className={cx("spacer")} />
+                  <span className={cx("label")}>P/L &amp; payout</span>
+                </div>
+                <div className={cx("row")}>
+                  <span className={cx("value")}>
+                    {sliderValue.toFixed(market.decimals)} {market.unit}
+                  </span>
+                  <span className={cx("spacer")} />
+                  <span className={cx("value")}>
+                    {profitSim.percent}% ({profitSim.value})
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div className={cx("invest-summary")}>
+              <div className={cx("summary")}>
+                <div className={cx("row")}>
+                  <span className={cx("label")}>Max Payout</span>
+                  <span className={cx("spacer")} />
+                  <span className={cx("value")}>123 DAI</span>
+                </div>
+                <div className={cx("row")}>
+                  <span className={cx("label")}>Max Loss</span>
+                  <span className={cx("spacer")} />
+                  <span className={cx("value")}>123 DAI</span>
+                </div>
+                <div className={cx("row")}>
+                  <span className={cx("label")}>Fees (0.5%)</span>
+                  <span className={cx("spacer")} />
+                  <span className={cx("value")}>0.00223 DAI</span>
+                </div>
+                <div className={cx("row")}>
+                  <span className={cx("label")}>Total Cost</span>
+                  <span className={cx("spacer")} />
+                  <span className={cx("value")}>123.23 DAI</span>
+                </div>
+              </div>
+            </div>
+          </>
         )}
+        <div className={cx("invest-ctrls")}>
+          {marketSelection.selectedOutcomeIndex > -1 && (
+            <button
+              className={cx("buy-button")}
+              type="button"
+              onClick={asWrappedTransaction(
+                "buy outcome tokens",
+                buyOutcomeTokens,
+                setError
+              )}
+            >
+              Buy {market.outcomes[marketSelection.selectedOutcomeIndex].title}{" "}
+              Position
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );
