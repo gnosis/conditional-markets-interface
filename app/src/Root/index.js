@@ -291,7 +291,7 @@ const RootComponent = ({ childComponents }) => {
 
         console.groupCollapsed("Global Debug Variables");
         console.log("PMSystem Contract:", pmSystem);
-        console.log("LMSRMarketMaker (Instance) Contract:", lmsrMarketMaker);
+        console.log("LMSRMarketMaker (Instance) Contract:", marketMakersRepo);
         console.log("Collateral Settings:", collateral);
         console.log("Market Settings:", markets);
         console.log("Account Positions:", positions);
