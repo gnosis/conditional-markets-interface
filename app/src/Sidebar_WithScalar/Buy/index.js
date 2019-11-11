@@ -63,12 +63,6 @@ const Buy = ({
       .sub(decimalLower)
       .div(decimalUpper.sub(decimalLower));
     //console.log(probabilitySim.toString());
-    const probabilityToMove = probabilitySim.sub(probabilities[0]);
-    //console.log(probabilityToMove.toString());
-    const normalizer = new Decimal(Math.abs(probabilityToMove))
-      .ln()
-      .neg()
-      .div(invB);
 
     /*
     console.log(
