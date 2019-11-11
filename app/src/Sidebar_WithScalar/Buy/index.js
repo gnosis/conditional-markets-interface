@@ -54,7 +54,11 @@ const Buy = ({
 
   const [profitSim, setProfitSim] = useState({
     value: 0,
-    percent: 0
+    percent: 0,
+    maxPayout: 0,
+    minPayout: 0,
+    fee: 0,
+    cost: 0
   });
 
   const [investmentAmount, setInvestmentAmount] = useState("");
@@ -102,7 +106,7 @@ const Buy = ({
         .sub(decimalLower)
         .div(decimalUpper.sub(decimalLower));
 
-      // the inverted version of this slider, going from 1 to 0 instead of 1 to 0, to show the opposite outcome
+      // the inverted version of this slider, going from 0 to 1 instead of 1 to 0, to show the opposite outcome
       const invertSlider = oneDecimal.sub(normalizedSlider);
 
       const profitAmount = maxPayout.mul(
@@ -111,9 +115,14 @@ const Buy = ({
           : normalizedSlider
       );
       setProfitSim({
+        maxPayout: maxPayout.toString(),
+        minPayout: "0",
+        fee: investmentAmountInUnits.mul(0.05).toString(),
+        cost: investmentAmountInUnits.toString(),
         value: profitAmount.toString(),
         percent: investmentAmountInUnits.gt(0)
           ? profitAmount
+              .sub(investmentAmountInUnits)
               .div(investmentAmountInUnits)
               .mul(100)
               .toNumber()
@@ -408,22 +417,30 @@ const Buy = ({
                 <div className={cx("row")}>
                   <span className={cx("label")}>Max Payout</span>
                   <span className={cx("spacer")} />
-                  <span className={cx("value")}>123 DAI</span>
+                  <span className={cx("value")}>
+                    {formatCollateral(profitSim.maxPayout, collateral)}
+                  </span>
                 </div>
                 <div className={cx("row")}>
                   <span className={cx("label")}>Max Loss</span>
                   <span className={cx("spacer")} />
-                  <span className={cx("value")}>123 DAI</span>
+                  <span className={cx("value")}>
+                    {formatCollateral(profitSim.minPayout, collateral)}
+                  </span>
                 </div>
                 <div className={cx("row")}>
                   <span className={cx("label")}>Fees (0.5%)</span>
                   <span className={cx("spacer")} />
-                  <span className={cx("value")}>0.00223 DAI</span>
+                  <span className={cx("value")}>
+                    {formatCollateral(profitSim.fee, collateral)}
+                  </span>
                 </div>
                 <div className={cx("row")}>
                   <span className={cx("label")}>Total Cost</span>
                   <span className={cx("spacer")} />
-                  <span className={cx("value")}>123.23 DAI</span>
+                  <span className={cx("value")}>
+                    {formatCollateral(profitSim.cost, collateral)}
+                  </span>
                 </div>
               </div>
             </div>
