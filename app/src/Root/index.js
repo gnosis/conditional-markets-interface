@@ -29,9 +29,10 @@ let conditionalTokensService;
 
 const whitelistEnabled = process.env.WHITELIST_ENABLED;
 
-async function loadBasicData({ lmsrAddress }, web3) {
+async function loadBasicData({ lmsrAddress, markets }, web3) {
   const { toBN } = web3.utils;
 
+  /*
   let markets = await getQuestions(undefined, lmsrAddress).then(
     ({ results }) => results
   );
@@ -43,6 +44,7 @@ async function loadBasicData({ lmsrAddress }, web3) {
 
     return market;
   });
+  */
 
   // Load application contracts
   marketMakersRepo = await getMarketMakersRepo();
