@@ -278,3 +278,21 @@
   }
 
 }
+
+.invest-ctrls {
+  padding: 1rem 2rem;
+  
+  .buy-button {
+    width: 100%;
+    display: block;
+    background-color: #009cb4;
+    color: white;
+    appearance: none;
+    -webkit-appearance: none;
+
+    border: none;
+    border-radius: 3px;
+    text-align: center;
+    padding: 1rem 2rem;
+  }
+}

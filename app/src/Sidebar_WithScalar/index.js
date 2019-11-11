@@ -18,15 +18,16 @@ const TabComponents = {
 
 const cx = cn.bind(style);
 
-const Sidebar = ({
-  markets,
-  lmsrState,
-  stagedTradeAmounts,
-  positions,
-  marketSelections,
-  setMarketSelections,
-  resetMarketSelections
-}) => {
+const Sidebar = props => {
+  const {
+    markets,
+    lmsrState,
+    stagedTradeAmounts,
+    positions,
+    marketSelections,
+    setMarketSelections,
+    resetMarketSelections
+  } = props;
   const [selectedTab, setSelectedTab] = useState("Buy");
   const makeButtonSelectCallback = useCallback(
     tab => () => {
@@ -91,15 +92,6 @@ const Sidebar = ({
   }
 
   const SelectedComponent = TabComponents[selectedTab];
-  const targetProps = {
-    market: markets[0],
-    marketSelection: marketSelections[0],
-    probabilities: marketProbabilities && marketProbabilities[0],
-    lmsrState,
-    setMarketSelections,
-    resetMarketSelections
-  };
-
   return (
     <div className={cx("sidebar")}>
       <ul className={cx("tabs")}>
@@ -123,7 +115,17 @@ const Sidebar = ({
         </li>
       </ul>
       <div className={cx("sidebar-content")}>
-        {SelectedComponent && <SelectedComponent {...targetProps} />}
+        {SelectedComponent && (
+          <SelectedComponent
+            {...{
+              ...props,
+              market: markets[0],
+              marketSelection: marketSelections[0],
+              probabilities: marketProbabilities && marketProbabilities[0],
+              resetMarketSelections
+            }}
+          />
+        )}
       </div>
     </div>
   );

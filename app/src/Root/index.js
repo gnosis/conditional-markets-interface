@@ -20,6 +20,8 @@ import { getQuestions } from "api/operator";
 import style from "./root.scss";
 const cx = cn.bind(style);
 
+import conf from "../conf";
+
 import getMarketMakersRepo from "../repositories/MarketMakersRepo";
 import getConditionalTokensRepo from "../repositories/ConditionalTokensRepo";
 import getConditionalTokensService from "../services/ConditionalTokensService";
@@ -27,7 +29,7 @@ let marketMakersRepo;
 let conditionalTokensRepo;
 let conditionalTokensService;
 
-const whitelistEnabled = process.env.WHITELIST_ENABLED;
+const whitelistEnabled = conf.whitelistEnabled;
 
 async function loadBasicData({ lmsrAddress, markets }, web3) {
   const { toBN } = web3.utils;
@@ -469,6 +471,8 @@ const RootComponent = ({ childComponents }) => {
           setWhitelistCheckIntervalTime(null); // stops the refresh
         }
       })();
+    } else {
+      setWhitelistState("NOT_FOUND");
     }
   }, [account]);
   useInterval(updateWhitelist, whitelistIntervalTime);
