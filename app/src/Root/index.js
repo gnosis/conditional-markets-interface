@@ -48,7 +48,7 @@ async function loadBasicData({ lmsrAddress }, web3) {
   marketMakersRepo = await getMarketMakersRepo();
   conditionalTokensRepo = await getConditionalTokensRepo();
   conditionalTokensService = await getConditionalTokensService();
-  const { collateralToken: collateral, pmSystem } = await loadContracts();
+  const { collateralToken: collateral } = await loadContracts();
 
   const { product } = require("utils/itertools");
 
@@ -137,7 +137,6 @@ async function loadBasicData({ lmsrAddress }, web3) {
 
   return {
     conditionalTokensService,
-    pmSystem,
     collateral,
     markets,
     positions
@@ -241,21 +240,12 @@ const RootComponent = ({ childComponents }) => {
 
   const [web3, setWeb3] = useState(null);
   const [account, setAccount] = useState(null);
-  const [pmSystem, setPMSystem] = useState(null);
   const [collateral, setCollateral] = useState(null);
   const [markets, setMarkets] = useState(null);
   const [positions, setPositions] = useState(null);
 
   const init = useCallback(() => {
-    // const networkToUse = process.env.NETWORK || "local";
-    import(
-      /* webpackChunkName: "config" */
-      /* webpackInclude: /\.json$/ */
-      /* webpackMode: "lazy" */
-      /* webpackPrefetch: true */
-      /* webpackPreload: true */
-      `../conf`
-    )
+    import(`../conf`)
       .then(async ({ default: config }) => {
         /* eslint-disable no-console */
         console.groupCollapsed("Configuration");
@@ -268,14 +258,11 @@ const RootComponent = ({ childComponents }) => {
         setWeb3(web3);
         setAccount(account);
 
-        const {
-          pmSystem,
-          collateral,
-          markets,
-          positions
-        } = await loadBasicData(config, web3);
+        const { collateral, markets, positions } = await loadBasicData(
+          config,
+          web3
+        );
 
-        setPMSystem(pmSystem);
         setCollateral(collateral);
         setMarkets(markets);
         setPositions(positions);
@@ -466,23 +453,6 @@ const RootComponent = ({ childComponents }) => {
         <div className={cx("modal-space", { "modal-open": !!modal })}>
           <img className={cx("logo")} src={Logo} />
           {modal}
-          {/*<ul className={cx("footer")}>
-            <li>
-              <a href="/static/help.html" target="_BLANK">
-                Help
-              </a>
-            </li>
-            <li>
-              <a href="/static/privacy.html" target="_BLANK">
-                Privacy
-              </a>
-            </li>
-            <li>
-              <a href="/static/terms.html" target="_BLANK">
-                Terms
-              </a>
-            </li>
-            </ul>*/}
         </div>
         <div className={cx("app-space", { "modal-open": !!modal })}>
           <ApplyBetaHeader
@@ -522,8 +492,6 @@ const RootComponent = ({ childComponents }) => {
                   <Sidebar
                     {...{
                       account,
-                      conditionalTokensRepo,
-                      pmSystem,
                       markets,
                       positions,
                       marketResolutionStates,
