@@ -21,14 +21,14 @@
   min-height: 22rem;
 
   a {
-    color: $darkBlue;
+    color: $black;
 
     &:hover, &:focus, &:active {
       opacity: .8;
     }
 
     &:visited {
-      color: $darkBlue;
+      color: $black;
     }
   }
 

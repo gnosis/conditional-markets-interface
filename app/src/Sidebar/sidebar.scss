@@ -4,9 +4,32 @@
   height: 100%;
   height: calc(100vh - 7.5rem);
 
+  .order-button,
+  .your-positions-button {
+      @media #{$tablet-small-max} {
+        height: 5.2rem;
+        border-radius: 0;
+        border: 0;
+        font-size: 1.3rem;
+        font-weight: $bold;
+        line-height: 1;
+        letter-spacing: .05rem;
+        text-align: center;
+      }
+  }
+
   .order-button {
     background: $green;
     color: $white;
+    @media #{$tablet-small-max} {
+
+    }
+  }
+
+  .your-positions-button {
+    @media #{$tablet-small-max} {
+
+    }
   }
 
   @media #{$tablet-small-max} {
@@ -18,10 +41,21 @@
     align-items: center;
     justify-content: center;
     background: $greyBorder;
+
+      @media #{$tablet-small-max} {
+        height: 3rem;
+        background-color: #ebebeb;
+      }
   }
 
   .drawer-paper {
     height: 100%;
+  }
+
+  .tab-content {
+    @media #{$tablet-small-max} {
+      padding: 0 0 10rem;
+    }
   }
 }
 
@@ -42,4 +76,16 @@
   text-align: center;
   font-weight: $bold;
   color: $shadeBlue;
+}
+
+// Material UI style overrides
+.ButtonGroup {
+  @media #{$tablet-small-max} {
+    border-radius: 0;
+    box-shadow: 0 -.2rem 1rem 0 rgba(0, 25, 60, 0.1);
+    position: fixed;
+    bottom: 0;
+    z-index: 99;
+    background: $white;
+  }
 }

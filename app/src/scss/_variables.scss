@@ -14,7 +14,7 @@ $medium-end: 1024px !default;
 $desktop-screen: 1025px !default;
 
 $tiny-and-down: "only screen and (max-width : #{$tiny-screen})" !default;
-$mobile: "only screen and (max-width : #{$small-screen})" !default;
+$tablet-small-max: "only screen and (max-width : #{$small-screen})" !default;
 // --------------------------
 $medium-and-up: "only screen and (min-width : #{$small-screen-up})" !default;
 // --------------------------
@@ -41,7 +41,6 @@ $desktop-7000: "only screen and (min-width : 7000px)" !default;
 // --------------------------
 // --------------------------
 $tiny-and-down: "only screen and (max-width : #{$tiny-screen})" !default;
-$mobile: "only screen and (max-width : #{$small-screen})" !default;
 $medium-and-up: "only screen and (min-width : #{$small-screen-up})" !default;
 $medium-and-down: "only screen and (max-width : #{$medium-end})" !default;
 $medium-only: "only screen and (min-width : #{$small-screen-up}) and (max-width : #{$medium-end})" !default;
@@ -61,11 +60,11 @@ $tablet-small-up: "only screen and (min-width: #{$medium-smallresolutions-up})";
 // $ipad-pro-landscape-breakpoint: "(min-device-width: 1024px) and (max-device-height: 1366px) and (orientation:landscape) and (-webkit-min-device-pixel-ratio: 2)";
 
 // Global HEX Colors
-$black: #000;
 $white: #FFF;
 $blue: #009CB4;
 $shadeBlue: #526877;
-$darkBlue: #00193C;
+$black: #00193C;
+$black: $black;
 $grey: #F7F8FB;
 $greyBorder: #D8D8D8;
 $greyBorder2: #dedfde;

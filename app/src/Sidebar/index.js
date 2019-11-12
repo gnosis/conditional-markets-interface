@@ -54,7 +54,7 @@ function TabPanel(props) {
       aria-labelledby={`full-width-tab-${index}`}
       {...other}
     >
-      <Box p={3}>{children}</Box>
+      <Box className={cx("tab-content")}>{children}</Box>
     </Typography>
   );
 }
@@ -92,18 +92,18 @@ const SidebarMobile = props => {
 
   return (
     <div className={cx("sidebar")}>
-      <ButtonGroup fullWidth>
+      <ButtonGroup fullWidth className={cx("ButtonGroup")}>
         <Button
           className={cx("order-button")}
           onClick={() => handleDrawerOpen(0)}
         >
-          Order positions
+          Buy Position
         </Button>
         <Button
           className={cx("your-positions-button")}
           onClick={() => handleDrawerOpen(1)}
         >
-          Your positions
+          Your Positions
         </Button>
       </ButtonGroup>
 
@@ -122,8 +122,8 @@ const SidebarMobile = props => {
         </div>
 
         <Tabs value={value} onChange={handleChange} variant="fullWidth">
-          <Tab label="Order positions" {...a11yProps(0)}></Tab>
-          <Tab label="Your positions" {...a11yProps(1)}></Tab>
+          <Tab label="Buy Position" {...a11yProps(0)}></Tab>
+          <Tab label="Your Positions" {...a11yProps(1)}></Tab>
         </Tabs>
         <TabPanel value={value} index={0}>
           <BuySection {...props} />
