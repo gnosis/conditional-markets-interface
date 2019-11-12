@@ -143,7 +143,6 @@ const Buy = ({
       investmentAmountInUnits = zeroDecimal;
     }
 
-    /*
     if (investmentAmountInUnits.gt(collateralBalance.totalAmount.toString()))
       throw new Error(
         `Not enough collateral: missing ${formatCollateral(
@@ -151,7 +150,6 @@ const Buy = ({
           collateral
         )}`
       );
-      */
 
     const tradeAmounts = stagedTradeAmounts.map(amount => amount.toString());
     const collateralLimit = await marketMakersRepo.calcNetCost(tradeAmounts);
