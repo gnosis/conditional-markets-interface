@@ -10,15 +10,10 @@
 
   > span {
     font-size: 1.5rem;
-    color: $darkBlue;
+    color: $black;
     letter-spacing: 0.05rem;
     text-align: right;
     margin: 0 1rem 0 0;
-
-      @media #{$tablet-small-max} {
-        font-size: 1.2rem;
-        margin: 0 .5rem 0 0;
-      }
   }
 
   .avatar {
@@ -27,9 +22,10 @@
     position: relative;
     border-radius: 100%;
     overflow: hidden;
+
       @media #{$tablet-small-max} {
-        height: 2.4rem;
-        width: 2.4rem;
+        height: 2.6rem;
+        width: 2.6rem;
       }
 
     &-image {

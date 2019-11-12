@@ -1,12 +1,13 @@
+@import "~scss/_variables.scss";
 
 .spinner {
   path {
-    fill: #000;
+    fill: $white;
   }
 
   &.inverted {
     path {
-      fill: #fff;
+      fill: $white;
     }
   }
 }

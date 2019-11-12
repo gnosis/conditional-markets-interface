@@ -2,7 +2,7 @@
 
 :global {
   .market-row-content .outcome-selection {
-    min-width: 200px;
+    min-width: 15rem;
 
     &__control {
       position: relative;
@@ -15,12 +15,15 @@
       -moz-appearance: none;
       appearance: none;
       outline: 0;
+      cursor: pointer;
+      border-color: $blue;
+
       @media #{$tablet-small-max} {
         width: 100%;
       }
 
       &--is-focused {
-        background-color: #ebebeb;
+        background-color: $grey;
       }
     }
 
@@ -33,7 +36,7 @@
     }
 
     &__menu {
-      margin-top: 1px;
+      margin-top: .1rem;
       border-radius: 0;
     }
 

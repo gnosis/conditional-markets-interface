@@ -50,8 +50,8 @@ Spinner.propTypes = {
 Spinner.defaultProps = {
   centered: false,
   inverted: false,
-  height: 40,
-  width: 40
+  height: 75,
+  width: 75
 };
 
 export default Spinner;

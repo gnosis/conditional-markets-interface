@@ -8,14 +8,37 @@
   font-size: 1.5rem;
   line-height: 1.5;
 
+  @media #{$tablet-small-max} {
+    font-size: 1.6rem;
+  }
+
   td {
     text-align: center;
     border: none;
-    padding: 1.2rem 0.8rem;
+    padding: 1.2rem .8rem;
     position: relative;
+
+      @media #{$tablet-small-max} {
+        padding: 1.6rem 0;
+        width: 100%;
+      }
 
       &:first-child {
         @media #{$tablet-small-max} {
+          display: none;
+        }
+      }
+
+      // Hiding the empty header
+      &:nth-of-type(3) {
+        @media #{$tablet-small-max} {
+          display: none;
+        }
+      }
+
+      // Hidding the probability wordings until we find another solution.
+      &:nth-of-type(4) {
+        @media #{$tablet-small-max}{
           display: none;
         }
       }
@@ -23,67 +46,84 @@
 
   td:nth-child(2) {
     text-align: left;
+    padding-top: 0;
   }
-  
+
   &-heading {
     display: none;
     white-space: nowrap;
     color: rgba(0, 0, 0, .6);
     text-transform: uppercase;
-    padding: 0.2rem;
+    padding: .2rem;
 
     @media #{$tablet-small-max} {
-      display: block;
       font-weight: $bold;
       font-size: 1.1rem;
+      line-height: 1;
+      padding: 1.6rem 0;
       color: $shadeBlue;
-      letter-spacing: 0.05rem;
+      width: 100%;
+      text-align: center;
+      letter-spacing: .05rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
   }
 
   &-details {
+    cursor: pointer;
+
     &.disable {
       display: none;
     }
+
     line-height: normal;
-  
+
     h1 {
-      font-weight: 600;
+      font-weight: $bold;
       font-size: 1.6rem;
       margin: 2rem 0;
     }
+
     h2 {
-      font-weight: 600;
+      font-weight: $bold;
       font-size: 1.6rem;
       margin: 2rem 0;
     }
+
     h3 {
-      font-weight: 600;
+      font-weight: $bold;
       font-size: 1.6rem;
       margin: 2rem 0;
     }
+
     h4, h5, h6 {
-      font-weight: 600;
+      font-weight: $bold;
       font-size: 1.6rem;
     }
 
     a {
-      color: #009CB4;
+      color: $blue;
     }
 
     &.hidden {
       .detail-content {
-        display: none; 
+        display: none;
       }
     }
 
-    background-color: #f7f8fb;
+    background-color: $grey;
 
     td {
       text-align: left;
       padding: 1.2rem 0.8rem;
       font-weight: normal;
       font-size: 1.6rem;
+
+        @media #{$tablet-small-max} {
+          padding: 0;
+        }
     }
 
     &:not(.hidden) {
@@ -102,21 +142,28 @@
       padding: 0;
       width: 100%;
       font-size: 1.6rem;
-      font-weight: 600;
-
+      font-weight: $bold;
+      cursor: pointer;
       display: flex;
       appearance: none;
       -webkit-appearance: none;
       background: none;
-
       border: none;
       outline: none;
 
+      @media #{$tablet-small-max} {
+        justify-content: center;
+      }
+
       &-icon {
-        font-weight: 400;
+        font-weight: $normal;
         font-size: 2.4rem;
         line-height: 1.6rem;
         margin-left: auto;
+
+          @media #{$tablet-small-max} {
+            margin: 0 0 0 1.6rem;
+          }
       }
     }
   }
@@ -127,19 +174,26 @@
 
   .mobile-index {
     font-weight: $bold;
-    color: $darkBlue;
+    color: $black;
     display: none;
 
     @media #{$tablet-small-max} {
       display: block;
       font-weight: $bold;
       font-size: 1.1rem;
-      color: $darkBlue;
+      color: $black;
       letter-spacing: 0.05rem;
       background: $greyBorder2;
       padding: .5rem 1rem;
       border-radius: .2rem;
       margin: 1rem 0;
     }
+  }
+}
+
+.market-row-content {
+  @media #{$tablet-small-max} {
+    width: 100%;
+    text-align: center;
   }
 }

@@ -91,17 +91,15 @@ const Market = ({
 
   const entries = [
     `${index + 1}`,
-    <>
-      <span className={cx("mobile-index")}>#{index + 1}</span> {title}
-    </>,
-    <ProbabilityWording
-      key="probabilityWording"
+    <>{title}</>,
+    <Probabilities
+      key="probabilities"
       outcomes={outcomes}
       probabilities={probabilities}
       stagedProbabilities={stagedProbabilities}
     />,
-    <Probabilities
-      key="probabilities"
+    <ProbabilityWording
+      key="probabilityWording"
       outcomes={outcomes}
       probabilities={probabilities}
       stagedProbabilities={stagedProbabilities}
@@ -147,15 +145,12 @@ const Market = ({
           hidden: !detailsOpen,
           disable: disableCollapse
         })}
+        onClick={handleToggleCollapse}
       >
         <td />
         <td colSpan={headings.length - 2}>
           <h1 className={cx("market-details-header")}>
-            <button
-              type="button"
-              className={cx("expand-collapse")}
-              onClick={handleToggleCollapse}
-            >
+            <button type="button" className={cx("expand-collapse")}>
               View market details
               <span className={cx("expand-collapse-icon")}>
                 {detailsOpen ? "–" : "+"}
