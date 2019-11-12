@@ -51,6 +51,12 @@
   .drawer-paper {
     height: 100%;
   }
+
+  .tab-content {
+    @media #{$tablet-small-max} {
+      padding: 0 0 10rem;
+    }
+  }
 }
 
 @mixin sidebar-entry {
@@ -81,11 +87,5 @@
     bottom: 0;
     z-index: 99;
     background: $white;
-  }
-}
-
-.MuiBox-root {
-  @media #{$tablet-small-max} {
-    padding: 0 0 10rem;
   }
 }

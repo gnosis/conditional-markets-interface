@@ -54,7 +54,7 @@ function TabPanel(props) {
       aria-labelledby={`full-width-tab-${index}`}
       {...other}
     >
-      <Box p={3}>{children}</Box>
+      <Box className={cx("tab-content")}>{children}</Box>
     </Typography>
   );
 }
