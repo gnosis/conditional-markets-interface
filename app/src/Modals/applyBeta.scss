@@ -8,16 +8,23 @@
     display: flex;
     flex-flow: column wrap;
     line-height: 5rem;
-    margin: 2rem 0;
+    margin: 0;
+    font-size: 3.5rem;
+
+    .modal-close {
+      color: $white;
+    }
 
     &-image {
-
+      height: 6rem;
+      margin: 3rem 0;
     }
   }
 
   .modal-body {
     p {
       color: $black;
+      font-size: 2rem;
     }
   }
 

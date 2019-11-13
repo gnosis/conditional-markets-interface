@@ -126,7 +126,7 @@ const Market = ({
         conditionalActive={marketSelections[index].isAssumed}
       />
     )
-  ];
+  ].filter(entry => entry !== false); // Filter disabled entries to avoid creating table element
 
   const disableCollapse = !description && !dataSource && !dataSourceURL;
 
