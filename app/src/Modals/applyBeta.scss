@@ -1,1 +1,33 @@
 @import "./Modals.scss";
+@import "../scss/_variables.scss";
+
+.apply-modal {
+  background-color: $blue;
+
+  .modal-header {
+    display: flex;
+    flex-flow: column wrap;
+    line-height: 5rem;
+    margin: 2rem 0;
+
+    &-image {
+
+    }
+  }
+
+  .modal-body {
+    p {
+      color: $black;
+    }
+  }
+
+  // Material ui styles overrides
+  .apply-button {
+    background-color: $white;
+    &-label {
+      font-size: 1.3rem;
+      font-weight: $bold;
+    }
+  }
+
+}

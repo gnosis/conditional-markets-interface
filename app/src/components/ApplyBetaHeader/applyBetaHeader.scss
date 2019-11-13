@@ -4,8 +4,16 @@
   background-color: $blue;
   display: flex;
   flex-flow: row nowrap;
+  align-items: center;
+  justify-content: center;
   width: 100%;
   position: relative;
   border-bottom: .1rem solid $greyBorder2;
   height: 5.5rem;
+  font-size: 1.5rem;
+  font-weight: $bold;
+
+  &-text{
+    margin: 0 2rem;
+  }
 }
