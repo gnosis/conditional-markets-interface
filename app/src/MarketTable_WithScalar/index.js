@@ -12,6 +12,7 @@ import Spinner from "components/Spinner";
 
 import { markdownRenderers } from "utils/markdown";
 import { calcSelectedMarketProbabilitiesFromPositionProbabilities } from "utils/probabilities";
+import Graph from "./Graph";
 
 const { BN } = Web3.utils;
 
@@ -71,6 +72,10 @@ const MarketTable = ({
           resolutionDate,
           dataSource,
           dataSourceUrl,
+          lowerBound,
+          upperBound,
+          decimals,
+          unit,
           description
         }) => (
           <div className={cx("markettable-row")} key={`market-${conditionId}`}>
@@ -89,7 +94,12 @@ const MarketTable = ({
               </div>
             </div>
             <div className={cx("prediction")}>
-              {marketProbabilities[0][0].toFixed(2)}%
+              <Graph 
+                lowerBound={lowerBound}
+                upperBound={upperBound}
+                decimals={decimals}
+                unit={unit}
+              />
             </div>
             <div className={cx("details")}>
               <div className={cx("details-header")}>
