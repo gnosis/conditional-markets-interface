@@ -8,11 +8,13 @@ const cx = cn.bind(style);
 
 const PROBABILITY_WORDING = [
   [[0, 1], "Impossible"],
-  [[1, 20], "Almost certainly not"],
-  [[20, 45], "Probably not"],
-  [[45, 55], "Chances about even"],
+  [[1, 5], "Remote"],
+  [[5, 20], "Highly improbable"],
+  [[20, 45], "Improbable"],
+  [[45, 55], "Roughly even odds"],
   [[55, 80], "Probable"],
-  [[80, 99], "Almost certain"],
+  [[80, 95], "Highly probable"],
+  [[95, 99], "Nearly certain"],
   [[99, 100], "Certain"]
 ];
 

@@ -94,14 +94,14 @@ const Market = ({
     <>
       <span className={cx("mobile-index")}>#{index + 1}</span> {title}
     </>,
-    <ProbabilityWording
-      key="probabilityWording"
+    <Probabilities
+      key="probabilities"
       outcomes={outcomes}
       probabilities={probabilities}
       stagedProbabilities={stagedProbabilities}
     />,
-    <Probabilities
-      key="probabilities"
+    <ProbabilityWording
+      key="probabilityWording"
       outcomes={outcomes}
       probabilities={probabilities}
       stagedProbabilities={stagedProbabilities}
