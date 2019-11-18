@@ -101,67 +101,37 @@ const Positions = ({
     }
   }, [positionGroups]);
 
-  const [saleAmount, setSaleAmount] = useState("");
-  const [estimatedSaleEarnings, setEstimatedSaleEarnings] = useState(null);
+  const [estimatedSaleEarnings, setEstimatedSaleEarnings] = useState([]);
 
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (stagedTransactionType !== "sell outcome tokens") return;
+    if (marketMakersRepo) {
+      (async () => {
+        if (!positionBalances) return;
+        // Make a call for each available position
+        const allEarningCalculations = await Promise.all(
+          positionBalances.map((_, index) => {
+            // Include in this call only the balance of one position
+            const balanceWithOnlyIndex = positionBalances.map(
+              (otherBalance, otherIndex) => {
+                if (index === otherIndex) {
+                  return otherBalance.toString();
+                }
+                return "0";
+              }
+            );
 
-    if (saleAmount === "") {
-      setStagedTradeAmounts(null);
-      setEstimatedSaleEarnings(null);
-      setError(null);
-      return;
-    }
-
-    try {
-      const saleAmountInUnits = collateral.toUnitsMultiplier.mul(saleAmount);
-
-      if (!saleAmountInUnits.isInteger())
-        throw new Error(
-          `Got more than ${collateral.decimals} decimals in value ${saleAmount}`
+            // Calculate the balance for this position
+            return marketMakersRepo.calcNetCost(balanceWithOnlyIndex);
+          })
         );
 
-      if (saleAmountInUnits.gt(salePositionGroup.amount.toString()))
-        throw new Error(
-          `Not enough collateral: missing ${formatCollateral(
-            saleAmountInUnits.sub(salePositionGroup.amount.toString()),
-            collateral
-          )}`
-        );
-
-      const stagedTradeAmounts = Array.from(
-        { length: positions.length },
-        (_, i) =>
-          salePositionGroup.positions.find(
-            ({ positionIndex }) => positionIndex === i
-          ) == null
-            ? zeroDecimal
-            : saleAmountInUnits.neg()
-      );
-
-      setStagedTradeAmounts(stagedTradeAmounts);
-
-      setEstimatedSaleEarnings(
-        calcNetCost(lmsrState, stagedTradeAmounts).neg()
-      );
-
-      setError(null);
-    } catch (e) {
-      setStagedTradeAmounts(null);
-      setEstimatedSaleEarnings(null);
-      setError(e);
+        console.log(allEarningCalculations);
+        setEstimatedSaleEarnings(allEarningCalculations);
+      })();
     }
-  }, [
-    stagedTransactionType,
-    collateral,
-    positions,
-    lmsrState,
-    salePositionGroup,
-    saleAmount
-  ]);
+  }, [marketMakersRepo, positionBalances]);
 
   const sellAllTokensOfGroup = useCallback(
     async salePositionGroup => {
@@ -375,7 +345,9 @@ const Positions = ({
         <>
           <div className={cx("positions-subheading")}>
             <span className={cx("position-col-outcome")}>Position</span>
+            <span className={cx("position-col-qty")}>Quantity</span>
             <span className={cx("position-col-value")}>Current Value</span>
+            <span className={cx("position-col-price")}>Sell Price</span>
             <span className={cx("position-col-sell")} />
           </div>
           <div className={cx("positions-entries")}>
@@ -400,11 +372,27 @@ const Positions = ({
                     />
                   ))}
                 </div>
+                <div className={cx("position-col-qty")}>
+                  <p className={cx("value")}>
+                    {new Decimal(positionBalances[index].toString())
+                      .div(1e18)
+                      .toPrecision(4)}
+                  </p>
+                </div>
                 <div className={cx("position-col-value", "position-values")}>
                   <p className={cx("value")}>
                     {formatCollateral(positionGroup.runningAmount, collateral)}
                   </p>
                   {/*<p>(({positionGroup.margin * 100}%)</p>*/}
+                </div>
+                <div className={cx("position-col-price")}>
+                  <p className={cx("value")}>
+                    {estimatedSaleEarnings.length ? (
+                      formatCollateral(estimatedSaleEarnings[index], collateral)
+                    ) : (
+                      <Spinner width={12} height={12} />
+                    )}
+                  </p>
                 </div>
                 <div className={cx("position-col-sell", "position-sell")}>
                   <button
