@@ -52,6 +52,10 @@
     height: 100%;
   }
 
+  .tab-indicator {
+    background-color: $blue;
+  }
+
   .tab-content {
     @media #{$tablet-small-max} {
       padding: 0 0 10rem;

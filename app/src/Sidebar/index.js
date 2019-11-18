@@ -97,7 +97,7 @@ const SidebarMobile = props => {
           className={cx("order-button")}
           onClick={() => handleDrawerOpen(0)}
         >
-          Buy Position
+          Order Positions
         </Button>
         <Button
           className={cx("your-positions-button")}
@@ -121,8 +121,13 @@ const SidebarMobile = props => {
           </IconButton>
         </div>
 
-        <Tabs value={value} onChange={handleChange} variant="fullWidth">
-          <Tab label="Buy Position" {...a11yProps(0)}></Tab>
+        <Tabs
+          value={value}
+          onChange={handleChange}
+          variant="fullWidth"
+          classes={{ indicator: cx("tab-indicator") }}
+        >
+          <Tab label="Order Positions" {...a11yProps(0)}></Tab>
           <Tab label="Your Positions" {...a11yProps(1)}></Tab>
         </Tabs>
         <TabPanel value={value} index={0}>

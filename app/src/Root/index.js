@@ -3,7 +3,6 @@ import { hot } from "react-hot-loader/root";
 import cn from "classnames/bind";
 import useInterval from "@use-it/interval";
 
-import Logo from "assets/img/conditional-logo.png";
 import Spinner from "components/Spinner";
 import CrashPage from "components/Crash";
 import makeLoadable from "../utils/make-loadable";
@@ -28,6 +27,8 @@ let conditionalTokensRepo;
 let conditionalTokensService;
 
 const whitelistEnabled = process.env.WHITELIST_ENABLED;
+const SYNC_INTERVAL = 8000;
+const WHITELIST_CHECK_INTERVAL = 30000;
 
 async function loadBasicData({ lmsrAddress }, web3) {
   const { toBN } = web3.utils;
@@ -103,15 +104,6 @@ async function loadBasicData({ lmsrAddress }, web3) {
     );
 
     const positionId = getPositionId(collateral.address, combinedCollectionIds);
-    // TODO delete when tests passed (should be correctly working now)
-    // soliditySha3(
-    //   { t: "address", v: collateral.address },
-    //   {
-    //     t: "uint",
-    //     v: outcomes
-    //       .map(({ collectionId }) => collectionId)
-    //   }
-    // );
     positions.push({
       id: positionId,
       outcomes
@@ -158,6 +150,13 @@ async function getCollateralBalance(web3, collateral, account) {
   }
 
   return collateralBalance;
+}
+
+async function getAccount(web3) {
+  if (web3.defaultAccount == null) {
+    const accounts = await web3.eth.getAccounts();
+    return accounts[0] || null;
+  } else return web3.defaultAccount;
 }
 
 async function getLMSRState(web3, positions) {
@@ -235,7 +234,7 @@ const RootComponent = ({ childComponents }) => {
   const triggerSync = useCallback(() => {
     setSyncTime(Date.now());
   });
-  useInterval(triggerSync, 8000);
+  useInterval(triggerSync, SYNC_INTERVAL);
   const [toasts, setToasts] = useState([]);
 
   const [web3, setWeb3] = useState(null);
@@ -292,6 +291,7 @@ const RootComponent = ({ childComponents }) => {
   // As 'syncTime' is setted to 2 seconds all this getters are triggered and setted
   // in the state.
   for (const [loader, dependentParams, setter] of [
+    [getAccount, [web3], setAccount],
     [getLMSRState, [web3, positions], setLMSRState],
     [getMarketResolutionStates, [markets], setMarketResolutionStates],
     [getCollateralBalance, [web3, collateral, account], setCollateralBalance],
@@ -326,7 +326,7 @@ const RootComponent = ({ childComponents }) => {
 
   const [whitelistState, setWhitelistState] = useState("LOADING");
   const [whitelistIntervalTime, setWhitelistCheckIntervalTime] = useState(
-    30000
+    WHITELIST_CHECK_INTERVAL
   );
 
   const updateWhitelist = useCallback(() => {
@@ -459,7 +459,6 @@ const RootComponent = ({ childComponents }) => {
     return (
       <div className={cx("page")}>
         <div className={cx("modal-space", { "modal-open": !!modal })}>
-          <img className={cx("logo")} src={Logo} />
           {modal}
         </div>
         <div className={cx("app-space", { "modal-open": !!modal })}>
@@ -494,34 +493,34 @@ const RootComponent = ({ childComponents }) => {
                 }}
               />
             </section>
-            {account != null && (// account available
-            // (!whitelistEnabled || whitelistState === "WHITELISTED") && ( // whitelisted or whitelist functionality disabled
-                <section className={cx("section", "section-positions")}>
-                  <Sidebar
-                    {...{
-                      account,
-                      markets,
-                      positions,
-                      marketResolutionStates,
-                      marketSelections,
-                      collateral,
-                      collateralBalance,
-                      lmsrState,
-                      lmsrAllowance,
-                      positionBalances,
-                      stagedTradeAmounts,
-                      setStagedTradeAmounts,
-                      stagedTransactionType,
-                      setStagedTransactionType,
-                      ongoingTransactionType,
-                      asWrappedTransaction,
-                      resetMarketSelections,
-                      addToast,
-                      openModal
-                    }}
-                  />
-                </section>
-              )}
+            {account != null && ( // account available
+              // (!whitelistEnabled || whitelistState === "WHITELISTED") && ( // whitelisted or whitelist functionality disabled
+              <section className={cx("section", "section-positions")}>
+                <Sidebar
+                  {...{
+                    account,
+                    markets,
+                    positions,
+                    marketResolutionStates,
+                    marketSelections,
+                    collateral,
+                    collateralBalance,
+                    lmsrState,
+                    lmsrAllowance,
+                    positionBalances,
+                    stagedTradeAmounts,
+                    setStagedTradeAmounts,
+                    stagedTransactionType,
+                    setStagedTransactionType,
+                    ongoingTransactionType,
+                    asWrappedTransaction,
+                    resetMarketSelections,
+                    addToast,
+                    openModal
+                  }}
+                />
+              </section>
+            )}
             <Toasts
               deleteToast={deleteToast}
               addToast={addToast}

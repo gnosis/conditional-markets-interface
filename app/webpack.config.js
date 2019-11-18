@@ -17,7 +17,7 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, "..", "docs"),
     publicPath: "",
-    filename: "bundle.[hash].js"
+    filename: isProduction ? "bundle.[hash].js" : "bundle.js"
   },
   target: "web",
   resolve: {
