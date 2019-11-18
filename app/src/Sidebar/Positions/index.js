@@ -7,10 +7,11 @@ import { zeroDecimal } from "utils/constants";
 import { formatCollateral } from "utils/formatting";
 import { calcPositionGroups } from "utils/position-groups";
 import { getPositionId, combineCollectionIds } from "utils/getIdsUtil";
+import { calcSelectedMarketProbabilitiesFromPositionProbabilities } from "utils/probabilities";
 
 import cn from "classnames/bind";
 import style from "./positions.scss";
-import OutcomeCard from "../../components/OutcomeCard";
+import OutcomeCard, { Dot } from "../../components/OutcomeCard";
 
 const cx = cn.bind(style);
 const { toBN } = Web3.utils;
@@ -30,6 +31,7 @@ const Positions = ({
   collateral,
   lmsrState,
   positionBalances,
+  marketSelections,
   stagedTradeAmounts,
   setStagedTradeAmounts,
   stagedTransactionType,
@@ -52,7 +54,32 @@ const Positions = ({
     loadDataLayer();
   }, []);
 
+  const [probabilities, setProbabilities] = useState(null);
   const [positionGroups, setPositionGroups] = useState(null);
+
+  useEffect(() => {
+    if (lmsrState != null) {
+      const { funding, positionBalances: lmsrPositionBalances } = lmsrState;
+      const invB = new Decimal(lmsrPositionBalances.length)
+        .ln()
+        .div(funding.toString());
+
+      const positionProbabilities = lmsrPositionBalances.map(balance =>
+        invB
+          .mul(balance.toString())
+          .neg()
+          .exp()
+      );
+      setProbabilities(
+        calcSelectedMarketProbabilitiesFromPositionProbabilities(
+          markets,
+          positions,
+          marketSelections,
+          positionProbabilities
+        )
+      );
+    }
+  }, [lmsrState, markets, positions]);
 
   useEffect(() => {
     if (positionBalances == null) {
@@ -65,7 +92,7 @@ const Positions = ({
       );
       setPositionGroups(positionGroups);
     }
-  }, [markets, positions, positionBalances]);
+  }, [markets, positions, positionBalances, marketSelections]);
 
   const [salePositionGroup, setSalePositionGroup] = useState(null);
   const [currentSellingPosition, setCurrentSellingPosition] = useState(null);
@@ -321,18 +348,20 @@ const Positions = ({
         </>
       )}
       {!allMarketsResolved && positionGroups.length > 0 && (
-        <>
-          <div className={cx("positions-subheading")}>
-            <span className={cx("position-col-outcome")}>Position</span>
-            <span className={cx("position-col-qty")}>Quantity</span>
-            <span className={cx("position-col-value")}>Current Value</span>
-            <span className={cx("position-col-price")}>Sell Price</span>
-            <span className={cx("position-col-sell")} />
-          </div>
-          <div className={cx("positions-entries")}>
+        <table className={cx("position-entries-table")}>
+          <thead>
+            <tr>
+              <td>Position</td>
+              <td>Quantity</td>
+              <td>Current Value</td>
+              <td>Sell Price</td>
+              <td></td>
+            </tr>
+          </thead>
+          <tbody>
             {positionGroups.map((positionGroup, index) => (
-              <div className={cx("position-entry")} key={index}>
-                <div className={cx("position-col-outcome")}>
+              <tr key={index}>
+                <td>
                   {positionGroup.outcomeSet.length === 0 && (
                     <OutcomeCard
                       {...positionGroup.positions[0].outcomes[0]}
@@ -343,39 +372,41 @@ const Positions = ({
                     />
                   )}
                   {positionGroup.outcomeSet.map(outcome => (
-                    <OutcomeCard
-                      {...outcome}
+                    <span
                       key={`${outcome.marketIndex}-${outcome.outcomeIndex}`}
-                      glueType="and"
-                      // prefixType="IF"
-                    />
+                    >
+                      <Dot index={outcome.outcomeIndex} />
+                      {outcome.title}
+                    </span>
                   ))}
-                </div>
-                <div className={cx("position-col-qty")}>
-                  <p className={cx("value")}>
-                    {new Decimal(positionBalances[index].toString())
-                      .div(1e18)
-                      .toPrecision(4)}
-                  </p>
-                </div>
-                <div className={cx("position-col-value", "position-values")}>
-                  <p className={cx("value")}>
-                    {formatCollateral(positionGroup.runningAmount, collateral)}
-                  </p>
-                  {/*<p>(({positionGroup.margin * 100}%)</p>*/}
-                </div>
-                <div className={cx("position-col-price")}>
-                  <p className={cx("value")}>
-                    {estimatedSaleEarnings.length ? (
-                      formatCollateral(estimatedSaleEarnings[index], collateral)
-                    ) : (
-                      <Spinner width={12} height={12} />
-                    )}
-                  </p>
-                </div>
-                <div className={cx("position-col-sell", "position-sell")}>
+                </td>
+                <td>
+                  {new Decimal(positionBalances[index].toString())
+                    .div(1e18)
+                    .toPrecision(4)}
+                </td>
+                <td>
+                  {probabilities && probabilities[positionGroup.outcomeSet[0].marketIndex] ? (
+                    formatCollateral(
+                      new Decimal(positionBalances[index].toString()).mul(
+                        probabilities[positionGroup.outcomeSet[0].marketIndex][index]
+                      ),
+                      collateral
+                    )
+                  ) : (
+                    <Spinner width={12} height={12} />
+                  )}
+                </td>
+                <td>
+                  {estimatedSaleEarnings.length ? (
+                    formatCollateral(estimatedSaleEarnings[index], collateral)
+                  ) : (
+                    <Spinner width={12} height={12} />
+                  )}
+                </td>
+                <td>
                   <button
-                    className={cx("button")}
+                    className={cx("position-sell")}
                     type="button"
                     disabled={ongoingTransactionType === "sell outcome tokens"}
                     onClick={asWrappedTransaction(
@@ -393,11 +424,11 @@ const Positions = ({
                       "Sell"
                     )}
                   </button>
-                </div>
-              </div>
+                </td>
+              </tr>
             ))}
-          </div>
-        </>
+          </tbody>
+        </table>
       )}
       {error != null && <span className={cn("error")}>{error.message}</span>}
     </>
