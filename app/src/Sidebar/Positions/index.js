@@ -22,25 +22,6 @@ let conditionalTokensRepo;
 let marketMakersRepo;
 let conditionalTokensService;
 
-function calcNetCost({ funding, positionBalances }, tradeAmounts) {
-  const invB = new Decimal(positionBalances.length)
-    .ln()
-    .dividedBy(funding.toString());
-  return tradeAmounts
-    .reduce(
-      (acc, tradeAmount, i) =>
-        acc.add(
-          tradeAmount
-            .sub(positionBalances[i].toString())
-            .mul(invB)
-            .exp()
-        ),
-      zeroDecimal
-    )
-    .ln()
-    .div(invB);
-}
-
 const Positions = ({
   account,
   markets,
@@ -106,28 +87,26 @@ const Positions = ({
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    const getBaseArray = length => {
+      return Array(length).fill("0");
+    };
+
     if (marketMakersRepo) {
       (async () => {
         if (!positionBalances) return;
         // Make a call for each available position
         const allEarningCalculations = await Promise.all(
-          positionBalances.map((_, index) => {
-            // Include in this call only the balance of one position
-            const balanceWithOnlyIndex = positionBalances.map(
-              (otherBalance, otherIndex) => {
-                if (index === otherIndex) {
-                  return otherBalance.toString();
-                }
-                return "0";
-              }
-            );
+          positionBalances.map((balance, index) => {
+            // We get set a position array where we only have 1 position bought
+            let balanceForThisPosition = getBaseArray(positionBalances.length);
+            // Include in this call only the balance for this position
+            balanceForThisPosition[index] = balance.toString();
 
             // Calculate the balance for this position
-            return marketMakersRepo.calcNetCost(balanceWithOnlyIndex);
+            return marketMakersRepo.calcNetCost(balanceForThisPosition);
           })
         );
 
-        console.log(allEarningCalculations);
         setEstimatedSaleEarnings(allEarningCalculations);
       })();
     }
