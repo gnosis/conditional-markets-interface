@@ -127,10 +127,12 @@ const Positions = ({
             // We get set a position array where we only have 1 position bought
             let balanceForThisPosition = getBaseArray(positionBalances.length);
             // Include in this call only the balance for this position
-            balanceForThisPosition[index] = balance.toString();
+            // Note the negative value, it's because of being a sell price
+            balanceForThisPosition[index] = balance.neg().toString();
 
             // Calculate the balance for this position
-            return marketMakersRepo.calcNetCost(balanceForThisPosition);
+            // return as positive value for the frontend
+            return marketMakersRepo.calcNetCost(balanceForThisPosition).then(sellPrice => sellPrice.abs());
           })
         );
 
