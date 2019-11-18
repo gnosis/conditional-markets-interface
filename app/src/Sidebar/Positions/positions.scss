@@ -17,14 +17,20 @@
   &-subheading {
     @include sidebar-entry;
     border-bottom: none;
+    white-space: nowrap;
     font-weight: $normal;
     display: flex;
+    flex: 0;
     font-size: 1.3rem;
-    text-align: right;
+    text-align: left;
     color: $shadeBlue;
     letter-spacing: 0;
     height: 3.2rem;
     padding: 1.6rem;
+
+    .position-col-value {
+      min-width: 60px;
+    }
   }
 
   &-redeem {
@@ -71,27 +77,27 @@
 }
 
 .position-sell {
-  .button {
-    appearance: none;
-    -webkit-appearance: none;
-    border-radius: .3rem;
-    background-color: $red;
-    color: $white;
-    text-transform: uppercase;
-    border: 0;
-    font-weight: $bold;
-    font-size: 1.3rem;
-    letter-spacing: 0;
-    text-align: center;
-    padding: .5rem 1.2rem;
+  appearance: none;
+  -webkit-appearance: none;
+  border-radius: .3rem;
+  background-color: $red;
+  color: $white;
+  text-transform: uppercase;
+  border: 0;
+  font-weight: $bold;
+  font-size: 1.3rem;
+  letter-spacing: 0;
+  text-align: center;
+  padding: .5rem 1.2rem;
 
-    &:disabled {
-      opacity: 0.75;
-    }
+  &:disabled {
+    opacity: 0.75;
   }
 }
 
 .position-col {
+  letter-spacing: -0.3px;
+  white-space: nowrap;
 
   &-outcome, &-qty, &-value, &-sell {
     flex: 1;
@@ -110,4 +116,29 @@
     text-align: right;
     min-width: 60px;
   }
+}
+
+.position-entries-table {
+  width: 100%;
+  font-size: 1.3rem;
+  letter-spacing: -0.3px;
+  white-space: nowrap;
+  border-collapse: collapse;
+
+  thead tr {
+    font-weight: bold;
+  }
+
+  td {
+    &:first-child {
+      padding: 1.6rem 0 1.6rem 1.6rem;
+    }
+    padding: 1.6rem 0;
+    text-align: left;
+  }
+
+  tr {
+    border-bottom: .1rem solid $greyBorder;
+  }
+
 }
