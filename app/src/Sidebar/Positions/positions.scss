@@ -20,6 +20,7 @@
     font-weight: $normal;
     display: flex;
     font-size: 1.3rem;
+    text-align: right;
     color: $shadeBlue;
     letter-spacing: 0;
     height: 3.2rem;
@@ -91,17 +92,22 @@
 }
 
 .position-col {
-  &-outcome {
-    width: 33%;
+
+  &-outcome, &-qty, &-value, &-sell {
+    flex: 1;
   }
 
   &-value {
-    width: 33%;
     text-align: right;
+    min-width: 85px;
   }
 
   &-sell {
     text-align: right;
-    width: 33%;
+  }
+
+  &-price {
+    text-align: right;
+    min-width: 60px;
   }
 }
