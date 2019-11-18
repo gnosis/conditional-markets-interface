@@ -129,8 +129,8 @@ const Positions = ({
             // Include in this call only the balance for this position
             balanceForThisPosition[index] = balance.toString();
 
-            // Calculate the balance for this position. Use negative value, as it's a Sell price
-            return marketMakersRepo.calcNetCost(-balanceForThisPosition);
+            // Calculate the balance for this position
+            return marketMakersRepo.calcNetCost(balanceForThisPosition);
           })
         );
 
