@@ -19,7 +19,7 @@ const ApplyBetaHeader = ({ openModal, whitelistState }) => {
         <button
           type="button"
           className={cx("apply-banner-button")}
-          onClick={() => openModal("ApplyBeta")}
+          onClick={() => openModal("applyBeta", { whitelistState })}
         >
           Apply Now
         </button>

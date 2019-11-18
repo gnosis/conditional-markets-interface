@@ -324,6 +324,32 @@ const RootComponent = ({ childComponents }) => {
     }
   }, [markets, setMarketSelections]);
 
+  const [whitelistState, setWhitelistState] = useState("LOADING");
+  const [whitelistIntervalTime, setWhitelistCheckIntervalTime] = useState(
+    30000
+  );
+
+  const updateWhitelist = useCallback(() => {
+    if (account) {
+      (async () => {
+        const whitelistStatus = await getWhitelistState(account);
+        setWhitelistState(whitelistStatus);
+
+        if (
+          whitelistStatus === "WHITELISTED" ||
+          whitelistStatus === "BLOCKED"
+        ) {
+          setWhitelistCheckIntervalTime(null); // stops the refresh
+        }
+      })();
+    }
+  }, [account]);
+  useInterval(updateWhitelist, whitelistIntervalTime);
+
+  useEffect(() => {
+    updateWhitelist();
+  }, [account]);
+
   const asWrappedTransaction = useCallback(
     (wrappedTransactionType, transactionFn) => {
       return async function wrappedAction() {
@@ -333,28 +359,36 @@ const RootComponent = ({ childComponents }) => {
           );
         }
 
-        try {
-          addToast("Transaction processing...", "info");
-          setOngoingTransactionType(wrappedTransactionType);
-          await transactionFn();
-          addToast("Transaction confirmed.", "success");
-        } catch (e) {
-          addToast(
-            <>
-              Unfortunately, the transaction failed.
-              <br />
-              <strong>{e.message}</strong>
-            </>,
-            "error"
-          );
-          throw e;
-        } finally {
-          setOngoingTransactionType(null);
-          triggerSync();
+        if (whitelistEnabled && whitelistState !== "WHITELISTED") {
+          openModal("applyBeta", { whitelistState });
+        } else {
+          try {
+            addToast("Transaction processing...", "info");
+            setOngoingTransactionType(wrappedTransactionType);
+            await transactionFn();
+            addToast("Transaction confirmed.", "success");
+          } catch (e) {
+            addToast(
+              <>
+                Unfortunately, the transaction failed.
+                <br />
+              </>,
+              "error"
+            );
+            throw e;
+          } finally {
+            setOngoingTransactionType(null);
+            triggerSync();
+          }
         }
       };
     },
-    [setOngoingTransactionType, ongoingTransactionType]
+    [
+      whitelistEnabled,
+      whitelistState,
+      setOngoingTransactionType,
+      ongoingTransactionType
+    ]
   );
 
   const addToast = useCallback(
@@ -419,32 +453,6 @@ const RootComponent = ({ childComponents }) => {
     }
   }, []);
 
-  const [whitelistState, setWhitelistState] = useState("LOADING");
-  const [whitelistIntervalTime, setWhitelistCheckIntervalTime] = useState(
-    30000
-  );
-
-  const updateWhitelist = useCallback(() => {
-    if (account) {
-      (async () => {
-        const whitelistStatus = await getWhitelistState(account);
-        setWhitelistState(whitelistStatus);
-
-        if (
-          whitelistStatus === "WHITELISTED" ||
-          whitelistStatus === "BLOCKED"
-        ) {
-          setWhitelistCheckIntervalTime(null); // stops the refresh
-        }
-      })();
-    }
-  }, [account]);
-  useInterval(updateWhitelist, whitelistIntervalTime);
-
-  useEffect(() => {
-    updateWhitelist();
-  }, [account]);
-
   useInterval(updateToasts, 1000);
 
   if (loading === "SUCCESS")
@@ -486,8 +494,8 @@ const RootComponent = ({ childComponents }) => {
                 }}
               />
             </section>
-            {account != null && // account available
-            (!whitelistEnabled || whitelistState === "WHITELISTED") && ( // whitelisted or whitelist functionality disabled
+            {account != null && (// account available
+            // (!whitelistEnabled || whitelistState === "WHITELISTED") && ( // whitelisted or whitelist functionality disabled
                 <section className={cx("section", "section-positions")}>
                   <Sidebar
                     {...{
