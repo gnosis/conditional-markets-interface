@@ -10,10 +10,41 @@
   position: relative;
   border-bottom: .1rem solid $greyBorder2;
   height: 5.5rem;
+  line-height: 1;
   font-size: 1.5rem;
   font-weight: $bold;
 
+    @media #{$tablet-small-max} {
+      padding: 1.6rem;
+    }
+
   &-text{
-    margin: 0 2rem;
+    line-height: 1;
+    margin: 0 1rem;
+
+      @media #{$tablet-small-max} {
+        line-height: 1.1;
+        font-size: 1.2rem;
+      }
   }
+}
+
+.apply-banner-button {
+  border-radius: .3rem;
+  background: $white;
+  border: 0;
+  font-weight: $bold;
+  font-size: 1.3rem;
+  color: $black;
+  text-align: center;
+  line-height: 1;
+  padding: .5rem 1rem;
+  box-sizing: border-box;
+  outline: 0;
+  cursor: pointer;
+    @media #{$tablet-small-max} {
+      font-size: 1.2rem;
+      padding: .5rem;
+      flex: none;
+    }
 }

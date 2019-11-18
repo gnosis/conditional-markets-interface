@@ -46,7 +46,9 @@ const applyBeta = ({ closeModal, whitelistState }) => {
       <div className={cx("modal-header")}>
         <a href="#" className={cx("modal-close")} onClick={closeModal}></a>{" "}
         <img className={cx("modal-header-image")} src={Logo} alt="kyc-logo" />
-        Apply for the closed Beta
+        <p>
+          Apply for the <b>closed Beta</b>
+        </p>
       </div>
       <div className={cx("modal-body")}>
         {!whitelistState || whitelistState === "NOT_FOUND"
