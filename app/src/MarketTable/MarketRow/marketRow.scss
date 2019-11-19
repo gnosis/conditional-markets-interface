@@ -107,6 +107,10 @@
       color: $blue;
     }
 
+    .detail-content {
+      padding: 0 0.8rem;
+    }
+
     &.hidden {
       .detail-content {
         display: none;
@@ -117,7 +121,8 @@
 
     td {
       text-align: left;
-      padding: 1.2rem 0.8rem;
+      //padding: 1.2rem 0.8rem;
+      padding: 0;
       font-weight: normal;
       font-size: 1.6rem;
 
@@ -135,15 +140,15 @@
     .market-details-header {
       color: #00193c;
       line-height: normal;
-      margin: 1rem 0;
+      //padding: 1rem 0;
     }
 
     .expand-collapse {
-      padding: 0;
       width: 100%;
       font-size: 1.6rem;
       font-weight: $bold;
       cursor: pointer;
+      padding: 2rem 0.8rem;
       display: flex;
       appearance: none;
       -webkit-appearance: none;

@@ -20,6 +20,7 @@ import { history, store } from "./store";
 
 Decimal.config({
   precision: 80,
+  toExpPos: 50,
   rounding: Decimal.ROUND_FLOOR
 });
 

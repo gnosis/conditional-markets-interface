@@ -29,6 +29,11 @@
     justify-content: center;
     height: 100%;
 
+    a {
+      color: currentColor;
+      text-decoration: none;
+    }
+
     &.active {
       border-bottom: .4rem solid $blue;
     }

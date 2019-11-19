@@ -19,6 +19,8 @@ import { getQuestions } from "api/operator";
 import style from "./root.scss";
 const cx = cn.bind(style);
 
+import conf from "../conf";
+
 import getMarketMakersRepo from "../repositories/MarketMakersRepo";
 import getConditionalTokensRepo from "../repositories/ConditionalTokensRepo";
 import getConditionalTokensService from "../services/ConditionalTokensService";
@@ -26,7 +28,7 @@ let marketMakersRepo;
 let conditionalTokensRepo;
 let conditionalTokensService;
 
-const whitelistEnabled = process.env.WHITELIST_ENABLED;
+const whitelistEnabled = conf.whitelistEnabled;
 const SYNC_INTERVAL = 8000;
 const WHITELIST_CHECK_INTERVAL = 30000;
 
@@ -342,6 +344,8 @@ const RootComponent = ({ childComponents }) => {
           setWhitelistCheckIntervalTime(null); // stops the refresh
         }
       })();
+    } else {
+      setWhitelistState("NOT_FOUND");
     }
   }, [account]);
   useInterval(updateWhitelist, whitelistIntervalTime);
@@ -501,13 +505,13 @@ const RootComponent = ({ childComponents }) => {
                     account,
                     markets,
                     positions,
+                    positionBalances,
                     marketResolutionStates,
                     marketSelections,
                     collateral,
                     collateralBalance,
                     lmsrState,
                     lmsrAllowance,
-                    positionBalances,
                     stagedTradeAmounts,
                     setStagedTradeAmounts,
                     stagedTransactionType,

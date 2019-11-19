@@ -1,30 +1,4 @@
 {
-  "lmsrAddress": "0xE7640763CDecd3dfEA63846AFC0F62a1A3BB6063",
-  "markets": [
-    {
-      "questionId": "0xda66c02003000000000000000000000000000000000000000000000000000000",
-      "title": "Will the stability fee for Single-Collateral Dai go up from 20.5% before November 1st 2019?",
-      "resolutionDate": "2019-11-01T16:00:00.000Z",
-      "outcomes": [
-        {
-          "title": "Yes",
-          "short": "Yes",
-          "when": "Dai stability fee > 20.5%"
-        },
-        {
-          "title": "No",
-          "short": "No",
-          "when": "Dai stability fee ≤ 20.5%"
-        }
-      ],
-      "outcomeNames": [
-        "Yes",
-        "No"
-      ],
-      "description": "This would explain which stability fee is meant and where this value is received from for market resolution\r\n# A Title\r\nThsi would explain more things",
-      "dataSource": "Example",
-      "dataSourceURL": "http://example.org"
-    }
-  ],
+  "lmsrAddress": "0xa5F35715145c98CC5Ef11A69B2432E6A68953249",
   "networkId": 4
 }

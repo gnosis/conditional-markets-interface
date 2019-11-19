@@ -8,11 +8,14 @@ import Logo from "img/conditional-logo-color.svg";
 
 const cx = cn.bind(style);
 
+const isProduction = process.env.NODE_ENV === "production";
+const marketsPage = `${process.env.BASE_URL}${isProduction ? "#markets" : ""}`;
+
 const Header = ({ avatar, menu }) => (
   <div className={cx("header")}>
     <button
       className={cx("logo")}
-      onClick={() => location.reload()}
+      onClick={() => (location.href = marketsPage)}
       type="button"
     >
       <img src={Logo} alt="Gnosis Conditional Tokens" />

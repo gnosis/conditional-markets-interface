@@ -7,10 +7,11 @@ import { zeroDecimal } from "utils/constants";
 import { formatCollateral } from "utils/formatting";
 import { calcPositionGroups } from "utils/position-groups";
 import { getPositionId, combineCollectionIds } from "utils/getIdsUtil";
+import { calcSelectedMarketProbabilitiesFromPositionProbabilities } from "utils/probabilities";
 
 import cn from "classnames/bind";
 import style from "./positions.scss";
-import OutcomeCard from "../../components/OutcomeCard";
+import OutcomeCard, { Dot } from "../../components/OutcomeCard";
 
 const cx = cn.bind(style);
 const { toBN } = Web3.utils;
@@ -22,25 +23,6 @@ let conditionalTokensRepo;
 let marketMakersRepo;
 let conditionalTokensService;
 
-function calcNetCost({ funding, positionBalances }, tradeAmounts) {
-  const invB = new Decimal(positionBalances.length)
-    .ln()
-    .dividedBy(funding.toString());
-  return tradeAmounts
-    .reduce(
-      (acc, tradeAmount, i) =>
-        acc.add(
-          tradeAmount
-            .sub(positionBalances[i].toString())
-            .mul(invB)
-            .exp()
-        ),
-      zeroDecimal
-    )
-    .ln()
-    .div(invB);
-}
-
 const Positions = ({
   account,
   markets,
@@ -49,6 +31,7 @@ const Positions = ({
   collateral,
   lmsrState,
   positionBalances,
+  marketSelections,
   stagedTradeAmounts,
   setStagedTradeAmounts,
   stagedTransactionType,
@@ -71,7 +54,32 @@ const Positions = ({
     loadDataLayer();
   }, []);
 
+  const [probabilities, setProbabilities] = useState(null);
   const [positionGroups, setPositionGroups] = useState(null);
+
+  useEffect(() => {
+    if (lmsrState != null) {
+      const { funding, positionBalances: lmsrPositionBalances } = lmsrState;
+      const invB = new Decimal(lmsrPositionBalances.length)
+        .ln()
+        .div(funding.toString());
+
+      const positionProbabilities = lmsrPositionBalances.map(balance =>
+        invB
+          .mul(balance.toString())
+          .neg()
+          .exp()
+      );
+      setProbabilities(
+        calcSelectedMarketProbabilitiesFromPositionProbabilities(
+          markets,
+          positions,
+          marketSelections,
+          positionProbabilities
+        )
+      );
+    }
+  }, [lmsrState, markets, positions]);
 
   useEffect(() => {
     if (positionBalances == null) {
@@ -84,7 +92,7 @@ const Positions = ({
       );
       setPositionGroups(positionGroups);
     }
-  }, [markets, positions, positionBalances]);
+  }, [markets, positions, positionBalances, marketSelections]);
 
   const [salePositionGroup, setSalePositionGroup] = useState(null);
   const [currentSellingPosition, setCurrentSellingPosition] = useState(null);
@@ -101,67 +109,37 @@ const Positions = ({
     }
   }, [positionGroups]);
 
-  const [saleAmount, setSaleAmount] = useState("");
-  const [estimatedSaleEarnings, setEstimatedSaleEarnings] = useState(null);
+  const [estimatedSaleEarnings, setEstimatedSaleEarnings] = useState([]);
 
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (stagedTransactionType !== "sell outcome tokens") return;
+    const getBaseArray = length => {
+      return Array(length).fill("0");
+    };
 
-    if (saleAmount === "") {
-      setStagedTradeAmounts(null);
-      setEstimatedSaleEarnings(null);
-      setError(null);
-      return;
-    }
+    if (marketMakersRepo) {
+      (async () => {
+        if (!positionBalances) return;
+        // Make a call for each available position
+        const allEarningCalculations = await Promise.all(
+          positionBalances.map((balance, index) => {
+            // We get set a position array where we only have 1 position bought
+            let balanceForThisPosition = getBaseArray(positionBalances.length);
+            // Include in this call only the balance for this position
+            // Note the negative value, it's because of being a sell price
+            balanceForThisPosition[index] = balance.neg().toString();
 
-    try {
-      const saleAmountInUnits = collateral.toUnitsMultiplier.mul(saleAmount);
-
-      if (!saleAmountInUnits.isInteger())
-        throw new Error(
-          `Got more than ${collateral.decimals} decimals in value ${saleAmount}`
+            // Calculate the balance for this position
+            // return as positive value for the frontend
+            return marketMakersRepo.calcNetCost(balanceForThisPosition).then(sellPrice => sellPrice.abs());
+          })
         );
 
-      if (saleAmountInUnits.gt(salePositionGroup.amount.toString()))
-        throw new Error(
-          `Not enough collateral: missing ${formatCollateral(
-            saleAmountInUnits.sub(salePositionGroup.amount.toString()),
-            collateral
-          )}`
-        );
-
-      const stagedTradeAmounts = Array.from(
-        { length: positions.length },
-        (_, i) =>
-          salePositionGroup.positions.find(
-            ({ positionIndex }) => positionIndex === i
-          ) == null
-            ? zeroDecimal
-            : saleAmountInUnits.neg()
-      );
-
-      setStagedTradeAmounts(stagedTradeAmounts);
-
-      setEstimatedSaleEarnings(
-        calcNetCost(lmsrState, stagedTradeAmounts).neg()
-      );
-
-      setError(null);
-    } catch (e) {
-      setStagedTradeAmounts(null);
-      setEstimatedSaleEarnings(null);
-      setError(e);
+        setEstimatedSaleEarnings(allEarningCalculations);
+      })();
     }
-  }, [
-    stagedTransactionType,
-    collateral,
-    positions,
-    lmsrState,
-    salePositionGroup,
-    saleAmount
-  ]);
+  }, [marketMakersRepo, positionBalances]);
 
   const sellAllTokensOfGroup = useCallback(
     async salePositionGroup => {
@@ -372,16 +350,20 @@ const Positions = ({
         </>
       )}
       {!allMarketsResolved && positionGroups.length > 0 && (
-        <>
-          <div className={cx("positions-subheading")}>
-            <span className={cx("position-col-outcome")}>Position</span>
-            <span className={cx("position-col-value")}>Current Value</span>
-            <span className={cx("position-col-sell")} />
-          </div>
-          <div className={cx("positions-entries")}>
+        <table className={cx("position-entries-table")}>
+          <thead>
+            <tr>
+              <td>Position</td>
+              <td>Quantity</td>
+              <td>Current Value</td>
+              <td>Sell Price</td>
+              <td></td>
+            </tr>
+          </thead>
+          <tbody>
             {positionGroups.map((positionGroup, index) => (
-              <div className={cx("position-entry")} key={index}>
-                <div className={cx("position-col-outcome")}>
+              <tr key={index}>
+                <td>
                   {positionGroup.outcomeSet.length === 0 && (
                     <OutcomeCard
                       {...positionGroup.positions[0].outcomes[0]}
@@ -392,23 +374,41 @@ const Positions = ({
                     />
                   )}
                   {positionGroup.outcomeSet.map(outcome => (
-                    <OutcomeCard
-                      {...outcome}
+                    <span
                       key={`${outcome.marketIndex}-${outcome.outcomeIndex}`}
-                      glueType="and"
-                      // prefixType="IF"
-                    />
+                    >
+                      <Dot index={outcome.outcomeIndex} />
+                      {outcome.title}
+                    </span>
                   ))}
-                </div>
-                <div className={cx("position-col-value", "position-values")}>
-                  <p className={cx("value")}>
-                    {formatCollateral(positionGroup.runningAmount, collateral)}
-                  </p>
-                  {/*<p>(({positionGroup.margin * 100}%)</p>*/}
-                </div>
-                <div className={cx("position-col-sell", "position-sell")}>
+                </td>
+                <td>
+                  {new Decimal(positionBalances[index].toString())
+                    .div(1e18)
+                    .toPrecision(4)}
+                </td>
+                <td>
+                  {probabilities && probabilities[positionGroup.outcomeSet[0].marketIndex] ? (
+                    formatCollateral(
+                      new Decimal(positionBalances[index].toString()).mul(
+                        probabilities[positionGroup.outcomeSet[0].marketIndex][index]
+                      ),
+                      collateral
+                    )
+                  ) : (
+                    <Spinner width={12} height={12} />
+                  )}
+                </td>
+                <td>
+                  {estimatedSaleEarnings.length ? (
+                    formatCollateral(estimatedSaleEarnings[index], collateral)
+                  ) : (
+                    <Spinner width={12} height={12} />
+                  )}
+                </td>
+                <td>
                   <button
-                    className={cx("button")}
+                    className={cx("position-sell")}
                     type="button"
                     disabled={ongoingTransactionType === "sell outcome tokens"}
                     onClick={asWrappedTransaction(
@@ -426,11 +426,11 @@ const Positions = ({
                       "Sell"
                     )}
                   </button>
-                </div>
-              </div>
+                </td>
+              </tr>
             ))}
-          </div>
-        </>
+          </tbody>
+        </table>
       )}
       {error != null && <span className={cn("error")}>{error.message}</span>}
     </>
