@@ -132,7 +132,9 @@ const Positions = ({
 
             // Calculate the balance for this position
             // return as positive value for the frontend
-            return marketMakersRepo.calcNetCost(balanceForThisPosition).then(sellPrice => sellPrice.abs());
+            return marketMakersRepo
+              .calcNetCost(balanceForThisPosition)
+              .then(sellPrice => sellPrice.abs());
           })
         );
 
@@ -176,6 +178,17 @@ const Positions = ({
     },
     [account, marketMakersRepo, collateral]
   );
+
+  const makeOutcomeSellSelectHandler = useCallback(
+    salePositionGroup => () => {
+      setCurrentSellingPosition(salePositionGroup);
+    },
+    []
+  );
+
+  const handleCancelSell = useCallback(() => {
+    setCurrentSellingPosition(null);
+  }, [])
 
   const sellOutcomeTokens = useCallback(async () => {
     if (stagedTradeAmounts == null) throw new Error(`No sell set yet`);
@@ -314,8 +327,45 @@ const Positions = ({
     );
   }
 
-  return (
-    <>
+  return currentSellingPosition ? (
+    <div className={cx("sell")}>
+      <div className={cx("sell-heading")}>
+        Sell Position
+        <button className={cx("sell-cancel")} type="button" onClick={handleCancelSell}/>
+      </div>
+      <div className={cx("sell-form")}>
+        <div className={cx("sell-form-row")}>
+          <label>Position</label>
+          <div className={cx("entry")}></div>
+        </div>
+        <div className={cx("sell-form-row")}>
+          <label>Quantity</label>
+          <div className={cx("entry")}>
+            <input type="text" />
+          </div>
+        </div>
+        <div className={cx("sell-form-row")}>
+          <label>Sell Quantity</label>
+          <div className={cx("entry")}>
+            <input type="text" />
+          </div>
+        </div>
+        <div className={cx("sell-form-row")}>
+          <label>Sell Price</label>
+          <div className={cx("entry")}>
+            <input type="text" />
+          </div>
+        </div>
+        <div className={cx("sell-form-row")}>
+          <label></label>
+          <div className={cx("entry")}>
+            <button className={cx("sell-confirm")}>Place Sell Order</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  ) : (
+    <div className={cx("positions")}>
       <div className={cx("positions-heading")}>Your Positions</div>
       {positionGroups.length === 0 && (
         <div className={cx("positions-empty")}>You have no positions.</div>
@@ -388,10 +438,13 @@ const Positions = ({
                     .toPrecision(4)}
                 </td>
                 <td>
-                  {probabilities && probabilities[positionGroup.outcomeSet[0].marketIndex] ? (
+                  {probabilities &&
+                  probabilities[positionGroup.outcomeSet[0].marketIndex] ? (
                     formatCollateral(
                       new Decimal(positionBalances[index].toString()).mul(
-                        probabilities[positionGroup.outcomeSet[0].marketIndex][index]
+                        probabilities[positionGroup.outcomeSet[0].marketIndex][
+                          index
+                        ]
                       ),
                       collateral
                     )
@@ -411,11 +464,7 @@ const Positions = ({
                     className={cx("position-sell")}
                     type="button"
                     disabled={ongoingTransactionType === "sell outcome tokens"}
-                    onClick={asWrappedTransaction(
-                      "sell outcome tokens",
-                      () => sellAllTokensOfGroup(positionGroup),
-                      setError
-                    )}
+                    onClick={makeOutcomeSellSelectHandler(positionGroup)}
                   >
                     {ongoingTransactionType === "sell outcome tokens" &&
                     (currentSellingPosition &&
@@ -433,7 +482,7 @@ const Positions = ({
         </table>
       )}
       {error != null && <span className={cn("error")}>{error.message}</span>}
-    </>
+    </div>
   );
 };
 

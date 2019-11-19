@@ -2,7 +2,10 @@
 
 .sidebar {
   height: 100%;
-  height: calc(100vh - 7.5rem);
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 7.5rem);
+  padding-bottom: 32px;
 }
 
 @mixin sidebar-entry {
