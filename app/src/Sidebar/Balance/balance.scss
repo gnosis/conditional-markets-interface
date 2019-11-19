@@ -4,6 +4,14 @@
   @include sidebar-entry;
   font-size: 1.3rem;
 
+  @media #{$tablet-small-max} {
+      position: fixed;
+      bottom: 0;
+      height: 5.2rem;
+      width: 100%;
+      border-top: 0.1rem solid #D8D8D8;
+  }
+
   .label {
 
   }

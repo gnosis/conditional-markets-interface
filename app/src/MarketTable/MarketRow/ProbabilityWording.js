@@ -18,6 +18,15 @@ const PROBABILITY_WORDING = [
   [[99, 100], "Certain"]
 ];
 
+const getLabelWording = stagedProbability => {
+  const selectedWording = PROBABILITY_WORDING.find(([[probFrom, probTo]]) => {
+    return stagedProbability >= probFrom && stagedProbability < probTo;
+  });
+  const [, label] = selectedWording;
+
+  return label;
+};
+
 const ProbabilityWording = ({
   outcomes,
   probabilities,
@@ -31,20 +40,11 @@ const ProbabilityWording = ({
       {displayedProbabilities && (
         <>
           {outcomes.map((outcome, index) => {
-            const stagedProbabilityFloat = displayedProbabilities[
-              index
-            ].toNumber();
+            const stagedProbability = displayedProbabilities[index]
+              .mul(100)
+              .toNumber();
 
-            let selectedWording;
-            PROBABILITY_WORDING.forEach(([[probFrom, probTo], label]) => {
-              if (
-                stagedProbabilityFloat >= probFrom / 100 &&
-                stagedProbabilityFloat < probTo / 100
-              ) {
-                selectedWording = label;
-              }
-            });
-            const probabilityWording = selectedWording;
+            const probabilityWording = getLabelWording(stagedProbability);
 
             return (
               <div

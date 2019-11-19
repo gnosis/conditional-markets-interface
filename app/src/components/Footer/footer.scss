@@ -4,13 +4,22 @@
   position: fixed;
   bottom: 0;
   width: 100%;
-  height: 32px;
-  background: #fff;
-  border-top: 1px solid $greyBorder;
+  height: 3.2rem;
+  background: $white;
+  border-top: .1rem solid $greyBorder;
   text-transform: uppercase;
   text-align: center;
-  color: #111;
+  color: $black;
   padding: 1rem;
+
+    @media #{$tablet-small-max} {
+      position: relative;
+      display: flex;
+      height: auto;
+      flex-flow: column wrap;
+      padding: 2.4rem 2.4rem 10rem;
+      font-size: 1.3rem;
+    }
 }
 
 .footer-links {
@@ -18,17 +27,33 @@
   display: inline;
   padding: 0;
   margin: 0 0.5rem;
-  li {
-    padding: 0;
-    display: inline;
-    margin: 0 0.5rem;
 
-    a, a:visited {
-      color: #009bb4;
+    @media #{$tablet-small-max} {
+      margin: 2rem auto 0;
+      display: flex;
+      flex-flow: column wrap;
     }
-    a:hover {
-      color: #00193c;
-      text-decoration: underline;
+
+    li {
+      padding: 0;
+      display: inline;
+      margin: 0 0.5rem;
+
+      @media #{$tablet-small-max} {
+        margin: 0 0 1.4rem;
+
+          &:last-of-type {
+            margin: 0;
+          }
+      }
+
+      a, a:visited {
+        color: $blue;
+      }
+
+      a:hover {
+        color: $black;
+        text-decoration: underline;
+      }
     }
-  }
 }

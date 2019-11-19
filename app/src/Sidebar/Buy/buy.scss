@@ -24,6 +24,7 @@
     @include sidebar-empty;
     border-bottom: none;
     white-space: wrap;
+    justify-content: center;
   }
 
   &-confirm {
@@ -155,6 +156,10 @@
       font-weight: normal;
       margin: 0 0 0 auto;
       outline: 0;
+
+      @media #{$tablet-small-max} {
+        width: 60%;
+      }
 
       &::-webkit-inner-spin-button,
       &::-webkit-outer-spin-button {

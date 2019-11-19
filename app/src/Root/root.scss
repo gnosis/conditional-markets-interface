@@ -4,7 +4,7 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  padding-bottom: 32px;
+  padding-bottom: 3.2rem;
 }
 
 .loading-page {
@@ -13,27 +13,49 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  background: $blue;
+  flex-flow: column wrap;
+
+    > p {
+      font-size: 2rem;
+      color: $white;
+      display: block;
+    }
 }
 
 .sections {
   display: flex;
-  flex: 1;
+  flex-flow: row nowrap;
+  flex: 1 1 auto;
+  width: 100%;
+  box-sizing: border-box;
+
+  @media #{$tablet-small-max} {
+    flex-flow: column;
+  }
 
   .section {
     &-markets {
-      flex: 1;
+      flex: 1 1 auto;
+      width: 75%;
       padding: 0 2rem;
       border-right: .1rem solid $greyBorder2;
+
         @media #{$tablet-small-max} {
           border: 0;
+          padding: 0;
+          margin: 0 0 6rem;
+          width: 100%;
         }
     }
 
     &-positions {
       background: $white;
-      flex-basis: 20%;
+      width: 100%;
+      max-width: 32rem;
+
         @media #{$tablet-small-max} {
-          display: none;
+          width: 100%;
         }
     }
   }
@@ -44,8 +66,24 @@
   align-items: center;
   justify-content: center;
   flex-flow: column wrap;
-  min-height: 100%;
-  background: $blue;
+  min-height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 99;
+
+  &::before {
+    content: "";
+    background: rgba(0, 25, 60, 0.75);
+    filter: blur(3px);
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
 
   &:not(.modal-open) {
     display: none;
@@ -85,6 +123,6 @@
   flex-flow: column wrap;
 
   &.modal-open {
-    display: none;
+    filter: blur(2px);
   }
 }

@@ -1,12 +1,13 @@
 import React, { useCallback } from "react";
 import PropTypes from "prop-types";
 
-import cn from "classnames/bind";
+// Components
 import Select from "react-select";
-
-import style from "./OutcomeSelection.scss";
-
 import { Dot } from "components/OutcomeCard";
+
+// Styles
+import cn from "classnames/bind";
+import style from "./OutcomeSelection.scss";
 
 const cx = cn.bind(style);
 
@@ -44,22 +45,6 @@ const OutcomeSelection = ({
         classNamePrefix="outcome-selection"
         onChange={handleOutcomeSelect}
       />
-      {/*
-      <select
-        name="marketOutcomeSelection"
-        className={cx("outcome-selection-dropdown")}
-        value={marketSelection.selectedOutcomeIndex}
-        onChange={handleOutcomeSelect}
-      >
-        <option key={"no-selection"} value={-1}>
-          No Preference
-        </option>
-        {outcomes.map((outcome, index) => (
-          <option key={outcome.short} value={index}>
-            {outcome.title}
-          </option>
-        ))}
-      </select> */}
     </div>
   );
 };
