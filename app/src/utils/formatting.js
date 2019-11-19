@@ -3,8 +3,13 @@ import Decimal from "decimal.js-light";
 
 import {
   probabilityDecimalPlaces,
-  collateralSignificantDigits
+  collateralSignificantDigits,
+  quantitySiginificantDigits
 } from "./constants";
+
+const smellsLikeDecimal = val => {
+  return val.constructor === Decimal;
+};
 
 export const formatProbability = probability =>
   `${probability
@@ -12,10 +17,35 @@ export const formatProbability = probability =>
     .toDecimalPlaces(probabilityDecimalPlaces, Decimal.ROUND_HALF_UP)}%`;
 
 export const formatCollateral = (amount, collateral) => {
-  return `${new Decimal((amount || "0").toString())
+  const amountDecimal = smellsLikeDecimal(amount)
+    ? amount
+    : new Decimal((amount || "0").toString());
+
+  const minValue = new Decimal(10).pow(-collateralSignificantDigits);
+
+  if (amountDecimal.lt(minValue)) {
+    return `<${minValue.toString()}`;
+  }
+
+  const collateralValue = amountDecimal
     .mul(collateral.fromUnitsMultiplier)
     .toSignificantDigits(collateralSignificantDigits)
-    .toString()} ${collateral.symbol}`;
+    .toString();
+  return `${collateralValue} ${collateral.symbol}`;
+};
+
+export const formatAmount = amount => {
+  const amountDecimal = smellsLikeDecimal(amount)
+    ? amount
+    : new Decimal((amount || "0").toString());
+
+  const minValue = new Decimal(10).pow(-quantitySiginificantDigits);
+
+  if (amountDecimal.lt(minValue)) {
+    return `<${minValue.toString()}`;
+  }
+
+  return amount.toSignificantDigits(quantitySiginificantDigits).toString();
 };
 
 const REPLACEMENT_RULES = [[/_(.*)_/g, "<em>$1</em>"]];

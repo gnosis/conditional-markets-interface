@@ -4,7 +4,7 @@ import Web3 from "web3";
 import Decimal from "decimal.js-light";
 import Spinner from "components/Spinner";
 import { zeroDecimal } from "utils/constants";
-import { formatCollateral } from "utils/formatting";
+import { formatCollateral, formatAmount } from "utils/formatting";
 import { calcPositionGroups } from "utils/position-groups";
 import { getPositionId, combineCollectionIds } from "utils/getIdsUtil";
 import { calcSelectedMarketProbabilitiesFromPositionProbabilities } from "utils/probabilities";
@@ -132,7 +132,9 @@ const Positions = ({
 
             // Calculate the balance for this position
             // return as positive value for the frontend
-            return marketMakersRepo.calcNetCost(balanceForThisPosition).then(sellPrice => sellPrice.abs());
+            return marketMakersRepo
+              .calcNetCost(balanceForThisPosition)
+              .then(sellPrice => sellPrice.abs());
           })
         );
 
@@ -361,74 +363,90 @@ const Positions = ({
             </tr>
           </thead>
           <tbody>
-            {positionGroups.map((positionGroup, index) => (
-              <tr key={index}>
-                <td>
-                  {positionGroup.outcomeSet.length === 0 && (
-                    <OutcomeCard
-                      {...positionGroup.positions[0].outcomes[0]}
-                      outcomeIndex={-1}
-                      marketIndex="*"
-                      title={"Any"}
-                      prefixType="IF"
-                    />
-                  )}
-                  {positionGroup.outcomeSet.map(outcome => (
-                    <span
-                      key={`${outcome.marketIndex}-${outcome.outcomeIndex}`}
-                    >
-                      <Dot index={outcome.outcomeIndex} />
-                      {outcome.title}
-                    </span>
-                  ))}
-                </td>
-                <td>
-                  {new Decimal(positionBalances[index].toString())
-                    .div(1e18)
-                    .toPrecision(4)}
-                </td>
-                <td>
-                  {probabilities && probabilities[positionGroup.outcomeSet[0].marketIndex] ? (
-                    formatCollateral(
-                      new Decimal(positionBalances[index].toString()).mul(
-                        probabilities[positionGroup.outcomeSet[0].marketIndex][index]
-                      ),
-                      collateral
-                    )
-                  ) : (
-                    <Spinner width={12} height={12} />
-                  )}
-                </td>
-                <td>
-                  {estimatedSaleEarnings.length ? (
-                    formatCollateral(estimatedSaleEarnings[index], collateral)
-                  ) : (
-                    <Spinner width={12} height={12} />
-                  )}
-                </td>
-                <td>
-                  <button
-                    className={cx("position-sell")}
-                    type="button"
-                    disabled={ongoingTransactionType === "sell outcome tokens"}
-                    onClick={asWrappedTransaction(
-                      "sell outcome tokens",
-                      () => sellAllTokensOfGroup(positionGroup),
-                      setError
+            {positionGroups.map((positionGroup, index) => {
+              const outcomeIndex = positionGroup.outcomeSet[0].outcomeIndex;
+
+              return (
+                <tr key={index}>
+                  <td>
+                    {positionGroup.outcomeSet.length === 0 && (
+                      <OutcomeCard
+                        {...positionGroup.positions[0].outcomes[0]}
+                        outcomeIndex={-1}
+                        marketIndex="*"
+                        title={"Any"}
+                        prefixType="IF"
+                      />
                     )}
-                  >
-                    {ongoingTransactionType === "sell outcome tokens" &&
-                    (currentSellingPosition &&
-                      currentSellingPosition.collectionId ===
-                        positionGroup.collectionId) ? (
-                      <Spinner width={16} height={16} centered inverted />
+                    {positionGroup.outcomeSet.map(outcome => (
+                      <span
+                        key={`${outcome.marketIndex}-${outcome.outcomeIndex}`}
+                      >
+                        <Dot index={outcome.outcomeIndex} />
+                        {outcome.title}
+                      </span>
+                    ))}
+                  </td>
+                  <td>
+                    {formatAmount(
+                      new Decimal(
+                        positionBalances[outcomeIndex].toString()
+                      ).div(1e18)
+                    )}
+                  </td>
+                  <td>
+                    {probabilities &&
+                    probabilities[positionGroup.outcomeSet[0].marketIndex] ? (
+                      formatCollateral(
+                        new Decimal(
+                          positionBalances[outcomeIndex].toString()
+                        ).mul(
+                          probabilities[
+                            positionGroup.outcomeSet[0].marketIndex
+                          ][outcomeIndex]
+                        ),
+                        collateral
+                      )
                     ) : (
-                      "Sell"
+                      <Spinner width={12} height={12} />
                     )}
-                  </button>
-                </td>
-              </tr>
-            ))}
+                  </td>
+                  <td>
+                    {estimatedSaleEarnings.length ? (
+                      formatCollateral(
+                        estimatedSaleEarnings[outcomeIndex],
+                        collateral
+                      )
+                    ) : (
+                      <Spinner width={12} height={12} />
+                    )}
+                  </td>
+                  <td>
+                    <button
+                      className={cx("position-sell")}
+                      type="button"
+                      disabled={
+                        ongoingTransactionType === "sell outcome tokens"
+                      }
+                      onClick={asWrappedTransaction(
+                        "sell outcome tokens",
+                        () => sellAllTokensOfGroup(positionGroup),
+                        setError
+                      )}
+                    >
+                      {ongoingTransactionType === "sell outcome tokens" &&
+                      (currentSellingPosition &&
+                        currentSellingPosition.collectionId ===
+                          positionGroup.collectionId) ? (
+                        <Spinner width={16} height={16} centered inverted />
+                      ) : (
+                        "Sell"
+                      )}
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       )}
