@@ -80,8 +80,8 @@
     }
 
     &:hover {
-      box-shadow: 0 7px 14px rgba(0, 25, 60, .15), 0 3px 6px rgba(0, 0, 0, .08);
-      transform: translateY(-1px);
+      box-shadow: 0 .7rem 1.4rem rgba(0, 25, 60, .15), 0 .3rem .6rem rgba(0, 0, 0, .08);
+      transform: translateY(-.1rem);
     }
 
     main {
@@ -217,7 +217,7 @@
 
   .button {
     width: 100%;
-    max-width: 400px;
+    max-width: 40rem;
     margin: 5rem auto;
   }
 
