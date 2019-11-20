@@ -12,11 +12,11 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-
+  cursor: pointer;
   top: 0;
-
   padding: 1rem;
   min-height: 22rem;
+  outline: 0;
 
   a {
     color: $black;
