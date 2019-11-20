@@ -480,11 +480,7 @@ const Positions = ({
                       disabled={
                         ongoingTransactionType === "sell outcome tokens"
                       }
-                      onClick={asWrappedTransaction(
-                        "sell outcome tokens",
-                        () => sellAllTokensOfGroup(positionGroup),
-                        setError
-                      )}
+                      onClick={makeOutcomeSellSelectHandler(positionGroup)}
                     >
                       {ongoingTransactionType === "sell outcome tokens" &&
                       (currentSellingPosition &&
