@@ -9,6 +9,8 @@ import { calcPositionGroups } from "utils/position-groups";
 import { getPositionId, combineCollectionIds } from "utils/getIdsUtil";
 import { calcSelectedMarketProbabilitiesFromPositionProbabilities } from "utils/probabilities";
 
+import Select from "react-select";
+
 import cn from "classnames/bind";
 import style from "./positions.scss";
 import OutcomeCard, { Dot } from "../../components/OutcomeCard";
@@ -19,6 +21,8 @@ const { toBN } = Web3.utils;
 import getConditionalTokensRepo from "../../repositories/ConditionalTokensRepo";
 import getMarketMakersRepo from "../../repositories/MarketMakersRepo";
 import getConditionalTokensService from "../../services/ConditionalTokensService";
+import Sell from "./Sell";
+import Balances from "./Balances";
 let conditionalTokensRepo;
 let marketMakersRepo;
 let conditionalTokensService;
@@ -327,179 +331,31 @@ const Positions = ({
     );
   }
 
-  return currentSellingPosition ? (
-    <div className={cx("sell")}>
-      <div className={cx("sell-heading")}>
-        Sell Position
-        <button
-          className={cx("sell-cancel")}
-          type="button"
-          onClick={handleCancelSell}
-        />
-      </div>
-      <div className={cx("sell-form")}>
-        <div className={cx("sell-form-row")}>
-          <label>Position</label>
-          <div className={cx("entry")}></div>
-        </div>
-        <div className={cx("sell-form-row")}>
-          <label>Quantity</label>
-          <div className={cx("entry")}>
-            <input type="text" />
-          </div>
-        </div>
-        <div className={cx("sell-form-row")}>
-          <label>Sell Quantity</label>
-          <div className={cx("entry")}>
-            <input type="text" />
-          </div>
-        </div>
-        <div className={cx("sell-form-row")}>
-          <label>Sell Price</label>
-          <div className={cx("entry")}>
-            <input type="text" />
-          </div>
-        </div>
-        <div className={cx("sell-form-row")}>
-          <label></label>
-          <div className={cx("entry")}>
-            <button className={cx("sell-confirm")}>Place Sell Order</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  ) : (
-    <div className={cx("positions")}>
-      <div className={cx("positions-heading")}>Your Positions</div>
-      {positionGroups.length === 0 && (
-        <div className={cx("positions-empty")}>You have no positions.</div>
-      )}
-      {allMarketsResolved && (
-        <>
-          <div className={cx("positions-subheading")}>
-            Redeeming your positions will net you a total of{" "}
-            {formatCollateral(redemptionAmount, collateral)}
-          </div>
-          <div className={cx("positions-redeem")}>
-            <button
-              type="button"
-              className={cx("redeem-all")}
-              disabled={ongoingTransactionType != null}
-              onClick={asWrappedTransaction(
-                "redeem positions",
-                redeemPositions,
-                setError
-              )}
-            >
-              {ongoingTransactionType === "redeem positions" ? (
-                <Spinner inverted width={25} height={25} />
-              ) : (
-                <>Redeem Positions</>
-              )}
-            </button>
-          </div>
-          {error != null && (
-            <span className={cx("error")}>{error.message}</span>
-          )}
-        </>
-      )}
-      {!allMarketsResolved && positionGroups.length > 0 && (
-        <table className={cx("position-entries-table")}>
-          <thead>
-            <tr>
-              <td>Position</td>
-              <td>Quantity</td>
-              <td>Current Value</td>
-              <td>Sell Price</td>
-              <td></td>
-            </tr>
-          </thead>
-          <tbody>
-            {positionGroups.map((positionGroup, index) => {
-              const outcomeIndex = positionGroup.outcomeSet[0].outcomeIndex;
+  const isSelling = currentSellingPosition != null;
 
-              return (
-                <tr key={index}>
-                  <td>
-                    {positionGroup.outcomeSet.length === 0 && (
-                      <OutcomeCard
-                        {...positionGroup.positions[0].outcomes[0]}
-                        outcomeIndex={-1}
-                        marketIndex="*"
-                        title={"Any"}
-                        prefixType="IF"
-                      />
-                    )}
-                    {positionGroup.outcomeSet.map(outcome => (
-                      <span
-                        key={`${outcome.marketIndex}-${outcome.outcomeIndex}`}
-                      >
-                        <Dot index={outcome.outcomeIndex} />
-                        {outcome.title}
-                      </span>
-                    ))}
-                  </td>
-                  <td>
-                    {formatAmount(
-                      new Decimal(
-                        positionBalances[outcomeIndex].toString()
-                      ).div(1e18)
-                    )}
-                  </td>
-                  <td>
-                    {probabilities &&
-                    probabilities[positionGroup.outcomeSet[0].marketIndex] ? (
-                      formatCollateral(
-                        new Decimal(
-                          positionBalances[outcomeIndex].toString()
-                        ).mul(
-                          probabilities[
-                            positionGroup.outcomeSet[0].marketIndex
-                          ][outcomeIndex]
-                        ),
-                        collateral
-                      )
-                    ) : (
-                      <Spinner width={12} height={12} />
-                    )}
-                  </td>
-                  <td>
-                    {estimatedSaleEarnings.length ? (
-                      formatCollateral(
-                        estimatedSaleEarnings[outcomeIndex],
-                        collateral
-                      )
-                    ) : (
-                      <Spinner width={12} height={12} />
-                    )}
-                  </td>
-                  <td>
-                    <button
-                      className={cx("position-sell")}
-                      type="button"
-                      disabled={
-                        ongoingTransactionType === "sell outcome tokens"
-                      }
-                      onClick={makeOutcomeSellSelectHandler(positionGroup)}
-                    >
-                      {ongoingTransactionType === "sell outcome tokens" &&
-                      (currentSellingPosition &&
-                        currentSellingPosition.collectionId ===
-                          positionGroup.collectionId) ? (
-                        <Spinner width={16} height={16} centered inverted />
-                      ) : (
-                        "Sell"
-                      )}
-                    </button>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      )}
-      {error != null && <span className={cn("error")}>{error.message}</span>}
-    </div>
+  return isSelling ? (
+    <Sell
+      markets={markets}
+      currentSellingPosition={currentSellingPosition}
+      onCancelSell={handleCancelSell}
+    />
+  ) : (
+    <Balances
+      positionGroups={positionGroups}
+      allMarketsResolved={allMarketsResolved}
+      redemptionAmount={redemptionAmount}
+      collateral={collateral}
+      redeemPositions={redeemPositions}
+      setError={setError}
+      ongoingTransactionType={ongoingTransactionType}
+      asWrappedTransaction={asWrappedTransaction}
+      probabilities={probabilities}
+      positionBalances={positionBalances}
+      estimatedSaleEarnings={estimatedSaleEarnings}
+      currentSellingPosition={currentSellingPosition}
+      makeOutcomeSellSelectHandler={makeOutcomeSellSelectHandler}
+      error={error}
+    />
   );
 };
 
