@@ -7,7 +7,6 @@
   align-items: center;
   height: 100%;
 
-
   > span {
     font-size: 1.5rem;
     color: $black;
@@ -34,6 +33,14 @@
       image-rendering: pixelated;
     }
   }
+
+  > svg {
+    height: 80%;
+  }
+
+  > svg > path {
+    fill: $black;
+  }
 }
 
 .connect-wallet {
@@ -41,12 +48,14 @@
   -webkit-appearance: none;
   background: none;
   text-transform: uppercase;
-  font-weight: bolder;
-  padding: 1rem 0.8rem;
+  font-weight: $bold;
   border-radius: .3rem;;
-  border: .1rem solid $greyBorder2;
-  background-color: $green;
+  background: $green;
   color: $white;
+  letter-spacing: .1rem;
+  font-size: 1.2rem;
+  border: 0;
+  padding: 1rem;
 
   &:hover, &:focus, &:active {
     background-color: darken($green, 20%);

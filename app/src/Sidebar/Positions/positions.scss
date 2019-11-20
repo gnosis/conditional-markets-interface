@@ -4,7 +4,6 @@
 .positions {
   &-heading {
     @include sidebar-entry;
-
     font-weight: $bold;
   }
 

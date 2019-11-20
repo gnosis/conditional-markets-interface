@@ -118,7 +118,7 @@
     td {
       text-align: left;
       padding: 1.2rem 0.8rem;
-      font-weight: normal;
+      font-weight: $normal;
       font-size: 1.6rem;
 
         @media #{$tablet-small-max} {
