@@ -10,7 +10,7 @@ import {
 } from "./constants";
 
 const smellsLikeDecimal = val => {
-  return val.constructor === Decimal;
+  return val && val.constructor === Decimal;
 };
 
 export const formatProbability = probability =>
