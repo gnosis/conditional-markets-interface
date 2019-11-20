@@ -14,9 +14,8 @@
 
     @media #{$tablet-small-max} {
       position: relative;
-      display: flex;
+      display: block;
       height: auto;
-      flex-flow: column wrap;
       padding: 2.4rem 2.4rem 10rem;
       font-size: 1.3rem;
     }

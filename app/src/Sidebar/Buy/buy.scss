@@ -95,19 +95,18 @@
 
   &-investment {
     @include sidebar-entry;
-    padding: 1.6rem;
-    background-color: $white;
     font-size: 1.5rem;
-    justify-content: space-between;
     line-height: 1;
     display: flex;
-    align-items: center;
     position: relative;
     border-bottom: none;
     padding-top: 0;
+    box-sizing: border-box;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
 
     .buy-invest {
-      padding: 0;
       -webkit-appearance: none;
       appearance: none;
       border: none;
@@ -120,12 +119,15 @@
       justify-content: center;
       align-items: center;
       line-height: 0;
-      height: 100%;
-      margin: -.7rem 0 0 1rem;
       text-align: center;
+      height: 3.4rem;
+      width: 3.4rem;
+      padding: 0 0 0 .5rem;
+      box-sizing: border-box;
+      margin-top: -.7rem;
 
       &-minus {
-        margin: 0 1rem 0 0;
+        padding: 0 .5rem 0 0;
       }
 
       &:hover, &:focus, &:active {
@@ -156,6 +158,8 @@
       font-weight: $normal;
       margin: 0 0 0 auto;
       outline: 0;
+      flex: 1;
+      box-sizing: border-box;
 
       @media #{$tablet-small-max} {
         width: 60%;
@@ -173,6 +177,10 @@
       font-size: 1.3rem;
       color: $blue;
       letter-spacing: 0;
+      box-sizing: border-box;
+      padding: 0 .5rem;
+      flex: 1;
+
 
       &:first-child {}
       &:last-child {}
