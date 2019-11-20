@@ -31,9 +31,9 @@
 
       // Hiding the empty header
       &:nth-of-type(3) {
-        @media #{$tablet-small-max} {
-          display: none;
-        }
+        // @media #{$tablet-small-max} {
+        //   display: none;
+        // }
       }
 
       // Hidding the probability wordings until we find another solution.

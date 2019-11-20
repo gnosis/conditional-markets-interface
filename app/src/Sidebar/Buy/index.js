@@ -355,7 +355,7 @@ const Buy = ({
   return (
     <>
       <div className={cx("buy-heading")}>
-        Order Position(s){" "}
+        Order Position{" "}
         <button
           type="button"
           className={cx("link-button", "clear")}
@@ -365,7 +365,7 @@ const Buy = ({
         </button>
       </div>
       {!outcomeSelected && (
-        <div className={cx("buy-empty")}>Select outcome(s) first.</div>
+        <div className={cx("buy-empty")}>Select outcome first.</div>
       )}
       {problemText && <div className={cx("buy-empty")}>{problemText}</div>}
       {error && (
