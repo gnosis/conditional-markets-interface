@@ -4,7 +4,15 @@
   position: fixed;
   right: 5rem;
   bottom: 5rem;
-  line-height: normal;
+  z-index: 9999;
+
+    @media #{$tablet-small-max} {
+      bottom: 8rem;
+      left: 0;
+      right: 0;
+      margin: auto;
+      width: 90%;
+    }
 
   .toast {
     background-color: $white;

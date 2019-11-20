@@ -5,9 +5,11 @@
   display: flex;
   flex-flow: row nowrap;
   width: 100%;
-  position: relative;
   border-bottom: .1rem solid $greyBorder2;
   height: 7.5rem;
+  position: sticky;
+  top: 0;
+  z-index: 9;
 
   @media #{$tablet-small-max} {
     height: 5.2rem;

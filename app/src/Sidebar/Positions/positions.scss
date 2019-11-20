@@ -4,7 +4,6 @@
 .positions {
   &-heading {
     @include sidebar-entry;
-
     font-weight: $bold;
   }
 
@@ -85,10 +84,11 @@
   text-transform: uppercase;
   border: 0;
   font-weight: $bold;
-  font-size: 1.3rem;
+  font-size: 1.2rem;
   letter-spacing: 0;
   text-align: center;
-  padding: .5rem 1.2rem;
+  padding: .5rem;
+  cursor: pointer;
 
   &:disabled {
     opacity: 0.75;
@@ -126,24 +126,39 @@
   border-collapse: collapse;
   line-height: normal;
 
-  thead tr {
-    font-weight: bold;
+  thead > tr > td {
+    font-weight: $bold;
+    white-space: nowrap;
   }
 
   td {
+    padding: 1rem .2rem;
+    text-align: left;
+    font-weight: $normal;
+    font-size: 1.2rem;
+    color: $black;
+    letter-spacing: -.05rem;
+    white-space: normal;
+    word-break: break-all;
+
     &:first-child {
-      padding-left: 1.6rem;
-    }
-    &last-child {
-      padding-right: 1.6rem;
+      padding-left: 1rem;
+      font-weight: $bold;
     }
 
-    padding: 1.6rem 0.8rem;
-    text-align: left;
+    &:last-child {
+      padding-right: 1rem;
+      text-align: right;
+      word-break: normal;
+    }
   }
 
   tr {
     border-bottom: .1rem solid $greyBorder;
+    transition: background .15s ease-in-out;
+    &:hover {
+      background: #F2FAFB;
+    }
   }
 
 }

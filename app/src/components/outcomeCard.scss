@@ -29,7 +29,7 @@
     border: 0.1rem solid $greyBorder2;
     background: $white;
     border-left: none;
-    font-weight: bold;
+    font-weight: $bold;
     font-size: 1.3rem;
     color: $black;
     letter-spacing: 0;
@@ -60,7 +60,7 @@
         height: 100%;
         line-height: 1;
         margin: .6rem .4rem;
-        font-weight: bold;
+        font-weight: $bold;
         font-size: 1.3rem;
         display: flex;
         align-items: center;
@@ -74,7 +74,7 @@
       height: 100%;
       line-height: 1;
       margin: .6rem .4rem;
-      font-weight: bold;
+      font-weight: $bold;
       font-size: 1.3rem;
       display: flex;
       align-items: center;
