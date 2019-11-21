@@ -338,6 +338,12 @@ const Positions = ({
       markets={markets}
       currentSellingPosition={currentSellingPosition}
       onCancelSell={handleCancelSell}
+      positions={positions}
+      positionBalances={positionBalances}
+      stagedTradeAmounts={stagedTradeAmounts}
+      setStagedTradeAmounts={setStagedTradeAmounts}
+      marketMakersRepo={marketMakersRepo}
+      collateral={collateral}
     />
   ) : (
     <Balances
