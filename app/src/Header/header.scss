@@ -4,11 +4,11 @@
   background: $white;
   display: flex;
   flex-flow: row nowrap;
+  flex: 1 1 100%;
   width: 100%;
   border-bottom: .1rem solid $greyBorder2;
   height: 7.5rem;
-  position: sticky;
-  top: 0;
+  position: relative;
   z-index: 9;
 
   @media #{$tablet-small-max} {
