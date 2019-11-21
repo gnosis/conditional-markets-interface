@@ -1,10 +1,9 @@
 @import "~scss/_variables.scss";
 
 .page {
-  display: flex;
-  flex-direction: column;
+  display: table;
   height: 100%;
-  padding-bottom: 3.2rem;
+  width: 100%;
 
     @media #{$tablet-small-max} {
       padding: 0;
@@ -45,8 +44,9 @@
     &-markets {
       flex: 1 1 auto;
       width: auto;
-      padding: 0 2rem;
       border: 0;
+      padding: 0 2rem 10rem;
+      box-sizing: border-box;
 
         @media #{$tablet-small-max} {
           border: 0;
@@ -129,16 +129,9 @@
 }
 
 .app-space {
-  display: flex;
-  align-items: flex-start;
-  justify-content: flex-start;
-  justify-items: flex-start;
+  display: table;
   height: 100vh;
-  flex-flow: column wrap;
-
-    @media #{$tablet-small-max} {
-      flex-flow: row wrap;
-    }
+  width: 100%;
 
   &.modal-open {
     filter: blur(2px);

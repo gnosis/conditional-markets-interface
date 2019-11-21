@@ -1,12 +1,11 @@
 @import "~scss/_variables.scss";
 
 :global {
-  .market-row-content .outcome-selection {
-    min-width: 15rem;
+  .outcome-selection {
 
-    &__control {
+    > .outcome-selection__control {
       position: relative;
-      padding: 0 0 0 1.4rem;
+      padding: 0;
       border-radius: .2rem;
       border: .1rem solid $greyBorder2;
       background: none;
@@ -17,6 +16,7 @@
       outline: 0;
       cursor: pointer;
       border-color: $blue;
+      min-width: 17rem;
 
       @media #{$tablet-small-max} {
         width: 100%;
@@ -27,20 +27,23 @@
       }
     }
 
-    &__value-container {
+    > .outcome-selection__value-container {
       padding: 0;
     }
 
-    &__indicator-separator {
+    > .outcome-selection__indicator-separator {
       display: none;
     }
 
-    &__menu {
-      margin-top: .1rem;
+    > .outcome-selection__menu {
+      margin-top: 0.1rem;
       border-radius: 0;
+      cursor: pointer;
+
+        div { cursor: pointer; }
     }
 
-    &__dropdown-indicator {
+    > .outcome-selection__dropdown-indicator {
       background: url("~assets/icons/down-angle.svg") center center / 1.6rem 1rem no-repeat;
       height: 5.2rem;
 
