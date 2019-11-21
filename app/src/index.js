@@ -1,3 +1,7 @@
+// Importing this globally to fix regeneratorRuntime error with babel-preset-env
+// and async/await code
+import "regenerator-runtime/runtime";
+
 // Router
 import { ConnectedRouter } from "connected-react-router";
 
