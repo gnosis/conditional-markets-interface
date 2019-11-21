@@ -5,7 +5,7 @@
   min-height: 12rem;
   background-color: transparent;
   border: none;
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   line-height: 1.5;
 
   @media #{$tablet-small-max} {
@@ -109,6 +109,20 @@
 
     .detail-content {
       padding: 0 0.8rem;
+
+        > h1 {
+          margin: 1rem 0;
+        }
+
+        > .description {
+          margin: 1rem 0;
+        }
+
+        > .description > p {
+          font-size: 1.3rem;
+          line-height: 1.5;
+          margin: 0;
+        }
     }
 
     &.hidden {
