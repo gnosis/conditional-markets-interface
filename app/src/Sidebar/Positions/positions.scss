@@ -26,9 +26,11 @@
     letter-spacing: 0;
     height: 3.2rem;
     padding: 1.6rem;
+    white-space: normal;
+    margin: 1.6rem 0 0;
 
     .position-col-value {
-      min-width: 60px;
+      min-width: 6rem;
     }
   }
 
@@ -47,9 +49,13 @@
       width: 100%;
       padding: 1rem 0;
       color: $white;
+      font-weight: $bold;
+      letter-spacing: .03rem;
+      cursor: pointer;
+      outline: 0;
 
       &.disabled, &:disabled {
-        opacity: 0.4;
+        opacity: .4;
       }
     }
   }
@@ -96,7 +102,7 @@
 }
 
 .position-col {
-  letter-spacing: -0.3px;
+  letter-spacing: -0.03rem;
   white-space: nowrap;
 
   &-outcome, &-qty, &-value, &-sell {
@@ -105,7 +111,7 @@
 
   &-value {
     text-align: right;
-    min-width: 85px;
+    min-width: 8.5rem;
   }
 
   &-sell {
@@ -114,14 +120,14 @@
 
   &-price {
     text-align: right;
-    min-width: 60px;
+    min-width: 6rem;
   }
 }
 
 .position-entries-table {
   width: 100%;
   font-size: 1.3rem;
-  letter-spacing: -0.3px;
+  letter-spacing: -0.03rem;
   white-space: nowrap;
   border-collapse: collapse;
   line-height: normal;

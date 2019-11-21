@@ -5,6 +5,10 @@
     display: flex;
     align-items: center;
     min-width: 20rem;
+
+      @media #{$tablet} {
+        min-width: 12rem;
+      }
   }
 
   .change-percentage {
