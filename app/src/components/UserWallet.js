@@ -35,21 +35,6 @@ const UserWallet = ({ address, openModal, whitelistState }) => {
     );
   }
 
-  if (whitelistState === "NOT_FOUND") {
-    return (
-      <div className={cx("user-wallet")}>
-        <a
-          className={cx("link-button")}
-          href="http://eepurl.com/gAjo0X"
-          target="_BLANK"
-          rel="noreferrer noopener"
-        >
-          Apply for our closed Beta
-        </a>
-      </div>
-    );
-  }
-
   if (whitelistState === "ERROR") {
     return (
       <div className={cx("user-wallet")}>
