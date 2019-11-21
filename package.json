@@ -49,6 +49,7 @@
     "react-router-dom": "^5.1.2",
     "react-select": "^3.0.8",
     "redux": "^4.0.4",
+    "regenerator-runtime": "^0.13.3",
     "truffle-hdwallet-provider": "^1.0.17",
     "web3": "^1.2.4"
   },
@@ -105,12 +106,5 @@
       "eslint --fix",
       "git add"
     ]
-  },
-  "browserslist": [
-    "since 2017-06"
-  ],
-  "browser": {
-    "child_process": false,
-    "fs": false
   }
 }
