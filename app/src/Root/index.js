@@ -28,7 +28,7 @@ let marketMakersRepo;
 let conditionalTokensRepo;
 let conditionalTokensService;
 
-const whitelistEnabled = conf.whitelistEnabled;
+const whitelistEnabled = conf.WHITELIST_ENABLED;
 const SYNC_INTERVAL = 8000;
 const WHITELIST_CHECK_INTERVAL = 30000;
 
@@ -55,15 +55,17 @@ async function loadBasicData({ lmsrAddress }, web3) {
 
   const { product } = require("utils/itertools");
 
-  const atomicOutcomeSlotCount = (await marketMakersRepo.atomicOutcomeSlotCount()).toNumber();
+  const atomicOutcomeSlotCount = (
+    await marketMakersRepo.atomicOutcomeSlotCount()
+  ).toNumber();
 
   let curAtomicOutcomeSlotCount = 1;
   for (let i = 0; i < markets.length; i++) {
     const market = markets[i];
     const conditionId = await marketMakersRepo.conditionIds(i);
-    const numSlots = (await conditionalTokensRepo.getOutcomeSlotCount(
-      conditionId
-    )).toNumber();
+    const numSlots = (
+      await conditionalTokensRepo.getOutcomeSlotCount(conditionId)
+    ).toNumber();
 
     if (numSlots === 0)
       throw new Error(`condition ${conditionId} not set up yet`);
@@ -245,38 +247,37 @@ const RootComponent = ({ childComponents }) => {
   const [markets, setMarkets] = useState(null);
   const [positions, setPositions] = useState(null);
 
-  const init = useCallback(() => {
-    import(`../conf`)
-      .then(async ({ default: config }) => {
-        /* eslint-disable no-console */
-        console.groupCollapsed("Configuration");
-        console.log(config);
-        console.groupEnd();
+  const init = useCallback(async () => {
+    const config = conf;
+    try {
+      /* eslint-disable no-console */
+      console.groupCollapsed("Configuration");
+      console.log(config);
+      console.groupEnd();
 
-        /* eslint-enable no-console */
-        const { web3, account } = await loadWeb3(config.networkId);
+      /* eslint-enable no-console */
+      const { web3, account } = await loadWeb3(config.networkId);
 
-        setWeb3(web3);
-        setAccount(account);
+      setWeb3(web3);
+      setAccount(account);
 
-        const { collateral, markets, positions } = await loadBasicData(
-          config,
-          web3
-        );
+      const { collateral, markets, positions } = await loadBasicData(
+        config,
+        web3
+      );
 
-        setCollateral(collateral);
-        setMarkets(markets);
-        setPositions(positions);
+      setCollateral(collateral);
+      setMarkets(markets);
+      setPositions(positions);
 
-        setLoading("SUCCESS");
-      })
-      .catch(err => {
-        setLoading("FAILURE");
-        // eslint-disable-next-line
-        console.error(err);
-        setLastError(err.message);
-        throw err;
-      });
+      setLoading("SUCCESS");
+    } catch (err) {
+      setLoading("FAILURE");
+      // eslint-disable-next-line
+      console.error(err);
+      setLastError(err.message);
+      throw err;
+    }
   }, []);
 
   useEffect(init, []);
@@ -498,7 +499,6 @@ const RootComponent = ({ childComponents }) => {
               />
             </section>
             {account != null && ( // account available
-              // (!whitelistEnabled || whitelistState === "WHITELISTED") && ( // whitelisted or whitelist functionality disabled
               <section className={cx("section", "section-positions")}>
                 <Sidebar
                   {...{
