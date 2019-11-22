@@ -37,6 +37,7 @@
   &-redeem {
     @include sidebar-entry;
     border-bottom: none;
+    flex-flow: column wrap;
 
     .redeem-all {
       -webkit-appearance: none;
