@@ -147,8 +147,7 @@ const Market = ({
         })}
         onClick={handleToggleCollapse}
       >
-        <td />
-        <td colSpan={headings.length - 2}>
+        <td colSpan={headings.length}>
           <button
             type="button"
             className={cx("expand-collapse")}
@@ -183,7 +182,6 @@ const Market = ({
             />
           </div>
         </td>
-        <td />
       </tr>
     </>
   );

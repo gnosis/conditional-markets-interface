@@ -108,7 +108,7 @@
     }
 
     .detail-content {
-      padding: 0 0.8rem;
+      padding: 0 0.8rem 3.2rem;
 
         > h1 {
           margin: 1rem 0;
@@ -121,7 +121,7 @@
         > .description > p {
           font-size: 1.3rem;
           line-height: 1.5;
-          margin: 0;
+          margin: 0 0 1.6rem;
         }
     }
 
@@ -141,6 +141,7 @@
 
         @media #{$tablet-small-max} {
           padding: 0;
+          width: 100%;
         }
     }
 
