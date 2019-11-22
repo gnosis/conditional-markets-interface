@@ -91,9 +91,7 @@ const Market = ({
 
   const entries = [
     `${index + 1}`,
-    <>
-      <span className={cx("mobile-index")}>#{index + 1}</span> {title}
-    </>,
+    <>{title}</>,
     <Probabilities
       key="probabilities"
       outcomes={outcomes}
@@ -128,7 +126,7 @@ const Market = ({
         conditionalActive={marketSelections[index].isAssumed}
       />
     )
-  ];
+  ].filter(entry => entry !== false); // Filter disabled entries to avoid creating table element
 
   const disableCollapse = !description && !dataSource && !dataSourceUrl;
 
@@ -147,9 +145,9 @@ const Market = ({
           hidden: !detailsOpen,
           disable: disableCollapse
         })}
+        onClick={handleToggleCollapse}
       >
-        <td />
-        <td colSpan={headings.length - 2}>
+        <td colSpan={headings.length}>
           <button
             type="button"
             className={cx("expand-collapse")}
@@ -184,7 +182,6 @@ const Market = ({
             />
           </div>
         </td>
-        <td />
       </tr>
     </>
   );

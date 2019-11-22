@@ -4,13 +4,15 @@
   background: $white;
   display: flex;
   flex-flow: row nowrap;
+  flex: 1 1 100%;
   width: 100%;
-  position: relative;
   border-bottom: .1rem solid $greyBorder2;
   height: 7.5rem;
+  position: relative;
+  z-index: 9;
 
   @media #{$tablet-small-max} {
-    height: 4.6rem;
+    height: 5.2rem;
     justify-content: space-between;
   }
 
@@ -21,6 +23,9 @@
 
     &:not(:last-child) {
       border-right: .1rem solid $greyBorder2;
+        @media #{$tablet-small-max} {
+          border-right: 0;
+        }
     }
   }
 
@@ -33,13 +38,13 @@
 
     img {
       display: flex;
-      // height: 100%;
-      width: 90%;
-      margin: 0 auto;
+      width: auto;
+      height: 3rem;
+      margin: 0 1.6rem;
 
         @media #{$tablet-small-max} {
-          height: 2.8rem;
-          width: 10.4rem;
+          height: 2.6rem;
+          width: auto;
           margin: 0 1rem 0 1rem;
         }
     }

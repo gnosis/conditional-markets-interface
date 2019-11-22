@@ -6,6 +6,8 @@ const CONFIG_FILE_PATH = path.join(
   "..",
   "..",
   "app",
+  "src",
+  "conf",
   "config.local.json"
 );
 

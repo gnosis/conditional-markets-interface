@@ -13,25 +13,24 @@ const formatAddress = address =>
   `${address.substr(0, 6)}...${address.substr(-4)}`;
 
 const UserWallet = ({ address, openModal, whitelistState }) => {
-  if (whitelistState === "LOADING") {
+  if (!address) {
     return (
       <div className={cx("user-wallet")}>
-        <Spinner />
+        <button
+          type="button"
+          className={cx("connect-wallet")}
+          onClick={() => openModal("Connect")}
+        >
+          Connect
+        </button>
       </div>
     );
   }
 
-  if (whitelistState === "NOT_FOUND") {
+  if (whitelistState === "LOADING") {
     return (
       <div className={cx("user-wallet")}>
-        <a
-          className={cx("link-button")}
-          href="http://eepurl.com/gAjo0X"
-          target="_BLANK"
-          rel="noreferrer noopener"
-        >
-          Apply for our closed Beta
-        </a>
+        <Spinner />
       </div>
     );
   }
@@ -65,29 +64,15 @@ const UserWallet = ({ address, openModal, whitelistState }) => {
 
   return (
     <div className={cx("user-wallet")}>
-      {address ? (
-        <>
-          <span title={address}>{formatAddress(address)}</span>
-          <div className={cx("avatar")}>
-            <Blockies
-              seed={address.toLowerCase()}
-              size={8}
-              scale={16}
-              className={cx("avatar-image")}
-            />
-          </div>
-        </>
-      ) : (
-        <div>
-          <button
-            type="button"
-            className={cx("connect-wallet")}
-            onClick={() => openModal("Connect")}
-          >
-            Connect
-          </button>
-        </div>
-      )}
+      <span title={address}>{formatAddress(address)}</span>
+      <div className={cx("avatar")}>
+        <Blockies
+          seed={address.toLowerCase()}
+          size={8}
+          scale={16}
+          className={cx("avatar-image")}
+        />
+      </div>
     </div>
   );
 };

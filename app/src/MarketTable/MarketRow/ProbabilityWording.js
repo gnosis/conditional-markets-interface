@@ -6,17 +6,41 @@ import style from "./probabilityWording.scss";
 
 const cx = cn.bind(style);
 
+const minimalDecimals = 2;
+
 const PROBABILITY_WORDING = [
-  [[0, 1], "Impossible"],
-  [[1, 5], "Remote"],
-  [[5, 20], "Highly improbable"],
-  [[20, 45], "Improbable"],
+  [[0], "Impossible"], // 0
+  [[0, 5], "Remote"], // 0.000001 - 0.05
+  [[5, 20], "Highly improbable"], // 0.050001 - 0.2
+  [[20, 45], "Improbable"], // 0.20001 - 0.45
   [[45, 55], "Roughly even odds"],
   [[55, 80], "Probable"],
   [[80, 95], "Highly probable"],
-  [[95, 99], "Nearly certain"],
-  [[99, 100], "Certain"]
+  [[95, 100 - Math.pow(10, -minimalDecimals)], "Nearly certain"],
+  [[100], "Certain"]
 ];
+
+const getLabelWording = stagedProbability => {
+  const selectedWording = PROBABILITY_WORDING.find(([probabilityRange]) => {
+    if (probabilityRange.length === 2) {
+      const [probFrom, probTo] = probabilityRange;
+      return stagedProbability >= probFrom && stagedProbability <= probTo;
+    } else if (probabilityRange.length === 1) {
+      const [probabilityExact] = probabilityRange;
+      return (
+        stagedProbability > probabilityExact - Math.pow(10, -minimalDecimals) &&
+        stagedProbability < probabilityExact + Math.pow(10, -minimalDecimals)
+      );
+    } else {
+      console.warn("Invalid probability wording Range");
+    }
+  });
+  if (!selectedWording) return ""; // To avoid crashes for OOR
+
+  const [, label] = selectedWording;
+
+  return label;
+};
 
 const ProbabilityWording = ({
   outcomes,
@@ -31,20 +55,11 @@ const ProbabilityWording = ({
       {displayedProbabilities && (
         <>
           {outcomes.map((outcome, index) => {
-            const stagedProbabilityFloat = displayedProbabilities[
-              index
-            ].toNumber();
+            const stagedProbability = displayedProbabilities[index]
+              .mul(100)
+              .toNumber();
 
-            let selectedWording;
-            PROBABILITY_WORDING.forEach(([[probFrom, probTo], label]) => {
-              if (
-                stagedProbabilityFloat >= probFrom / 100 &&
-                stagedProbabilityFloat < probTo / 100
-              ) {
-                selectedWording = label;
-              }
-            });
-            const probabilityWording = selectedWording;
+            const probabilityWording = getLabelWording(stagedProbability);
 
             return (
               <div

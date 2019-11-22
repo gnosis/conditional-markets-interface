@@ -3,7 +3,6 @@
 .menu {
   height: 100%;
 
-
   @media #{$tablet-small-max} {
     display: none;
   }
@@ -22,7 +21,7 @@
   .menu-item {
     font-weight: $bold;
     height: auto;
-    font-size: 1.6rem;
+    font-size: 1.4rem;
     line-height: 1;
     padding: 0 1rem;
     display: flex;

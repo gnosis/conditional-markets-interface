@@ -4,11 +4,13 @@ import Decimal from "decimal.js-light";
 import {
   probabilityDecimalPlaces,
   collateralSignificantDigits,
-  quantitySiginificantDigits
+  quantitySiginificantDigits,
+  collateralConsiderAsZeroDigits,
+  zeroDecimal
 } from "./constants";
 
 const smellsLikeDecimal = val => {
-  return val.constructor === Decimal;
+  return val && val.constructor === Decimal;
 };
 
 export const formatProbability = probability =>
@@ -21,14 +23,24 @@ export const formatCollateral = (amount, collateral) => {
     ? amount
     : new Decimal((amount || "0").toString());
 
-  const minValue = new Decimal(10).pow(-collateralSignificantDigits);
+  const amountFullUnits = amountDecimal.mul(collateral.fromUnitsMultiplier);
 
-  if (amountDecimal.lt(minValue)) {
-    return `<${minValue.toString()}`;
+  const minValue = new Decimal(10).pow(-collateralSignificantDigits);
+  const minValueToConsiderAsZero = new Decimal(10).pow(
+    -collateralConsiderAsZeroDigits
+  );
+
+  if (amountFullUnits.abs().lt(minValueToConsiderAsZero)) {
+    return `0 ${collateral.symbol}`;
   }
 
-  const collateralValue = amountDecimal
-    .mul(collateral.fromUnitsMultiplier)
+  if (amountFullUnits.abs().lt(minValue)) {
+    return `<${
+      amountFullUnits.lt(zeroDecimal) ? " -" : ""
+    }${minValue.toString()} ${collateral.symbol}`;
+  }
+
+  const collateralValue = amountFullUnits
     .toSignificantDigits(collateralSignificantDigits)
     .toString();
   return `${collateralValue} ${collateral.symbol}`;
