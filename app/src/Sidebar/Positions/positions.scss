@@ -208,7 +208,7 @@
 
     &:focus, &:active, &:hover {
       text-decoration: none;
-      color: $darkBlue;
+      color: $black;
     }
   }
 
@@ -294,6 +294,23 @@
     -webkit-appearance: none;
     margin: 0;
   }
+
+  &:disabled, &[readonly] {
+    background: #f3f4f6;
+
+    + .input-append {
+      background: #f3f4f6;  
+    }
+  }
+}
+
+.input-spinner {
+  position: absolute;
+  left: 50%;
+  margin-left: -6px;
+  margin-top: -6px;
+  top: 50;
+  background: none;
 }
 
 .input-append {

@@ -94,7 +94,15 @@ const Positions = ({
         positions,
         positionBalances
       );
-      setPositionGroups(positionGroups);
+      setPositionGroups(positionGroups.filter(({ amount, positionIndex }) => {
+        const isPositionLargeEnough = amount.lt(1e12)
+
+        if (!isPositionLargeEnough) {
+          console.warn(`${positionIndex} is too small to be considered in the interface. Hopefully this is not a bug. ${amount.toString()} available of this position.`)
+        }
+
+        return isPositionLargeEnough
+      }));
     }
   }, [markets, positions, positionBalances, marketSelections]);
 

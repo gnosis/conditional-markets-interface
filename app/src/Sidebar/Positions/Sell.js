@@ -80,6 +80,7 @@ const Sell = ({
 
   const updateEstimatedEarnings = useCallback(
     sellAmount => {
+      setError(null);
       setEstimatedSaleEarning(null);
       let balanceForThisPosition = getBaseArray(positionBalances.length);
       // Include in this call only the balance for this position
@@ -147,12 +148,12 @@ const Sell = ({
 
         // When sell amount is 0.0001 units close to max amount, sell max amount
         // this makes sure no teeny-tiny values remain
-        
+
         const tradeDiff = tradeAmountInWei
-          .abs()
+          .abs() // trade amount is neg
           .sub(maxSellAmounts[selectedOutcomeIndex])
-          .abs(); // because we're dealing with wei, 18 decimals -5
-        
+          .abs();
+
         if (tradeDiff.lt(Math.pow(10, 18 - 5))) {
           // sell max amount
           tradeAmounts[selectedOutcomeIndex] = maxSellAmounts[
@@ -259,19 +260,19 @@ const Sell = ({
           <label>Sell Price</label>
           <div className={cx("entry")}>
             <div className={cx("input-group")}>
-              {estimatedSaleEarning == null ? (
-                <Spinner width={12} height={12} />
-              ) : (
-                <input
-                  type="number"
-                  readOnly
-                  value={new Decimal(estimatedSaleEarning)
-                    .div(Math.pow(10, collateral.decimals))
-                    .toSignificantDigits(collateralSignificantDigits)
-                    .toString()}
-                  className={cx("input")}
-                />
-              )}
+              <input
+                type="text"
+                readOnly
+                value={
+                  estimatedSaleEarning
+                    ? new Decimal(estimatedSaleEarning)
+                        .div(Math.pow(10, collateral.decimals))
+                        .toSignificantDigits(collateralSignificantDigits)
+                        .toString()
+                    : "..."
+                }
+                className={cx("input")}
+              />
               <span className={cx("input-append", "collateral-name")}>
                 <abbr title={collateral.name}>{collateral.symbol}</abbr>
               </span>
