@@ -43,12 +43,11 @@
   .section {
     &-markets {
       flex: 1;
-      width: 100%;
-      width: calc(100% - 36rem);
+      display: flex;
+      width: auto;
       border: 0;
       padding: 0 2rem 10rem;
       box-sizing: border-box;
-      display: table;
       height: 100%;
 
         @media #{$tablet-small-max} {
