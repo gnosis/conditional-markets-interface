@@ -19,7 +19,7 @@
       width: 100%;
       font-size: 2.4rem;
       font-weight: 600;
-      color: $darkBlue;
+      color: $black;
     }
 
     .subheader {
@@ -34,7 +34,7 @@
         .icon {
           display: inline;
           padding-left: 2rem;
-          
+
           margin-right: 0.5rem;
 
           &-time {
@@ -72,12 +72,12 @@
       line-height: 3.2rem;
 
       display: flex;
-      color: $darkBlue;
+      color: $black;
       width: 100%;
       overflow: hidden;
 
       .expand-button {
-        color: $darkBlue;
+        color: $black;
         margin-left: auto;
         font-weight: 400;
         font-size: 3.2rem;
@@ -87,7 +87,7 @@
 
     &-content {
       line-height: normal;
-    
+
       h1 {
         font-weight: 600;
         font-size: 1.6rem;
@@ -107,11 +107,11 @@
         font-weight: 600;
         font-size: 1.6rem;
       }
-  
+
       a {
         color: #009CB4;
       }
-  
+
       &.hidden {
         display: none;
       }

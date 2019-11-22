@@ -27,7 +27,7 @@ const Market = ({
   resolutionDate,
   description,
   dataSource,
-  dataSourceURL,
+  dataSourceUrl,
   index,
   probabilities,
   stagedProbabilities,
@@ -84,17 +84,15 @@ const Market = ({
 
   const entries = [
     `${index + 1}`,
-    <>
-      <span className={cx("mobile-index")}>#{index + 1}</span> {title}
-    </>,
-    <ProbabilityWording
-      key="probabilityWording"
+    <>{title}</>,
+    <Probabilities
+      key="probabilities"
       outcomes={outcomes}
       probabilities={probabilities}
       stagedProbabilities={stagedProbabilities}
     />,
-    <Probabilities
-      key="probabilities"
+    <ProbabilityWording
+      key="probabilityWording"
       outcomes={outcomes}
       probabilities={probabilities}
       stagedProbabilities={stagedProbabilities}
@@ -121,9 +119,9 @@ const Market = ({
         conditionalActive={marketSelections[index].isAssumed}
       />
     )
-  ];
+  ].filter(entry => entry !== false); // Filter disabled entries to avoid creating table element
 
-  const disableCollapse = !description && !dataSource && !dataSourceURL;
+  const disableCollapse = !description && !dataSource && !dataSourceUrl;
 
   return (
     <>
@@ -140,28 +138,26 @@ const Market = ({
           hidden: !detailsOpen,
           disable: disableCollapse
         })}
+        onClick={handleToggleCollapse}
       >
-        <td />
-        <td colSpan={headings.length - 2}>
-          <h1 className={cx("market-details-header")}>
-            <button
-              type="button"
-              className={cx("expand-collapse")}
-              onClick={handleToggleCollapse}
-            >
-              View market details
-              <span className={cx("expand-collapse-icon")}>
-                {detailsOpen ? "–" : "+"}
-              </span>
-            </button>
-          </h1>
+        <td colSpan={headings.length}>
+          <button
+            type="button"
+            className={cx("expand-collapse")}
+            onClick={handleToggleCollapse}
+          >
+            View market details
+            <span className={cx("expand-collapse-icon")}>
+              {detailsOpen ? "–" : "+"}
+            </span>
+          </button>
           <div className={cx("detail-content")}>
             {dataSource && (
               <>
                 <h1>Data Source</h1>
-                {dataSourceURL ? (
+                {dataSourceUrl ? (
                   <a
-                    href={dataSourceURL}
+                    href={dataSourceUrl}
                     rel="noopener noreferrer"
                     target="_blank"
                   >
@@ -179,7 +175,6 @@ const Market = ({
             />
           </div>
         </td>
-        <td />
       </tr>
     </>
   );
@@ -222,13 +217,13 @@ Market.propTypes = {
   disableConditional: PropTypes.bool.isRequired,
   description: PropTypes.string,
   dataSource: PropTypes.string,
-  dataSourceURL: PropTypes.string
+  dataSourceUrl: PropTypes.string
 };
 
 Market.defaultProps = {
   description: "",
   dataSource: "",
-  dataSourceURL: ""
+  dataSourceUrl: ""
 };
 
 export default Market;

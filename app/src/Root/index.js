@@ -3,7 +3,6 @@ import { hot } from "react-hot-loader/root";
 import cn from "classnames/bind";
 import useInterval from "@use-it/interval";
 
-import Logo from "assets/img/conditional-logo.png";
 import Spinner from "components/Spinner";
 import CrashPage from "components/Crash";
 import makeLoadable from "../utils/make-loadable";
@@ -29,12 +28,13 @@ let marketMakersRepo;
 let conditionalTokensRepo;
 let conditionalTokensService;
 
-const whitelistEnabled = conf.whitelistEnabled;
+const whitelistEnabled = conf.WHITELIST_ENABLED;
+const SYNC_INTERVAL = 8000;
+const WHITELIST_CHECK_INTERVAL = 30000;
 
-async function loadBasicData({ lmsrAddress, markets }, web3) {
+async function loadBasicData({ lmsrAddress }, web3) {
   const { toBN } = web3.utils;
 
-  /*
   let markets = await getQuestions(undefined, lmsrAddress).then(
     ({ results }) => results
   );
@@ -46,25 +46,26 @@ async function loadBasicData({ lmsrAddress, markets }, web3) {
 
     return market;
   });
-  */
 
   // Load application contracts
   marketMakersRepo = await getMarketMakersRepo();
   conditionalTokensRepo = await getConditionalTokensRepo();
   conditionalTokensService = await getConditionalTokensService();
-  const { collateralToken: collateral, pmSystem } = await loadContracts();
+  const { collateralToken: collateral } = await loadContracts();
 
   const { product } = require("utils/itertools");
 
-  const atomicOutcomeSlotCount = (await marketMakersRepo.atomicOutcomeSlotCount()).toNumber();
+  const atomicOutcomeSlotCount = (
+    await marketMakersRepo.atomicOutcomeSlotCount()
+  ).toNumber();
 
   let curAtomicOutcomeSlotCount = 1;
   for (let i = 0; i < markets.length; i++) {
     const market = markets[i];
     const conditionId = await marketMakersRepo.conditionIds(i);
-    const numSlots = (await conditionalTokensRepo.getOutcomeSlotCount(
-      conditionId
-    )).toNumber();
+    const numSlots = (
+      await conditionalTokensRepo.getOutcomeSlotCount(conditionId)
+    ).toNumber();
 
     if (numSlots === 0) {
       throw new Error(`condition ${conditionId} not set up yet`);
@@ -117,15 +118,6 @@ async function loadBasicData({ lmsrAddress, markets }, web3) {
     );
 
     const positionId = getPositionId(collateral.address, combinedCollectionIds);
-    // TODO delete when tests passed (should be correctly working now)
-    // soliditySha3(
-    //   { t: "address", v: collateral.address },
-    //   {
-    //     t: "uint",
-    //     v: outcomes
-    //       .map(({ collectionId }) => collectionId)
-    //   }
-    // );
     positions.push({
       id: positionId,
       outcomes
@@ -151,7 +143,6 @@ async function loadBasicData({ lmsrAddress, markets }, web3) {
 
   return {
     conditionalTokensService,
-    pmSystem,
     collateral,
     markets,
     positions
@@ -173,6 +164,13 @@ async function getCollateralBalance(web3, collateral, account) {
   }
 
   return collateralBalance;
+}
+
+async function getAccount(web3) {
+  if (web3.defaultAccount == null) {
+    const accounts = await web3.eth.getAccounts();
+    return accounts[0] || null;
+  } else return web3.defaultAccount;
 }
 
 async function getLMSRState(web3, positions) {
@@ -238,6 +236,7 @@ const RootComponent = ({ childComponents }) => {
     Header,
     Menu,
     UserWallet,
+    ApplyBetaHeader,
     Toasts,
     Footer
   ] = childComponents;
@@ -249,67 +248,53 @@ const RootComponent = ({ childComponents }) => {
   const triggerSync = useCallback(() => {
     setSyncTime(Date.now());
   });
-  useInterval(triggerSync, 8000);
+  useInterval(triggerSync, SYNC_INTERVAL);
   const [toasts, setToasts] = useState([]);
 
   const [web3, setWeb3] = useState(null);
   const [account, setAccount] = useState(null);
-  const [pmSystem, setPMSystem] = useState(null);
   const [collateral, setCollateral] = useState(null);
   const [markets, setMarkets] = useState(null);
   const [positions, setPositions] = useState(null);
 
-  const init = useCallback(() => {
-    // const networkToUse = process.env.NETWORK || "local";
-    import(
-      /* webpackChunkName: "config" */
-      /* webpackInclude: /\.json$/ */
-      /* webpackMode: "lazy" */
-      /* webpackPrefetch: true */
-      /* webpackPreload: true */
-      `../conf`
-    )
-      .then(async ({ default: config }) => {
-        /* eslint-disable no-console */
-        console.groupCollapsed("Configuration");
-        console.log(config);
-        console.groupEnd();
+  const init = useCallback(async () => {
+    const config = conf;
+    try {
+      /* eslint-disable no-console */
+      console.groupCollapsed("Configuration");
+      console.log(config);
+      console.groupEnd();
 
-        /* eslint-enable no-console */
-        const { web3, account } = await loadWeb3(config.networkId);
+      /* eslint-enable no-console */
+      const { web3, account } = await loadWeb3(config.networkId);
 
-        setWeb3(web3);
-        setAccount(account);
+      setWeb3(web3);
+      setAccount(account);
 
-        const {
-          pmSystem,
-          collateral,
-          markets,
-          positions
-        } = await loadBasicData(config, web3);
+      const { collateral, markets, positions } = await loadBasicData(
+        config,
+        web3
+      );
 
-        setPMSystem(pmSystem);
-        setCollateral(collateral);
-        setMarkets(markets);
-        setPositions(positions);
+      setCollateral(collateral);
+      setMarkets(markets);
+      setPositions(positions);
 
-        console.groupCollapsed("Global Debug Variables");
-        console.log("PMSystem Contract:", pmSystem);
-        console.log("LMSRMarketMaker (Instance) Contract:", marketMakersRepo);
-        console.log("Collateral Settings:", collateral);
-        console.log("Market Settings:", markets);
-        console.log("Account Positions:", positions);
-        console.groupEnd();
+      console.groupCollapsed("Global Debug Variables");
+      console.log("LMSRMarketMaker (Instance) Contract:", marketMakersRepo);
+      console.log("Collateral Settings:", collateral);
+      console.log("Market Settings:", markets);
+      console.log("Account Positions:", positions);
+      console.groupEnd();
 
-        setLoading("SUCCESS");
-      })
-      .catch(err => {
-        setLoading("FAILURE");
-        // eslint-disable-next-line
-        console.error(err);
-        setLastError(err.message);
-        throw err;
-      });
+      setLoading("SUCCESS");
+    } catch (err) {
+      setLoading("FAILURE");
+      // eslint-disable-next-line
+      console.error(err);
+      setLastError(err.message);
+      throw err;
+    }
   }, []);
 
   useEffect(init, []);
@@ -326,6 +311,7 @@ const RootComponent = ({ childComponents }) => {
   // As 'syncTime' is setted to 2 seconds all this getters are triggered and setted
   // in the state.
   for (const [loader, dependentParams, setter] of [
+    [getAccount, [web3], setAccount],
     [getLMSRState, [web3, positions], setLMSRState],
     [getMarketResolutionStates, [markets], setMarketResolutionStates],
     [getCollateralBalance, [web3, collateral, account], setCollateralBalance],
@@ -358,6 +344,34 @@ const RootComponent = ({ childComponents }) => {
     }
   }, [markets, setMarketSelections]);
 
+  const [whitelistState, setWhitelistState] = useState("LOADING");
+  const [whitelistIntervalTime, setWhitelistCheckIntervalTime] = useState(
+    WHITELIST_CHECK_INTERVAL
+  );
+
+  const updateWhitelist = useCallback(() => {
+    if (account) {
+      (async () => {
+        const whitelistStatus = await getWhitelistState(account);
+        setWhitelistState(whitelistStatus);
+
+        if (
+          whitelistStatus === "WHITELISTED" ||
+          whitelistStatus === "BLOCKED"
+        ) {
+          setWhitelistCheckIntervalTime(null); // stops the refresh
+        }
+      })();
+    } else {
+      setWhitelistState("NOT_FOUND");
+    }
+  }, [account]);
+  useInterval(updateWhitelist, whitelistIntervalTime);
+
+  useEffect(() => {
+    updateWhitelist();
+  }, [account]);
+
   const asWrappedTransaction = useCallback(
     (wrappedTransactionType, transactionFn) => {
       return async function wrappedAction() {
@@ -367,28 +381,36 @@ const RootComponent = ({ childComponents }) => {
           );
         }
 
-        try {
-          addToast("Transaction processing...", "info");
-          setOngoingTransactionType(wrappedTransactionType);
-          await transactionFn();
-          addToast("Transaction confirmed.", "success");
-        } catch (e) {
-          addToast(
-            <>
-              Unfortunately, the transaction failed.
-              <br />
-              <strong>{e.message}</strong>
-            </>,
-            "error"
-          );
-          throw e;
-        } finally {
-          setOngoingTransactionType(null);
-          triggerSync();
+        if (whitelistEnabled && whitelistState !== "WHITELISTED") {
+          openModal("applyBeta", { whitelistState });
+        } else {
+          try {
+            addToast("Transaction processing...", "info");
+            setOngoingTransactionType(wrappedTransactionType);
+            await transactionFn();
+            addToast("Transaction confirmed.", "success");
+          } catch (e) {
+            addToast(
+              <>
+                Unfortunately, the transaction failed.
+                <br />
+              </>,
+              "error"
+            );
+            throw e;
+          } finally {
+            setOngoingTransactionType(null);
+            triggerSync();
+          }
         }
       };
     },
-    [setOngoingTransactionType, ongoingTransactionType]
+    [
+      whitelistEnabled,
+      whitelistState,
+      setOngoingTransactionType,
+      ongoingTransactionType
+    ]
   );
 
   const addToast = useCallback(
@@ -453,61 +475,19 @@ const RootComponent = ({ childComponents }) => {
     }
   }, []);
 
-  const [whitelistState, setWhitelistState] = useState("LOADING");
-  const [whitelistIntervalTime, setWhitelistCheckIntervalTime] = useState(
-    30000
-  );
-
-  const updateWhitelist = useCallback(() => {
-    if (account) {
-      (async () => {
-        const whitelistStatus = await getWhitelistState(account);
-        setWhitelistState(whitelistStatus);
-
-        if (
-          whitelistStatus === "WHITELISTED" ||
-          whitelistStatus === "BLOCKED"
-        ) {
-          setWhitelistCheckIntervalTime(null); // stops the refresh
-        }
-      })();
-    } else {
-      setWhitelistState("NOT_FOUND");
-    }
-  }, [account]);
-  useInterval(updateWhitelist, whitelistIntervalTime);
-
-  useEffect(() => {
-    updateWhitelist();
-  }, [account]);
-
   useInterval(updateToasts, 1000);
 
   if (loading === "SUCCESS")
     return (
       <div className={cx("page")}>
         <div className={cx("modal-space", { "modal-open": !!modal })}>
-          <img className={cx("logo")} src={Logo} />
           {modal}
-          {/*<ul className={cx("footer")}>
-            <li>
-              <a href="/static/help.html" target="_BLANK">
-                Help
-              </a>
-            </li>
-            <li>
-              <a href="/static/privacy.html" target="_BLANK">
-                Privacy
-              </a>
-            </li>
-            <li>
-              <a href="/static/terms.html" target="_BLANK">
-                Terms
-              </a>
-            </li>
-            </ul>*/}
         </div>
         <div className={cx("app-space", { "modal-open": !!modal })}>
+          <ApplyBetaHeader
+            openModal={openModal}
+            whitelistState={whitelistState}
+          />
           <Header
             avatar={
               <UserWallet
@@ -537,36 +517,33 @@ const RootComponent = ({ childComponents }) => {
                 }}
               />
             </section>
-            {account != null && // account available
-            (!whitelistEnabled || whitelistState === "WHITELISTED") && ( // whitelisted or whitelist functionality disabled
-                <section className={cx("section", "section-positions")}>
-                  <Sidebar
-                    {...{
-                      account,
-                      conditionalTokensRepo,
-                      pmSystem,
-                      markets,
-                      positions,
-                      marketResolutionStates,
-                      marketSelections,
-                      collateral,
-                      collateralBalance,
-                      lmsrState,
-                      lmsrAllowance,
-                      positionBalances,
-                      stagedTradeAmounts,
-                      setStagedTradeAmounts,
-                      stagedTransactionType,
-                      setStagedTransactionType,
-                      ongoingTransactionType,
-                      asWrappedTransaction,
-                      setMarketSelections,
-                      resetMarketSelections,
-                      addToast
-                    }}
-                  />
-                </section>
-              )}
+            {account != null && ( // account available
+              <section className={cx("section", "section-positions")}>
+                <Sidebar
+                  {...{
+                    account,
+                    markets,
+                    positions,
+                    positionBalances,
+                    marketResolutionStates,
+                    marketSelections,
+                    collateral,
+                    collateralBalance,
+                    lmsrState,
+                    lmsrAllowance,
+                    stagedTradeAmounts,
+                    setStagedTradeAmounts,
+                    stagedTransactionType,
+                    setStagedTransactionType,
+                    ongoingTransactionType,
+                    asWrappedTransaction,
+                    resetMarketSelections,
+                    addToast,
+                    openModal
+                  }}
+                />
+              </section>
+            )}
             <Toasts
               deleteToast={deleteToast}
               addToast={addToast}
@@ -582,6 +559,7 @@ const RootComponent = ({ childComponents }) => {
     return (
       <div className={cx("loading-page")}>
         <Spinner centered width={100} height={100} />
+        <p>Loading...</p>
       </div>
     );
   }
@@ -594,14 +572,17 @@ const RootComponent = ({ childComponents }) => {
   }
 };
 
-const RootApplication = makeLoadable(RootComponent, [
-  () => import("MarketTable_WithScalar"),
-  () => import("Sidebar_WithScalar"),
-  () => import("Header"),
-  () => import("components/Menu"),
-  () => import("components/UserWallet"),
-  () => import("components/Toasts"),
-  () => import("components/Footer")
-]);
-
-export default hot(RootApplication);
+export default hot(
+  makeLoadable(RootComponent, [
+    // () => import("MarketTable_WithScalar"),
+    // () => import("Sidebar_WithScalar"),
+    () => import("MarketTable"),
+    () => import("Sidebar"),
+    () => import("Header"),
+    () => import("components/Menu"),
+    () => import("components/UserWallet"),
+    () => import("components/ApplyBetaHeader"),
+    () => import("components/Toasts"),
+    () => import("components/Footer")
+  ])
+);

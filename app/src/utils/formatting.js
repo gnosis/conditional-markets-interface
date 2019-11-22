@@ -3,8 +3,15 @@ import Decimal from "decimal.js-light";
 
 import {
   probabilityDecimalPlaces,
-  collateralSignificantDigits
+  collateralSignificantDigits,
+  quantitySiginificantDigits,
+  collateralConsiderAsZeroDigits,
+  zeroDecimal
 } from "./constants";
+
+const smellsLikeDecimal = val => {
+  return val && val.constructor === Decimal;
+};
 
 export const formatProbability = probability =>
   `${probability
@@ -12,10 +19,45 @@ export const formatProbability = probability =>
     .toDecimalPlaces(probabilityDecimalPlaces, Decimal.ROUND_HALF_UP)}%`;
 
 export const formatCollateral = (amount, collateral) => {
-  return `${new Decimal((amount || "0").toString())
-    .mul(collateral.fromUnitsMultiplier)
+  const amountDecimal = smellsLikeDecimal(amount)
+    ? amount
+    : new Decimal((amount || "0").toString());
+
+  const amountFullUnits = amountDecimal.mul(collateral.fromUnitsMultiplier);
+
+  const minValue = new Decimal(10).pow(-collateralSignificantDigits);
+  const minValueToConsiderAsZero = new Decimal(10).pow(
+    -collateralConsiderAsZeroDigits
+  );
+
+  if (amountFullUnits.abs().lt(minValueToConsiderAsZero)) {
+    return `0 ${collateral.symbol}`;
+  }
+
+  if (amountFullUnits.abs().lt(minValue)) {
+    return `<${
+      amountFullUnits.lt(zeroDecimal) ? " -" : ""
+    }${minValue.toString()} ${collateral.symbol}`;
+  }
+
+  const collateralValue = amountFullUnits
     .toSignificantDigits(collateralSignificantDigits)
-    .toString()} ${collateral.symbol}`;
+    .toString();
+  return `${collateralValue} ${collateral.symbol}`;
+};
+
+export const formatAmount = amount => {
+  const amountDecimal = smellsLikeDecimal(amount)
+    ? amount
+    : new Decimal((amount || "0").toString());
+
+  const minValue = new Decimal(10).pow(-quantitySiginificantDigits);
+
+  if (amountDecimal.lt(minValue)) {
+    return `<${minValue.toString()}`;
+  }
+
+  return amount.toSignificantDigits(quantitySiginificantDigits).toString();
 };
 
 export const formatScalarValue = (value, unit, decimals = 0) => {
