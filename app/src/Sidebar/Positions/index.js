@@ -98,23 +98,8 @@ const Positions = ({
     }
   }, [markets, positions, positionBalances, marketSelections]);
 
-  const [salePositionGroup, setSalePositionGroup] = useState(null);
   const [currentSellingPosition, setCurrentSellingPosition] = useState(null);
-
-  useEffect(() => {
-    if (positionGroups == null) {
-      setSalePositionGroup(null);
-    } else if (salePositionGroup != null) {
-      setSalePositionGroup(
-        positionGroups.find(
-          ({ collectionId }) => collectionId === salePositionGroup.collectionId
-        )
-      );
-    }
-  }, [positionGroups]);
-
   const [estimatedSaleEarnings, setEstimatedSaleEarnings] = useState([]);
-
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -147,42 +132,6 @@ const Positions = ({
     }
   }, [marketMakersRepo, positionBalances]);
 
-  const sellAllTokensOfGroup = useCallback(
-    async salePositionGroup => {
-      setCurrentSellingPosition(salePositionGroup);
-      await setStagedTransactionType("sell outcome tokens");
-      const marketMakerAddress = await marketMakersRepo.getAddress();
-
-      const isOperatorApprovedByOwner = await conditionalTokensRepo.isApprovedForAll(
-        account,
-        marketMakerAddress
-      );
-
-      if (!isOperatorApprovedByOwner) {
-        await conditionalTokensRepo.setApprovalForAll(
-          marketMakerAddress,
-          true,
-          account
-        );
-      }
-
-      const stagedTradeAmounts = Array.from(
-        { length: positions.length },
-        (_, i) =>
-          salePositionGroup.positions.find(
-            ({ positionIndex }) => positionIndex === i
-          ) == null
-            ? zeroDecimal
-            : salePositionGroup.amount.neg()
-      );
-
-      const tradeAmounts = stagedTradeAmounts.map(amount => amount.toString());
-      const collateralLimit = await marketMakersRepo.calcNetCost(tradeAmounts);
-      await marketMakersRepo.trade(tradeAmounts, collateralLimit, account);
-    },
-    [account, marketMakersRepo, collateral]
-  );
-
   const makeOutcomeSellSelectHandler = useCallback(
     salePositionGroup => () => {
       setCurrentSellingPosition(salePositionGroup);
@@ -192,7 +141,17 @@ const Positions = ({
 
   const handleCancelSell = useCallback(() => {
     setCurrentSellingPosition(null);
+    setStagedTransactionType(null);
+    setStagedTradeAmounts(null);
   }, []);
+
+  const handleChangeOutcome = useCallback(
+    ({ value }) => {
+      // TODO: ONLY WORKS WITH BINARY
+      setCurrentSellingPosition(positionGroups[value]);
+    },
+    [positionGroups]
+  );
 
   const sellOutcomeTokens = useCallback(async () => {
     if (stagedTradeAmounts == null) throw new Error(`No sell set yet`);
@@ -221,6 +180,7 @@ const Positions = ({
 
     asWrappedTransaction("sell outcome tokens", sellOutcomeTokens, setError);
     await marketMakersRepo.trade(tradeAmounts, collateralLimit, account);
+    setCurrentSellingPosition(null);
   }, [
     collateral,
     stagedTradeAmounts,
@@ -341,9 +301,13 @@ const Positions = ({
       positions={positions}
       positionBalances={positionBalances}
       stagedTradeAmounts={stagedTradeAmounts}
+      setStagedTransactionType={setStagedTransactionType}
       setStagedTradeAmounts={setStagedTradeAmounts}
       marketMakersRepo={marketMakersRepo}
       collateral={collateral}
+      sellOutcomeTokens={sellOutcomeTokens}
+      onOutcomeChange={handleChangeOutcome}
+      positionGroups={positionGroups}
     />
   ) : (
     <Balances
