@@ -6,6 +6,11 @@
   padding: 0 0 10rem;
   display: table;
 
+  @media #{$tablet-small-max} {
+    height: 100%;
+    padding: 0;
+  }
+
   .order-button,
   .your-positions-button {
       @media #{$tablet-small-max} {
@@ -31,10 +36,6 @@
     @media #{$tablet-small-max} {
 
     }
-  }
-
-  @media #{$tablet-small-max} {
-    height: 100%;
   }
 
   .drawer-header {
