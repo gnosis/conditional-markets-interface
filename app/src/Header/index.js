@@ -11,7 +11,7 @@ const cx = cn.bind(style);
 const isProduction = process.env.NODE_ENV === "production";
 const marketsPage = `${process.env.BASE_URL}${isProduction ? "#markets" : ""}`;
 
-const Header = ({ avatar, menu }) => (
+const Header = ({ avatar }) => (
   <div className={cx("header")}>
     <button
       className={cx("logo")}
@@ -20,14 +20,12 @@ const Header = ({ avatar, menu }) => (
     >
       <img src={Logo} alt="Gnosis Conditional Tokens" />
     </button>
-    <div className={cx("menu")}>{menu}</div>
     <div className={cx("avatar")}>{avatar}</div>
   </div>
 );
 
 Header.propTypes = {
-  avatar: PropTypes.node.isRequired,
-  menu: PropTypes.node.isRequired
+  avatar: PropTypes.node.isRequired
 };
 
 export default Header;

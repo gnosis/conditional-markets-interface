@@ -27,6 +27,7 @@ const makeLoadable = (Component, childComponents) => {
           );
           setLoadingState("SUCCESS");
         } catch (err) {
+          console.error(err);
           setLoadingState("ERROR");
         }
       })();

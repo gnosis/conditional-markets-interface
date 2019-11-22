@@ -40,7 +40,7 @@ module.exports = {
   devServer: {
     contentBase: path.resolve(__dirname, "assets"),
     proxy: {
-      // Needed to emulate whitelist service, as it is blocked by cors/corb
+      // Needed to proxy whitelist service, as it is blocked by cors/corb
       "/api": {
         target: "https://sight-whitelist.staging.gnosisdev.com",
         pathRewrite: { "/api": "/api/v1" },

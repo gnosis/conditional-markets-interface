@@ -1,0 +1,124 @@
+@import "~scss/_variables.scss";
+
+.markettable {
+  font-size: 1.6rem;
+  line-height: normal;
+
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-content: center;
+
+  &-row {
+    margin: 0 auto;
+    padding-top: 1rem;
+    width: 40vw;
+
+    .header {
+      display: block;
+      width: 100%;
+      font-size: 2.4rem;
+      font-weight: 600;
+      color: $black;
+    }
+
+    .subheader {
+      margin: 1rem 0;
+
+      display: flex;
+      flex-direction: row;
+
+      .property {
+        font-size: 1.2rem;
+
+        .icon {
+          display: inline;
+          padding-left: 2rem;
+
+          margin-right: 0.5rem;
+
+          &-time {
+            background: url("~assets/icons/market_ends.svg") center center no-repeat;
+          }
+          &-oracle {
+            background: url("~assets/icons/market_oracle.svg") center center no-repeat;
+          }
+          &-volume {
+            background: url("~assets/icons/market_volume.svg") center center no-repeat;
+          }
+
+        }
+
+        margin-right: 1rem;
+      }
+    }
+  }
+
+  .details {
+    &-header {
+      display: flex;
+      align-items: center;
+      margin-top: 2rem;
+    }
+
+    &-expand {
+      appearance: none;
+      -webkit-appearance: none;
+      border: none;
+      background: none;
+
+      font-weight: 600;
+      font-size: 1.6rem;
+      line-height: 3.2rem;
+
+      display: flex;
+      color: $black;
+      width: 100%;
+      overflow: hidden;
+
+      .expand-button {
+        color: $black;
+        margin-left: auto;
+        font-weight: 400;
+        font-size: 3.2rem;
+        outline: none;
+      }
+    }
+
+    &-content {
+      line-height: normal;
+
+      h1 {
+        font-weight: 600;
+        font-size: 1.6rem;
+        margin: 2rem 0;
+      }
+      h2 {
+        font-weight: 600;
+        font-size: 1.6rem;
+        margin: 2rem 0;
+      }
+      h3 {
+        font-weight: 600;
+        font-size: 1.6rem;
+        margin: 2rem 0;
+      }
+      h4, h5, h6 {
+        font-weight: 600;
+        font-size: 1.6rem;
+      }
+
+      a {
+        color: #009CB4;
+      }
+
+      &.hidden {
+        display: none;
+      }
+    }
+
+    padding-bottom: 1.2rem;
+
+    border-bottom: 1px solid $greyBorder;
+  }
+}

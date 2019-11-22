@@ -14,18 +14,11 @@ import ProbabilityWording from "./ProbabilityWording";
 import OutcomeSelection from "./OutcomeSelection";
 import ToggleConditional from "./ToggleConditional";
 
+import { markdownRenderers } from "utils/markdown";
+
 const cx = cn.bind(style);
 
 const { BN } = Web3.utils;
-/* eslint-disable */
-const markdownRenderers = {
-  link: props => (
-    <a href={props.href} target="_blank" rel="noopener noreferrer">
-      {props.children}
-    </a>
-  ),
-}
-/* eslint-enable */
 
 const Market = ({
   conditionId,

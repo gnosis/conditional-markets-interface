@@ -16,7 +16,6 @@ import CloseIcon from "@material-ui/icons/Close";
 import cn from "classnames/bind";
 import style from "./sidebar.scss";
 
-import Balance from "./Balance";
 import BuySection from "./Buy";
 import PositionsSections from "./Positions";
 
@@ -35,7 +34,6 @@ const Sidebar = props => {
 const SidebarDesktop = props => {
   return (
     <div className={cx("sidebar")}>
-      <Balance {...props} />
       <BuySection {...props} />
       <PositionsSections {...props} />
     </div>
@@ -136,7 +134,6 @@ const SidebarMobile = props => {
         <TabPanel value={value} index={1}>
           <PositionsSections {...props} />
         </TabPanel>
-        <Balance {...props} />
       </Drawer>
     </div>
   );
