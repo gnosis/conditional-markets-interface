@@ -27,6 +27,14 @@
           border-right: 0;
         }
     }
+
+    &:last-child {
+      margin-left: auto;
+      border-left: .1rem solid $greyBorder2;
+        @media #{$tablet-small-max} {
+          border-left: 0;
+        }
+    }
   }
 
   .logo {
