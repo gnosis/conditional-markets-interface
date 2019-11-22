@@ -79,14 +79,6 @@ const MarketTable = ({
 
   const conditionalDisabled = markets.length === 1;
 
-  let isStaging = false;
-
-  (marketSelections || []).forEach(({ selectedOutcomeIndex }) => {
-    if (selectedOutcomeIndex > -1) {
-      isStaging = true;
-    }
-  });
-
   const conditionalMarketIndices = (marketSelections || []).reduce(
     (acc, { isAssumed }, index) => (isAssumed ? [...acc, index] : acc),
     []
@@ -114,8 +106,8 @@ const MarketTable = ({
   const headings = [
     "#",
     "Market",
+    "Implied probability",
     "",
-    <>Implied probability {isStaging && <em>(Predicted)</em>}</>,
     "Ends In",
     "Outcome",
     !conditionalDisabled && (
@@ -131,9 +123,7 @@ const MarketTable = ({
         <tr>
           <th>#</th>
           <th>Market</th>
-          <th colSpan={2}>
-            Implied probability {isStaging && <em>(Predicted)</em>}
-          </th>
+          <th colSpan={2}>Implied probability</th>
           <th>Ends In</th>
           <th>Outcome</th>
           {!conditionalDisabled && (
