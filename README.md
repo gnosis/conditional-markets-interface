@@ -24,7 +24,7 @@ Frontend Interface to display and operate conditional markets, based on Gnosis' 
 
 3. Start the webpack dev server with `npm start`. This makes a hot-reloading dev build of the interface.
 
-4. Make a build with `npm run build`. This will output a webpack production build in `docs`, which may be used in conjunction with a static hosting service such as Github Pages or S3.
+4. Make a build with `npm run build`. This will output a webpack production build in `dist`, which may be used in conjunction with a static hosting service such as Github Pages or S3.
 
 ### Running Helper Scripts
 

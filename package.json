@@ -11,8 +11,8 @@
     "migrate": "truffle migrate",
     "test": "truffle test --network test",
     "test-app": "cross-env jest",
-    "start": "cd ./app && webpack-dev-server --hot --config ./webpack.config.js --mode development",
-    "build": "cd ./app && cross-env NODE_ENV=production webpack -p --config ./webpack.config.js --mode production",
+    "start": "cd ./app && webpack-dev-server --hot --config ./webpack.dev.js",
+    "build": "cd ./app && cross-env NODE_ENV=production webpack -p --config ./webpack.prod.js",
     "compile": "truffle compile --all",
     "lintjs": "eslint .",
     "fmtjs": "eslint . --fix"
@@ -94,7 +94,8 @@
     "webpack": "^4.41.2",
     "webpack-bundle-analyzer": "^3.6.0",
     "webpack-cli": "^3.3.10",
-    "webpack-dev-server": "^3.9.0"
+    "webpack-dev-server": "^3.9.0",
+    "webpack-merge": "^4.2.2"
   },
   "husky": {
     "hooks": {
