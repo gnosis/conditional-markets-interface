@@ -16,7 +16,7 @@ import style from "./positions.scss";
 import OutcomeCard, { Dot } from "../../components/OutcomeCard";
 
 const cx = cn.bind(style);
-const { toBN } = Web3.utils;
+const { toBN, sha3 } = Web3.utils;
 
 import getConditionalTokensRepo from "../../repositories/ConditionalTokensRepo";
 import getMarketMakersRepo from "../../repositories/MarketMakersRepo";
@@ -26,6 +26,8 @@ import Balances from "./Balances";
 let conditionalTokensRepo;
 let marketMakersRepo;
 let conditionalTokensService;
+
+let warnedAboutIds = {};
 
 const Positions = ({
   account,
@@ -95,18 +97,20 @@ const Positions = ({
         positionBalances
       );
       setPositionGroups(
-        positionGroups.filter((positionGroup) => {
+        positionGroups.filter(positionGroup => {
           const { amount } = positionGroup;
-          const isPositionLargeEnough = amount.lt(1e12);
+          const isPositionTooSmall = amount.lt(toBN(1e12));
+          const key = sha3(JSON.stringify(positionGroup));
 
-          if (!isPositionLargeEnough) {
+          if (isPositionTooSmall && !warnedAboutIds[key]) {
+            warnedAboutIds[key] = true; // to ensure it only warns once, otherwise this will be annoying
             console.warn(
               `A position is too small to be considered in the interface. Hopefully this is not a bug. ${amount.toString()} available of this position.`,
               positionGroup
             );
           }
 
-          return isPositionLargeEnough;
+          return !isPositionTooSmall;
         })
       );
     }
