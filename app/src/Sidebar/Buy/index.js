@@ -418,7 +418,7 @@ const Buy = ({
           <div className={cx("buy-investment")}>
             <button
               className={cx("buy-invest", "buy-invest-minus")}
-              onClick={makeStepper(-0.001)}
+              onClick={makeStepper(-0.1)}
               type="button"
             >
               –
@@ -446,7 +446,7 @@ const Buy = ({
             </div>
             <button
               className={cx("buy-invest", "buy-invest-plus")}
-              onClick={makeStepper(0.001)}
+              onClick={makeStepper(0.1)}
               type="button"
             >
               +
