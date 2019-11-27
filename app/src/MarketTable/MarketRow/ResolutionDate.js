@@ -3,26 +3,9 @@ import PropTypes from "prop-types";
 import cn from "classnames/bind";
 import useInterval from "@use-it/interval";
 
-import moment from "moment";
+import { fromNow, formatDate } from "utils/timeFormat";
 
 import style from "./resolutionDate.scss";
-
-moment.updateLocale("en", {
-  relativeTime: {
-    s: "CLOSED",
-    ss: "<%d seconds",
-    m: "<1 minute",
-    mm: "<%d minutes",
-    h: "<1 hour",
-    hh: "<%d hours",
-    d: "<1 day",
-    dd: "<%d days",
-    M: "<1 month",
-    MM: "<%d months",
-    y: "<1 year",
-    yy: "<%d years"
-  }
-});
 
 const cx = cn.bind(style);
 
@@ -34,11 +17,7 @@ const ResolutionDate = ({ date }) => {
   const updateCountdown = useCallback(() => {
     // use for testing many different random dates
     //setDate(Date.now() + (Math.random() * 100000000))
-    if (moment().isAfter(moment(date))) {
-      setTimeUntil("CLOSED");
-    } else {
-      setTimeUntil(moment(date).fromNow(true));
-    }
+    setTimeUntil(fromNow(date));
   });
 
   useEffect(updateCountdown, []);
@@ -47,7 +26,7 @@ const ResolutionDate = ({ date }) => {
   return (
     <div className={cx("resolution-date")}>
       <strong>{timeUntil}</strong>
-      <p title="Your Timezone">{moment(date).format("L LTS")}</p>
+      <p title="Your Timezone">{formatDate(date, "L LTS")}</p>
     </div>
   );
 };

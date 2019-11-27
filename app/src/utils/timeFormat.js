@@ -4,6 +4,10 @@ export function updateLocale(lang, stringObject) {
   moment.updateLocale(lang, stringObject);
 }
 
+export function formatDate(date, format) {
+  return moment(date).format(format);
+}
+
 export function fromNow(date) {
   return moment(date).fromNow();
 }
