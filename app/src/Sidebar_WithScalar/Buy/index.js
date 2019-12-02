@@ -451,14 +451,20 @@ const Buy = ({
             <button
               className={cx("buy-button")}
               type="button"
+              disabled={ongoingTransactionType != null}
               onClick={asWrappedTransaction(
                 "buy outcome tokens",
                 buyOutcomeTokens,
                 setError
               )}
             >
-              Buy {market.outcomes[marketSelection.selectedOutcomeIndex].title}{" "}
-              Position
+              {ongoingTransactionType === "buy outcome tokens" ? (
+                <Spinner inverted width={12} height={12} />
+              ) : (
+                `Buy ${
+                  market.outcomes[marketSelection.selectedOutcomeIndex].title
+                } Position`
+              )}
             </button>
           )}
         </div>

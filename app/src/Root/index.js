@@ -367,24 +367,28 @@ const RootComponent = ({ childComponents }) => {
           );
         }
 
-        try {
-          addToast("Transaction processing...", "info");
-          setOngoingTransactionType(wrappedTransactionType);
-          await transactionFn();
-          addToast("Transaction confirmed.", "success");
-        } catch (e) {
-          addToast(
-            <>
-              Unfortunately, the transaction failed.
-              <br />
-              <strong>{e.message}</strong>
-            </>,
-            "error"
-          );
-          throw e;
-        } finally {
-          setOngoingTransactionType(null);
-          triggerSync();
+        if (whitelistEnabled && whitelistState !== "WHITELISTED") {
+          openModal("applyBeta", { whitelistState });
+        } else {
+          try {
+            addToast("Transaction processing...", "info");
+            setOngoingTransactionType(wrappedTransactionType);
+            await transactionFn();
+            addToast("Transaction confirmed.", "success");
+          } catch (e) {
+            addToast(
+              <>
+                Unfortunately, the transaction failed.
+                <br />
+              </>,
+              "error"
+            );
+            throw e;
+          } finally {
+            setOngoingTransactionType(null);
+            setStagedTransactionType(null);
+            triggerSync();
+          }
         }
       };
     },
