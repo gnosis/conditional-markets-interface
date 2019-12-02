@@ -66,18 +66,21 @@ const MarketTable = ({
   return (
     <div className={cx("markettable")}>
       {markets.map(
-        ({
-          conditionId,
-          title,
-          resolutionDate,
-          dataSource,
-          dataSourceUrl,
-          lowerBound,
-          upperBound,
-          decimals,
-          unit,
-          description
-        }) => (
+        (
+          {
+            conditionId,
+            title,
+            resolutionDate,
+            dataSource,
+            dataSourceUrl,
+            lowerBound,
+            upperBound,
+            decimals,
+            unit,
+            description
+          },
+          index
+        ) => (
           <div className={cx("markettable-row")} key={`market-${conditionId}`}>
             <div className={cx("header")}>{title}</div>
             <div className={cx("subheader")}>
@@ -94,11 +97,12 @@ const MarketTable = ({
               </div>
             </div>
             <div className={cx("prediction")}>
-              <Graph 
+              <Graph
                 lowerBound={lowerBound}
                 upperBound={upperBound}
                 decimals={decimals}
                 unit={unit}
+                currentProbability={marketProbabilities[index][0]}
               />
             </div>
             <div className={cx("details")}>
