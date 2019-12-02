@@ -13,6 +13,7 @@ import Probabilities from "./Probabilities";
 import ProbabilityWording from "./ProbabilityWording";
 import OutcomeSelection from "./OutcomeSelection";
 import ToggleConditional from "./ToggleConditional";
+import ProbabilityChart from "./probabilityChart";
 
 import { markdownRenderers } from "utils/markdown";
 
@@ -133,8 +134,9 @@ const Market = ({
           </td>
         ))}
       </tr>
+      <ProbabilityChart colSpan={headings.length}></ProbabilityChart>
       <tr
-        className={cx("market-row-details", {
+        className={cx("market-row-tab", {
           hidden: !detailsOpen,
           disable: disableCollapse
         })}
@@ -151,7 +153,7 @@ const Market = ({
               {detailsOpen ? "–" : "+"}
             </span>
           </button>
-          <div className={cx("detail-content")}>
+          <div className={cx("tab-content")}>
             {dataSource && (
               <>
                 <h1>Data Source</h1>
