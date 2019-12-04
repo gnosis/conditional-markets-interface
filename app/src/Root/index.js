@@ -17,6 +17,12 @@ import {
 import { getWhitelistState } from "api/whitelist";
 import { getQuestions } from "api/operator";
 
+// 1
+import { ApolloProvider } from "react-apollo";
+import { ApolloClient } from "apollo-client";
+import { createHttpLink } from "apollo-link-http";
+import { InMemoryCache } from "apollo-cache-inmemory";
+
 import style from "./root.scss";
 const cx = cn.bind(style);
 
@@ -56,15 +62,17 @@ async function loadBasicData({ lmsrAddress, markets }, web3) {
 
   const { product } = require("utils/itertools");
 
-  const atomicOutcomeSlotCount = (await marketMakersRepo.atomicOutcomeSlotCount()).toNumber();
+  const atomicOutcomeSlotCount = (
+    await marketMakersRepo.atomicOutcomeSlotCount()
+  ).toNumber();
 
   let curAtomicOutcomeSlotCount = 1;
   for (let i = 0; i < markets.length; i++) {
     const market = markets[i];
     const conditionId = await marketMakersRepo.conditionIds(i);
-    const numSlots = (await conditionalTokensRepo.getOutcomeSlotCount(
-      conditionId
-    )).toNumber();
+    const numSlots = (
+      await conditionalTokensRepo.getOutcomeSlotCount(conditionId)
+    ).toNumber();
 
     if (numSlots === 0) {
       throw new Error(`condition ${conditionId} not set up yet`);
@@ -190,7 +198,7 @@ async function getLMSRState(web3, positions) {
     positions,
     marketMakerAddress
   );
-  return { owner, funding, stage, fee, positionBalances };
+  return { owner, funding, stage, fee, positionBalances, marketMakerAddress };
 }
 
 async function getPositionBalances(positions, account) {
@@ -228,6 +236,20 @@ async function getLMSRAllowance(collateral, account) {
   const marketMakerAddress = await marketMakersRepo.getAddress();
   return collateral.contract.allowance(account, marketMakerAddress);
 }
+
+// 2
+const httpLink = createHttpLink({
+  uri:
+    process.env.NETWORK === "rinkeby"
+      ? "https://api.thegraph.com/subgraphs/name/gnosis/sight-rinkeby"
+      : "https://api.thegraph.com/subgraphs/name/gnosis/sight"
+});
+
+// 3
+const client = new ApolloClient({
+  link: httpLink,
+  cache: new InMemoryCache()
+});
 
 const moduleLoadTime = Date.now();
 
@@ -489,11 +511,12 @@ const RootComponent = ({ childComponents }) => {
 
   if (loading === "SUCCESS")
     return (
-      <div className={cx("page")}>
-        <div className={cx("modal-space", { "modal-open": !!modal })}>
-          <img className={cx("logo")} src={Logo} />
-          {modal}
-          {/*<ul className={cx("footer")}>
+      <ApolloProvider client={client}>
+        <div className={cx("page")}>
+          <div className={cx("modal-space", { "modal-open": !!modal })}>
+            <img className={cx("logo")} src={Logo} />
+            {modal}
+            {/*<ul className={cx("footer")}>
             <li>
               <a href="/static/help.html" target="_BLANK">
                 Help
@@ -510,76 +533,77 @@ const RootComponent = ({ childComponents }) => {
               </a>
             </li>
             </ul>*/}
-        </div>
-        <div className={cx("app-space", { "modal-open": !!modal })}>
-          <Header
-            avatar={
-              <UserWallet
-                address={account}
-                openModal={openModal}
-                whitelistState={whitelistState}
-                collateral={collateral}
-                collateralBalance={collateralBalance}
-              />
-            }
-            menu={<Menu />}
-          />
-          <div className={cx("sections")}>
-            <section className={cx("section", "section-markets")}>
-              <MarketTable
-                {...{
-                  markets,
-                  marketResolutionStates,
-                  positions,
-                  lmsrState,
-                  marketSelections,
-                  setMarketSelections,
-                  stagedTradeAmounts,
-                  resetMarketSelections,
-                  addToast,
-                  openModal
-                }}
-              />
-            </section>
-            {account != null && // account available
-            (!whitelistEnabled || whitelistState === "WHITELISTED") && ( // whitelisted or whitelist functionality disabled
-                <section className={cx("section", "section-positions")}>
-                  <Sidebar
-                    {...{
-                      account,
-                      conditionalTokensRepo,
-                      pmSystem,
-                      markets,
-                      positions,
-                      marketResolutionStates,
-                      marketSelections,
-                      collateral,
-                      collateralBalance,
-                      lmsrState,
-                      lmsrAllowance,
-                      positionBalances,
-                      stagedTradeAmounts,
-                      setStagedTradeAmounts,
-                      stagedTransactionType,
-                      setStagedTransactionType,
-                      ongoingTransactionType,
-                      asWrappedTransaction,
-                      setMarketSelections,
-                      resetMarketSelections,
-                      addToast
-                    }}
-                  />
-                </section>
-              )}
-            <Toasts
-              deleteToast={deleteToast}
-              addToast={addToast}
-              toasts={toasts}
+          </div>
+          <div className={cx("app-space", { "modal-open": !!modal })}>
+            <Header
+              avatar={
+                <UserWallet
+                  address={account}
+                  openModal={openModal}
+                  whitelistState={whitelistState}
+                  collateral={collateral}
+                  collateralBalance={collateralBalance}
+                />
+              }
+              menu={<Menu />}
             />
-            <Footer />
+            <div className={cx("sections")}>
+              <section className={cx("section", "section-markets")}>
+                <MarketTable
+                  {...{
+                    markets,
+                    marketResolutionStates,
+                    positions,
+                    lmsrState,
+                    marketSelections,
+                    setMarketSelections,
+                    stagedTradeAmounts,
+                    resetMarketSelections,
+                    addToast,
+                    openModal
+                  }}
+                />
+              </section>
+              {account != null && // account available
+              (!whitelistEnabled || whitelistState === "WHITELISTED") && ( // whitelisted or whitelist functionality disabled
+                  <section className={cx("section", "section-positions")}>
+                    <Sidebar
+                      {...{
+                        account,
+                        conditionalTokensRepo,
+                        pmSystem,
+                        markets,
+                        positions,
+                        marketResolutionStates,
+                        marketSelections,
+                        collateral,
+                        collateralBalance,
+                        lmsrState,
+                        lmsrAllowance,
+                        positionBalances,
+                        stagedTradeAmounts,
+                        setStagedTradeAmounts,
+                        stagedTransactionType,
+                        setStagedTransactionType,
+                        ongoingTransactionType,
+                        asWrappedTransaction,
+                        setMarketSelections,
+                        resetMarketSelections,
+                        addToast
+                      }}
+                    />
+                  </section>
+                )}
+              <Toasts
+                deleteToast={deleteToast}
+                addToast={addToast}
+                toasts={toasts}
+              />
+              <Footer />
+            </div>
           </div>
         </div>
-      </div>
+      </ApolloProvider>
     );
 
   if (loading === "LOADING") {

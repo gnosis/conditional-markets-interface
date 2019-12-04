@@ -1,4 +1,13 @@
+.graph-container {
+  position: relative;
+}
+
 .tooltip {
   position: relative;
   min-width: 100px;
+}
+
+.static-tooltip {
+  position: absolute;
+  right: -100px;
 }
