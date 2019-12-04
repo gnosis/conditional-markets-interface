@@ -560,7 +560,8 @@ const RootComponent = ({ childComponents }) => {
                     stagedTradeAmounts,
                     resetMarketSelections,
                     addToast,
-                    openModal
+                    openModal,
+                    collateral
                   }}
                 />
               </section>

@@ -17,10 +17,6 @@ import {
 
 const cx = cn.bind(styles);
 
-const formatDateTick = tick => {
-  return moment(tick).format("MMM D");
-};
-
 const CursorWithLineConnection = props => {
   //console.log(props);
   //console.log(props.width)
@@ -151,6 +147,18 @@ const Graph = ({
     [lineRef]
   );
 
+  const formatDateTick = useCallback(tick => {
+    // this formatting logic is so we're able to use the index as the graph X values
+    // while still displaying the dates for the corresponding ticks
+    if (lineRef.current) {
+      return moment(lineRef.current.props.points[tick].payload.date).format(
+        "MMM D"
+      );
+    }
+
+    return null;
+  });
+
   return (
     <div className={cx("graph-container")}>
       <ResponsiveContainer minHeight={300}>
@@ -180,7 +188,7 @@ const Graph = ({
             dataKey="index"
             //domain={[data && data[0] ? data[0].date : 0, "dataMax"]}
             type="number"
-            //tickFormatter={formatDateTick}
+            tickFormatter={formatDateTick}
             interval="preserveEnd"
           />
           <YAxis
