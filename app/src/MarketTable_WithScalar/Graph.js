@@ -1,26 +1,9 @@
-import React, {
-  useEffect,
-  useState,
-  useCallback,
-  useRef,
-  isValidElement
-} from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import moment from "moment";
 import { formatScalarValue } from "utils/formatting";
 import cn from "classnames/bind";
 
 import styles from "./Graph.scss";
-
-const cx = cn.bind(styles);
-
-const GRAPH_TOOLTIP_STYLES = {
-  left: "100%"
-};
-
-const GRAPH_TOOLTIP_CURRENT_STYLES = {
-  ...GRAPH_TOOLTIP_STYLES,
-  background: "green"
-};
 
 import {
   LineChart,
@@ -32,42 +15,61 @@ import {
   ReferenceDot
 } from "recharts";
 
+const cx = cn.bind(styles);
+
 const formatDateTick = tick => {
   return moment(tick).format("MMM D");
 };
 
-/*
-const makeMockData = (min, max, currentProbability) => {
-  const totalElements = 20;
-  const data = Array(totalElements)
-    .fill(null)
-    .map((_, i) => {
-      const date = moment()
-        .subtract(totalElements - i, "days")
-        .valueOf();
-      const value = Math.random() * (max - min) + min;
+const CursorWithLineConnection = props => {
+  //console.log(props);
+  //console.log(props.width)
+  const {
+    points,
+    currentPositionTooltipCoordinates,
+    selectedPositionTooltipCoordinates,
+    width,
+    ...restProps
+  } = props;
 
-      return {
-        date,
-        value
-      };
-    });
-
-  // Add current probability
-  data.push({
-    date: moment().valueOf(),
-    value: currentProbability.valueOf() * (max - min) + min
-  });
-  return data;
-};
-*/
-
-const StaticTooltip = props => {
-  console.log(props);
-  const { viewBox } = props;
   return (
-    <g {...viewBox}>
-      <Text>Hallo</Text>
+    <g>
+      <line
+        x1={points[0].x}
+        x2={points[1].x}
+        y1={points[0].y}
+        y2={points[1].y}
+        style={{
+          stroke: "#02ae60",
+          strokeWidth: 2
+        }}
+      />
+      <line
+        x1={points[0].x}
+        x2={width + 5}
+        y1={currentPositionTooltipCoordinates.y}
+        y2={currentPositionTooltipCoordinates.y}
+        style={{
+          stroke: "#02ae60",
+          strokeDasharray: "2,2"
+        }}
+      />
+      <line
+        x1={points[0].x}
+        x2={width + 5}
+        y1={selectedPositionTooltipCoordinates.y}
+        y2={selectedPositionTooltipCoordinates.y}
+        style={{
+          stroke: "#02ae60",
+          strokeDasharray: "1,1"
+        }}
+      />
+      <circle
+        cx={points[0].x}
+        cy={currentPositionTooltipCoordinates.y}
+        r={5}
+        fill="#009cb4"
+      />
     </g>
   );
 };
@@ -75,7 +77,7 @@ const StaticTooltip = props => {
 const TooltipContent = ({ active, payload, unit, decimals }) => {
   if (active) {
     return (
-      <div className={cx("tooltip")}>
+      <div className={cx("tooltip-inner")}>
         {formatScalarValue(payload[0].value, unit, decimals)}
       </div>
     );
@@ -95,11 +97,13 @@ const Graph = ({
   currentProbability
 }) => {
   const [data, setData] = useState(entries);
+  const [sidebarWidth, setSidebarWidth] = useState(0);
 
   const [tooltipPosition, setTooltipPosition] = useState(null);
   const [lastTickPosition, setLastTickPosition] = useState(null);
 
   const lineRef = useRef(null);
+  const lineChartRef = useRef(null);
 
   useEffect(() => {
     const newData = [
@@ -108,26 +112,40 @@ const Graph = ({
         value:
           currentProbability.toNumber() * (upperBound - lowerBound) +
           lowerBound,
-        date: +new Date()
+        date: +new Date(),
+        index: entries.length
       }
     ];
 
     setData(newData);
-
-    if (lineRef.current) {
-      const tickPosition = lineRef.current.props.points[newData.length - 1];
-      setLastTickPosition(tickPosition);
-    }
   }, [queryData, lineRef]);
+
+  useEffect(() => {
+    if (lineRef.current) {
+      // position of selected tick
+      const tickPosition =
+        lineRef.current.props.points[lineRef.current.props.points.length - 1];
+      setLastTickPosition({
+        x: lineRef.current.props.width,
+        y: tickPosition.y
+      });
+    }
+
+    if (lineChartRef.current) {
+      // linechart sidebar (legend, padding, etc) calculation
+      const lineChartSidebarWidth =
+        lineChartRef.current.props.width -
+        (lineRef.current.props.width + lineChartRef.current.props.margin.left);
+      setSidebarWidth(lineChartSidebarWidth);
+    }
+  }, [lineRef.current, lineChartRef.current]);
 
   const mouseUpdate = useCallback(
     e => {
-      //console.log(e.activeCoordinate);
-      //console.log(JSON.stringify(e, null, 2))
       if (lineRef.current && e && e.activeTooltipIndex != null) {
         const tickPosition = lineRef.current.props.points[e.activeTooltipIndex];
 
-        setTooltipPosition({ x: 0, y: tickPosition.y });
+        setTooltipPosition({ x: tickPosition.x, y: tickPosition.y });
       }
     },
     [lineRef]
@@ -136,13 +154,18 @@ const Graph = ({
   return (
     <div className={cx("graph-container")}>
       <ResponsiveContainer minHeight={300}>
-        <LineChart data={data} onMouseMove={mouseUpdate}>
+        <LineChart data={data} onMouseMove={mouseUpdate} ref={lineChartRef}>
           {tooltipPosition && (
             <Tooltip
-              cursor={{ stroke: "#02ae60", strokeWidth: 2 }}
+              //cursor={{ stroke: "#02ae60", strokeWidth: 2 }}
+              cursor={
+                <CursorWithLineConnection
+                  currentPositionTooltipCoordinates={lastTickPosition}
+                  selectedPositionTooltipCoordinates={tooltipPosition}
+                />
+              }
               coordinate={{ x: 0, y: 0 }}
-              position={{ x: 0, y: tooltipPosition.y }}
-              wrapperStyle={GRAPH_TOOLTIP_STYLES}
+              position={{ x: -sidebarWidth, y: tooltipPosition.y }}
               content={<TooltipContent unit={unit} decimals={decimals} />}
             />
           )}
@@ -175,8 +198,10 @@ const Graph = ({
       </ResponsiveContainer>
       {lastTickPosition && (
         <div
-          className={cx("static-tooltip")}
-          style={{ top: `${lastTickPosition.y}px` }}
+          className={cx("tooltip-current-position")}
+          style={{
+            transform: `translate(${-sidebarWidth}px, ${lastTickPosition.y}px)`
+          }}
         >
           <TooltipContent
             active
