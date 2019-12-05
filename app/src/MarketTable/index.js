@@ -7,6 +7,7 @@ import Decimal from "decimal.js-light";
 import style from "./marketTable.scss";
 
 import MarketRow from "./MarketRow";
+import Spinner from "components/Spinner";
 import HelpButton from "components/HelpButton";
 
 import { oneDecimal } from "utils/constants";
@@ -117,6 +118,10 @@ const MarketTable = ({
     )
   ];
 
+  if (!lmsrState) {
+    return <Spinner />;
+  }
+
   return (
     <table className={cx("market-table")}>
       <thead>
@@ -137,6 +142,7 @@ const MarketTable = ({
         {conditionalMarkets.map(market => (
           <MarketRow
             key={market.conditionId}
+            lmsrState={lmsrState}
             headings={headings}
             stagedProbabilities={
               marketProbabilities != null
@@ -176,6 +182,7 @@ const MarketTable = ({
         {nonConditionalMarkets.map(market => (
           <MarketRow
             key={market.conditionId}
+            lmsrState={lmsrState}
             headings={headings}
             stagedProbabilities={
               marketProbabilities != null

@@ -53,6 +53,8 @@ async function loadBasicData({ lmsrAddress }, web3) {
     return market;
   });
 
+  console.log(markets);
+
   // Load application contracts
   marketMakersRepo = await getMarketMakersRepo();
   conditionalTokensRepo = await getConditionalTokensRepo();
@@ -599,10 +601,10 @@ const RootComponent = ({ childComponents }) => {
 
 export default hot(
   makeLoadable(RootComponent, [
-    () => import("MarketTable_WithScalar"),
-    () => import("Sidebar_WithScalar"),
-    // () => import("MarketTable"),
-    // () => import("Sidebar"),
+    // () => import("MarketTable_WithScalar"),
+    // () => import("Sidebar_WithScalar"),
+    () => import("MarketTable"),
+    () => import("Sidebar"),
     () => import("Header"),
     () => import("components/Menu"),
     () => import("components/UserWallet"),

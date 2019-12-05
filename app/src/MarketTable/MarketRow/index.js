@@ -29,10 +29,12 @@ const Market = ({
   description,
   dataSource,
   dataSourceUrl,
+  type,
   index,
   probabilities,
   stagedProbabilities,
   outcomes,
+  lmsrState,
   marketSelections,
   disableConditional,
   setMarketSelection
@@ -134,7 +136,11 @@ const Market = ({
           </td>
         ))}
       </tr>
-      <ProbabilityChart colSpan={headings.length}></ProbabilityChart>
+      <ProbabilityChart
+        marketType={type}
+        lmsrState={lmsrState}
+        colSpan={headings.length}
+      ></ProbabilityChart>
       <tr
         className={cx("market-row-tab", {
           hidden: !detailsOpen,

@@ -90,3 +90,9 @@ $base-line-height: 10px;
 
 // HTML Entity characters (e.g. for use with pseudo-elements)
 $x: "\2715"; // $x: "✕";
+
+// Export directive for webpack to use colors in javascript
+:export {
+  blueColor: $blue;
+  redColor: $red;
+}
