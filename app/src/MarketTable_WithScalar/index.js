@@ -14,6 +14,7 @@ import Spinner from "components/Spinner";
 
 import { markdownRenderers } from "utils/markdown";
 import { calcSelectedMarketProbabilitiesFromPositionProbabilities } from "utils/probabilities";
+import { formatCollateral } from "utils/formatting";
 import Graph from "./Graph";
 
 import prepareQueryData from "./utils/prepareQueryData";
@@ -73,7 +74,8 @@ const MarketTable = ({
   lmsrState,
   marketSelections,
   setMarketSelections,
-  resetMarketSelections
+  resetMarketSelections,
+  collateral
 }) => {
   useEffect(() => {
     resetMarketSelections();
@@ -152,7 +154,7 @@ const MarketTable = ({
                     </div>
                     <div className={cx("property")}>
                       <i className={cx("icon", "icon-volume")} />{" "}
-                      {lmsrState.funding.toString()} DAI
+                      {formatCollateral(lmsrState.funding, collateral)}
                     </div>
                   </div>
                   <div className={cx("prediction")}>

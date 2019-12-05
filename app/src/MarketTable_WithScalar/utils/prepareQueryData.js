@@ -29,9 +29,9 @@ const prepareQueryData = (
       );
 
       // change this to return multiple probabilities in the future to display various categorical
-      const longProbability = new Decimal(marketMakerMarginalPrices[1])
-        .div(total)
-        .toNumber();
+      const longProbability = new Decimal(marketMakerMarginalPrices[1]).div(
+        total
+      );
       return {
         value: longProbability,
         date: blockTimestamp * 1000 // the-graph time is seconds, js requires ms
@@ -44,7 +44,10 @@ const prepareQueryData = (
       upperBound,
       ...market,
       trades: trades.map(({ value, date }, index) => ({
-        value: value * (upperBound - lowerBound) + lowerBound,
+        value: value
+          .mul(upperBound - lowerBound)
+          .add(lowerBound)
+          .toNumber(),
         index,
         date
       }))

@@ -17,10 +17,6 @@ import {
 
 const cx = cn.bind(styles);
 
-const formatDateTick = tick => {
-  return moment(tick).format("MMM D");
-};
-
 const CursorWithLineConnection = props => {
   //console.log(props);
   //console.log(props.width)
@@ -89,13 +85,14 @@ const TooltipContent = ({ active, payload, unit, decimals }) => {
 const Graph = ({
   lowerBound,
   upperBound,
-  decimals,
+  decimals: parentDecimals,
   unit,
-  lmsrAddress,
   entries,
   queryData,
   currentProbability
 }) => {
+  const [decimals, setDecimals] = useState(parentDecimals || 2)
+
   const [data, setData] = useState(entries);
   const [sidebarWidth, setSidebarWidth] = useState(0);
 
@@ -109,9 +106,10 @@ const Graph = ({
     const newData = [
       ...entries,
       {
-        value:
-          currentProbability.toNumber() * (upperBound - lowerBound) +
-          lowerBound,
+        value: currentProbability
+          .mul(upperBound - lowerBound)
+          .add(lowerBound)
+          .toNumber(),
         date: +new Date(),
         index: entries.length
       }
@@ -151,6 +149,21 @@ const Graph = ({
     [lineRef]
   );
 
+  const formatDateTick = useCallback(tick => {
+    // this formatting logic is so we're able to use the index as the graph X values
+    // while still displaying the dates for the corresponding ticks
+    if (lineRef.current) {
+      // lineRef.current.props.points[tick].payload.date
+      return moment(tick).format("MMM D");
+    }
+
+    return null;
+  });
+
+  if (data.length < 2) {
+    return (<span>Not enough data yet</span>);
+  }
+
   return (
     <div className={cx("graph-container")}>
       <ResponsiveContainer minHeight={300}>
@@ -177,10 +190,10 @@ const Graph = ({
             stroke="none"
           />
           <XAxis
-            dataKey="index"
-            //domain={[data && data[0] ? data[0].date : 0, "dataMax"]}
+            dataKey="date"
+            domain={[data && data[0] ? data[0].date : 0, "dataMax"]}
             type="number"
-            //tickFormatter={formatDateTick}
+            tickFormatter={formatDateTick}
             interval="preserveEnd"
           />
           <YAxis
