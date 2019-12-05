@@ -65,6 +65,9 @@ const Buy = ({
   const [sliderValue, setSliderValue] = useState(parseFloat(market.lowerBound));
   const [error, setError] = useState(null);
 
+  const decimalUpper = new Decimal(market.upperBound);
+  const decimalLower = new Decimal(market.lowerBound);
+
   useEffect(() => {
     if (probabilities) {
       const value = fromProbabilityToSlider(market, probabilities[0]);
@@ -82,8 +85,8 @@ const Buy = ({
       stagedTradeAmounts &&
       marketSelection.selectedOutcomeIndex > -1
     ) {
-      const decimalUpper = new Decimal(market.upperBound);
-      const decimalLower = new Decimal(market.lowerBound);
+      // const decimalUpper = new Decimal(market.upperBound);
+      // const decimalLower = new Decimal(market.lowerBound);
 
       const maxPayout = new Decimal(
         stagedTradeAmounts[marketSelection.selectedOutcomeIndex]
@@ -365,19 +368,17 @@ const Buy = ({
             <div>
               <div className={cx("slider")}>
                 <div className={cx("labels")}>
-                  <span>
-                    {formatScalarValue(market.lowerBound, market.unit)}
-                  </span>
+                  <span>{formatScalarValue(decimalLower, market.unit)}</span>
                   <span>
                     {formatScalarValue(
-                      (market.upperBound - market.lowerBound) / 2 +
-                        market.lowerBound,
+                      decimalUpper
+                        .minus(decimalLower)
+                        .div(2)
+                        .add(decimalLower),
                       market.unit
                     )}
                   </span>
-                  <span>
-                    {formatScalarValue(market.upperBound, market.unit)}
-                  </span>
+                  <span>{formatScalarValue(decimalUpper, market.unit)}</span>
                 </div>
                 <div className={cx("input")}>
                   <input
@@ -451,14 +452,20 @@ const Buy = ({
             <button
               className={cx("buy-button")}
               type="button"
+              disabled={ongoingTransactionType != null}
               onClick={asWrappedTransaction(
                 "buy outcome tokens",
                 buyOutcomeTokens,
                 setError
               )}
             >
-              Buy {market.outcomes[marketSelection.selectedOutcomeIndex].title}{" "}
-              Position
+              {ongoingTransactionType === "buy outcome tokens" ? (
+                <Spinner inverted width={12} height={12} />
+              ) : (
+                `Buy ${
+                  market.outcomes[marketSelection.selectedOutcomeIndex].title
+                } Position`
+              )}
             </button>
           )}
         </div>

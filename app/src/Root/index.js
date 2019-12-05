@@ -16,6 +16,12 @@ import {
 import { getWhitelistState } from "api/whitelist";
 import { getQuestions } from "api/operator";
 
+// 1
+import { ApolloProvider } from "react-apollo";
+import { ApolloClient } from "apollo-client";
+import { createHttpLink } from "apollo-link-http";
+import { InMemoryCache } from "apollo-cache-inmemory";
+
 import style from "./root.scss";
 const cx = cn.bind(style);
 
@@ -188,7 +194,7 @@ async function getLMSRState(web3, positions) {
     positions,
     marketMakerAddress
   );
-  return { owner, funding, stage, fee, positionBalances };
+  return { owner, funding, stage, fee, positionBalances, marketMakerAddress };
 }
 
 async function getPositionBalances(positions, account) {
@@ -226,6 +232,20 @@ async function getLMSRAllowance(collateral, account) {
   const marketMakerAddress = await marketMakersRepo.getAddress();
   return collateral.contract.allowance(account, marketMakerAddress);
 }
+
+// 2
+const httpLink = createHttpLink({
+  uri:
+    process.env.NETWORK === "rinkeby"
+      ? "https://api.thegraph.com/subgraphs/name/gnosis/sight-rinkeby"
+      : "https://api.thegraph.com/subgraphs/name/gnosis/sight"
+});
+
+// 3
+const client = new ApolloClient({
+  link: httpLink,
+  cache: new InMemoryCache()
+});
 
 const moduleLoadTime = Date.now();
 
@@ -297,7 +317,9 @@ const RootComponent = ({ childComponents }) => {
     }
   }, []);
 
-  useEffect(init, []);
+  useEffect(() => {
+    init();
+  }, []);
 
   const [lmsrState, setLMSRState] = useState(null);
   const [marketResolutionStates, setMarketResolutionStates] = useState(null);
@@ -400,6 +422,7 @@ const RootComponent = ({ childComponents }) => {
             throw e;
           } finally {
             setOngoingTransactionType(null);
+            setStagedTransactionType(null);
             triggerSync();
           }
         }
@@ -479,80 +502,84 @@ const RootComponent = ({ childComponents }) => {
 
   if (loading === "SUCCESS")
     return (
-      <div className={cx("page")}>
-        <div className={cx("modal-space", { "modal-open": !!modal })}>
-          {modal}
-        </div>
-        <div className={cx("app-space", { "modal-open": !!modal })}>
-          <ApplyBetaHeader
-            openModal={openModal}
-            whitelistState={whitelistState}
-          />
-          <Header
-            avatar={
-              <UserWallet
-                address={account}
-                openModal={openModal}
-                whitelistState={whitelistState}
-                collateral={collateral}
-                collateralBalance={collateralBalance}
-              />
-            }
-            menu={<Menu />}
-          />
-          <div className={cx("sections")}>
-            <section className={cx("section", "section-markets")}>
-              <MarketTable
-                {...{
-                  markets,
-                  marketResolutionStates,
-                  positions,
-                  lmsrState,
-                  marketSelections,
-                  setMarketSelections,
-                  stagedTradeAmounts,
-                  resetMarketSelections,
-                  addToast,
-                  openModal
-                }}
-              />
-            </section>
-            {account != null && ( // account available
-              <section className={cx("section", "section-positions")}>
-                <Sidebar
+      <ApolloProvider client={client}>
+        <div className={cx("page")}>
+          <div className={cx("modal-space", { "modal-open": !!modal })}>
+            {modal}
+          </div>
+          <div className={cx("app-space", { "modal-open": !!modal })}>
+            <ApplyBetaHeader
+              openModal={openModal}
+              whitelistState={whitelistState}
+            />
+            <Header
+              avatar={
+                <UserWallet
+                  address={account}
+                  openModal={openModal}
+                  whitelistState={whitelistState}
+                  collateral={collateral}
+                  collateralBalance={collateralBalance}
+                />
+              }
+              menu={<Menu />}
+            />
+            <div className={cx("sections")}>
+              <section className={cx("section", "section-markets")}>
+                <MarketTable
                   {...{
-                    account,
                     markets,
-                    positions,
-                    positionBalances,
                     marketResolutionStates,
-                    marketSelections,
-                    collateral,
-                    collateralBalance,
+                    positions,
                     lmsrState,
-                    lmsrAllowance,
+                    marketSelections,
+                    setMarketSelections,
                     stagedTradeAmounts,
-                    setStagedTradeAmounts,
-                    stagedTransactionType,
-                    setStagedTransactionType,
-                    ongoingTransactionType,
-                    asWrappedTransaction,
                     resetMarketSelections,
+                    collateral,
                     addToast,
                     openModal
                   }}
                 />
               </section>
-            )}
-            <Toasts
-              deleteToast={deleteToast}
-              addToast={addToast}
-              toasts={toasts}
-            />
-            <Footer />
+              {account != null && ( // account available
+                <section className={cx("section", "section-positions")}>
+                  <Sidebar
+                    {...{
+                      account,
+                      markets,
+                      positions,
+                      positionBalances,
+                      marketResolutionStates,
+                      marketSelections,
+                      collateral,
+                      collateralBalance,
+                      lmsrState,
+                      lmsrAllowance,
+                      stagedTradeAmounts,
+                      setStagedTradeAmounts,
+                      stagedTransactionType,
+                      setStagedTransactionType,
+                      ongoingTransactionType,
+                      asWrappedTransaction,
+                      setMarketSelections,
+                      resetMarketSelections,
+                      addToast,
+                      openModal
+                    }}
+                  />
+                </section>
+              )}
+              <Toasts
+                deleteToast={deleteToast}
+                addToast={addToast}
+                toasts={toasts}
+              />
+              <Footer />
+            </div>
           </div>
         </div>
-      </div>
+      </ApolloProvider>
     );
 
   if (loading === "LOADING") {
@@ -574,10 +601,10 @@ const RootComponent = ({ childComponents }) => {
 
 export default hot(
   makeLoadable(RootComponent, [
-    // () => import("MarketTable_WithScalar"),
-    // () => import("Sidebar_WithScalar"),
-    () => import("MarketTable"),
-    () => import("Sidebar"),
+    () => import("MarketTable_WithScalar"),
+    () => import("Sidebar_WithScalar"),
+    // () => import("MarketTable"),
+    // () => import("Sidebar"),
     () => import("Header"),
     () => import("components/Menu"),
     () => import("components/UserWallet"),
