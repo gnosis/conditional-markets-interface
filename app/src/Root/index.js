@@ -534,6 +534,7 @@ const RootComponent = ({ childComponents }) => {
                     setMarketSelections,
                     stagedTradeAmounts,
                     resetMarketSelections,
+                    collateral,
                     addToast,
                     openModal
                   }}
@@ -559,6 +560,7 @@ const RootComponent = ({ childComponents }) => {
                       setStagedTransactionType,
                       ongoingTransactionType,
                       asWrappedTransaction,
+                      setMarketSelections,
                       resetMarketSelections,
                       addToast,
                       openModal
@@ -597,10 +599,10 @@ const RootComponent = ({ childComponents }) => {
 
 export default hot(
   makeLoadable(RootComponent, [
-    // () => import("MarketTable_WithScalar"),
-    // () => import("Sidebar_WithScalar"),
-    () => import("MarketTable"),
-    () => import("Sidebar"),
+    () => import("MarketTable_WithScalar"),
+    () => import("Sidebar_WithScalar"),
+    // () => import("MarketTable"),
+    // () => import("Sidebar"),
     () => import("Header"),
     () => import("components/Menu"),
     () => import("components/UserWallet"),
