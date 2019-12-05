@@ -317,7 +317,9 @@ const RootComponent = ({ childComponents }) => {
     }
   }, []);
 
-  useEffect(init, []);
+  useEffect(() => {
+    init();
+  }, []);
 
   const [lmsrState, setLMSRState] = useState(null);
   const [marketResolutionStates, setMarketResolutionStates] = useState(null);
