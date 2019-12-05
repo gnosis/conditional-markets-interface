@@ -5,10 +5,13 @@ import style from "./menu.scss";
 
 const cx = cn.bind(style);
 
+const isProduction = process.env.NODE_ENV === "production";
+const marketsPage = `${process.env.BASE_URL}${isProduction ? "#markets" : ""}`;
+
 const menuItems = [
   {
     label: "MARKETS",
-    target: "/",
+    target: marketsPage,
     active: true
   }
 ];
@@ -18,7 +21,7 @@ const Menu = () => (
     <ul>
       {menuItems.map(({ label, target, active }) => (
         <li className={cx("menu-item", { active })} key={target}>
-          <span>{label}</span>
+          <a href={target}>{label}</a>
         </li>
       ))}
     </ul>

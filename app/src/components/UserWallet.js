@@ -20,25 +20,24 @@ const UserWallet = ({
   collateral,
   collateralBalance
 }) => {
-  if (whitelistState === "LOADING") {
+  if (!address) {
     return (
       <div className={cx("user-wallet")}>
-        <Spinner />
+        <button
+          type="button"
+          className={cx("connect-wallet")}
+          onClick={() => openModal("Connect")}
+        >
+          Connect
+        </button>
       </div>
     );
   }
 
-  if (whitelistState === "NOT_FOUND") {
+  if (whitelistState === "LOADING") {
     return (
       <div className={cx("user-wallet")}>
-        <a
-          className={cx("link-button")}
-          href="http://eepurl.com/gAjo0X"
-          target="_BLANK"
-          rel="noreferrer noopener"
-        >
-          Apply for our closed Beta
-        </a>
+        <Spinner />
       </div>
     );
   }
@@ -72,38 +71,24 @@ const UserWallet = ({
 
   return (
     <div className={cx("user-wallet")}>
-      {address ? (
-        <>
-          <strong>
-            <Balance
-              collateral={collateral}
-              collateralBalance={collateralBalance}
-            />
-          </strong>
-          <span>&nbsp;–&nbsp;</span>
-          <span className={cx("address")} title={address}>
-            {formatAddress(address)}
-          </span>
-          <div className={cx("avatar")}>
-            <Blockies
-              seed={address.toLowerCase()}
-              size={8}
-              scale={16}
-              className={cx("avatar-image")}
-            />
-          </div>
-        </>
-      ) : (
-        <div>
-          <button
-            type="button"
-            className={cx("connect-wallet")}
-            onClick={() => openModal("Connect")}
-          >
-            Connect
-          </button>
-        </div>
-      )}
+      <strong>
+        <Balance
+          collateral={collateral}
+          collateralBalance={collateralBalance}
+        />
+      </strong>
+      <span>&nbsp;–&nbsp;</span>
+      <span className={cx("address")} title={address}>
+        {formatAddress(address)}
+      </span>
+      <div className={cx("avatar")}>
+        <Blockies
+          seed={address.toLowerCase()}
+          size={8}
+          scale={16}
+          className={cx("avatar-image")}
+        />
+      </div>
     </div>
   );
 };

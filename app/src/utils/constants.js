@@ -15,5 +15,7 @@ export const minDisplayedProbability = new Decimal(10)
   .pow(-probabilityDecimalPlaces)
   .mul("0.01");
 export const collateralSignificantDigits = 5;
+export const quantitySiginificantDigits = 3;
+export const collateralConsiderAsZeroDigits = 10;
 
 export const outcomeColors = [Color("#D9F6FB"), Color("#FFE6EA")];

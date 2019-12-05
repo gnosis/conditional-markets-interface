@@ -13,11 +13,10 @@ const isProduction = process.env.NODE_ENV === "production";
 
 module.exports = {
   entry: "./src/index.js",
-  devtool: "eval-source-map",
   output: {
-    path: path.resolve(__dirname, "..", "docs"),
+    path: path.resolve(__dirname, "..", "dist"),
     publicPath: "",
-    filename: "bundle.[hash].js"
+    filename: isProduction ? "bundle.[hash].js" : "bundle.js"
   },
   target: "web",
   resolve: {
@@ -36,19 +35,6 @@ module.exports = {
       "bignumber.js/bignumber": moduleStubPath
     },
     modules: ["node_modules", "src", "assets"]
-  },
-  devServer: {
-    contentBase: path.resolve(__dirname, "assets"),
-    proxy: {
-      // Needed to proxy whitelist service, as it is blocked by cors/corb
-      "/api": {
-        target: "https://sight-whitelist.staging.gnosisdev.com",
-        pathRewrite: { "/api": "/api/v1" },
-        changeOrigin: true,
-        secure: false
-      }
-    },
-    overlay: true
   },
   module: {
     rules: [
@@ -118,12 +104,12 @@ module.exports = {
     new webpack.EnvironmentPlugin({
       NODE_ENV: "development",
       NETWORK: false,
-      // Use default configuration instead
       WHITELIST_ENABLED: isProduction,
       WHITELIST_API: isProduction
         ? "https://sight-whitelist.staging.gnosisdev.com/api/v1"
         : "/api",
-      OPERATOR_API: ""
+      OPERATOR_API: "",
+      BASE_URL: "/"
     })
   ]
 };

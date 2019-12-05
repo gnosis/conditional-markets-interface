@@ -18,6 +18,7 @@ matrix:
   include:
   - if: branch =~ /^master$/ OR tag IS present
     env:
+      - WHITELIST_ENABLED=true
       - WHITELIST_API=https://sight-whitelist.gnosis.io/api/v1
       - OPERATOR_API=https://sight-operator.gnosis.io/api/v1
   - if: NOT (branch =~ /^master$/) AND NOT (tag IS present)
@@ -33,7 +34,7 @@ deploy:
     access_key_id: $AWS_ACCESS_KEY_ID
     secret_access_key: $AWS_SECRET_ACCESS_KEY
     skip_cleanup: true
-    local_dir: docs
+    local_dir: dist
     on:
       branch: development
 
@@ -43,7 +44,7 @@ deploy:
     access_key_id: $AWS_ACCESS_KEY_ID
     secret_access_key: $AWS_SECRET_ACCESS_KEY
     skip_cleanup: true
-    local_dir: docs
+    local_dir: dist
     upload-dir: current
     on:
       branch: master
@@ -54,7 +55,7 @@ deploy:
     access_key_id: $AWS_ACCESS_KEY_ID
     secret_access_key: $AWS_SECRET_ACCESS_KEY
     skip_cleanup: true
-    local_dir: docs
+    local_dir: dist
     upload-dir: current/app
     on:
       branch: master
@@ -65,7 +66,7 @@ deploy:
     access_key_id: $AWS_ACCESS_KEY_ID
     secret_access_key: $AWS_SECRET_ACCESS_KEY
     skip_cleanup: true
-    local_dir: docs
+    local_dir: dist
     upload-dir: current
     on:
       branch: release/alpha
@@ -76,7 +77,7 @@ deploy:
     access_key_id: $AWS_ACCESS_KEY_ID
     secret_access_key: $AWS_SECRET_ACCESS_KEY
     skip_cleanup: true
-    local_dir: docs
+    local_dir: dist
     upload-dir: releases/$TRAVIS_TAG
     on:
       tags: true
@@ -91,7 +92,7 @@ deploy:
     access_key_id: $AWS_ACCESS_KEY_ID
     secret_access_key: $AWS_SECRET_ACCESS_KEY
     skip_cleanup: true
-    local_dir: docs
+    local_dir: dist
     upload-dir: releases/alpha
     on:
       branch: release/alpha

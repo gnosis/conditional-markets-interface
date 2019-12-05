@@ -18,7 +18,6 @@ const cx = cn.bind(style);
 
 const MarketTable = ({
   markets,
-  marketResolutionStates,
   positions,
   lmsrState,
   marketSelections,
@@ -80,14 +79,6 @@ const MarketTable = ({
 
   const conditionalDisabled = markets.length === 1;
 
-  let isStaging = false;
-
-  (marketSelections || []).forEach(({ selectedOutcomeIndex }) => {
-    if (selectedOutcomeIndex > -1) {
-      isStaging = true;
-    }
-  });
-
   const conditionalMarketIndices = (marketSelections || []).reduce(
     (acc, { isAssumed }, index) => (isAssumed ? [...acc, index] : acc),
     []
@@ -115,8 +106,8 @@ const MarketTable = ({
   const headings = [
     "#",
     "Market",
+    "Implied probability",
     "",
-    <>Outcome Probability {isStaging && <em>(Predicted)</em>}</>,
     "Ends In",
     "Outcome",
     !conditionalDisabled && (
@@ -132,9 +123,7 @@ const MarketTable = ({
         <tr>
           <th>#</th>
           <th>Market</th>
-          <th colSpan={2}>
-            Outcome Probability {isStaging && <em>(Predicted)</em>}
-          </th>
+          <th colSpan={2}>Implied probability</th>
           <th>Ends In</th>
           <th>Outcome</th>
           {!conditionalDisabled && (
@@ -215,7 +204,6 @@ MarketTable.propTypes = {
       conditionId: PropTypes.string.isRequired
     }).isRequired
   ).isRequired,
-  marketResolutionStates: PropTypes.array,
   positions: PropTypes.arrayOf(
     PropTypes.shape({
       positionIndex: PropTypes.number.isRequired,
@@ -242,7 +230,8 @@ MarketTable.propTypes = {
   setMarketSelections: PropTypes.func.isRequired,
   stagedTradeAmounts: PropTypes.arrayOf(
     PropTypes.instanceOf(Decimal).isRequired
-  )
+  ),
+  openModal: PropTypes.func.isRequired
 };
 
 export default MarketTable;

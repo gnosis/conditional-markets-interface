@@ -1,3 +1,7 @@
+// Importing this globally to fix regeneratorRuntime error with babel-preset-env
+// and async/await code
+import "regenerator-runtime/runtime";
+
 // Router
 import { ConnectedRouter } from "connected-react-router";
 
@@ -20,6 +24,7 @@ import { history, store } from "./store";
 
 Decimal.config({
   precision: 80,
+  toExpPos: 50,
   rounding: Decimal.ROUND_FLOOR
 });
 

@@ -6,10 +6,10 @@
   justify-content: center;
   align-items: center;
   height: 100%;
-  font-size: 1.5rem;
 
-  .address {
-    color: $darkBlue;
+  > span {
+    font-size: 1.5rem;
+    color: $black;
     letter-spacing: 0.05rem;
     text-align: right;
     margin: 0 1rem 0 0;
@@ -26,9 +26,10 @@
     position: relative;
     border-radius: 100%;
     overflow: hidden;
+
       @media #{$tablet-small-max} {
-        height: 2.4rem;
-        width: 2.4rem;
+        height: 2.6rem;
+        width: 2.6rem;
       }
 
     &-image {
@@ -37,6 +38,14 @@
       image-rendering: pixelated;
     }
   }
+
+  > svg {
+    height: 80%;
+  }
+
+  > svg > path {
+    fill: $black;
+  }
 }
 
 .connect-wallet {
@@ -44,12 +53,14 @@
   -webkit-appearance: none;
   background: none;
   text-transform: uppercase;
-  font-weight: bolder;
-  padding: 1rem 0.8rem;
+  font-weight: $bold;
   border-radius: .3rem;;
-  border: .1rem solid $greyBorder2;
-  background-color: $green;
+  background: $green;
   color: $white;
+  letter-spacing: .1rem;
+  font-size: 1.2rem;
+  border: 0;
+  padding: 1rem;
 
   &:hover, &:focus, &:active {
     background-color: darken($green, 20%);
