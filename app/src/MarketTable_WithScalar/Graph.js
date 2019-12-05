@@ -117,7 +117,7 @@ const Graph = ({
     ];
 
     setData(newData);
-  }, [queryData, lineRef]);
+  }, [queryData, currentProbability, lineRef.current, lowerBound, upperBound]);
 
   useEffect(() => {
     if (lineRef.current) {
@@ -137,7 +137,7 @@ const Graph = ({
         (lineRef.current.props.width + lineChartRef.current.props.margin.left);
       setSidebarWidth(lineChartSidebarWidth);
     }
-  }, [lineRef.current, lineChartRef.current]);
+  }, [lineRef.current, lineChartRef.current, data]);
 
   const mouseUpdate = useCallback(
     e => {
@@ -149,18 +149,7 @@ const Graph = ({
     },
     [lineRef.current]
   );
-
-  const formatDateTick = useCallback(tick => {
-    // this formatting logic is so we're able to use the index as the graph X values
-    // while still displaying the dates for the corresponding ticks
-    if (lineRef.current) {
-      // lineRef.current.props.points[tick].payload.date
-      return moment(tick).format("MMM D");
-    }
-
-    return "";
-  });
-
+  
   const LineTickWithTitle = useCallback(
     props => {
       const { x, y, payload } = props;
