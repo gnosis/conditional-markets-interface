@@ -48,7 +48,6 @@ const Sell = ({
     amount => new Decimal(amount.toString())
   );
 
-  const [status, setStatus] = useState(null);
   const [sellAmountFullUnit, setSellAmountFullUnit] = useState("0");
   const [estimatedSaleEarning, setEstimatedSaleEarning] = useState(null);
   const [error, setError] = useState(null);
@@ -174,16 +173,8 @@ const Sell = ({
   );
 
   const handleSell = useCallback(() => {
-    setStatus("LOADING");
     setStagedTransactionType("sell outcome tokens");
     return sellOutcomeTokens()
-      .then(() => {
-        setStatus("SUCCESS");
-      })
-      .catch(err => {
-        console.error(err);
-        setStatus("ERROR");
-      });
   }, [stagedTradeAmounts]);
 
   if (maxSellAmounts.filter(dec => dec.abs().gt(0)).length > 1) {

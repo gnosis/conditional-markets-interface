@@ -308,6 +308,7 @@ const Positions = ({
   if (positionGroups === null) {
     return (
       <>
+        <div className={cx("positions-heading")}>Your Positions</div>
         <div className={cx("positions-empty")}>
           <Spinner width={25} height={25} centered />
         </div>
@@ -317,8 +318,9 @@ const Positions = ({
 
   return (
     <>
+      <div className={cx("positions-heading")}>Your Positions</div>
       {positionGroups.length === 0 && (
-        <div className={cx("positions-empty")}>You have no positions yet.</div>
+        <div className={cx("positions-empty")}>You have no positions.</div>
       )}
       {allMarketsResolved && (
         <>
