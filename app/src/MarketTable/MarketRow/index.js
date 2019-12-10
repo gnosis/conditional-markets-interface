@@ -34,7 +34,6 @@ const Market = ({
   probabilities,
   stagedProbabilities,
   outcomes,
-  lmsrState,
   marketSelections,
   disableConditional,
   setMarketSelection
@@ -138,8 +137,9 @@ const Market = ({
       </tr>
       <ProbabilityChart
         marketType={type}
-        lmsrState={lmsrState}
         colSpan={headings.length}
+        probabilities={probabilities}
+        stagedProbabilities={stagedProbabilities}
       ></ProbabilityChart>
       <tr
         className={cx("market-row-tab", {
@@ -201,9 +201,6 @@ Market.propTypes = {
     }).isRequired
   ).isRequired,
 
-  lmsrState: PropTypes.shape({
-    stage: PropTypes.string.isRequired
-  }),
   resolutionState: PropTypes.shape({
     isResolved: PropTypes.bool.isRequired,
     payoutNumerators: PropTypes.arrayOf(PropTypes.instanceOf(BN).isRequired)

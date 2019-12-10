@@ -53,8 +53,6 @@ async function loadBasicData({ lmsrAddress }, web3) {
     return market;
   });
 
-  console.log(markets);
-
   // Load application contracts
   marketMakersRepo = await getMarketMakersRepo();
   conditionalTokensRepo = await getConditionalTokensRepo();
@@ -239,8 +237,8 @@ async function getLMSRAllowance(collateral, account) {
 const httpLink = createHttpLink({
   uri:
     process.env.NETWORK === "rinkeby"
-      ? "https://api.thegraph.com/subgraphs/name/gnosis/sight-rinkeby"
-      : "https://api.thegraph.com/subgraphs/name/gnosis/sight"
+      ? "https://api.thegraph.com/subgraphs/name/gnosis/conditional-tokens-rinkeby"
+      : "https://api.thegraph.com/subgraphs/name/gnosis/conditional-tokens"
 });
 
 // 3

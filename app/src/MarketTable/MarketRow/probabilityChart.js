@@ -1,7 +1,6 @@
 import React, { useCallback, useState } from "react";
 import PropTypes from "prop-types";
 import cn from "classnames/bind";
-import Decimal from "decimal.js-light";
 
 import style from "./marketRow.scss";
 import prepareQueryData from "./utils/prepareQueryData";
@@ -11,12 +10,16 @@ import Graph from "components/Graph";
 
 const cx = cn.bind(style);
 
-import gql from "graphql-tag";
 import { useQuery } from "react-apollo";
 
-import { lmsrAddress, getTrades } from "api/thegraph"
+import { lmsrAddress, getTrades } from "api/thegraph";
 
-const probabilityChart = ({ marketType, lmsrState, colSpan }) => {
+const probabilityChart = ({
+  marketType,
+  colSpan,
+  probabilities,
+  stagedProbabilities
+}) => {
   const { loading, error, data } = useQuery(getTrades);
 
   const [chartOpen, setChartOpen] = useState(false);
@@ -24,16 +27,15 @@ const probabilityChart = ({ marketType, lmsrState, colSpan }) => {
     setChartOpen(!chartOpen);
   }, [chartOpen]);
 
-  // const disableChartCollapse = !description && !dataSource && !dataSourceUrl;
   if (loading) return <Spinner width={32} height={32} />;
   if (error) throw new Error(error);
 
-  // const trades = data.outcomeTokenTrades.filter(
-  //   ({ marketMaker }) => marketMaker.toLowerCase() === lmsrAddress.toLowerCase()
-  // );
-  // console.log(trades);
-  const parsedTrades = prepareQueryData([], data, lmsrState)
+  const parsedTrades = prepareQueryData([], data, lmsrAddress);
   // console.log(parsedTrades);
+
+  const displayedProbabilities = probabilities
+    ? probabilities.map(value => value.mul(100).toNumber())
+    : stagedProbabilities.map(value => value.mul(100).toNumber());
 
   return (
     <>
@@ -63,7 +65,7 @@ const probabilityChart = ({ marketType, lmsrState, colSpan }) => {
               decimals={0}
               entries={parsedTrades}
               queryData={data}
-              currentProbability={new Decimal(8)}
+              currentProbability={displayedProbabilities}
               marketType={marketType}
             ></Graph>
           </div>
@@ -74,22 +76,11 @@ const probabilityChart = ({ marketType, lmsrState, colSpan }) => {
 };
 
 probabilityChart.propTypes = {
-  conditionId: PropTypes.any.isRequired,
+  marketType: PropTypes.string.isRequired,
 
   colSpan: PropTypes.number.isRequired,
-  outcomes: PropTypes.arrayOf(
-    PropTypes.shape({
-      title: PropTypes.string.isRequired
-    }).isRequired
-  ).isRequired,
-
-  lmsrState: PropTypes.shape({
-    stage: PropTypes.string.isRequired
-  })
-};
-
-probabilityChart.defaultProps = {
-  description: ""
+  probabilities: PropTypes.array,
+  stagedProbabilities: PropTypes.array
 };
 
 export default probabilityChart;

@@ -1,4 +1,3 @@
-import { graphql, buildSchema } from "graphql";
 import gql from "graphql-tag";
 
 const conf = require("../conf");

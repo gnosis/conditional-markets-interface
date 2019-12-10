@@ -8,14 +8,9 @@ const sortBy = key => (a, b) => {
   return a[key] >= b[key] ? 1 : -1;
 };
 
-const prepareQueryData = (
-  marketsFromConfig,
-  queryData,
-  { marketMakerAddress: targetLmsrAddress, positionBalances, funding }
-) => {
+const prepareQueryData = (marketsFromConfig, queryData, lmsrAddress) => {
   const marketTradesForMarketMaker = queryData.outcomeTokenTrades.filter(
-    ({ marketMaker }) =>
-      marketMaker.toLowerCase() === targetLmsrAddress.toLowerCase()
+    ({ marketMaker }) => marketMaker.toLowerCase() === lmsrAddress.toLowerCase()
   );
 
   // these trade information will be put into all markets, basically assuming theres only one market currently
@@ -38,15 +33,11 @@ const prepareQueryData = (
         return new Decimal(result).div(total).mul(100).toNumber();
       });
 
-      const numberOfOutcomes = outcomesProbability.length
-
       return {
         outcomesProbability,
-        numberOfOutcomes,
         date: blockTimestamp * 1000 // the-graph time is seconds, js requires ms
       };
     });
-  // console.log("Trades info", trades);
 
   return trades;
 

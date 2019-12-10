@@ -38,6 +38,8 @@ const CursorWithLineConnection = props => {
     ...restProps
   } = props;
 
+  // console.log(points)
+
   return (
     <g>
       <line
@@ -92,19 +94,6 @@ const TooltipContent = ({ active, payload, unit, decimals, marketType }) => {
   return null;
 };
 
-const AddLine = ({ numberOfOutcomes }) => {
-  console.log(numberOfOutcomes)
-  for (let i = 0; i < numberOfOutcomes; i++) {
-    return (
-    <Line
-      type="stepBefore"
-      dataKey={i}
-      stroke="#8884d8"
-      ref={lineRef}
-    />)
-  }
-}
-
 const Graph = ({
   lowerBound,
   upperBound,
@@ -130,17 +119,18 @@ const Graph = ({
     const newData = [
       ...entries,
       {
-        value: currentProbability
-          .mul(upperBound - lowerBound)
-          .add(lowerBound)
-          .toNumber(),
+        outcomesProbability: currentProbability,
+        // currentProbability
+        //   .mul(upperBound - lowerBound)
+        //   .add(lowerBound)
+        //   .toNumber(),
         date: +new Date(),
         index: entries.length
       }
     ];
 
     setData(newData);
-  }, [queryData, lineRef]);
+  }, [queryData, lineRef, currentProbability]);
 
   useEffect(() => {
     if (lineRef.current) {
@@ -213,8 +203,8 @@ const Graph = ({
             />
           )}
           <ReferenceDot
-            x={entries[entries.length - 1].date}
-            y={entries[entries.length - 1].value}
+            x={data[data.length - 1].date}
+            y={data[data.length - 1].value}
             r={0}
             fill="red"
             stroke="none"
