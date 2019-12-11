@@ -243,6 +243,7 @@ const Sell = ({
                 value={sellAmountFullUnit || ""}
                 className={cx("input", { error: !!error })}
                 onChange={handleSellAmountChange}
+                min={0}
               />
               <span className={cx("input-append", "collateral-name")}>
                 <abbr title="Outcome Tokens">OT</abbr>
