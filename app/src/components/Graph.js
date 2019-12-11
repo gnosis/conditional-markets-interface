@@ -28,7 +28,7 @@ import {
 const cx = cn.bind(styles);
 
 const CursorWithLineConnection = props => {
-  //console.log(props);
+  console.log(props);
   //console.log(props.width)
   const {
     points,
@@ -104,7 +104,7 @@ const Graph = ({
   currentProbability,
   marketType
 }) => {
-  const [decimals, setDecimals] = useState(parentDecimals || 2)
+  const [decimals, setDecimals] = useState(parentDecimals || 2);
 
   const [data, setData] = useState(entries);
   const [sidebarWidth, setSidebarWidth] = useState(0);
@@ -133,6 +133,8 @@ const Graph = ({
   }, [queryData, lineRef, currentProbability]);
 
   useEffect(() => {
+    // console.log("Effect lineRef", lineRef)
+    // console.log("Effect line chart ref:", lineChartRef)
     if (lineRef.current) {
       // position of selected tick
       const tickPosition =
@@ -154,6 +156,7 @@ const Graph = ({
 
   const mouseUpdate = useCallback(
     e => {
+      // console.log(lineRef.current)
       if (lineRef.current && e && e.activeTooltipIndex != null) {
         const tickPosition = lineRef.current.props.points[e.activeTooltipIndex];
 
@@ -175,16 +178,16 @@ const Graph = ({
   });
 
   if (data.length < 2) {
-    return (<span>Not enough data yet</span>);
+    return <span>Not enough data yet</span>;
   }
-
+  // console.log(tooltipPosition)
+  // console.log(lastTickPosition)
   return (
     <div className={cx("graph-container")}>
       <ResponsiveContainer minHeight={300}>
         <LineChart data={data} onMouseMove={mouseUpdate} ref={lineChartRef}>
           {tooltipPosition && (
             <Tooltip
-              //cursor={{ stroke: "#02ae60", strokeWidth: 2 }}
               cursor={
                 <CursorWithLineConnection
                   currentPositionTooltipCoordinates={lastTickPosition}
@@ -202,17 +205,27 @@ const Graph = ({
               }
             />
           )}
-          <ReferenceDot
-            x={data[data.length - 1].date}
-            y={data[data.length - 1].value}
-            r={0}
-            fill="red"
-            stroke="none"
-          />
+          {data &&
+            data[data.length - 1] &&
+            data[data.length - 1].outcomesProbability.map((value, index) => {
+              const fill =
+                marketType === "CATEGORICAL"
+                  ? categoricalMarketColors[index]
+                  : scalarMarketColor[index];
+              return (
+                <ReferenceDot
+                  key={index}
+                  x={data[data.length - 1].date}
+                  y={value}
+                  r={5}
+                  fill={fill}
+                  stroke="none"
+                />
+              );
+            })}
           <XAxis
             dataKey="date"
             domain={[data && data[0] ? data[0].date : 0, "dataMax"]}
-            type="number"
             tickFormatter={formatDateTick}
             interval="preserveEnd"
           />
@@ -250,7 +263,7 @@ const Graph = ({
         >
           <TooltipContent
             active
-            payload={[entries[entries.length - 1]]}
+            payload={[data[data.length - 1]]}
             unit={unit}
             decimals={decimals}
             marketType={marketType}
