@@ -59,7 +59,8 @@ const Sell = ({
     ({ outcomeSet: [outcome] }, index) => ({
       label: (
         <>
-          <Dot index={index} /> {outcome.title}
+          <Dot index={index} />{" "}
+          {outcome.title[0].toUpperCase() + outcome.title.slice(1)}
         </>
       ),
       value: index
@@ -171,6 +172,11 @@ const Sell = ({
     [positions, setStagedTradeAmounts, maxSellAmounts]
   );
 
+  const handleSell = useCallback(() => {
+    setStagedTransactionType("sell outcome tokens");
+    return sellOutcomeTokens()
+  }, [stagedTradeAmounts]);
+
   if (maxSellAmounts.filter(dec => dec.abs().gt(0)).length > 1) {
     console.error("Can only handle single position");
     return (
@@ -187,6 +193,7 @@ const Sell = ({
         <button
           className={cx("sell-cancel")}
           type="button"
+          defaultValue={selectedOutcomeIndex}
           onClick={onCancelSell}
         />
       </div>
@@ -236,6 +243,7 @@ const Sell = ({
                 value={sellAmountFullUnit || ""}
                 className={cx("input", { error: !!error })}
                 onChange={handleSellAmountChange}
+                min={0}
               />
               <span className={cx("input-append", "collateral-name")}>
                 <abbr title="Outcome Tokens">OT</abbr>
@@ -273,7 +281,7 @@ const Sell = ({
               className={cx("sell-confirm")}
               onClick={asWrappedTransaction(
                 "sell outcome tokens",
-                sellOutcomeTokens,
+                handleSell,
                 setError
               )}
               disabled={ongoingTransactionType === "sell outcome tokens"}
