@@ -28,7 +28,6 @@ import {
 const cx = cn.bind(styles);
 
 const CursorWithLineConnection = props => {
-  console.log(props);
   //console.log(props.width)
   const {
     points,
@@ -37,8 +36,6 @@ const CursorWithLineConnection = props => {
     width,
     ...restProps
   } = props;
-
-  // console.log(points)
 
   return (
     <g>
@@ -130,11 +127,9 @@ const Graph = ({
     ];
 
     setData(newData);
-  }, [queryData, lineRef, currentProbability]);
+  }, [queryData, currentProbability, lineRef.current, lowerBound, upperBound]);
 
   useEffect(() => {
-    // console.log("Effect lineRef", lineRef)
-    // console.log("Effect line chart ref:", lineChartRef)
     if (lineRef.current) {
       // position of selected tick
       const tickPosition =
@@ -152,18 +147,17 @@ const Graph = ({
         (lineRef.current.props.width + lineChartRef.current.props.margin.left);
       setSidebarWidth(lineChartSidebarWidth);
     }
-  }, [lineRef.current, lineChartRef.current]);
+  }, [lineRef.current, lineChartRef.current, data]);
 
   const mouseUpdate = useCallback(
     e => {
-      // console.log(lineRef.current)
       if (lineRef.current && e && e.activeTooltipIndex != null) {
         const tickPosition = lineRef.current.props.points[e.activeTooltipIndex];
 
         setTooltipPosition({ x: tickPosition.x, y: tickPosition.y });
       }
     },
-    [lineRef]
+    [lineRef.current]
   );
 
   const formatDateTick = useCallback(tick => {
@@ -177,17 +171,21 @@ const Graph = ({
     return null;
   });
 
-  if (data.length < 2) {
-    return <span>Not enough data yet</span>;
+  if (data.length <= 2) {
+    return (
+      <div className={cx("graph-container", "empty")}>
+        <span>No data yet.</span>
+      </div>
+    );
   }
-  // console.log(tooltipPosition)
-  // console.log(lastTickPosition)
+
   return (
     <div className={cx("graph-container")}>
       <ResponsiveContainer minHeight={300}>
         <LineChart data={data} onMouseMove={mouseUpdate} ref={lineChartRef}>
-          {tooltipPosition && (
+          {tooltipPosition && marketType === "SCALAR" && (
             <Tooltip
+              className={cx("scalar-tooltip")}
               cursor={
                 <CursorWithLineConnection
                   currentPositionTooltipCoordinates={lastTickPosition}
@@ -203,6 +201,14 @@ const Graph = ({
                   marketType={marketType}
                 />
               }
+            />
+          )}
+          {marketType !== "SCALAR" && (
+            <Tooltip
+              labelFormatter={formatDateTick}
+              formatter={value => {
+                return [value.toFixed(2) + "%"];
+              }}
             />
           )}
           {data &&
@@ -254,20 +260,27 @@ const Graph = ({
             })}
         </LineChart>
       </ResponsiveContainer>
-      {lastTickPosition && (
+      {lastTickPosition && marketType === "SCALAR" && (
         <div
           className={cx("tooltip-current-position")}
           style={{
             transform: `translate(${-sidebarWidth}px, ${lastTickPosition.y}px)`
           }}
         >
-          <TooltipContent
-            active
-            payload={[data[data.length - 1]]}
-            unit={unit}
-            decimals={decimals}
-            marketType={marketType}
-          />
+          {data &&
+            data[data.length - 1] &&
+            data[data.length - 1].outcomesProbability.map((value, index) => {
+              return (
+                <TooltipContent
+                  key={index}
+                  active
+                  payload={value}
+                  unit={unit}
+                  decimals={decimals}
+                  marketType={marketType}
+                />
+              );
+            })}
         </div>
       )}
     </div>

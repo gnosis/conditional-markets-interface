@@ -1,10 +1,23 @@
 .graph-container {
   position: relative;
+
+  svg {
+    overflow: visible;
+  }
+
+  &.empty {
+    min-height: 200px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
 }
 
 @mixin tooltipStyle() {
-  right: -120px;
   transition: none !important;
+  .scalar-tooltip {
+    right: -178px;
+  }
 }
 
 .tooltip {
@@ -14,14 +27,23 @@
     padding: 0.1rem 0.3rem;
     transform: translate(0, -50%);
 
-    &::before {
+    &::before, &::after {
       content: '';
       position: absolute;
-      left: -20px;
-      width: 20px;
       top: 50%;
-      border-bottom: 1px solid black;
       z-index: -1;
+    }
+
+    &::after {
+      left: -90px;
+      width: 10px;
+      border-bottom: 1px solid black;
+    }
+
+    &::before {
+      left: -80px;
+      width: 80px;
+      border-bottom: 1px dashed black;
     }
   }
 }
