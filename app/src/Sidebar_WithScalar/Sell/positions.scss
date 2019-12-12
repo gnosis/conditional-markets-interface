@@ -10,6 +10,8 @@
   &-empty {
     //@include sidebar-empty;
     
+    padding: 4rem 1rem;
+    display: flex;
     font-size: 1.4rem;
     justify-content: center;
   }

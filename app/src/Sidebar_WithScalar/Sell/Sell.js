@@ -155,11 +155,14 @@ const Sell = ({
           .sub(maxSellAmounts[selectedOutcomeIndex])
           .abs();
 
-        if (tradeDiff.lt(Math.pow(10, 18 - 5))) {
+        if (tradeDiff.lt(Math.pow(10, 18 - 4))) {
           // sell max amount
           tradeAmounts[selectedOutcomeIndex] = maxSellAmounts[
             selectedOutcomeIndex
-          ].sub(1);
+          ]
+            .neg()
+            .toint()
+            .toString();
         } else {
           // sell entered amount
           tradeAmounts[selectedOutcomeIndex] = tradeAmountInWei;
@@ -174,7 +177,7 @@ const Sell = ({
 
   const handleSell = useCallback(() => {
     setStagedTransactionType("sell outcome tokens");
-    return sellOutcomeTokens()
+    return sellOutcomeTokens();
   }, [stagedTradeAmounts]);
 
   if (maxSellAmounts.filter(dec => dec.abs().gt(0)).length > 1) {
