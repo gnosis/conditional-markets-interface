@@ -149,7 +149,7 @@ const Graph = ({
     },
     [lineRef.current]
   );
-  
+
   const LineTickWithTitle = useCallback(
     props => {
       const { x, y, payload } = props;
@@ -160,7 +160,12 @@ const Graph = ({
         const tickDate = moment(
           lineRef.current.props.points[payload.value].payload.date
         );
-        tickLabel = tickDate.format("MMM D");
+        tickLabel = (
+          <>
+            <tspan x={0}>{tickDate.format("MMM D")}</tspan>
+            <tspan x={0} dy={20}>{tickDate.format("HH:mm")}</tspan>
+          </>
+        );
         tickTitle = tickDate.format("LLL");
       }
 
