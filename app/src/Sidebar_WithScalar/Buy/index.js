@@ -429,13 +429,13 @@ const Buy = ({
                     {formatCollateral(profitSim.minPayout, collateral)}
                   </span>
                 </div>
-                <div className={cx("row")}>
+                {/*<div className={cx("row")}>
                   <span className={cx("label")}>Fees (0.5%)</span>
                   <span className={cx("spacer")} />
                   <span className={cx("value")}>
                     {formatCollateral(profitSim.fee, collateral)}
                   </span>
-                </div>
+                </div>*/}
                 <div className={cx("row")}>
                   <span className={cx("label")}>Total Cost</span>
                   <span className={cx("spacer")} />
