@@ -79,6 +79,36 @@ const CursorWithLineConnection = props => {
   );
 };
 
+const ScalarTooltip = ({
+  lastTickPosition,
+  tooltipPosition,
+  sidebarWidth,
+  unit,
+  decimals,
+  marketType
+}) => {
+  return (
+    <Tooltip
+      className={cx("scalar-tooltip")}
+      cursor={
+        <CursorWithLineConnection
+          currentPositionTooltipCoordinates={lastTickPosition}
+          selectedPositionTooltipCoordinates={tooltipPosition}
+        />
+      }
+      coordinate={{ x: 0, y: 0 }}
+      position={{ x: -sidebarWidth, y: tooltipPosition.y }}
+      content={
+        <TooltipContent
+          unit={unit}
+          decimals={decimals}
+          marketType={marketType}
+        />
+      }
+    />
+  );
+};
+
 const TooltipContent = ({ active, payload, unit, decimals, marketType }) => {
   if (active && marketType === "SCALAR") {
     return (
@@ -184,23 +214,13 @@ const Graph = ({
       <ResponsiveContainer minHeight={300}>
         <LineChart data={data} onMouseMove={mouseUpdate} ref={lineChartRef}>
           {tooltipPosition && marketType === "SCALAR" && (
-            <Tooltip
-              className={cx("scalar-tooltip")}
-              cursor={
-                <CursorWithLineConnection
-                  currentPositionTooltipCoordinates={lastTickPosition}
-                  selectedPositionTooltipCoordinates={tooltipPosition}
-                />
-              }
-              coordinate={{ x: 0, y: 0 }}
-              position={{ x: -sidebarWidth, y: tooltipPosition.y }}
-              content={
-                <TooltipContent
-                  unit={unit}
-                  decimals={decimals}
-                  marketType={marketType}
-                />
-              }
+            <ScalarTooltip
+              lastTickPosition={lastTickPosition}
+              tooltipPosition={tooltipPosition}
+              sidebarWidth={sidebarWidth}
+              unit={unit}
+              decimals={decimals}
+              marketType={marketType}
             />
           )}
           {marketType !== "SCALAR" && (
