@@ -513,7 +513,6 @@ const RootComponent = ({ match, childComponents }) => {
               avatar={
                 <UserWallet
                   address={account}
-                  openModal={openModal}
                   whitelistState={whitelistState}
                   collateral={collateral}
                   collateralBalance={collateralBalance}

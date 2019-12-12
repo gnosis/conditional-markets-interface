@@ -15,7 +15,6 @@ const formatAddress = address =>
 
 const UserWallet = ({
   address,
-  openModal,
   whitelistState,
   collateral,
   collateralBalance
@@ -23,11 +22,7 @@ const UserWallet = ({
   if (!address) {
     return (
       <div className={cx("user-wallet")}>
-        <button
-          type="button"
-          className={cx("connect-wallet")}
-          onClick={() => openModal("Connect")}
-        >
+        <button type="button" className={cx("connect-wallet")}>
           Connect
         </button>
       </div>
@@ -95,7 +90,6 @@ const UserWallet = ({
 
 UserWallet.propTypes = {
   address: PropTypes.string.isRequired,
-  openModal: PropTypes.func.isRequired,
   whitelistState: PropTypes.oneOf([
     "LOADING",
     "NOT_FOUND",
