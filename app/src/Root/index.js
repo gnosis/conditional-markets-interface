@@ -601,10 +601,8 @@ const RootComponent = ({ childComponents }) => {
 
 export default hot(
   makeLoadable(RootComponent, [
-    () => import("MarketTable_WithScalar"),
-    () => import("Sidebar_WithScalar"),
-    // () => import("MarketTable"),
-    // () => import("Sidebar"),
+    () => import("MarketTable"),
+    () => import("Sidebar"),
     () => import("Header"),
     () => import("components/Menu"),
     () => import("components/UserWallet"),

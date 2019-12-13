@@ -2,7 +2,7 @@ import React from "react";
 import cn from "classnames/bind";
 import Decimal from "decimal.js-light";
 import style from "./positions.scss";
-import OutcomeCard, { Dot } from "../../components/OutcomeCard";
+import OutcomeCard, { Dot } from "components/OutcomeCard";
 
 import Spinner from "components/Spinner";
 
