@@ -1,6 +1,6 @@
 require("dotenv").config();
 
-var HDWalletProvider = require("truffle-hdwallet-provider");
+var HDWalletProvider = require("@truffle/hdwallet-provider");
 
 const seed =
   process.env.SEED ||
@@ -66,9 +66,11 @@ const config = {
         gasPrice: 3e9
       }
     },
-    ...[["ropsten", "3"], ["kovan", "42"], ["goerli", "5", 1e9]].map(
-      networkInfo => createInfuraEntry(...networkInfo)
-    )
+    ...[
+      ["ropsten", "3"],
+      ["kovan", "42"],
+      ["goerli", "5", 1e9]
+    ].map(networkInfo => createInfuraEntry(...networkInfo))
   ),
   compilers: {
     solc: {
