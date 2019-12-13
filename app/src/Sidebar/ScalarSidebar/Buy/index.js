@@ -7,14 +7,14 @@ import { formatScalarValue, formatCollateral } from "utils/formatting";
 
 import style from "./buy.scss";
 import Decimal from "decimal.js-light";
-import { zeroDecimal, maxUint256BN, oneDecimal } from "../../utils/constants";
+import { zeroDecimal, maxUint256BN, oneDecimal } from "utils/constants";
 import { calcOutcomeTokenCounts } from "utils/position-groups";
 
 const cx = cn.bind(style);
 
-import getMarketMakersRepo from "../../repositories/MarketMakersRepo";
-import getConditionalTokensService from "../../services/ConditionalTokensService";
-import PercentageFormat from "../../components/Formatting/PercentageFormat";
+import getMarketMakersRepo from "repositories/MarketMakersRepo";
+import getConditionalTokensService from "services/ConditionalTokensService";
+import PercentageFormat from "components/Formatting/PercentageFormat";
 let marketMakersRepo;
 let conditionalTokensService;
 

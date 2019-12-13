@@ -249,42 +249,10 @@ const client = new ApolloClient({
 
 const moduleLoadTime = Date.now();
 
-const MarketTable = ({
-  CategoricalMarketTable,
-  ScalarMarketTable,
-  ...props
-}) => {
-  const { markets } = props;
-  if (markets && markets.length > 0) {
-    if (markets[0].type === "CATEGORICAL") {
-      return <CategoricalMarketTable {...props} />;
-    } else if (markets[0].type === "SCALAR") {
-      return <ScalarMarketTable {...props} />;
-    } else {
-      throw Error("Unknown market type");
-    }
-  }
-};
-
-const Sidebar = ({ CategoricalSidebar, ScalarSidebar, ...props }) => {
-  const { markets } = props;
-  if (markets && markets.length > 0) {
-    if (markets[0].type === "CATEGORICAL") {
-      return <CategoricalSidebar {...props} />;
-    } else if (markets[0].type === "SCALAR") {
-      return <ScalarSidebar {...props} />;
-    } else {
-      throw Error("Unknown market type");
-    }
-  }
-};
-
 const RootComponent = ({ childComponents }) => {
   const [
-    ScalarMarketTable,
-    ScalarSidebar,
-    CategoricalMarketTable,
-    CategoricalSidebar,
+    MarketTable,
+    Sidebar,
     Header,
     Menu,
     UserWallet,
@@ -559,8 +527,6 @@ const RootComponent = ({ childComponents }) => {
             <div className={cx("sections")}>
               <section className={cx("section", "section-markets")}>
                 <MarketTable
-                  CategoricalMarketTable={CategoricalMarketTable}
-                  ScalarMarketTable={ScalarMarketTable}
                   {...{
                     markets,
                     marketResolutionStates,
@@ -579,8 +545,6 @@ const RootComponent = ({ childComponents }) => {
               {account != null && ( // account available
                 <section className={cx("section", "section-positions")}>
                   <Sidebar
-                    CategoricalSidebar={CategoricalSidebar}
-                    ScalarSidebar={ScalarSidebar}
                     {...{
                       account,
                       markets,
@@ -637,8 +601,6 @@ const RootComponent = ({ childComponents }) => {
 
 export default hot(
   makeLoadable(RootComponent, [
-    () => import("MarketTable_WithScalar"),
-    () => import("Sidebar_WithScalar"),
     () => import("MarketTable"),
     () => import("Sidebar"),
     () => import("Header"),

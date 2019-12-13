@@ -9,27 +9,21 @@ import { calcPositionGroups } from "utils/position-groups";
 import { getPositionId, combineCollectionIds } from "utils/getIdsUtil";
 import { calcSelectedMarketProbabilitiesFromPositionProbabilities } from "utils/probabilities";
 
-import Select from "react-select";
-
 import cn from "classnames/bind";
 import style from "./positions.scss";
-import OutcomeCard, { Dot } from "../../components/OutcomeCard";
+import OutcomeCard, { Dot } from "components/OutcomeCard";
 
 const cx = cn.bind(style);
-const { toBN, sha3 } = Web3.utils;
+const { toBN } = Web3.utils;
 
-import getConditionalTokensRepo from "../../repositories/ConditionalTokensRepo";
-import getMarketMakersRepo from "../../repositories/MarketMakersRepo";
-import getConditionalTokensService from "../../services/ConditionalTokensService";
-import Sell from "./Sell";
-import Positions from "./Positions";
+import getConditionalTokensRepo from "repositories/ConditionalTokensRepo";
+import getMarketMakersRepo from "repositories/MarketMakersRepo";
+import getConditionalTokensService from "services/ConditionalTokensService";
 let conditionalTokensRepo;
 let marketMakersRepo;
 let conditionalTokensService;
 
-let warnedAboutIds = {};
-
-const SellOrPositions = ({
+const Positions = ({
   account,
   markets,
   marketResolutionStates,
@@ -96,28 +90,27 @@ const SellOrPositions = ({
         positions,
         positionBalances
       );
-      setPositionGroups(
-        positionGroups.filter(positionGroup => {
-          const { amount } = positionGroup;
-          const isPositionTooSmall = amount.lt(toBN(1e12));
-          const key = sha3(JSON.stringify(positionGroup));
-
-          if (isPositionTooSmall && !warnedAboutIds[key]) {
-            warnedAboutIds[key] = true; // to ensure it only warns once, otherwise this will be annoying
-            console.warn(
-              `A position is too small to be considered in the interface. Hopefully this is not a bug. ${amount.toString()} available of this position.`,
-              positionGroup
-            );
-          }
-
-          return !isPositionTooSmall;
-        })
-      );
+      setPositionGroups(positionGroups);
     }
   }, [markets, positions, positionBalances, marketSelections]);
 
+  const [salePositionGroup, setSalePositionGroup] = useState(null);
   const [currentSellingPosition, setCurrentSellingPosition] = useState(null);
+
+  useEffect(() => {
+    if (positionGroups == null) {
+      setSalePositionGroup(null);
+    } else if (salePositionGroup != null) {
+      setSalePositionGroup(
+        positionGroups.find(
+          ({ collectionId }) => collectionId === salePositionGroup.collectionId
+        )
+      );
+    }
+  }, [positionGroups]);
+
   const [estimatedSaleEarnings, setEstimatedSaleEarnings] = useState([]);
+
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -150,25 +143,40 @@ const SellOrPositions = ({
     }
   }, [marketMakersRepo, positionBalances]);
 
-  const makeOutcomeSellSelectHandler = useCallback(
-    salePositionGroup => () => {
+  const sellAllTokensOfGroup = useCallback(
+    async salePositionGroup => {
       setCurrentSellingPosition(salePositionGroup);
-    },
-    []
-  );
+      await setStagedTransactionType("sell outcome tokens");
+      const marketMakerAddress = await marketMakersRepo.getAddress();
 
-  const handleCancelSell = useCallback(() => {
-    setCurrentSellingPosition(null);
-    setStagedTransactionType(null);
-    setStagedTradeAmounts(null);
-  }, []);
+      const isOperatorApprovedByOwner = await conditionalTokensRepo.isApprovedForAll(
+        account,
+        marketMakerAddress
+      );
 
-  const handleChangeOutcome = useCallback(
-    ({ value }) => {
-      // TODO: ONLY WORKS WITH BINARY
-      setCurrentSellingPosition(positionGroups[value]);
+      if (!isOperatorApprovedByOwner) {
+        await conditionalTokensRepo.setApprovalForAll(
+          marketMakerAddress,
+          true,
+          account
+        );
+      }
+
+      const stagedTradeAmounts = Array.from(
+        { length: positions.length },
+        (_, i) =>
+          salePositionGroup.positions.find(
+            ({ positionIndex }) => positionIndex === i
+          ) == null
+            ? zeroDecimal
+            : salePositionGroup.amount.neg()
+      );
+
+      const tradeAmounts = stagedTradeAmounts.map(amount => amount.toString());
+      const collateralLimit = await marketMakersRepo.calcNetCost(tradeAmounts);
+      await marketMakersRepo.trade(tradeAmounts, collateralLimit, account);
     },
-    [positionGroups]
+    [account, marketMakersRepo, collateral]
   );
 
   const sellOutcomeTokens = useCallback(async () => {
@@ -198,7 +206,6 @@ const SellOrPositions = ({
 
     asWrappedTransaction("sell outcome tokens", sellOutcomeTokens, setError);
     await marketMakersRepo.trade(tradeAmounts, collateralLimit, account);
-    setCurrentSellingPosition(null);
   }, [
     collateral,
     stagedTradeAmounts,
@@ -301,6 +308,7 @@ const SellOrPositions = ({
   if (positionGroups === null) {
     return (
       <>
+        <div className={cx("positions-heading")}>Your Positions</div>
         <div className={cx("positions-empty")}>
           <Spinner width={25} height={25} centered />
         </div>
@@ -308,44 +316,143 @@ const SellOrPositions = ({
     );
   }
 
-  const isSelling = currentSellingPosition != null;
+  return (
+    <>
+      <div className={cx("positions-heading")}>Your Positions</div>
+      {positionGroups.length === 0 && (
+        <div className={cx("positions-empty")}>You have no positions.</div>
+      )}
+      {allMarketsResolved && (
+        <>
+          <div className={cx("positions-subheading")}>
+            Redeeming your positions will net you a total of{" "}
+            {formatCollateral(redemptionAmount, collateral)}
+          </div>
+          <div className={cx("positions-redeem")}>
+            <button
+              type="button"
+              className={cx("redeem-all")}
+              disabled={ongoingTransactionType != null}
+              onClick={asWrappedTransaction(
+                "redeem positions",
+                redeemPositions,
+                setError
+              )}
+            >
+              {ongoingTransactionType === "redeem positions" ? (
+                <Spinner inverted width={25} height={25} />
+              ) : (
+                <>Redeem Positions</>
+              )}
+            </button>
+          </div>
+          {error != null && (
+            <span className={cx("error")}>{error.message}</span>
+          )}
+        </>
+      )}
+      {!allMarketsResolved && positionGroups.length > 0 && (
+        <table className={cx("position-entries-table")}>
+          <thead>
+            <tr>
+              <td>Position</td>
+              <td>Quantity</td>
+              <td>Current Value</td>
+              <td>Sell Price</td>
+              <td></td>
+            </tr>
+          </thead>
+          <tbody>
+            {positionGroups.map((positionGroup, index) => {
+              const outcomeIndex = positionGroup.outcomeSet[0].outcomeIndex;
 
-  return isSelling ? (
-    <Sell
-      markets={markets}
-      currentSellingPosition={currentSellingPosition}
-      onCancelSell={handleCancelSell}
-      positions={positions}
-      positionBalances={positionBalances}
-      stagedTradeAmounts={stagedTradeAmounts}
-      setStagedTransactionType={setStagedTransactionType}
-      setStagedTradeAmounts={setStagedTradeAmounts}
-      marketMakersRepo={marketMakersRepo}
-      collateral={collateral}
-      sellOutcomeTokens={sellOutcomeTokens}
-      onOutcomeChange={handleChangeOutcome}
-      asWrappedTransaction={asWrappedTransaction}
-      ongoingTransactionType={ongoingTransactionType}
-      positionGroups={positionGroups}
-    />
-  ) : (
-    <Positions
-      positionGroups={positionGroups}
-      allMarketsResolved={allMarketsResolved}
-      redemptionAmount={redemptionAmount}
-      collateral={collateral}
-      redeemPositions={redeemPositions}
-      setError={setError}
-      ongoingTransactionType={ongoingTransactionType}
-      asWrappedTransaction={asWrappedTransaction}
-      probabilities={probabilities}
-      positionBalances={positionBalances}
-      estimatedSaleEarnings={estimatedSaleEarnings}
-      currentSellingPosition={currentSellingPosition}
-      makeOutcomeSellSelectHandler={makeOutcomeSellSelectHandler}
-      error={error}
-    />
+              return (
+                <tr key={index}>
+                  <td>
+                    {positionGroup.outcomeSet.length === 0 && (
+                      <OutcomeCard
+                        {...positionGroup.positions[0].outcomes[0]}
+                        outcomeIndex={-1}
+                        marketIndex="*"
+                        title={"Any"}
+                        prefixType="IF"
+                      />
+                    )}
+                    {positionGroup.outcomeSet.map(outcome => (
+                      <span
+                        key={`${outcome.marketIndex}-${outcome.outcomeIndex}`}
+                      >
+                        <Dot index={outcome.outcomeIndex} />
+                        {outcome.title}
+                      </span>
+                    ))}
+                  </td>
+                  <td>
+                    {formatAmount(
+                      new Decimal(
+                        positionBalances[outcomeIndex].toString()
+                      ).div(1e18)
+                    )}
+                  </td>
+                  <td>
+                    {probabilities &&
+                    probabilities[positionGroup.outcomeSet[0].marketIndex] ? (
+                      formatCollateral(
+                        new Decimal(
+                          positionBalances[outcomeIndex].toString()
+                        ).mul(
+                          probabilities[
+                            positionGroup.outcomeSet[0].marketIndex
+                          ][outcomeIndex]
+                        ),
+                        collateral
+                      )
+                    ) : (
+                      <Spinner width={12} height={12} />
+                    )}
+                  </td>
+                  <td>
+                    {estimatedSaleEarnings.length ? (
+                      formatCollateral(
+                        estimatedSaleEarnings[outcomeIndex],
+                        collateral
+                      )
+                    ) : (
+                      <Spinner width={12} height={12} />
+                    )}
+                  </td>
+                  <td>
+                    <button
+                      className={cx("position-sell")}
+                      type="button"
+                      disabled={
+                        ongoingTransactionType === "sell outcome tokens"
+                      }
+                      onClick={asWrappedTransaction(
+                        "sell outcome tokens",
+                        () => sellAllTokensOfGroup(positionGroup),
+                        setError
+                      )}
+                    >
+                      {ongoingTransactionType === "sell outcome tokens" &&
+                      (currentSellingPosition &&
+                        currentSellingPosition.collectionId ===
+                          positionGroup.collectionId) ? (
+                        <Spinner width={16} height={16} centered inverted />
+                      ) : (
+                        "Sell"
+                      )}
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      )}
+      {error != null && <span className={cn("error")}>{error.message}</span>}
+    </>
   );
 };
 
-export default SellOrPositions;
+export default Positions;
