@@ -143,20 +143,34 @@ const Graph = ({
   const lineChartRef = useRef(null);
 
   useEffect(() => {
-    const newData = [
-      ...entries,
-      {
-        outcomesProbability: currentProbability,
-        // currentProbability
-        //   .mul(upperBound - lowerBound)
-        //   .add(lowerBound)
-        //   .toNumber(),
-        date: +new Date(),
-        index: entries.length
-      }
-    ];
+    // TODO queryData and currentProbability are constantly updating. As data
+    // object is updated each render the graph is re-rendered continously.
+    // Check how to cache queryData and current probability to avoid components
+    // extra work that includes currentProbabilityChanged and if array lengths are different
+    const currentProbabilityChanged = () => {
+      const dataProbability = data[data.length - 1].outcomesProbability;
+      return dataProbability.length !== currentProbability.length ||
+        dataProbability.some(
+          (value, index) => value !== currentProbability[index]
+        );
+    };
 
-    setData(newData);
+    if (entries.length >= data.length || currentProbabilityChanged()) {
+      const newData = [
+        ...entries,
+        {
+          outcomesProbability: currentProbability,
+          // currentProbability
+          //   .mul(upperBound - lowerBound)
+          //   .add(lowerBound)
+          //   .toNumber(),
+          date: +new Date(),
+          index: entries.length
+        }
+      ];
+
+      setData(newData);
+    }
   }, [queryData, currentProbability, lineRef.current, lowerBound, upperBound]);
 
   useEffect(() => {
@@ -191,14 +205,11 @@ const Graph = ({
   );
 
   const formatDateTick = useCallback(tick => {
-    // this formatting logic is so we're able to use the index as the graph X values
-    // while still displaying the dates for the corresponding ticks
-    if (lineRef.current) {
-      // lineRef.current.props.points[tick].payload.date
-      return moment(tick).format("MMM D");
-    }
+    return moment(tick).format("MMM D");
+  });
 
-    return null;
+  const formatDateTickTooltip = useCallback(tick => {
+    return moment(tick).format("MMM D HH:mm");
   });
 
   if (data.length <= 2) {
@@ -215,17 +226,19 @@ const Graph = ({
         <LineChart data={data} onMouseMove={mouseUpdate} ref={lineChartRef}>
           {tooltipPosition && marketType === "SCALAR" && (
             <ScalarTooltip
-              lastTickPosition={lastTickPosition}
-              tooltipPosition={tooltipPosition}
-              sidebarWidth={sidebarWidth}
-              unit={unit}
-              decimals={decimals}
-              marketType={marketType}
+              {...{
+                lastTickPosition,
+                tooltipPosition,
+                sidebarWidth,
+                unit,
+                decimals,
+                marketType
+              }}
             />
           )}
           {marketType !== "SCALAR" && (
             <Tooltip
-              labelFormatter={formatDateTick}
+              labelFormatter={formatDateTickTooltip}
               formatter={value => {
                 return [value.toFixed(2) + "%"];
               }}
@@ -251,7 +264,8 @@ const Graph = ({
             })}
           <XAxis
             dataKey="date"
-            domain={[data && data[0] ? data[0].date : 0, "dataMax"]}
+            minTickGap={100}
+            domain={[data && data[0] ? "dataMin" : 0, "dataMax"]}
             tickFormatter={formatDateTick}
             interval="preserveEnd"
           />

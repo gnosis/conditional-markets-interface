@@ -33,9 +33,10 @@ const probabilityChart = ({
   const parsedTrades = prepareQueryData([], data, lmsrAddress);
   // console.log(parsedTrades);
 
+  const getProbabilitiesPercentage = value => value.mul(100).toNumber();
   const displayedProbabilities = probabilities
-    ? probabilities.map(value => value.mul(100).toNumber())
-    : stagedProbabilities.map(value => value.mul(100).toNumber());
+    ? probabilities.map(getProbabilitiesPercentage)
+    : stagedProbabilities.map(getProbabilitiesPercentage);
 
   return (
     <>
