@@ -14,6 +14,7 @@ const Sidebar = props => {
     }
   }
 
+  // TODO return a prettier error if no markets returned
   return null;
 };
 
