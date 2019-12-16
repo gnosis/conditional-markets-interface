@@ -12,7 +12,8 @@ import {
   Line,
   Tooltip,
   ResponsiveContainer,
-  ReferenceDot
+  ReferenceDot,
+  Text
 } from "recharts";
 
 const cx = cn.bind(styles);
@@ -91,7 +92,7 @@ const Graph = ({
   queryData,
   currentProbability
 }) => {
-  const [decimals, setDecimals] = useState(parentDecimals || 2)
+  const [decimals, setDecimals] = useState(parentDecimals || 2);
 
   const [data, setData] = useState(entries);
   const [sidebarWidth, setSidebarWidth] = useState(0);
@@ -116,7 +117,7 @@ const Graph = ({
     ];
 
     setData(newData);
-  }, [queryData, lineRef]);
+  }, [queryData, currentProbability, lineRef.current, lowerBound, upperBound]);
 
   useEffect(() => {
     if (lineRef.current) {
@@ -129,14 +130,14 @@ const Graph = ({
       });
     }
 
-    if (lineChartRef.current) {
+    if (lineChartRef.current && lineRef.current) {
       // linechart sidebar (legend, padding, etc) calculation
       const lineChartSidebarWidth =
         lineChartRef.current.props.width -
         (lineRef.current.props.width + lineChartRef.current.props.margin.left);
       setSidebarWidth(lineChartSidebarWidth);
     }
-  }, [lineRef.current, lineChartRef.current]);
+  }, [lineRef.current, lineChartRef.current, data]);
 
   const mouseUpdate = useCallback(
     e => {
@@ -146,22 +147,48 @@ const Graph = ({
         setTooltipPosition({ x: tickPosition.x, y: tickPosition.y });
       }
     },
-    [lineRef]
+    [lineRef.current]
   );
 
-  const formatDateTick = useCallback(tick => {
-    // this formatting logic is so we're able to use the index as the graph X values
-    // while still displaying the dates for the corresponding ticks
-    if (lineRef.current) {
-      // lineRef.current.props.points[tick].payload.date
-      return moment(tick).format("MMM D");
-    }
+  const LineTickWithTitle = useCallback(
+    props => {
+      const { x, y, payload } = props;
 
-    return null;
-  });
+      let tickLabel = null;
+      let tickTitle = null;
+      if (lineRef.current) {
+        const tickDate = moment(
+          lineRef.current.props.points[payload.value].payload.date
+        );
+        tickLabel = (
+          <>
+            <tspan x={0}>{tickDate.format("MMM D")}</tspan>
+            <tspan x={0} dy={20}>{tickDate.format("HH:mm")}</tspan>
+          </>
+        );
+        tickTitle = tickDate.format("LLL");
+      }
 
-  if (data.length < 2) {
-    return (<span>Not enough data yet</span>);
+      return (
+        <g transform={`translate(${x},${y})`}>
+          {tickLabel && (
+            <text x={0} y={0} fill="#666" textAnchor="middle" dy="0.71em">
+              {tickLabel}
+              <title>{tickTitle}</title>
+            </text>
+          )}
+        </g>
+      );
+    },
+    [lineRef.current]
+  );
+
+  if (data.length <= 2) {
+    return (
+      <div className={cx("graph-container", "empty")}>
+        <span>No data yet.</span>
+      </div>
+    );
   }
 
   return (
@@ -182,30 +209,29 @@ const Graph = ({
               content={<TooltipContent unit={unit} decimals={decimals} />}
             />
           )}
-          <ReferenceDot
-            x={entries[entries.length - 1].date}
-            y={entries[entries.length - 1].value}
-            r={0}
-            fill="red"
-            stroke="none"
-          />
-          <XAxis
-            dataKey="date"
-            domain={[data && data[0] ? data[0].date : 0, "dataMax"]}
-            type="number"
-            tickFormatter={formatDateTick}
-            interval="preserveEnd"
-          />
-          <YAxis
-            orientation="right"
-            type="number"
-            domain={[lowerBound, upperBound]}
-          />
           <Line
             type="stepBefore"
             dataKey="value"
             stroke="#8884d8"
             ref={lineRef}
+          />
+          <ReferenceDot
+            x={data[data.length - 1].date}
+            y={data[data.length - 1].value}
+            r={0}
+            fill="red"
+            stroke="none"
+          />
+          <XAxis
+            dataKey="index"
+            domain={[data && data[0] ? data[0].date : 0, "dataMax"]}
+            tick={<LineTickWithTitle />}
+            interval="preserveEnd"
+          />
+          <YAxis
+            orientation="right"
+            type="number"
+            domain={[parseFloat(lowerBound), parseFloat(upperBound)]}
           />
         </LineChart>
       </ResponsiveContainer>
@@ -218,7 +244,7 @@ const Graph = ({
         >
           <TooltipContent
             active
-            payload={[entries[entries.length - 1]]}
+            payload={[data[data.length - 1]]}
             unit={unit}
             decimals={decimals}
           />

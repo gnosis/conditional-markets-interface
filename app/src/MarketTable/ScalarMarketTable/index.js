@@ -84,31 +84,34 @@ const MarketTable = ({
     };
   }, []);
   const [isExpanded, setExpanded] = useState(false);
+  const [marketProbabilities, setMarketProbabilities] = useState(null);
   const handleToggleExpand = useCallback(() => {
     setExpanded(!isExpanded);
   }, [isExpanded]);
 
-  let marketProbabilities = null;
-
-  if (lmsrState != null) {
-    const { funding, positionBalances } = lmsrState;
-    const invB = new Decimal(positionBalances.length)
-      .ln()
-      .div(funding.toString());
-
-    const positionProbabilities = positionBalances.map(balance =>
-      invB
-        .mul(balance.toString())
-        .neg()
-        .exp()
-    );
-    marketProbabilities = calcSelectedMarketProbabilitiesFromPositionProbabilities(
-      markets,
-      positions,
-      marketSelections,
-      positionProbabilities
-    );
-  }
+  useEffect(() => {
+    if (lmsrState != null) {
+      const { funding, positionBalances } = lmsrState;
+      const invB = new Decimal(positionBalances.length)
+        .ln()
+        .div(funding.toString());
+  
+      const positionProbabilities = positionBalances.map(balance =>
+        invB
+          .mul(balance.toString())
+          .neg()
+          .exp()
+      );
+      const newMarketProbabilities = calcSelectedMarketProbabilitiesFromPositionProbabilities(
+        markets,
+        positions,
+        marketSelections,
+        positionProbabilities
+      );
+      setMarketProbabilities(newMarketProbabilities);
+    }
+  
+  }, [lmsrState, markets, positions, marketSelections]);
 
   if (!lmsrState) {
     return <Spinner />;
@@ -166,7 +169,7 @@ const MarketTable = ({
                         unit={unit}
                         entries={trades}
                         queryData={data}
-                        currentProbability={marketProbabilities[index][0]}
+                        currentProbability={marketProbabilities[index][1]}
                       />
                     </ApolloProvider>
                   </div>

@@ -19,8 +19,8 @@ const { BN } = Web3.utils;
 
 const cx = cn.bind(style);
 
-import getMarketMakersRepo from "../../repositories/MarketMakersRepo";
-import getConditionalTokensService from "../../services/ConditionalTokensService";
+import getMarketMakersRepo from "repositories/MarketMakersRepo";
+import getConditionalTokensService from "services/ConditionalTokensService";
 let marketMakersRepo;
 let conditionalTokensService;
 
