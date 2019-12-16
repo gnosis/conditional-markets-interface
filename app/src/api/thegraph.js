@@ -20,6 +20,16 @@ export const lmsrAddress = conf.lmsrAddress;
 //     marketMaker
 //     marketMakerOwner
 //   }
+//   marketMakers {
+//     id
+//     creator
+//     marketMaker
+//     pmSystem
+//     collateralToken
+//     conditionIds
+//     fee
+//     funding
+//   }
 // }
 export const getTrades = gql`
   {

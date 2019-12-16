@@ -4,65 +4,20 @@ import Web3 from "web3";
 import cn from "classnames/bind";
 import Decimal from "decimal.js-light";
 import { Query } from "react-apollo";
-import gql from "graphql-tag";
 
 import Markdown from "react-markdown";
 
 import style from "./marketTable.scss";
 import ResolutionTime from "./ResolutionTime";
 import Spinner from "components/Spinner";
+import Graph from "./Graph";
 
 import { markdownRenderers } from "utils/markdown";
 import { calcSelectedMarketProbabilitiesFromPositionProbabilities } from "utils/probabilities";
 import { formatCollateral } from "utils/formatting";
-import Graph from "./Graph";
+import { getTrades } from "api/thegraph";
 
 import prepareQueryData from "./utils/prepareQueryData";
-
-import { ApolloProvider } from "react-apollo";
-import { ApolloClient } from "apollo-client";
-import { createHttpLink } from "apollo-link-http";
-import { InMemoryCache } from "apollo-cache-inmemory";
-
-// 2
-const httpLink = createHttpLink({
-  uri: "https://api.thegraph.com/subgraphs/name/gnosis/sight"
-});
-
-// 3
-const client = new ApolloClient({
-  link: httpLink,
-  cache: new InMemoryCache()
-});
-
-const MARKET_MAKER_QUERY = gql`
-  {
-    outcomeTokenTrades {
-      id
-      count
-      transactor
-      outcomeTokenAmounts
-      outcomeTokenNetCost
-      marketFees
-      outcomeSlotCount
-      marketMakerMarginalPrices
-      blockTimestamp
-      blockNumber
-      marketMaker
-      marketMakerOwner
-    }
-    marketMakers {
-      id
-      creator
-      marketMaker
-      pmSystem
-      collateralToken
-      conditionIds
-      fee
-      funding
-    }
-  }
-`;
 
 const { BN } = Web3.utils;
 
@@ -95,7 +50,7 @@ const MarketTable = ({
       const invB = new Decimal(positionBalances.length)
         .ln()
         .div(funding.toString());
-  
+
       const positionProbabilities = positionBalances.map(balance =>
         invB
           .mul(balance.toString())
@@ -110,7 +65,6 @@ const MarketTable = ({
       );
       setMarketProbabilities(newMarketProbabilities);
     }
-  
   }, [lmsrState, markets, positions, marketSelections]);
 
   if (!lmsrState) {
@@ -119,7 +73,7 @@ const MarketTable = ({
 
   return (
     <div className={cx("markettable")}>
-      <Query query={MARKET_MAKER_QUERY}>
+      <Query query={getTrades}>
         {({ loading, error, data }) => {
           if (loading) return <Spinner width={32} height={32} />;
           if (error) throw new Error(error);
@@ -161,17 +115,15 @@ const MarketTable = ({
                     </div>
                   </div>
                   <div className={cx("prediction")}>
-                    <ApolloProvider client={client}>
-                      <Graph
-                        lowerBound={lowerBound}
-                        upperBound={upperBound}
-                        decimals={decimals}
-                        unit={unit}
-                        entries={trades}
-                        queryData={data}
-                        currentProbability={marketProbabilities[index][1]}
-                      />
-                    </ApolloProvider>
+                    <Graph
+                      lowerBound={lowerBound}
+                      upperBound={upperBound}
+                      decimals={decimals}
+                      unit={unit}
+                      entries={trades}
+                      queryData={data}
+                      currentProbability={marketProbabilities[index][1]}
+                    />
                   </div>
                   <div className={cx("details")}>
                     <div className={cx("details-header")}>
