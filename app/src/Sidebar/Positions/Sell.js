@@ -199,6 +199,7 @@ const Sell = ({
         <button
           className={cx("sell-cancel")}
           type="button"
+          defaultValue={selectedOutcomeIndex}
           onClick={onCancelSell}
         />
       </div>

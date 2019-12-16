@@ -61,17 +61,15 @@ async function loadBasicData({ lmsrAddress }, web3) {
 
   const { product } = require("utils/itertools");
 
-  const atomicOutcomeSlotCount = (
-    await marketMakersRepo.atomicOutcomeSlotCount()
-  ).toNumber();
+  const atomicOutcomeSlotCount = (await marketMakersRepo.atomicOutcomeSlotCount()).toNumber();
 
   let curAtomicOutcomeSlotCount = 1;
   for (let i = 0; i < markets.length; i++) {
     const market = markets[i];
     const conditionId = await marketMakersRepo.conditionIds(i);
-    const numSlots = (
-      await conditionalTokensRepo.getOutcomeSlotCount(conditionId)
-    ).toNumber();
+    const numSlots = (await conditionalTokensRepo.getOutcomeSlotCount(
+      conditionId
+    )).toNumber();
 
     if (numSlots === 0) {
       throw new Error(`condition ${conditionId} not set up yet`);
@@ -317,7 +315,9 @@ const RootComponent = ({ childComponents }) => {
     }
   }, []);
 
-  useEffect(init, []);
+  useEffect(() => {
+    init();
+  }, []);
 
   const [lmsrState, setLMSRState] = useState(null);
   const [marketResolutionStates, setMarketResolutionStates] = useState(null);

@@ -37,6 +37,7 @@
   &-redeem {
     @include sidebar-entry;
     border-bottom: none;
+    flex-flow: column wrap;
 
     .redeem-all {
       -webkit-appearance: none;
@@ -167,4 +168,171 @@
     }
   }
 
+}
+
+.sell {
+  font-size: 1.3rem;
+  line-height: normal;
+
+  &-heading {
+    @include sidebar-entry;
+
+    border-bottom: none;
+    font-weight: $bold;
+  }
+
+  &-cancel {
+    -webkit-appearance: none;
+    appearance: none;
+    border: none;
+    background: none;
+    font-style: normal;
+    color: $shadeBlue;
+
+    font-size: 2.8rem;
+    font-weight: bold;
+    transition: color .3s ease-in-out;
+    text-decoration: none;
+
+    &::after {
+      content: $x;
+      color: currentColor;
+      display: flex;
+      font-size: inherit;
+      height: 2rem;
+      width: 2rem;
+      line-height: 1;
+      align-items: center;
+      justify-content: center;
+      font-family: $arial;
+    }
+
+    &:focus, &:active, &:hover {
+      text-decoration: none;
+      color: $black;
+    }
+  }
+
+  &-form {
+    display: flex;
+    flex-direction: column;
+
+    &-row {
+      display: flex;
+      padding: 0 1.6rem;
+      margin: .2rem 0;
+      min-height: 3rem;
+
+      .entry {
+        flex: 1;
+      }
+
+      label {
+        width: 33%;
+        display: flex;
+        align-items: center;
+      }
+
+      input {
+        display: block;
+        min-height: 3rem;
+        width: 100%;
+      }
+    }
+  }
+
+  &-confirm {
+    -webkit-appearance: none;
+    appearance: none;
+    border: none;
+    text-transform: uppercase;
+    display: block;
+    width: 100%;
+    cursor: pointer;
+    color: $white;
+    background: #ff685e;
+    border-radius: .2rem;
+    height: 5.2rem;
+    padding: 0 1rem;
+    font-weight: $bold;
+    font-size: 1.4rem;
+    letter-spacing: 0.05rem;
+  
+    &.disabled, &:disabled {
+      opacity: 0.5;
+      cursor: auto;
+    }
+  }
+}
+
+
+.input-group {
+  position: relative;
+  display: flex;
+  flex-flow: row nowrap;
+  height: 5rem;
+  padding: 0;
+  font-weight: normal;
+  border: .1rem solid $greyBorder2;
+  border-radius: .3rem;
+  flex: 1;
+  justify-content: space-between;
+  margin: 0;
+}
+
+.input {
+  border: 0;
+  font-size: 1.5rem;
+  color: $shadeBlue;
+  letter-spacing: 0;
+  text-align: right;
+  font-weight: normal;
+  margin: 0 0 0 auto;
+  outline: 0;
+
+  &::-webkit-inner-spin-button,
+  &::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  &:disabled, &[readonly] {
+    background: #f3f4f6;
+
+    + .input-append {
+      background: #f3f4f6;  
+    }
+  }
+}
+
+.input-spinner {
+  position: absolute;
+  left: 50%;
+  margin-left: -6px;
+  margin-top: -6px;
+  top: 50;
+  background: none;
+}
+
+.input-append {
+  font-weight: bold;
+  font-size: 1.3rem;
+  color: $blue;
+  letter-spacing: 0;
+
+  &:first-child {
+    appearance: none;
+    -webkit-appearance: none;
+    border: none;
+    text-decoration: underline;
+    outline: none;
+  }
+
+  &:last-child {
+    position: relative;
+    line-height: 48px;
+    padding: 0 1rem;
+    height: 100%;
+    display: block;
+  }
 }
