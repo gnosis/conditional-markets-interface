@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { hot } from "react-hot-loader/root";
 import cn from "classnames/bind";
 import useInterval from "@use-it/interval";
+import { ApolloProvider } from "@apollo/react-hooks";
 
 import Spinner from "components/Spinner";
 import CrashPage from "components/Crash";
@@ -13,14 +14,10 @@ import {
   getPositionId,
   combineCollectionIds
 } from "utils/getIdsUtil";
+
 import { getWhitelistState } from "api/whitelist";
 import { getQuestions } from "api/operator";
-
-// 1
-import { ApolloProvider } from "react-apollo";
-import { ApolloClient } from "apollo-client";
-import { createHttpLink } from "apollo-link-http";
-import { InMemoryCache } from "apollo-cache-inmemory";
+import { client } from "api/thegraph";
 
 import style from "./root.scss";
 const cx = cn.bind(style);
@@ -61,15 +58,17 @@ async function loadBasicData({ lmsrAddress }, web3) {
 
   const { product } = require("utils/itertools");
 
-  const atomicOutcomeSlotCount = (await marketMakersRepo.atomicOutcomeSlotCount()).toNumber();
+  const atomicOutcomeSlotCount = (
+    await marketMakersRepo.atomicOutcomeSlotCount()
+  ).toNumber();
 
   let curAtomicOutcomeSlotCount = 1;
   for (let i = 0; i < markets.length; i++) {
     const market = markets[i];
     const conditionId = await marketMakersRepo.conditionIds(i);
-    const numSlots = (await conditionalTokensRepo.getOutcomeSlotCount(
-      conditionId
-    )).toNumber();
+    const numSlots = (
+      await conditionalTokensRepo.getOutcomeSlotCount(conditionId)
+    ).toNumber();
 
     if (numSlots === 0) {
       throw new Error(`condition ${conditionId} not set up yet`);
@@ -230,20 +229,6 @@ async function getLMSRAllowance(collateral, account) {
   const marketMakerAddress = await marketMakersRepo.getAddress();
   return collateral.contract.allowance(account, marketMakerAddress);
 }
-
-// 2
-const httpLink = createHttpLink({
-  uri:
-    process.env.NETWORK === "rinkeby"
-      ? "https://api.thegraph.com/subgraphs/name/gnosis/conditional-tokens-rinkeby"
-      : "https://api.thegraph.com/subgraphs/name/gnosis/conditional-tokens"
-});
-
-// 3
-const client = new ApolloClient({
-  link: httpLink,
-  cache: new InMemoryCache()
-});
 
 const moduleLoadTime = Date.now();
 

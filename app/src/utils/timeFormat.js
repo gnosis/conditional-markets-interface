@@ -28,6 +28,46 @@ export function isAfter(date) {
   return moment().isAfter(date);
 }
 
+export function setCategoricalLocale() {
+  updateLocale("en", {
+    relativeTime: {
+      future: "%s",
+      past: "CLOSED",
+      s: "few seconds",
+      ss: "<%d seconds",
+      m: "<1 minute",
+      mm: "<%d minutes",
+      h: "<1 hour",
+      hh: "<%d hours",
+      d: "<1 day",
+      dd: "<%d days",
+      M: "<1 month",
+      MM: "<%d months",
+      y: "<1 year",
+      yy: "<%d years"
+    }
+  });
+}
+
+export function setScalarLocale() {
+  updateLocale("en", {
+    relativeTime: {
+      s: "ENDED",
+      ss: "Ends in <%d seconds",
+      m: "Ends in <1 minute",
+      mm: "Ends in <%d minutes",
+      h: "Ends in <1 hour",
+      hh: "Ends in <%d hours",
+      d: "Ends in <1 day",
+      dd: "Ends in <%d days",
+      M: "Ends in <1 month",
+      MM: "Ends in <%d months",
+      y: "Ends in <1 year",
+      yy: "Ends in <%d years"
+    }
+  });
+}
+
 // Configure moment with our desired default values
 // Relative time messages
 updateLocale("en", {

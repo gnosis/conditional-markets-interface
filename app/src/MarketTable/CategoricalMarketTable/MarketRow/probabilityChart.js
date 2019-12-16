@@ -10,7 +10,7 @@ import Graph from "components/Graph";
 
 const cx = cn.bind(style);
 
-import { useQuery } from "react-apollo";
+import { useQuery } from "@apollo/react-hooks";
 
 import { lmsrAddress, getTrades } from "api/thegraph";
 
