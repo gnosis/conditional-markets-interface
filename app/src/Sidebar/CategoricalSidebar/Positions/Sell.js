@@ -2,12 +2,12 @@ import React, { useCallback, useEffect, useState } from "react";
 import cn from "classnames/bind";
 import style from "./positions.scss";
 import Decimal from "decimal.js-light";
-import OutcomeCard, { Dot } from "../../components/OutcomeCard";
-import Spinner from "../../components/Spinner";
+import OutcomeCard, { Dot } from "components/OutcomeCard";
+import Spinner from "components/Spinner";
 import {
   zeroDecimal,
   collateralSignificantDigits
-} from "../../utils/constants";
+} from "utils/constants";
 
 import Select from "react-select";
 import Web3 from "web3";
@@ -187,6 +187,7 @@ const Sell = ({
         <button
           className={cx("sell-cancel")}
           type="button"
+          defaultValue={selectedOutcomeIndex}
           onClick={onCancelSell}
         />
       </div>

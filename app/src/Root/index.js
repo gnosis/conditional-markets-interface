@@ -61,17 +61,15 @@ async function loadBasicData({ lmsrAddress }, web3) {
 
   const { product } = require("utils/itertools");
 
-  const atomicOutcomeSlotCount = (
-    await marketMakersRepo.atomicOutcomeSlotCount()
-  ).toNumber();
+  const atomicOutcomeSlotCount = (await marketMakersRepo.atomicOutcomeSlotCount()).toNumber();
 
   let curAtomicOutcomeSlotCount = 1;
   for (let i = 0; i < markets.length; i++) {
     const market = markets[i];
     const conditionId = await marketMakersRepo.conditionIds(i);
-    const numSlots = (
-      await conditionalTokensRepo.getOutcomeSlotCount(conditionId)
-    ).toNumber();
+    const numSlots = (await conditionalTokensRepo.getOutcomeSlotCount(
+      conditionId
+    )).toNumber();
 
     if (numSlots === 0) {
       throw new Error(`condition ${conditionId} not set up yet`);
@@ -237,8 +235,8 @@ async function getLMSRAllowance(collateral, account) {
 const httpLink = createHttpLink({
   uri:
     process.env.NETWORK === "rinkeby"
-      ? "https://api.thegraph.com/subgraphs/name/gnosis/sight-rinkeby"
-      : "https://api.thegraph.com/subgraphs/name/gnosis/sight"
+      ? "https://api.thegraph.com/subgraphs/name/gnosis/conditional-tokens-rinkeby"
+      : "https://api.thegraph.com/subgraphs/name/gnosis/conditional-tokens"
 });
 
 // 3
