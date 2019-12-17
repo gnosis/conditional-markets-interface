@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { hot } from "react-hot-loader/root";
 import cn from "classnames/bind";
 import useInterval from "@use-it/interval";
+import { ApolloProvider } from "@apollo/react-hooks";
 
 import Spinner from "components/Spinner";
 import CrashPage from "components/Crash";
@@ -13,8 +14,10 @@ import {
   getPositionId,
   combineCollectionIds
 } from "utils/getIdsUtil";
+
 import { getWhitelistState } from "api/whitelist";
 import { getQuestions } from "api/operator";
+import { client } from "api/thegraph";
 
 import style from "./root.scss";
 const cx = cn.bind(style);
@@ -55,22 +58,34 @@ async function loadBasicData({ lmsrAddress }, web3) {
 
   const { product } = require("utils/itertools");
 
-  const atomicOutcomeSlotCount = (await marketMakersRepo.atomicOutcomeSlotCount()).toNumber();
+  const atomicOutcomeSlotCount = (
+    await marketMakersRepo.atomicOutcomeSlotCount()
+  ).toNumber();
 
   let curAtomicOutcomeSlotCount = 1;
   for (let i = 0; i < markets.length; i++) {
     const market = markets[i];
     const conditionId = await marketMakersRepo.conditionIds(i);
-    const numSlots = (await conditionalTokensRepo.getOutcomeSlotCount(
-      conditionId
-    )).toNumber();
+    const numSlots = (
+      await conditionalTokensRepo.getOutcomeSlotCount(conditionId)
+    ).toNumber();
 
-    if (numSlots === 0)
+    if (numSlots === 0) {
       throw new Error(`condition ${conditionId} not set up yet`);
-    if (numSlots !== market.outcomes.length)
+    } else if (market.type === "SCALAR") {
+      if (numSlots !== 2) {
+        throw new Error(
+          `condition ${conditionId} outcome slot not valid for scalar market - requires long and short outcomes`
+        );
+      }
+
+      // set outcomes to enable calculations on outcome count
+      market.outcomes = [{ title: "short" }, { title: "long" }];
+    } else if (numSlots !== market.outcomes.length) {
       throw new Error(
         `condition ${conditionId} outcome slot count ${numSlots} does not match market outcome descriptions array with length ${market.outcomes.length}`
       );
+    }
 
     market.marketIndex = i;
     market.conditionId = conditionId;
@@ -176,7 +191,7 @@ async function getLMSRState(web3, positions) {
     positions,
     marketMakerAddress
   );
-  return { owner, funding, stage, fee, positionBalances };
+  return { owner, funding, stage, fee, positionBalances, marketMakerAddress };
 }
 
 async function getPositionBalances(positions, account) {
@@ -267,6 +282,13 @@ const RootComponent = ({ childComponents }) => {
       setCollateral(collateral);
       setMarkets(markets);
       setPositions(positions);
+
+      console.groupCollapsed("Global Debug Variables");
+      console.log("LMSRMarketMaker (Instance) Contract:", marketMakersRepo);
+      console.log("Collateral Settings:", collateral);
+      console.log("Market Settings:", markets);
+      console.log("Account Positions:", positions);
+      console.groupEnd();
 
       setLoading("SUCCESS");
     } catch (err) {
@@ -383,6 +405,7 @@ const RootComponent = ({ childComponents }) => {
             throw e;
           } finally {
             setOngoingTransactionType(null);
+            setStagedTransactionType(null);
             triggerSync();
           }
         }
@@ -462,78 +485,84 @@ const RootComponent = ({ childComponents }) => {
 
   if (loading === "SUCCESS")
     return (
-      <div className={cx("page")}>
-        <div className={cx("modal-space", { "modal-open": !!modal })}>
-          {modal}
-        </div>
-        <div className={cx("app-space", { "modal-open": !!modal })}>
-          <ApplyBetaHeader
-            openModal={openModal}
-            whitelistState={whitelistState}
-          />
-          <Header
-            avatar={
-              <UserWallet
-                address={account}
-                openModal={openModal}
-                whitelistState={whitelistState}
-              />
-            }
-            menu={<Menu />}
-          />
-          <div className={cx("sections")}>
-            <section className={cx("section", "section-markets")}>
-              <MarketTable
-                {...{
-                  markets,
-                  marketResolutionStates,
-                  positions,
-                  lmsrState,
-                  marketSelections,
-                  setMarketSelections,
-                  stagedTradeAmounts,
-                  resetMarketSelections,
-                  addToast,
-                  openModal
-                }}
-              />
-            </section>
-            {account != null && ( // account available
-              <section className={cx("section", "section-positions")}>
-                <Sidebar
+      <ApolloProvider client={client}>
+        <div className={cx("page")}>
+          <div className={cx("modal-space", { "modal-open": !!modal })}>
+            {modal}
+          </div>
+          <div className={cx("app-space", { "modal-open": !!modal })}>
+            <ApplyBetaHeader
+              openModal={openModal}
+              whitelistState={whitelistState}
+            />
+            <Header
+              avatar={
+                <UserWallet
+                  address={account}
+                  openModal={openModal}
+                  whitelistState={whitelistState}
+                  collateral={collateral}
+                  collateralBalance={collateralBalance}
+                />
+              }
+              menu={<Menu />}
+            />
+            <div className={cx("sections")}>
+              <section className={cx("section", "section-markets")}>
+                <MarketTable
                   {...{
-                    account,
                     markets,
-                    positions,
-                    positionBalances,
                     marketResolutionStates,
-                    marketSelections,
-                    collateral,
-                    collateralBalance,
+                    positions,
                     lmsrState,
-                    lmsrAllowance,
+                    marketSelections,
+                    setMarketSelections,
                     stagedTradeAmounts,
-                    setStagedTradeAmounts,
-                    stagedTransactionType,
-                    setStagedTransactionType,
-                    ongoingTransactionType,
-                    asWrappedTransaction,
                     resetMarketSelections,
+                    collateral,
                     addToast,
                     openModal
                   }}
                 />
               </section>
-            )}
-            <Toasts
-              deleteToast={deleteToast}
-              addToast={addToast}
-              toasts={toasts}
-            />
-            <Footer />
+              {account != null && ( // account available
+                <section className={cx("section", "section-positions")}>
+                  <Sidebar
+                    {...{
+                      account,
+                      markets,
+                      positions,
+                      positionBalances,
+                      marketResolutionStates,
+                      marketSelections,
+                      collateral,
+                      collateralBalance,
+                      lmsrState,
+                      lmsrAllowance,
+                      stagedTradeAmounts,
+                      setStagedTradeAmounts,
+                      stagedTransactionType,
+                      setStagedTransactionType,
+                      ongoingTransactionType,
+                      asWrappedTransaction,
+                      setMarketSelections,
+                      resetMarketSelections,
+                      addToast,
+                      openModal
+                    }}
+                  />
+                </section>
+              )}
+              <Toasts
+                deleteToast={deleteToast}
+                addToast={addToast}
+                toasts={toasts}
+              />
+              <Footer />
+            </div>
           </div>
         </div>
-      </div>
+      </ApolloProvider>
     );
 
   if (loading === "LOADING") {

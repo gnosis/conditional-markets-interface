@@ -64,7 +64,6 @@ $white: #FFF;
 $blue: #009CB4;
 $shadeBlue: #526877;
 $black: #00193C;
-$black: $black;
 $grey: #F7F8FB;
 $greyBorder: #D8D8D8;
 $greyBorder2: #dedfde;
@@ -91,3 +90,9 @@ $base-line-height: 10px;
 
 // HTML Entity characters (e.g. for use with pseudo-elements)
 $x: "\2715"; // $x: "✕";
+
+// Export directive for webpack to use colors in javascript
+:export {
+  blueColor: $blue;
+  redColor: $red;
+}

@@ -13,23 +13,23 @@ import Select from "react-select";
 
 import cn from "classnames/bind";
 import style from "./positions.scss";
-import OutcomeCard, { Dot } from "../../components/OutcomeCard";
+import OutcomeCard, { Dot } from "components/OutcomeCard";
 
 const cx = cn.bind(style);
 const { toBN, sha3 } = Web3.utils;
 
-import getConditionalTokensRepo from "../../repositories/ConditionalTokensRepo";
-import getMarketMakersRepo from "../../repositories/MarketMakersRepo";
-import getConditionalTokensService from "../../services/ConditionalTokensService";
+import getConditionalTokensRepo from "repositories/ConditionalTokensRepo";
+import getMarketMakersRepo from "repositories/MarketMakersRepo";
+import getConditionalTokensService from "services/ConditionalTokensService";
 import Sell from "./Sell";
-import Balances from "./Balances";
+import Positions from "./Positions";
 let conditionalTokensRepo;
 let marketMakersRepo;
 let conditionalTokensService;
 
 let warnedAboutIds = {};
 
-const Positions = ({
+const SellOrPositions = ({
   account,
   markets,
   marketResolutionStates,
@@ -301,7 +301,6 @@ const Positions = ({
   if (positionGroups === null) {
     return (
       <>
-        <div className={cx("positions-heading")}>Your Positions</div>
         <div className={cx("positions-empty")}>
           <Spinner width={25} height={25} centered />
         </div>
@@ -325,10 +324,12 @@ const Positions = ({
       collateral={collateral}
       sellOutcomeTokens={sellOutcomeTokens}
       onOutcomeChange={handleChangeOutcome}
+      asWrappedTransaction={asWrappedTransaction}
+      ongoingTransactionType={ongoingTransactionType}
       positionGroups={positionGroups}
     />
   ) : (
-    <Balances
+    <Positions
       positionGroups={positionGroups}
       allMarketsResolved={allMarketsResolved}
       redemptionAmount={redemptionAmount}
@@ -347,4 +348,4 @@ const Positions = ({
   );
 };
 
-export default Positions;
+export default SellOrPositions;

@@ -13,19 +13,13 @@ import Probabilities from "./Probabilities";
 import ProbabilityWording from "./ProbabilityWording";
 import OutcomeSelection from "./OutcomeSelection";
 import ToggleConditional from "./ToggleConditional";
+import ProbabilityChart from "./probabilityChart";
+
+import { markdownRenderers } from "utils/markdown";
 
 const cx = cn.bind(style);
 
 const { BN } = Web3.utils;
-/* eslint-disable */
-const markdownRenderers = {
-  link: props => (
-    <a href={props.href} target="_blank" rel="noopener noreferrer">
-      {props.children}
-    </a>
-  ),
-}
-/* eslint-enable */
 
 const Market = ({
   conditionId,
@@ -35,6 +29,7 @@ const Market = ({
   description,
   dataSource,
   dataSourceUrl,
+  type,
   index,
   probabilities,
   stagedProbabilities,
@@ -140,8 +135,14 @@ const Market = ({
           </td>
         ))}
       </tr>
+      <ProbabilityChart
+        marketType={type}
+        colSpan={headings.length}
+        probabilities={probabilities}
+        stagedProbabilities={stagedProbabilities}
+      ></ProbabilityChart>
       <tr
-        className={cx("market-row-details", {
+        className={cx("market-row-tab", {
           hidden: !detailsOpen,
           disable: disableCollapse
         })}
@@ -158,7 +159,7 @@ const Market = ({
               {detailsOpen ? "–" : "+"}
             </span>
           </button>
-          <div className={cx("detail-content")}>
+          <div className={cx("tab-content")}>
             {dataSource && (
               <>
                 <h1>Data Source</h1>
@@ -200,9 +201,6 @@ Market.propTypes = {
     }).isRequired
   ).isRequired,
 
-  lmsrState: PropTypes.shape({
-    stage: PropTypes.string.isRequired
-  }),
   resolutionState: PropTypes.shape({
     isResolved: PropTypes.bool.isRequired,
     payoutNumerators: PropTypes.arrayOf(PropTypes.instanceOf(BN).isRequired)

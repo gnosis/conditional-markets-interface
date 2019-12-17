@@ -13,9 +13,8 @@ const isProduction = process.env.NODE_ENV === "production";
 
 module.exports = {
   entry: "./src/index.js",
-  devtool: "eval-source-map",
   output: {
-    path: path.resolve(__dirname, "..", "docs"),
+    path: path.resolve(__dirname, "..", "dist"),
     publicPath: "",
     filename: isProduction ? "bundle.[hash].js" : "bundle.js"
   },
@@ -36,19 +35,6 @@ module.exports = {
       "bignumber.js/bignumber": moduleStubPath
     },
     modules: ["node_modules", "src", "assets"]
-  },
-  devServer: {
-    contentBase: path.resolve(__dirname, "assets"),
-    proxy: {
-      // Needed to emulate whitelist service, as it is blocked by cors/corb
-      "/api": {
-        target: "https://sight-whitelist.staging.gnosisdev.com",
-        pathRewrite: { "/api": "/api/v1" },
-        changeOrigin: true,
-        secure: false
-      }
-    },
-    overlay: true
   },
   module: {
     rules: [

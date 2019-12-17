@@ -5,4 +5,4 @@ app/dist
 .env
 config.*.json.bak
 .DS_Store
-/docs
+/dist

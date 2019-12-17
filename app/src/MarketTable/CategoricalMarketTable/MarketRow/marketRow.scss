@@ -71,7 +71,7 @@
     }
   }
 
-  &-details {
+  &-tab {
     cursor: pointer;
 
     &.disable {
@@ -107,7 +107,7 @@
       color: $blue;
     }
 
-    .detail-content {
+    .tab-content {
       padding: 0 0.8rem 3.2rem;
 
         > h1 {
@@ -126,7 +126,7 @@
     }
 
     &.hidden {
-      .detail-content {
+      .tab-content {
         display: none;
       }
     }

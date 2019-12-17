@@ -6,14 +6,13 @@
   flex-flow: row nowrap;
   flex: 1 1 100%;
   width: 100%;
-  border-bottom: .1rem solid $greyBorder2;
   height: 7.5rem;
   position: relative;
   z-index: 9;
+  justify-content: space-between;
 
   @media #{$tablet-small-max} {
     height: 5.2rem;
-    justify-content: space-between;
   }
 
   .logo,
@@ -21,12 +20,6 @@
   .avatar {
     height: auto;
 
-    &:not(:last-child) {
-      border-right: .1rem solid $greyBorder2;
-        @media #{$tablet-small-max} {
-          border-right: 0;
-        }
-    }
   }
 
   .logo {
@@ -34,13 +27,12 @@
     -webkit-appearance: none;
     border: none;
     background: none;
-    padding: 0;
+    padding: 0 1rem;
 
     img {
       display: flex;
       width: auto;
       height: 3rem;
-      margin: 0 1.6rem;
 
         @media #{$tablet-small-max} {
           height: 2.6rem;

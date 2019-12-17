@@ -34,6 +34,7 @@
   height: 100%; // fallback
   height: calc(100% - 10.2rem);
   box-sizing: border-box;
+  padding: 4rem 8rem;
 
   @media #{$tablet-small-max} {
     flex-flow: column;
@@ -64,7 +65,6 @@
       height: 100%;
       width: 100%;
       max-width: 36rem;
-      border-left: 0.1rem solid $greyBorder2;
       flex: 1;
 
         @media #{$tablet-small-max} {

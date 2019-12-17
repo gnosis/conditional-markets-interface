@@ -46,10 +46,10 @@ export const formatCollateral = (amount, collateral) => {
   return `${collateralValue} ${collateral.symbol}`;
 };
 
-export const formatAmount = amount => {
+export const formatAmount = (amount, dividend = 1) => {
   const amountDecimal = smellsLikeDecimal(amount)
     ? amount
-    : new Decimal((amount || "0").toString());
+    : new Decimal((amount.toString() || "0").toString());
 
   const minValue = new Decimal(10).pow(-quantitySiginificantDigits);
 
@@ -57,7 +57,14 @@ export const formatAmount = amount => {
     return `<${minValue.toString()}`;
   }
 
-  return amount.toSignificantDigits(quantitySiginificantDigits).toString();
+  return amountDecimal
+    .div(dividend)
+    .toSignificantDigits(quantitySiginificantDigits)
+    .toString();
+};
+
+export const formatScalarValue = (value, unit, decimals = 0) => {
+  return `${value.toFixed(Math.min(decimals, 2))} ${unit}`;
 };
 
 const REPLACEMENT_RULES = [[/_(.*)_/g, "<em>$1</em>"]];
