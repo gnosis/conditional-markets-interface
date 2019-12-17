@@ -79,41 +79,12 @@ const CursorWithLineConnection = props => {
   );
 };
 
-const ScalarTooltip = ({
-  lastTickPosition,
-  tooltipPosition,
-  sidebarWidth,
-  unit,
-  decimals,
-  marketType
-}) => {
-  return (
-    <Tooltip
-      className={cx("scalar-tooltip")}
-      cursor={
-        <CursorWithLineConnection
-          currentPositionTooltipCoordinates={lastTickPosition}
-          selectedPositionTooltipCoordinates={tooltipPosition}
-        />
-      }
-      coordinate={{ x: 0, y: 0 }}
-      position={{ x: -sidebarWidth, y: tooltipPosition.y }}
-      content={
-        <TooltipContent
-          unit={unit}
-          decimals={decimals}
-          marketType={marketType}
-        />
-      }
-    />
-  );
-};
-
-const TooltipContent = ({ active, payload, unit, decimals, marketType }) => {
-  if (active && marketType === "SCALAR") {
+const TooltipContent = ({ active, value, payload, unit, decimals }) => {
+  if (active) {
+    const number = value || payload[0].value;
     return (
       <div className={cx("tooltip-inner")}>
-        {formatScalarValue(payload[0].value, unit, decimals)}
+        {formatScalarValue(number, unit, decimals)}
       </div>
     );
   }
@@ -149,10 +120,12 @@ const Graph = ({
     // extra work that includes currentProbabilityChanged and if array lengths are different
     const currentProbabilityChanged = () => {
       const dataProbability = data[data.length - 1].outcomesProbability;
-      return dataProbability.length !== currentProbability.length ||
+      return (
+        dataProbability.length !== currentProbability.length ||
         dataProbability.some(
           (value, index) => value !== currentProbability[index]
-        );
+        )
+      );
     };
 
     if (entries.length >= data.length || currentProbabilityChanged()) {
@@ -220,20 +193,23 @@ const Graph = ({
     );
   }
 
+  const marketClass = marketType.toLowerCase() + "-graph";
+
   return (
-    <div className={cx("graph-container")}>
+    <div className={cx("graph-container", marketClass)}>
       <ResponsiveContainer minHeight={300}>
         <LineChart data={data} onMouseMove={mouseUpdate} ref={lineChartRef}>
           {tooltipPosition && marketType === "SCALAR" && (
-            <ScalarTooltip
-              {...{
-                lastTickPosition,
-                tooltipPosition,
-                sidebarWidth,
-                unit,
-                decimals,
-                marketType
-              }}
+            <Tooltip
+              cursor={
+                <CursorWithLineConnection
+                  currentPositionTooltipCoordinates={lastTickPosition}
+                  selectedPositionTooltipCoordinates={tooltipPosition}
+                />
+              }
+              coordinate={{ x: 0, y: 0 }}
+              position={{ x: -sidebarWidth, y: tooltipPosition.y }}
+              content={<TooltipContent unit={unit} decimals={decimals} />}
             />
           )}
           {marketType !== "SCALAR" && (
@@ -272,7 +248,7 @@ const Graph = ({
           <YAxis
             orientation="right"
             type="number"
-            domain={[lowerBound, upperBound]}
+            domain={[parseFloat(lowerBound), parseFloat(upperBound)]}
           />
           {data &&
             data[0] &&
@@ -308,10 +284,9 @@ const Graph = ({
                 <TooltipContent
                   key={index}
                   active
-                  payload={value}
+                  value={value}
                   unit={unit}
                   decimals={decimals}
-                  marketType={marketType}
                 />
               );
             })}

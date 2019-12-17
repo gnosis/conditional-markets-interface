@@ -10,7 +10,7 @@ import Markdown from "react-markdown";
 import style from "./marketTable.scss";
 import ResolutionTime from "./ResolutionTime";
 import Spinner from "components/Spinner";
-import Graph from "./Graph";
+import Graph from "components/Graph";
 
 import { markdownRenderers } from "utils/markdown";
 import { calcSelectedMarketProbabilitiesFromPositionProbabilities } from "utils/probabilities";
@@ -78,7 +78,7 @@ const MarketTable = ({
           if (loading) return <Spinner width={32} height={32} />;
           if (error) throw new Error(error);
 
-          return prepareQueryData(markets, data, lmsrState).map(
+          return markets.map(
             (
               {
                 conditionId,
@@ -91,10 +91,38 @@ const MarketTable = ({
                 decimals,
                 unit,
                 description,
-                trades
+                type
               },
               index
             ) => {
+              const trades = prepareQueryData(
+                { lowerBound, upperBound, type },
+                data,
+                lmsrState.marketMakerAddress
+              );
+
+              const parsedProbabilities = marketProbabilities[index][1]
+                .mul(upperBound - lowerBound)
+                .add(lowerBound)
+                .toNumber();
+
+              // .map(
+              //   (
+              //     {
+              //       conditionId,
+              //       title,
+              //       resolutionDate,
+              //       dataSource,
+              //       dataSourceUrl,
+              //       lowerBound,
+              //       upperBound,
+              //       decimals,
+              //       unit,
+              //       description,
+              //       trades
+              //     },
+              //     index
+              //   ) => {
               return (
                 <div
                   className={cx("markettable-row")}
@@ -122,7 +150,8 @@ const MarketTable = ({
                       unit={unit}
                       entries={trades}
                       queryData={data}
-                      currentProbability={marketProbabilities[index][1]}
+                      currentProbability={[parsedProbabilities]}
+                      marketType={type}
                     />
                   </div>
                   <div className={cx("details")}>

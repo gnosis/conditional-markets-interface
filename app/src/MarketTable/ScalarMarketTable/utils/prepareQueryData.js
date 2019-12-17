@@ -9,9 +9,9 @@ const sortBy = key => (a, b) => {
 };
 
 const prepareQueryData = (
-  marketsFromConfig,
+  { lowerBound, upperBound, type },
   queryData,
-  { marketMakerAddress: targetLmsrAddress, positionBalances, funding }
+  targetLmsrAddress
 ) => {
   const marketTradesForMarketMaker = queryData.outcomeTokenTrades.filter(
     ({ marketMaker }) =>
@@ -38,23 +38,32 @@ const prepareQueryData = (
       };
     });
 
-  const markets = marketsFromConfig.map(
-    ({ lowerBound, upperBound, ...market }) => ({
-      lowerBound,
-      upperBound,
-      ...market,
-      trades: trades.map(({ value, date }, index) => ({
-        value: value
-          .mul(upperBound - lowerBound)
-          .add(lowerBound)
-          .toNumber(),
-        index,
-        date
-      }))
-    })
-  );
+  // const markets = marketsFromConfig.map(
+  //   ({ lowerBound, upperBound, ...market }) => ({
+  //     lowerBound,
+  //     upperBound,
+  //     ...market,
+  //     trades: trades.map(({ value, date }, index) => ({
+  //       value: value
+  //         .mul(upperBound - lowerBound)
+  //         .add(lowerBound)
+  //         .toNumber(),
+  //       index,
+  //       date
+  //     }))
+  //   })
+  // );
 
-  return markets;
+  return trades.map(({ value, date }, index) => ({
+    outcomesProbability: [
+      value
+        .mul(upperBound - lowerBound)
+        .add(lowerBound)
+        .toNumber()
+    ],
+    index,
+    date
+  }));
 };
 
 export default prepareQueryData;

@@ -163,7 +163,9 @@ const Graph = ({
         tickLabel = (
           <>
             <tspan x={0}>{tickDate.format("MMM D")}</tspan>
-            <tspan x={0} dy={20}>{tickDate.format("HH:mm")}</tspan>
+            <tspan x={0} dy={20}>
+              {tickDate.format("HH:mm")}
+            </tspan>
           </>
         );
         tickTitle = tickDate.format("LLL");
@@ -224,6 +226,7 @@ const Graph = ({
           />
           <XAxis
             dataKey="index"
+            minTickGap={100}
             domain={[data && data[0] ? data[0].date : 0, "dataMax"]}
             tick={<LineTickWithTitle />}
             interval="preserveEnd"
