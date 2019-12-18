@@ -14,6 +14,10 @@
     padding-top: 1rem;
     width: 40vw;
 
+    @media #{$tablet-small-max} {
+      width: 100%;
+    }
+
     .header {
       display: block;
       width: 100%;
@@ -46,7 +50,11 @@
           &-volume {
             background: url("~assets/icons/market_volume.svg") center center no-repeat;
           }
+        }
 
+        .link-oracle {
+          text-decoration: none;
+          color: $black;
         }
 
         margin-right: 1rem;

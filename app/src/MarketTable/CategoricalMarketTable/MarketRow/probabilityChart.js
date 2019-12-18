@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import cn from "classnames/bind";
 
 import style from "./marketRow.scss";
-import prepareQueryData from "./utils/prepareQueryData";
+import prepareTradesData from "../../utils/prepareTradesData";
 
 import Spinner from "components/Spinner";
 import Graph from "components/Graph";
@@ -30,7 +30,11 @@ const probabilityChart = ({
   if (loading) return <Spinner width={32} height={32} />;
   if (error) throw new Error(error);
 
-  const parsedTrades = prepareQueryData([], data, lmsrAddress);
+  const parsedTrades = prepareTradesData(
+    { lowerBound: 0, upperBound: 100, type: marketType },
+    data,
+    lmsrAddress
+  );
   // console.log(parsedTrades);
 
   const getProbabilitiesPercentage = value => value.mul(100).toNumber();

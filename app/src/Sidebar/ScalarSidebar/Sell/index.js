@@ -9,11 +9,8 @@ import { calcPositionGroups } from "utils/position-groups";
 import { getPositionId, combineCollectionIds } from "utils/getIdsUtil";
 import { calcSelectedMarketProbabilitiesFromPositionProbabilities } from "utils/probabilities";
 
-import Select from "react-select";
-
 import cn from "classnames/bind";
 import style from "./positions.scss";
-import OutcomeCard, { Dot } from "components/OutcomeCard";
 
 const cx = cn.bind(style);
 const { toBN, sha3 } = Web3.utils;

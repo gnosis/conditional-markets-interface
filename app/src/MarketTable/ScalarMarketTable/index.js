@@ -17,7 +17,7 @@ import { calcSelectedMarketProbabilitiesFromPositionProbabilities } from "utils/
 import { formatCollateral } from "utils/formatting";
 import { getTrades } from "api/thegraph";
 
-import prepareQueryData from "./utils/prepareQueryData";
+import prepareTradesData from "../utils/prepareTradesData";
 
 const { BN } = Web3.utils;
 
@@ -95,7 +95,7 @@ const MarketTable = ({
               },
               index
             ) => {
-              const trades = prepareQueryData(
+              const trades = prepareTradesData(
                 { lowerBound, upperBound, type },
                 data,
                 lmsrState.marketMakerAddress
@@ -106,23 +106,6 @@ const MarketTable = ({
                 .add(lowerBound)
                 .toNumber();
 
-              // .map(
-              //   (
-              //     {
-              //       conditionId,
-              //       title,
-              //       resolutionDate,
-              //       dataSource,
-              //       dataSourceUrl,
-              //       lowerBound,
-              //       upperBound,
-              //       decimals,
-              //       unit,
-              //       description,
-              //       trades
-              //     },
-              //     index
-              //   ) => {
               return (
                 <div
                   className={cx("markettable-row")}
@@ -134,9 +117,25 @@ const MarketTable = ({
                       <i className={cx("icon", "icon-time")} />{" "}
                       <ResolutionTime date={resolutionDate} />
                     </div>
-                    <div className={cx("property")}>
-                      <i className={cx("icon", "icon-oracle")} /> Oracle Name
-                    </div>
+                    {dataSource && (
+                      <div className={cx("property")}>
+                        <i className={cx("icon", "icon-oracle")} />
+                        <>
+                          {dataSourceUrl ? (
+                            <a
+                              className={cx("link-oracle")}
+                              href={dataSourceUrl}
+                              rel="noopener noreferrer"
+                              target="_blank"
+                            >
+                              {dataSource}
+                            </a>
+                          ) : (
+                            <>{dataSource}</>
+                          )}
+                        </>
+                      </div>
+                    )}
                     <div className={cx("property")}>
                       <i className={cx("icon", "icon-volume")} />{" "}
                       {formatCollateral(lmsrState.funding, collateral)}
