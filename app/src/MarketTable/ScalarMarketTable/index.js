@@ -17,7 +17,7 @@ import { calcSelectedMarketProbabilitiesFromPositionProbabilities } from "utils/
 import { formatCollateral } from "utils/formatting";
 import { getTrades } from "api/thegraph";
 
-import prepareQueryData from "./utils/prepareQueryData";
+import prepareTradesData from "../utils/prepareTradesData";
 
 const { BN } = Web3.utils;
 
@@ -95,7 +95,7 @@ const MarketTable = ({
               },
               index
             ) => {
-              const trades = prepareQueryData(
+              const trades = prepareTradesData(
                 { lowerBound, upperBound, type },
                 data,
                 lmsrState.marketMakerAddress
@@ -106,23 +106,6 @@ const MarketTable = ({
                 .add(lowerBound)
                 .toNumber();
 
-              // .map(
-              //   (
-              //     {
-              //       conditionId,
-              //       title,
-              //       resolutionDate,
-              //       dataSource,
-              //       dataSourceUrl,
-              //       lowerBound,
-              //       upperBound,
-              //       decimals,
-              //       unit,
-              //       description,
-              //       trades
-              //     },
-              //     index
-              //   ) => {
               return (
                 <div
                   className={cx("markettable-row")}
