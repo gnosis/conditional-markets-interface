@@ -30,7 +30,7 @@ const Sidebar = props => {
   } = props;
   const [selectedTab, setSelectedTab] = useState("Buy");
   const makeButtonSelectCallback = useCallback(
-    tab => () => {
+    tab => {
       setSelectedTab(tab);
     },
     [selectedTab]
@@ -99,7 +99,7 @@ const Sidebar = props => {
           <button
             type="button"
             className={cx("tab-select")}
-            onClick={makeButtonSelectCallback("Buy")}
+            onClick={() => makeButtonSelectCallback("Buy")}
           >
             Buy
           </button>
@@ -108,9 +108,9 @@ const Sidebar = props => {
           <button
             type="button"
             className={cx("tab-select")}
-            onClick={makeButtonSelectCallback("Sell")}
+            onClick={() => makeButtonSelectCallback("Sell")}
           >
-            Sell
+            Positions
           </button>
         </li>
       </ul>
@@ -122,7 +122,8 @@ const Sidebar = props => {
               market: markets[0],
               marketSelection: marketSelections[0],
               probabilities: marketProbabilities && marketProbabilities[0],
-              resetMarketSelections
+              resetMarketSelections,
+              makeButtonSelectCallback
             }}
           />
         )}

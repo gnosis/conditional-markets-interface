@@ -46,7 +46,11 @@
           &-volume {
             background: url("~assets/icons/market_volume.svg") center center no-repeat;
           }
+        }
 
+        .link-oracle {
+          text-decoration: none;
+          color: $black;
         }
 
         margin-right: 1rem;

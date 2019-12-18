@@ -36,7 +36,8 @@ const Buy = ({
   setStagedTransactionType,
   ongoingTransactionType,
   resetMarketSelections,
-  asWrappedTransaction
+  asWrappedTransaction,
+  makeButtonSelectCallback
 }) => {
   // Memoize fetching data files
   const loadDataLayer = useCallback(() => {
@@ -288,6 +289,8 @@ const Buy = ({
     await marketMakersRepo.trade(tradeAmounts, collateralLimit, account);
 
     clearAllPositions();
+    // Show positions component
+    makeButtonSelectCallback("Sell");
   }, [
     hasAnyAllowance,
     hasEnoughAllowance,

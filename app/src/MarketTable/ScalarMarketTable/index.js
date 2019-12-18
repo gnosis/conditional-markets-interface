@@ -117,9 +117,25 @@ const MarketTable = ({
                       <i className={cx("icon", "icon-time")} />{" "}
                       <ResolutionTime date={resolutionDate} />
                     </div>
-                    <div className={cx("property")}>
-                      <i className={cx("icon", "icon-oracle")} /> Oracle Name
-                    </div>
+                    {dataSource && (
+                      <div className={cx("property")}>
+                        <i className={cx("icon", "icon-oracle")} />
+                        <>
+                          {dataSourceUrl ? (
+                            <a
+                              className={cx("link-oracle")}
+                              href={dataSourceUrl}
+                              rel="noopener noreferrer"
+                              target="_blank"
+                            >
+                              {dataSource}
+                            </a>
+                          ) : (
+                            <>{dataSource}</>
+                          )}
+                        </>
+                      </div>
+                    )}
                     <div className={cx("property")}>
                       <i className={cx("icon", "icon-volume")} />{" "}
                       {formatCollateral(lmsrState.funding, collateral)}
