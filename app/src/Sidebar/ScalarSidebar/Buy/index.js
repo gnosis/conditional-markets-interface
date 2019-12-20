@@ -355,7 +355,7 @@ const Buy = ({
       <div className={cx("pl-sim")}>
         <div className={cx("desc")}>
           <label className={cx("fieldset-label")}>
-            Profit/loss Simulator <small>(drag to slide)</small>
+            Profit/Loss Simulator <small>(drag to slide)</small>
           </label>
           {showProfitSim ? (
             <p>Based on your current position</p>
@@ -426,7 +426,7 @@ const Buy = ({
                   <span className={cx("label")}>Max Loss</span>
                   <span className={cx("spacer")} />
                   <span className={cx("value")}>
-                    {formatCollateral(profitSim.minPayout, collateral)}
+                    {formatCollateral(profitSim.cost, collateral)}
                   </span>
                 </div>
                 {/*<div className={cx("row")}>
@@ -436,13 +436,13 @@ const Buy = ({
                     {formatCollateral(profitSim.fee, collateral)}
                   </span>
                 </div>*/}
-                <div className={cx("row")}>
+                {/*<div className={cx("row")}>
                   <span className={cx("label")}>Total Cost</span>
                   <span className={cx("spacer")} />
                   <span className={cx("value")}>
                     {formatCollateral(profitSim.cost, collateral)}
                   </span>
-                </div>
+                </div>*/}
               </div>
             </div>
           </>
