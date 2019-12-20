@@ -90,6 +90,8 @@ const MarketTable = ({
         );
 
         setStagedMarketProbabilities(marketProbabilitiesAfterStagedTrade);
+      } else {
+        setStagedMarketProbabilities(null);
       }
     }
   }, [lmsrState, markets, positions, marketSelections, stagedTradeAmounts]);
@@ -103,6 +105,7 @@ const MarketTable = ({
       <Query
         query={GET_TRADES_BY_MARKET_MAKER}
         variables={{ marketMaker: lmsrState.marketMakerAddress }}
+        pollInterval={15000}
       >
         {({ loading, error, data }) => {
           if (loading) return <Spinner width={32} height={32} />;

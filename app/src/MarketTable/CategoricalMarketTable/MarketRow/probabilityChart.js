@@ -21,7 +21,8 @@ const probabilityChart = ({
   stagedProbabilities
 }) => {
   const { loading, error, data } = useQuery(GET_TRADES_BY_MARKET_MAKER, {
-    variables: { marketMaker: lmsrAddress }
+    variables: { marketMaker: lmsrAddress },
+    pollInterval: 15000
   });
 
   const [chartOpen, setChartOpen] = useState(false);
