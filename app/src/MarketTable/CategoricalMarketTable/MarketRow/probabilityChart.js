@@ -35,7 +35,6 @@ const probabilityChart = ({
     data,
     lmsrAddress
   );
-  // console.log(parsedTrades);
 
   const getProbabilitiesPercentage = value => value.mul(100).toNumber();
   const displayedProbabilities = probabilities

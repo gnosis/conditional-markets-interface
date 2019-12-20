@@ -86,9 +86,6 @@ const Buy = ({
       stagedTradeAmounts &&
       marketSelection.selectedOutcomeIndex > -1
     ) {
-      // const decimalUpper = new Decimal(market.upperBound);
-      // const decimalLower = new Decimal(market.lowerBound);
-
       const maxPayout = new Decimal(
         stagedTradeAmounts[marketSelection.selectedOutcomeIndex]
       );
