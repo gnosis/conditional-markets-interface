@@ -45,9 +45,14 @@ export const client = new ApolloClient({
 //     funding
 //   }
 // }
-export const getTrades = gql`
-  {
-    outcomeTokenTrades {
+export const GET_TRADES_BY_MARKET_MAKER = gql`
+  query GetTradesByMarketMaker($marketMaker: Bytes) {
+    outcomeTokenTrades(
+      first: 1000
+      where: { marketMaker: $marketMaker }
+      orderBy: blockTimestamp
+      orderDirection: desc
+    ) {
       id
       outcomeSlotCount
       marketMakerMarginalPrices

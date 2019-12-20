@@ -12,10 +12,11 @@ import ResolutionTime from "./ResolutionTime";
 import Spinner from "components/Spinner";
 import Graph from "components/Graph";
 
+import { oneDecimal } from "utils/constants";
 import { markdownRenderers } from "utils/markdown";
 import { calcSelectedMarketProbabilitiesFromPositionProbabilities } from "utils/probabilities";
 import { formatCollateral } from "utils/formatting";
-import { getTrades } from "api/thegraph";
+import { GET_TRADES_BY_MARKET_MAKER } from "api/thegraph";
 
 import prepareTradesData from "../utils/prepareTradesData";
 
@@ -30,6 +31,7 @@ const MarketTable = ({
   marketSelections,
   setMarketSelections,
   resetMarketSelections,
+  stagedTradeAmounts,
   collateral
 }) => {
   useEffect(() => {
@@ -40,6 +42,7 @@ const MarketTable = ({
   }, []);
   const [isExpanded, setExpanded] = useState(false);
   const [marketProbabilities, setMarketProbabilities] = useState(null);
+  const [stagedMarketProbabilities, setStagedMarketProbabilities] = useState(null);
   const handleToggleExpand = useCallback(() => {
     setExpanded(!isExpanded);
   }, [isExpanded]);
@@ -64,8 +67,34 @@ const MarketTable = ({
         positionProbabilities
       );
       setMarketProbabilities(newMarketProbabilities);
+
+      if (stagedTradeAmounts != null) {
+        const unnormalizedPositionProbabilitiesAfterStagedTrade = positionProbabilities.map(
+          (probability, i) =>
+            probability.mul(stagedTradeAmounts[i].mul(invB).exp())
+        );
+        const normalizer = oneDecimal.div(
+          unnormalizedPositionProbabilitiesAfterStagedTrade.reduce((a, b) =>
+            a.add(b)
+          )
+        );
+        const positionProbabilitiesAfterStagedTrade = unnormalizedPositionProbabilitiesAfterStagedTrade.map(
+          probability => probability.mul(normalizer)
+        );
+
+        const marketProbabilitiesAfterStagedTrade = calcSelectedMarketProbabilitiesFromPositionProbabilities(
+          markets,
+          positions,
+          marketSelections,
+          positionProbabilitiesAfterStagedTrade
+        );
+
+        setStagedMarketProbabilities(marketProbabilitiesAfterStagedTrade);
+      } else {
+        setStagedMarketProbabilities(null);
+      }
     }
-  }, [lmsrState, markets, positions, marketSelections]);
+  }, [lmsrState, markets, positions, marketSelections, stagedTradeAmounts]);
 
   if (!lmsrState) {
     return <Spinner />;
@@ -73,7 +102,11 @@ const MarketTable = ({
 
   return (
     <div className={cx("markettable")}>
-      <Query query={getTrades}>
+      <Query
+        query={GET_TRADES_BY_MARKET_MAKER}
+        variables={{ marketMaker: lmsrState.marketMakerAddress }}
+        pollInterval={15000}
+      >
         {({ loading, error, data }) => {
           if (loading) return <Spinner width={32} height={32} />;
           if (error) throw new Error(error);
@@ -97,14 +130,30 @@ const MarketTable = ({
             ) => {
               const trades = prepareTradesData(
                 { lowerBound, upperBound, type },
-                data,
-                lmsrState.marketMakerAddress
+                data
               );
 
-              const parsedProbabilities = marketProbabilities[index][1]
-                .mul(upperBound - lowerBound)
-                .add(lowerBound)
-                .toNumber();
+              const getValueFromBounds = (value, upperBound, lowerBound) => {
+                // Value is a percentage of outcome tokens, should get the value
+                // that it represents compared with bounds
+                return value
+                  .mul(upperBound - lowerBound)
+                  .add(lowerBound)
+                  .toNumber();
+              };
+
+              const parsedProbabilities =
+                stagedMarketProbabilities && stagedMarketProbabilities[index]
+                  ? getValueFromBounds(
+                      stagedMarketProbabilities[index][1],
+                      upperBound,
+                      lowerBound
+                    )
+                  : getValueFromBounds(
+                      marketProbabilities[index][1],
+                      upperBound,
+                      lowerBound
+                    );
 
               return (
                 <div
