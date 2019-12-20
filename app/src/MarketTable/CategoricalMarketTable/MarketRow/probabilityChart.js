@@ -12,7 +12,7 @@ const cx = cn.bind(style);
 
 import { useQuery } from "@apollo/react-hooks";
 
-import { lmsrAddress, getTrades } from "api/thegraph";
+import { lmsrAddress, GET_TRADES_BY_MARKET_MAKER } from "api/thegraph";
 
 const probabilityChart = ({
   marketType,
@@ -20,7 +20,9 @@ const probabilityChart = ({
   probabilities,
   stagedProbabilities
 }) => {
-  const { loading, error, data } = useQuery(getTrades);
+  const { loading, error, data } = useQuery(GET_TRADES_BY_MARKET_MAKER, {
+    variables: { marketMaker: lmsrAddress }
+  });
 
   const [chartOpen, setChartOpen] = useState(false);
   const handleToggleCollapse = useCallback(() => {
@@ -32,8 +34,7 @@ const probabilityChart = ({
 
   const parsedTrades = prepareTradesData(
     { lowerBound: 0, upperBound: 100, type: marketType },
-    data,
-    lmsrAddress
+    data
   );
 
   const getProbabilitiesPercentage = value => value.mul(100).toNumber();

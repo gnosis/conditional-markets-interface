@@ -16,7 +16,7 @@ import { oneDecimal } from "utils/constants";
 import { markdownRenderers } from "utils/markdown";
 import { calcSelectedMarketProbabilitiesFromPositionProbabilities } from "utils/probabilities";
 import { formatCollateral } from "utils/formatting";
-import { getTrades } from "api/thegraph";
+import { GET_TRADES_BY_MARKET_MAKER } from "api/thegraph";
 
 import prepareTradesData from "../utils/prepareTradesData";
 
@@ -100,7 +100,10 @@ const MarketTable = ({
 
   return (
     <div className={cx("markettable")}>
-      <Query query={getTrades}>
+      <Query
+        query={GET_TRADES_BY_MARKET_MAKER}
+        variables={{ marketMaker: lmsrState.marketMakerAddress }}
+      >
         {({ loading, error, data }) => {
           if (loading) return <Spinner width={32} height={32} />;
           if (error) throw new Error(error);
@@ -124,8 +127,7 @@ const MarketTable = ({
             ) => {
               const trades = prepareTradesData(
                 { lowerBound, upperBound, type },
-                data,
-                lmsrState.marketMakerAddress
+                data
               );
 
               const getValueFromBounds = (value, upperBound, lowerBound) => {
