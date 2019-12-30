@@ -94,21 +94,22 @@ const SellOrPositions = ({
         positionBalances
       );
       setPositionGroups(
-        positionGroups.filter(positionGroup => {
-          const { amount } = positionGroup;
-          const isPositionTooSmall = amount.lt(toBN(1e12));
-          const key = sha3(JSON.stringify(positionGroup));
+        positionGroups
+        //   positionGroups.filter(positionGroup => {
+        //     const { amount } = positionGroup;
+        //     const isPositionTooSmall = amount.lt(toBN(1e12));
+        //     const key = sha3(JSON.stringify(positionGroup));
 
-          if (isPositionTooSmall && !warnedAboutIds[key]) {
-            warnedAboutIds[key] = true; // to ensure it only warns once, otherwise this will be annoying
-            console.warn(
-              `A position is too small to be considered in the interface. Hopefully this is not a bug. ${amount.toString()} available of this position.`,
-              positionGroup
-            );
-          }
+        //     if (isPositionTooSmall && !warnedAboutIds[key]) {
+        //       warnedAboutIds[key] = true; // to ensure it only warns once, otherwise this will be annoying
+        //       console.warn(
+        //         `A position is too small to be considered in the interface. Hopefully this is not a bug. ${amount.toString()} available of this position.`,
+        //         positionGroup
+        //       );
+        //     }
 
-          return !isPositionTooSmall;
-        })
+        //     return !isPositionTooSmall;
+        //   })
       );
     }
   }, [markets, positions, positionBalances, marketSelections]);
