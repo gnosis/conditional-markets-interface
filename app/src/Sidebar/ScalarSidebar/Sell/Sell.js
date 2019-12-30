@@ -4,10 +4,7 @@ import style from "./positions.scss";
 import Decimal from "decimal.js-light";
 import OutcomeCard, { Dot } from "components/OutcomeCard";
 import Spinner from "components/Spinner";
-import {
-  zeroDecimal,
-  collateralSignificantDigits
-} from "utils/constants";
+import { zeroDecimal, collateralSignificantDigits } from "utils/constants";
 
 import Select from "react-select";
 import Web3 from "web3";
@@ -72,7 +69,6 @@ const Sell = ({
       maxSellAmounts[selectedOutcomeIndex].toString()
     )
       .div(1e18)
-      .toSignificantDigits(4)
       .toString();
 
     handleSellAmountChange(maxInvest);
@@ -103,7 +99,6 @@ const Sell = ({
         balanceForThisPosition[selectedOutcomeIndex] = toBN(
           new Decimal(sellAmount)
             .mul(1e18)
-            .todp(0)
             .neg()
             .toint()
             .toString()
@@ -146,27 +141,6 @@ const Sell = ({
           n => new Decimal(n)
         );
         updateEstimatedEarnings(value);
-
-        // When sell amount is 0.0001 units close to max amount, sell max amount
-        // this makes sure no teeny-tiny values remain
-
-        const tradeDiff = tradeAmountInWei
-          .abs() // trade amount is neg
-          .sub(maxSellAmounts[selectedOutcomeIndex])
-          .abs();
-
-        if (tradeDiff.lt(Math.pow(10, 18 - 4))) {
-          // sell max amount
-          tradeAmounts[selectedOutcomeIndex] = maxSellAmounts[
-            selectedOutcomeIndex
-          ]
-            .neg()
-            .toint()
-            .toString();
-        } else {
-          // sell entered amount
-          tradeAmounts[selectedOutcomeIndex] = tradeAmountInWei;
-        }
 
         tradeAmounts[selectedOutcomeIndex] = tradeAmountInWei;
         setStagedTradeAmounts(tradeAmounts);
