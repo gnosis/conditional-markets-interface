@@ -133,10 +133,6 @@ const Graph = ({
         ...entries,
         {
           outcomesProbability: currentProbability,
-          // currentProbability
-          //   .mul(upperBound - lowerBound)
-          //   .add(lowerBound)
-          //   .toNumber(),
           date: +new Date(),
           index: entries.length
         }
