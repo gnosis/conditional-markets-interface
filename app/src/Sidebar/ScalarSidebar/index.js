@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback } from "react";
 import cn from "classnames/bind";
 
 import style from "./sidebar.scss";
@@ -8,7 +8,6 @@ import Sell from "./Sell";
 import Spinner from "components/Spinner";
 
 import Decimal from "decimal.js-light";
-import { oneDecimal } from "utils/constants";
 import { calcSelectedMarketProbabilitiesFromPositionProbabilities } from "utils/probabilities";
 
 const TabComponents = {
@@ -22,7 +21,6 @@ const Sidebar = props => {
   const {
     markets,
     lmsrState,
-    stagedTradeAmounts,
     positions,
     marketSelections,
     setMarketSelections,
@@ -37,7 +35,6 @@ const Sidebar = props => {
   );
 
   let marketProbabilities = null;
-  let marketProbabilitiesAfterStagedTrade = null;
   if (lmsrState != null) {
     const { funding, positionBalances } = lmsrState;
     // funding = 1000
@@ -63,28 +60,6 @@ const Sidebar = props => {
       positionProbabilities
     );
     // [ 0.4, 0.6 ]
-
-    if (stagedTradeAmounts != null) {
-      const unnormalizedPositionProbabilitiesAfterStagedTrade = positionProbabilities.map(
-        (probability, i) =>
-          probability.mul(stagedTradeAmounts[i].mul(invB).exp())
-      );
-      const normalizer = oneDecimal.div(
-        unnormalizedPositionProbabilitiesAfterStagedTrade.reduce((a, b) =>
-          a.add(b)
-        )
-      );
-      const positionProbabilitiesAfterStagedTrade = unnormalizedPositionProbabilitiesAfterStagedTrade.map(
-        probability => probability.mul(normalizer)
-      );
-
-      marketProbabilitiesAfterStagedTrade = calcSelectedMarketProbabilitiesFromPositionProbabilities(
-        markets,
-        positions,
-        marketSelections,
-        positionProbabilitiesAfterStagedTrade
-      );
-    }
   }
 
   if (!marketProbabilities) {
