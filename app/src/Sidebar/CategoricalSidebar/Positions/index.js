@@ -179,6 +179,13 @@ const Positions = ({
     [account, marketMakersRepo, collateral]
   );
 
+  const clearAllPositions = useCallback(() => {
+    setStagedTransactionType(null);
+    setCurrentSellingPosition(null);
+    setStagedTradeAmounts(null);
+    setError(null);
+  }, [setStagedTradeAmounts, setCurrentSellingPosition, setError]);
+
   const sellOutcomeTokens = useCallback(async () => {
     if (stagedTradeAmounts == null) throw new Error(`No sell set yet`);
 
@@ -206,6 +213,7 @@ const Positions = ({
 
     asWrappedTransaction("sell outcome tokens", sellOutcomeTokens, setError);
     await marketMakersRepo.trade(tradeAmounts, collateralLimit, account);
+    clearAllPositions();
   }, [
     collateral,
     stagedTradeAmounts,

@@ -150,7 +150,7 @@ const Sell = ({
   );
 
   const handleSell = useCallback(() => {
-    setStagedTransactionType("sell outcome tokens");
+    // setStagedTransactionType("sell outcome tokens");
     return sellOutcomeTokens();
   }, [stagedTradeAmounts]);
 

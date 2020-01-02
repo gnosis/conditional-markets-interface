@@ -155,12 +155,6 @@ const SellOrPositions = ({
     []
   );
 
-  const handleCancelSell = useCallback(() => {
-    setCurrentSellingPosition(null);
-    setStagedTransactionType(null);
-    setStagedTradeAmounts(null);
-  }, []);
-
   const handleChangeOutcome = useCallback(
     ({ value }) => {
       // TODO: ONLY WORKS WITH BINARY
@@ -168,6 +162,18 @@ const SellOrPositions = ({
     },
     [positionGroups]
   );
+
+  const clearAllPositions = useCallback(() => {
+    setCurrentSellingPosition(null);
+    setStagedTransactionType(null);
+    setStagedTradeAmounts(null);
+    setError(null);
+  }, [
+    setStagedTransactionType,
+    setCurrentSellingPosition,
+    setStagedTradeAmounts,
+    setError
+  ]);
 
   const sellOutcomeTokens = useCallback(async () => {
     if (stagedTradeAmounts == null) throw new Error(`No sell set yet`);
@@ -194,9 +200,8 @@ const SellOrPositions = ({
     const tradeAmounts = stagedTradeAmounts.map(amount => amount.toString());
     const collateralLimit = await marketMakersRepo.calcNetCost(tradeAmounts);
 
-    asWrappedTransaction("sell outcome tokens", sellOutcomeTokens, setError);
     await marketMakersRepo.trade(tradeAmounts, collateralLimit, account);
-    setCurrentSellingPosition(null);
+    clearAllPositions();
   }, [
     collateral,
     stagedTradeAmounts,
@@ -312,7 +317,7 @@ const SellOrPositions = ({
     <Sell
       markets={markets}
       currentSellingPosition={currentSellingPosition}
-      onCancelSell={handleCancelSell}
+      onCancelSell={clearAllPositions}
       positions={positions}
       positionBalances={positionBalances}
       stagedTradeAmounts={stagedTradeAmounts}
