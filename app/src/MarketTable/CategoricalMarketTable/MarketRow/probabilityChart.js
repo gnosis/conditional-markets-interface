@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useState, useMemo } from "react";
 import PropTypes from "prop-types";
 import cn from "classnames/bind";
 
@@ -30,18 +30,26 @@ const probabilityChart = ({
     setChartOpen(!chartOpen);
   }, [chartOpen]);
 
-  if (loading) return <Spinner width={32} height={32} />;
-  if (error) throw new Error(error);
-
-  const parsedTrades = prepareTradesData(
-    { lowerBound: 0, upperBound: 100, type: marketType },
-    data
-  );
+  const parsedTrades = useMemo(() => {
+    if (!loading && data) {
+      return prepareTradesData(
+        { lowerBound: 0, upperBound: 100, type: marketType },
+        data
+      );
+    } else return null;
+  }, [marketType, data]);
 
   const getProbabilitiesPercentage = value => value.mul(100).toNumber();
-  const displayedProbabilities = probabilities
-    ? probabilities.map(getProbabilitiesPercentage)
-    : stagedProbabilities.map(getProbabilitiesPercentage);
+  const displayedProbabilities = useMemo(
+    () =>
+      probabilities
+        ? probabilities.map(getProbabilitiesPercentage)
+        : stagedProbabilities.map(getProbabilitiesPercentage),
+    [probabilities, stagedProbabilities]
+  );
+
+  if (loading) return <Spinner width={32} height={32} />;
+  if (error) throw new Error(error);
 
   return (
     <>
@@ -70,7 +78,6 @@ const probabilityChart = ({
               upperBound={100}
               decimals={0}
               entries={parsedTrades}
-              queryData={data}
               currentProbability={displayedProbabilities}
               marketType={marketType}
             ></Graph>

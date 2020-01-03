@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import PropTypes from "prop-types";
 import Web3 from "web3";
 import cn from "classnames/bind";
@@ -34,49 +34,61 @@ const MarketTable = ({
     };
   }, []);
 
-  let marketProbabilities = null;
-  let marketProbabilitiesAfterStagedTrade = null;
-  if (lmsrState != null) {
-    const { funding, positionBalances } = lmsrState;
-    const invB = new Decimal(positionBalances.length)
-      .ln()
-      .div(funding.toString());
+  const [marketProbabilities, setMarketProbabilities] = useState(null);
+  const [
+    marketProbabilitiesAfterStagedTrade,
+    setMarketProbabilitiesAfterStagedTrade
+  ] = useState(null);
+  useMemo(() => {
+    if (lmsrState != null) {
+      const { funding, positionBalances } = lmsrState;
+      const invB = new Decimal(positionBalances.length)
+        .ln()
+        .div(funding.toString());
 
-    const positionProbabilities = positionBalances.map(balance =>
-      invB
-        .mul(balance.toString())
-        .neg()
-        .exp()
-    );
-    marketProbabilities = calcSelectedMarketProbabilitiesFromPositionProbabilities(
-      markets,
-      positions,
-      marketSelections,
-      positionProbabilities
-    );
-
-    if (stagedTradeAmounts != null) {
-      const unnormalizedPositionProbabilitiesAfterStagedTrade = positionProbabilities.map(
-        (probability, i) =>
-          probability.mul(stagedTradeAmounts[i].mul(invB).exp())
+      const positionProbabilities = positionBalances.map(balance =>
+        invB
+          .mul(balance.toString())
+          .neg()
+          .exp()
       );
-      const normalizer = oneDecimal.div(
-        unnormalizedPositionProbabilitiesAfterStagedTrade.reduce((a, b) =>
-          a.add(b)
-        )
-      );
-      const positionProbabilitiesAfterStagedTrade = unnormalizedPositionProbabilitiesAfterStagedTrade.map(
-        probability => probability.mul(normalizer)
-      );
-
-      marketProbabilitiesAfterStagedTrade = calcSelectedMarketProbabilitiesFromPositionProbabilities(
+      const newMarketProbabilities = calcSelectedMarketProbabilitiesFromPositionProbabilities(
         markets,
         positions,
         marketSelections,
-        positionProbabilitiesAfterStagedTrade
+        positionProbabilities
       );
+      setMarketProbabilities(newMarketProbabilities);
+
+      if (stagedTradeAmounts != null) {
+        const unnormalizedPositionProbabilitiesAfterStagedTrade = positionProbabilities.map(
+          (probability, i) =>
+            probability.mul(stagedTradeAmounts[i].mul(invB).exp())
+        );
+        const normalizer = oneDecimal.div(
+          unnormalizedPositionProbabilitiesAfterStagedTrade.reduce((a, b) =>
+            a.add(b)
+          )
+        );
+        const positionProbabilitiesAfterStagedTrade = unnormalizedPositionProbabilitiesAfterStagedTrade.map(
+          probability => probability.mul(normalizer)
+        );
+
+        const newMarketProbabilitiesAfterStagedTrade = calcSelectedMarketProbabilitiesFromPositionProbabilities(
+          markets,
+          positions,
+          marketSelections,
+          positionProbabilitiesAfterStagedTrade
+        );
+
+        setMarketProbabilitiesAfterStagedTrade(
+          newMarketProbabilitiesAfterStagedTrade
+        );
+      } else {
+        setMarketProbabilitiesAfterStagedTrade(null);
+      }
     }
-  }
+  }, [lmsrState, markets, positions, marketSelections, stagedTradeAmounts]);
 
   const conditionalDisabled = markets.length === 1;
 
