@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import PropTypes from "prop-types";
 import Web3 from "web3";
 import Decimal from "decimal.js-light";
@@ -57,7 +57,7 @@ const Positions = ({
   const [probabilities, setProbabilities] = useState(null);
   const [positionGroups, setPositionGroups] = useState(null);
 
-  useEffect(() => {
+  useMemo(() => {
     if (lmsrState != null) {
       const { funding, positionBalances: lmsrPositionBalances } = lmsrState;
       const invB = new Decimal(lmsrPositionBalances.length)
@@ -443,9 +443,9 @@ const Positions = ({
                       )}
                     >
                       {ongoingTransactionType === "sell outcome tokens" &&
-                      (currentSellingPosition &&
-                        currentSellingPosition.collectionId ===
-                          positionGroup.collectionId) ? (
+                      currentSellingPosition &&
+                      currentSellingPosition.collectionId ===
+                        positionGroup.collectionId ? (
                         <Spinner width={16} height={16} centered inverted />
                       ) : (
                         "Sell"

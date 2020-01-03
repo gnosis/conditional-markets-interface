@@ -1,4 +1,10 @@
-import React, { useEffect, useState, useCallback, useRef } from "react";
+import React, {
+  useEffect,
+  useState,
+  useCallback,
+  useRef,
+  useMemo
+} from "react";
 import moment from "moment";
 import { formatScalarValue } from "utils/formatting";
 import cn from "classnames/bind";
@@ -98,7 +104,6 @@ const Graph = ({
   decimals: parentDecimals,
   unit,
   entries,
-  queryData,
   currentProbability,
   marketType
 }) => {
@@ -113,10 +118,10 @@ const Graph = ({
   const lineRef = useRef(null);
   const lineChartRef = useRef(null);
 
-  useEffect(() => {
-    // TODO queryData and currentProbability are constantly updating. As data
+  useMemo(() => {
+    // TODO entries and currentProbability are constantly updating. As data
     // object is updated each render the graph is re-rendered continously.
-    // Check how to cache queryData and current probability to avoid components
+    // Check how to cache entries and current probability to avoid components
     // extra work that includes currentProbabilityChanged and if array lengths are different
     const currentProbabilityChanged = () => {
       const dataProbability = data[data.length - 1].outcomesProbability;
@@ -140,7 +145,7 @@ const Graph = ({
 
       setData(newData);
     }
-  }, [queryData, currentProbability, lineRef.current, lowerBound, upperBound]);
+  }, [entries, currentProbability]);
 
   useEffect(() => {
     if (lineRef.current) {
