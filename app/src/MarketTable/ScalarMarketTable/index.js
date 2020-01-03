@@ -130,8 +130,10 @@ const MarketTable = ({
           },
           index
         ) => {
-          const trades = () =>
-            prepareTradesData({ lowerBound, upperBound, type }, data);
+          const trades = prepareTradesData(
+            { lowerBound, upperBound, type },
+            data
+          );
           // const trades = useMemo(
           //   () => prepareTradesData({ lowerBound, upperBound, type }, data),
           //   [data]
