@@ -10,7 +10,6 @@
   &-empty {
     @include sidebar-empty;
     font-size: 1.4rem;
-    padding: 2rem 0;
     justify-content: center;
   }
 
@@ -258,7 +257,7 @@
     font-weight: $bold;
     font-size: 1.4rem;
     letter-spacing: 0.05rem;
-  
+
     &.disabled, &:disabled {
       opacity: 0.5;
       cursor: auto;
@@ -301,7 +300,7 @@
     background: #f3f4f6;
 
     + .input-append {
-      background: #f3f4f6;  
+      background: #f3f4f6;
     }
   }
 }

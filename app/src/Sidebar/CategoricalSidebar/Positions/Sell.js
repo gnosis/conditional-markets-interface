@@ -4,10 +4,7 @@ import style from "./positions.scss";
 import Decimal from "decimal.js-light";
 import OutcomeCard, { Dot } from "components/OutcomeCard";
 import Spinner from "components/Spinner";
-import {
-  zeroDecimal,
-  collateralSignificantDigits
-} from "utils/constants";
+import { zeroDecimal, collateralSignificantDigits } from "utils/constants";
 
 import Select from "react-select";
 import Web3 from "web3";
@@ -34,8 +31,7 @@ const Sell = ({
   collateral,
   sellOutcomeTokens,
   onOutcomeChange,
-  positionGroups,
-  asWrappedTransaction
+  positionGroups
 }) => {
   const groupedSellAmounts = Array.from({ length: positions.length }, (_, i) =>
     currentSellingPosition.positions.find(
@@ -48,6 +44,7 @@ const Sell = ({
     amount => new Decimal(amount.toString())
   );
 
+  const [status, setStatus] = useState(null);
   const [sellAmountFullUnit, setSellAmountFullUnit] = useState("0");
   const [estimatedSaleEarning, setEstimatedSaleEarning] = useState(null);
   const [error, setError] = useState(null);
@@ -171,6 +168,18 @@ const Sell = ({
     [positions, setStagedTradeAmounts, maxSellAmounts]
   );
 
+  const handleSell = useCallback(() => {
+    setStatus("LOADING");
+    sellOutcomeTokens()
+      .then(() => {
+        setStatus("SUCCESS");
+      })
+      .catch(err => {
+        console.error(err);
+        setStatus("ERROR");
+      });
+  });
+
   if (maxSellAmounts.filter(dec => dec.abs().gt(0)).length > 1) {
     console.error("Can only handle single position");
     return (
@@ -272,17 +281,15 @@ const Sell = ({
           <div className={cx("entry")}>
             <button
               className={cx("sell-confirm")}
-              onClick={asWrappedTransaction(
-                "sell outcome tokens",
-                sellOutcomeTokens,
-                setError
-              )}
-              disabled={ongoingTransactionType === "sell outcome tokens"}
+              onClick={handleSell}
+              disabled={
+                ongoingTransactionType === "sell outcome tokens" || error
+              }
             >
-              {ongoingTransactionType === "sell outcome tokens" ? (
-                <Spinner width={16} height={16} centered />
+              {ongoingTransactionType != null ? (
+                <Spinner width={12} height={12} />
               ) : (
-                "Sell"
+                "Place Sell Order"
               )}
             </button>
           </div>
