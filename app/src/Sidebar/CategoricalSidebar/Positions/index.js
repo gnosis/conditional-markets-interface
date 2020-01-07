@@ -17,7 +17,7 @@ import getConditionalTokensRepo from "repositories/ConditionalTokensRepo";
 import getMarketMakersRepo from "repositories/MarketMakersRepo";
 import getConditionalTokensService from "services/ConditionalTokensService";
 import Sell from "../../components/Sell/Sell";
-import Balances from "./Balances";
+import Balances from "../../components/Sell/Positions";
 let conditionalTokensRepo;
 let marketMakersRepo;
 let conditionalTokensService;
@@ -293,17 +293,6 @@ const Positions = ({
     );
   }, [collateral, account, conditionalTokensRepo, allMarketsResolved]);
 
-  if (positionGroups === null) {
-    return (
-      <>
-        <div className={cx("positions-heading")}>Your Positions</div>
-        <div className={cx("positions-empty")}>
-          <Spinner width={25} height={25} centered />
-        </div>
-      </>
-    );
-  }
-
   const isSelling = currentSellingPosition != null;
 
   return isSelling ? (
@@ -340,6 +329,7 @@ const Positions = ({
       currentSellingPosition={currentSellingPosition}
       makeOutcomeSellSelectHandler={makeOutcomeSellSelectHandler}
       error={error}
+      showHeader={true}
     />
   );
 };
