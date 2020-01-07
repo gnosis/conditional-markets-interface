@@ -104,6 +104,7 @@ const Graph = ({
   decimals: parentDecimals,
   unit,
   entries,
+  created,
   currentProbability,
   marketType
 }) => {
@@ -133,13 +134,23 @@ const Graph = ({
       );
     };
 
+    // when new entries are added, or the probability of the selected outcome changes
     if (entries.length >= data.length || currentProbabilityChanged()) {
+      const midValue =
+        (parseFloat(upperBound) -
+        parseFloat(lowerBound)) / 2 +
+        parseFloat(lowerBound);
       const newData = [
+        {
+          outcomesProbability: [midValue],
+          date: moment(created).valueOf(),
+          index: 0
+        },
         ...entries,
         {
           outcomesProbability: currentProbability,
           date: +new Date(),
-          index: entries.length
+          index: entries.length + 1 // +1 because we add the market creation as a datapoint
         }
       ];
 
@@ -186,6 +197,7 @@ const Graph = ({
     return moment(tick).format("MMM D HH:mm");
   });
 
+  /*
   if (data.length <= 2) {
     return (
       <div className={cx("graph-container", "empty")}>
@@ -193,6 +205,7 @@ const Graph = ({
       </div>
     );
   }
+  */
 
   const marketClass = marketType.toLowerCase() + "-graph";
 

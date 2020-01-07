@@ -126,6 +126,7 @@ const MarketTable = ({
             decimals,
             unit,
             description,
+            created,
             type
           },
           index
@@ -221,6 +222,7 @@ const MarketTable = ({
                   decimals={decimals}
                   unit={unit}
                   entries={trades}
+                  created={created}
                   currentProbability={parsedProbabilities}
                   marketType={type}
                 />
