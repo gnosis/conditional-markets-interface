@@ -196,6 +196,23 @@ const Graph = ({
 
   const marketClass = marketType.toLowerCase() + "-graph";
 
+  // Create date ticks manually. Use daily pattern (X Axis ticks)
+  const getTicks = useCallback(() => {
+    let range = [];
+    if (data && data[0]) {
+      const startDate = moment(data[0].date).startOf("day");
+      const endDate = moment(data[data.length - 1].date).endOf("day");
+      while (startDate < endDate) {
+        range.push(moment(startDate));
+        startDate.add(1, "days");
+      }
+      range.push(endDate);
+    }
+    return range;
+  }, [data]);
+
+  const ticks = getTicks();
+
   return (
     <div className={cx("graph-container", marketClass)}>
       <ResponsiveContainer minHeight={300}>
@@ -241,7 +258,10 @@ const Graph = ({
             })}
           <XAxis
             dataKey="date"
-            minTickGap={100}
+            minTickGap={20}
+            type="number"
+            scale="time"
+            ticks={ticks}
             domain={[data && data[0] ? "dataMin" : 0, "dataMax"]}
             tickFormatter={formatDateTick}
             interval="preserveEnd"
