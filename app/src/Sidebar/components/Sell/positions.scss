@@ -1,15 +1,16 @@
 @import "~scss/_variables.scss";
-@import "../sidebar.scss";
+// @import "../../CategoricalSidebar/Positions/sidebar.scss";
 
 .positions {
   &-heading {
     //@include sidebar-entry;
+    font-size: 1.4rem;
     font-weight: $bold;
   }
 
   &-empty {
     //@include sidebar-empty;
-    
+
     padding: 4rem 1rem;
     display: flex;
     font-size: 1.4rem;
@@ -176,6 +177,7 @@
     display: flex;
     border-bottom: none;
     font-weight: $bold;
+    font-size: 1.4rem;
     padding: 1.2rem 1.4rem;
   }
 
@@ -257,7 +259,7 @@
     font-weight: $bold;
     font-size: 1.4rem;
     letter-spacing: 0.05rem;
-  
+
     &.disabled, &:disabled {
       opacity: 0.5;
       cursor: auto;
@@ -300,7 +302,7 @@
     background: #f3f4f6;
 
     + .input-append {
-      background: #f3f4f6;  
+      background: #f3f4f6;
     }
   }
 }

@@ -8,7 +8,7 @@ import { getPositionId, combineCollectionIds } from "utils/getIdsUtil";
 import { calcSelectedMarketProbabilitiesFromPositionProbabilities } from "utils/probabilities";
 
 import cn from "classnames/bind";
-import style from "./positions.scss";
+import style from "../../components/Sell/positions.scss";
 
 const cx = cn.bind(style);
 const { toBN, sha3 } = Web3.utils;
@@ -16,7 +16,7 @@ const { toBN, sha3 } = Web3.utils;
 import getConditionalTokensRepo from "repositories/ConditionalTokensRepo";
 import getMarketMakersRepo from "repositories/MarketMakersRepo";
 import getConditionalTokensService from "services/ConditionalTokensService";
-import Sell from "./Sell";
+import Sell from "../../components/Sell/Sell";
 import Balances from "./Balances";
 let conditionalTokensRepo;
 let marketMakersRepo;
@@ -320,6 +320,8 @@ const Positions = ({
       collateral={collateral}
       sellOutcomeTokens={sellOutcomeTokens}
       onOutcomeChange={handleChangeOutcome}
+      asWrappedTransaction={asWrappedTransaction}
+      ongoingTransactionType={ongoingTransactionType}
       positionGroups={positionGroups}
     />
   ) : (
