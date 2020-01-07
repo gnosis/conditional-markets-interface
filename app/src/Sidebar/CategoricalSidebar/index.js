@@ -17,7 +17,7 @@ import cn from "classnames/bind";
 import style from "./sidebar.scss";
 
 import BuySection from "./Buy";
-import PositionsSections from "./Positions";
+import PositionsAndSell from "../components/Sell";
 
 const cx = cn.bind(style);
 
@@ -35,7 +35,7 @@ const SidebarDesktop = props => {
   return (
     <div className={cx("sidebar")}>
       <BuySection {...props} />
-      <PositionsSections {...props} />
+      <PositionsAndSell {...props} />
     </div>
   );
 };
@@ -132,7 +132,7 @@ const SidebarMobile = props => {
           <BuySection {...props} />
         </TabPanel>
         <TabPanel value={value} index={1}>
-          <PositionsSections {...props} />
+          <PositionsAndSell {...props} />
         </TabPanel>
       </Drawer>
     </div>

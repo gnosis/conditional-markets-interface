@@ -1,21 +1,24 @@
 @import "~scss/_variables.scss";
-@import "../sidebar.scss";
+// @import "../../CategoricalSidebar/Positions/sidebar.scss";
 
 .positions {
   &-heading {
-    @include sidebar-entry;
+    //@include sidebar-entry;
+    font-size: 1.4rem;
     font-weight: $bold;
   }
 
   &-empty {
-    @include sidebar-empty;
+    //@include sidebar-empty;
+
+    padding: 4rem 1rem;
+    display: flex;
     font-size: 1.4rem;
-    padding: 2rem 0;
     justify-content: center;
   }
 
   &-subheading {
-    @include sidebar-entry;
+    //@include sidebar-entry;
     border-bottom: none;
     white-space: nowrap;
     font-weight: $normal;
@@ -36,7 +39,7 @@
   }
 
   &-redeem {
-    @include sidebar-entry;
+    //@include sidebar-entry;
     border-bottom: none;
     flex-flow: column wrap;
 
@@ -67,9 +70,8 @@
   display: flex;
   align-self: flex-start;
   flex-wrap: wrap;
-  @include sidebar-entry;
-  padding-top: 0;
-  padding-bottom: 0;
+  //@include sidebar-entry;
+  padding: 2rem 1.8rem;
   border-bottom: none;
 
   &:nth-child(even) {
@@ -135,12 +137,13 @@
   line-height: normal;
 
   thead > tr > td {
-    font-weight: $bold;
+    font-weight: $normal;
+    color: #526877;
     white-space: nowrap;
   }
 
   td {
-    padding: .4rem .2rem;
+    padding: 1.2rem .2rem;
     text-align: left;
     font-weight: $normal;
     font-size: 1.2rem;
@@ -150,22 +153,13 @@
     word-break: break-all;
 
     &:first-child {
-      padding-left: 1rem;
-      font-weight: $bold;
+      padding-left: 1.8rem;
     }
 
     &:last-child {
-      padding-right: 1rem;
+      padding-right: 1.8rem;
       text-align: right;
       word-break: normal;
-    }
-  }
-
-  tr {
-    border-bottom: .1rem solid $greyBorder;
-    transition: background .15s ease-in-out;
-    &:hover {
-      background: #F2FAFB;
     }
   }
 
@@ -174,12 +168,17 @@
 .sell {
   font-size: 1.3rem;
   line-height: normal;
+  padding-bottom: 1rem;
 
   &-heading {
-    @include sidebar-entry;
+    //@include sidebar-entry;
 
+    width: 100%;
+    display: flex;
     border-bottom: none;
     font-weight: $bold;
+    font-size: 1.4rem;
+    padding: 1.2rem 1.4rem;
   }
 
   &-cancel {
@@ -189,6 +188,8 @@
     background: none;
     font-style: normal;
     color: $shadeBlue;
+    margin-left: auto;
+
 
     font-size: 2.8rem;
     font-weight: bold;
@@ -258,7 +259,7 @@
     font-weight: $bold;
     font-size: 1.4rem;
     letter-spacing: 0.05rem;
-  
+
     &.disabled, &:disabled {
       opacity: 0.5;
       cursor: auto;
@@ -301,7 +302,7 @@
     background: #f3f4f6;
 
     + .input-append {
-      background: #f3f4f6;  
+      background: #f3f4f6;
     }
   }
 }

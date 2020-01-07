@@ -3,7 +3,7 @@ import cn from "classnames/bind";
 
 import style from "./sidebar.scss";
 import Buy from "./Buy";
-import Sell from "./Sell";
+import Sell from "../components/Sell";
 
 import Spinner from "components/Spinner";
 

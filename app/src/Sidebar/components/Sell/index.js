@@ -2,29 +2,22 @@ import React, { useState, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
 import Web3 from "web3";
 import Decimal from "decimal.js-light";
-import Spinner from "components/Spinner";
-import { zeroDecimal } from "utils/constants";
-import { formatCollateral, formatAmount } from "utils/formatting";
 import { calcPositionGroups } from "utils/position-groups";
 import { getPositionId, combineCollectionIds } from "utils/getIdsUtil";
 import { calcSelectedMarketProbabilitiesFromPositionProbabilities } from "utils/probabilities";
 
-import cn from "classnames/bind";
-import style from "./positions.scss";
-
-const cx = cn.bind(style);
 const { toBN, sha3 } = Web3.utils;
 
 import getConditionalTokensRepo from "repositories/ConditionalTokensRepo";
 import getMarketMakersRepo from "repositories/MarketMakersRepo";
 import getConditionalTokensService from "services/ConditionalTokensService";
-import Sell from "./Sell";
+import Sell from "./SellForm";
 import Positions from "./Positions";
 let conditionalTokensRepo;
 let marketMakersRepo;
 let conditionalTokensService;
 
-let warnedAboutIds = {};
+// let warnedAboutIds = {};
 
 const SellOrPositions = ({
   account,
@@ -301,16 +294,6 @@ const SellOrPositions = ({
     );
   }, [collateral, account, conditionalTokensRepo, allMarketsResolved]);
 
-  if (positionGroups === null) {
-    return (
-      <>
-        <div className={cx("positions-empty")}>
-          <Spinner width={25} height={25} centered />
-        </div>
-      </>
-    );
-  }
-
   const isSelling = currentSellingPosition != null;
 
   return isSelling ? (
@@ -347,6 +330,7 @@ const SellOrPositions = ({
       currentSellingPosition={currentSellingPosition}
       makeOutcomeSellSelectHandler={makeOutcomeSellSelectHandler}
       error={error}
+      showHeader={false}
     />
   );
 };

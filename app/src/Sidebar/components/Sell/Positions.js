@@ -2,7 +2,7 @@ import React from "react";
 import cn from "classnames/bind";
 import Decimal from "decimal.js-light";
 import style from "./positions.scss";
-import OutcomeCard, { Dot } from "../../components/OutcomeCard";
+import OutcomeCard, { Dot } from "components/OutcomeCard";
 
 import Spinner from "components/Spinner";
 
@@ -10,7 +10,7 @@ import { formatCollateral, formatAmount } from "utils/formatting";
 
 const cx = cn.bind(style);
 
-const Balances = ({
+const Positions = ({
   positionGroups,
   allMarketsResolved,
   redemptionAmount,
@@ -24,11 +24,27 @@ const Balances = ({
   estimatedSaleEarnings,
   currentSellingPosition,
   makeOutcomeSellSelectHandler,
-  error
+  error,
+  showHeader
 }) => {
+  if (positionGroups === null) {
+    return (
+      <>
+        {showHeader && (
+          <div className={cx("positions-heading")}>Your Positions</div>
+        )}
+        <div className={cx("positions-empty")}>
+          <Spinner width={25} height={25} centered />
+        </div>
+      </>
+    );
+  }
+
   return (
     <div className={cx("positions")}>
-      <div className={cx("positions-heading")}>Your Positions</div>
+      {showHeader && (
+        <div className={cx("positions-heading")}>Your Positions</div>
+      )}
       {positionGroups.length === 0 && (
         <div className={cx("positions-empty")}>You have no positions.</div>
       )}
@@ -93,7 +109,8 @@ const Balances = ({
                         key={`${outcome.marketIndex}-${outcome.outcomeIndex}`}
                       >
                         <Dot index={outcome.outcomeIndex} />
-                        {outcome.title}
+                        {outcome.title[0].toUpperCase() +
+                          outcome.title.slice(1)}
                       </span>
                     ))}
                   </td>
@@ -140,10 +157,7 @@ const Balances = ({
                       }
                       onClick={makeOutcomeSellSelectHandler(positionGroup)}
                     >
-                      {ongoingTransactionType === "sell outcome tokens" &&
-                      currentSellingPosition &&
-                      currentSellingPosition.collectionId ===
-                        positionGroup.collectionId ? (
+                      {ongoingTransactionType === "sell outcome tokens" ? (
                         <Spinner width={16} height={16} centered inverted />
                       ) : (
                         "Sell"
@@ -161,4 +175,4 @@ const Balances = ({
   );
 };
 
-export default Balances;
+export default Positions;

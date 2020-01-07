@@ -4,10 +4,7 @@ import style from "./positions.scss";
 import Decimal from "decimal.js-light";
 import OutcomeCard, { Dot } from "components/OutcomeCard";
 import Spinner from "components/Spinner";
-import {
-  zeroDecimal,
-  collateralSignificantDigits
-} from "utils/constants";
+import { zeroDecimal, collateralSignificantDigits } from "utils/constants";
 
 import Select from "react-select";
 import Web3 from "web3";
@@ -20,7 +17,7 @@ const getBaseArray = length => {
   return Array(length).fill("0");
 };
 
-const Sell = ({
+const SellForm = ({
   markets,
   currentSellingPosition,
   onCancelSell,
@@ -59,7 +56,8 @@ const Sell = ({
     ({ outcomeSet: [outcome] }, index) => ({
       label: (
         <>
-          <Dot index={index} /> {outcome.title}
+          <Dot index={index} />{" "}
+          {outcome.title[0].toUpperCase() + outcome.title.slice(1)}
         </>
       ),
       value: index
@@ -71,7 +69,6 @@ const Sell = ({
       maxSellAmounts[selectedOutcomeIndex].toString()
     )
       .div(1e18)
-      .toSignificantDigits(4)
       .toString();
 
     handleSellAmountChange(maxInvest);
@@ -102,7 +99,6 @@ const Sell = ({
         balanceForThisPosition[selectedOutcomeIndex] = toBN(
           new Decimal(sellAmount)
             .mul(1e18)
-            .todp(0)
             .neg()
             .toint()
             .toString()
@@ -146,30 +142,17 @@ const Sell = ({
         );
         updateEstimatedEarnings(value);
 
-        // When sell amount is 0.0001 units close to max amount, sell max amount
-        // this makes sure no teeny-tiny values remain
-
-        const tradeDiff = tradeAmountInWei
-          .abs() // trade amount is neg
-          .sub(maxSellAmounts[selectedOutcomeIndex])
-          .abs();
-
-        if (tradeDiff.lt(Math.pow(10, 18 - 5))) {
-          // sell max amount
-          tradeAmounts[selectedOutcomeIndex] = maxSellAmounts[
-            selectedOutcomeIndex
-          ].sub(1);
-        } else {
-          // sell entered amount
-          tradeAmounts[selectedOutcomeIndex] = tradeAmountInWei;
-        }
-
         tradeAmounts[selectedOutcomeIndex] = tradeAmountInWei;
         setStagedTradeAmounts(tradeAmounts);
       }
     },
     [positions, setStagedTradeAmounts, maxSellAmounts]
   );
+
+  const handleSell = useCallback(() => {
+    // setStagedTransactionType("sell outcome tokens");
+    return sellOutcomeTokens();
+  }, [stagedTradeAmounts]);
 
   if (maxSellAmounts.filter(dec => dec.abs().gt(0)).length > 1) {
     console.error("Can only handle single position");
@@ -237,6 +220,7 @@ const Sell = ({
                 value={sellAmountFullUnit || ""}
                 className={cx("input", { error: !!error })}
                 onChange={handleSellAmountChange}
+                min={0}
               />
               <span className={cx("input-append", "collateral-name")}>
                 <abbr title="Outcome Tokens">OT</abbr>
@@ -274,7 +258,7 @@ const Sell = ({
               className={cx("sell-confirm")}
               onClick={asWrappedTransaction(
                 "sell outcome tokens",
-                sellOutcomeTokens,
+                handleSell,
                 setError
               )}
               disabled={ongoingTransactionType === "sell outcome tokens"}
@@ -293,4 +277,4 @@ const Sell = ({
   );
 };
 
-export default Sell;
+export default SellForm;
