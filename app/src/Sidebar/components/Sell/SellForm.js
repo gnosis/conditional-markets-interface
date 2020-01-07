@@ -17,7 +17,7 @@ const getBaseArray = length => {
   return Array(length).fill("0");
 };
 
-const Sell = ({
+const SellForm = ({
   markets,
   currentSellingPosition,
   onCancelSell,
@@ -277,4 +277,4 @@ const Sell = ({
   );
 };
 
-export default Sell;
+export default SellForm;
