@@ -5,7 +5,8 @@ import React, {
   useRef,
   useMemo
 } from "react";
-import moment from "moment";
+import PropTypes from "prop-types";
+import { formatDate, getMoment } from "utils/timeFormat";
 import { formatScalarValue } from "utils/formatting";
 import cn from "classnames/bind";
 
@@ -179,11 +180,11 @@ const Graph = ({
   );
 
   const formatDateTick = useCallback(tick => {
-    return moment(tick).format("MMM D");
+    return formatDate(tick, "MMM D");
   });
 
   const formatDateTickTooltip = useCallback(tick => {
-    return moment(tick).format("MMM D HH:mm");
+    return formatDate(tick, "MMM D HH:mm");
   });
 
   if (data.length <= 2) {
@@ -200,10 +201,10 @@ const Graph = ({
   const getTicks = useCallback(() => {
     let range = [];
     if (data && data[0]) {
-      const startDate = moment(data[0].date).startOf("day");
-      const endDate = moment(data[data.length - 1].date).endOf("day");
+      const startDate = getMoment(data[0].date).startOf("day");
+      const endDate = getMoment(data[data.length - 1].date).endOf("day");
       while (startDate < endDate) {
-        range.push(moment(startDate));
+        range.push(getMoment(startDate));
         startDate.add(1, "days");
       }
       range.push(endDate);
@@ -315,6 +316,14 @@ const Graph = ({
       )}
     </div>
   );
+};
+
+Graph.propTypes = {
+  lowerBound: PropTypes.number.isRequired,
+  upperBound: PropTypes.number.isRequired,
+  entries: PropTypes.array,
+  currentProbability: PropTypes.array,
+  marketType: PropTypes.string.isRequired
 };
 
 export default Graph;
