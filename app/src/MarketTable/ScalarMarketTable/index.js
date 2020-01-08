@@ -29,6 +29,9 @@ const MarketTable = ({
   markets,
   positions,
   lmsrState,
+  // FIXME `useQuery` hook can't be used after checking if lmsrState exists.
+  // Remove and use address from state if we divide this component in smaller ones
+  lmsrAddress,
   marketSelections,
   setMarketSelections,
   resetMarketSelections,
@@ -37,10 +40,11 @@ const MarketTable = ({
 }) => {
   useEffect(() => {
     resetMarketSelections();
+    console.log("resetMarketSelections scalar");
     return () => {
       setMarketSelections(null);
     };
-  }, []);
+  }, [markets]);
   const [isExpanded, setExpanded] = useState(false);
   const [marketProbabilities, setMarketProbabilities] = useState(null);
   const [stagedMarketProbabilities, setStagedMarketProbabilities] = useState(
@@ -51,7 +55,7 @@ const MarketTable = ({
   }, [isExpanded]);
 
   const { loading, error, data } = useQuery(GET_TRADES_BY_MARKET_MAKER, {
-    variables: { marketMaker: lmsrState.marketMakerAddress },
+    variables: { marketMaker: lmsrAddress },
     pollInterval: 15000
   });
 

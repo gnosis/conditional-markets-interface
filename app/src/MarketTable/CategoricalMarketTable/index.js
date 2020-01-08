@@ -29,10 +29,11 @@ const MarketTable = ({
 }) => {
   useEffect(() => {
     resetMarketSelections();
+    console.log("resetMarketSelections categorical");
     return () => {
       setMarketSelections(null);
     };
-  }, []);
+  }, [markets]);
 
   const [marketProbabilities, setMarketProbabilities] = useState(null);
   const [

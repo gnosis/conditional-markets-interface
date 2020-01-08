@@ -261,18 +261,18 @@ const RootComponent = ({ match, childComponents }) => {
   const [markets, setMarkets] = useState(null);
   const [positions, setPositions] = useState(null);
 
+  const lmsrAddress = match.params.lmsrAddress
+    ? match.params.lmsrAddress
+    : conf.lmsrAddress;
+
   const init = useCallback(async () => {
-    const config = conf;
+    const { networkId } = conf;
     try {
       console.groupCollapsed("Configuration");
-      console.log(config);
+      console.log(conf);
       console.groupEnd();
 
-      const { web3, account } = await loadWeb3(config.networkId);
-
-      const lmsrAddress = match.params.lmsrAddress
-        ? match.params.lmsrAddress
-        : config.lmsrAddress;
+      const { web3, account } = await loadWeb3(networkId);
 
       setWeb3(web3);
       setAccount(account);
@@ -301,11 +301,19 @@ const RootComponent = ({ match, childComponents }) => {
       setLastError(err.message);
       throw err;
     }
-  }, []);
+  }, [lmsrAddress]);
 
+  // First time init
   useEffect(() => {
+    if (loading !== "LOADING") {
+      // we already init app once. We have to clear data
+      setLoading("LOADING");
+      setCollateral(null);
+      setMarkets(null);
+      setPositions(null);
+    }
     init();
-  }, []);
+  }, [lmsrAddress]);
 
   const [lmsrState, setLMSRState] = useState(null);
   const [marketResolutionStates, setMarketResolutionStates] = useState(null);
@@ -518,6 +526,9 @@ const RootComponent = ({ match, childComponents }) => {
                     marketResolutionStates,
                     positions,
                     lmsrState,
+                    // FIXME `useQuery` hook can't be used after checking if lmsrState exists.
+                    // Remove and use address from state if we divide this component in smaller ones
+                    lmsrAddress,
                     marketSelections,
                     setMarketSelections,
                     stagedTradeAmounts,
