@@ -137,13 +137,14 @@ const Graph = ({
     // when new entries are added, or the probability of the selected outcome changes
     if (entries.length >= data.length || currentProbabilityChanged()) {
       const midValue =
-        (parseFloat(upperBound) -
-        parseFloat(lowerBound)) / 2 +
+        (parseFloat(upperBound) - parseFloat(lowerBound)) / 2 +
         parseFloat(lowerBound);
       const newData = [
         {
           outcomesProbability: [midValue],
           date: moment(created).valueOf(),
+          // First entry in `entries` comes with index 0 and we add this one also
+          // with the same index. Is not critical but it's a bug
           index: 0
         },
         ...entries,

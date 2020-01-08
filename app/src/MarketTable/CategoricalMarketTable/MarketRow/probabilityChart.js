@@ -15,6 +15,7 @@ import { useQuery } from "@apollo/react-hooks";
 import { lmsrAddress, GET_TRADES_BY_MARKET_MAKER } from "api/thegraph";
 
 const probabilityChart = ({
+  created,
   marketType,
   colSpan,
   probabilities,
@@ -80,6 +81,7 @@ const probabilityChart = ({
               entries={parsedTrades}
               currentProbability={displayedProbabilities}
               marketType={marketType}
+              created={created}
             ></Graph>
           </div>
         </td>
@@ -89,8 +91,8 @@ const probabilityChart = ({
 };
 
 probabilityChart.propTypes = {
+  created: PropTypes.string.isRequired,
   marketType: PropTypes.string.isRequired,
-
   colSpan: PropTypes.number.isRequired,
   probabilities: PropTypes.array,
   stagedProbabilities: PropTypes.array
