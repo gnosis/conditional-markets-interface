@@ -5,6 +5,7 @@ import React, {
   useRef,
   useMemo
 } from "react";
+import moment from "moment";
 import PropTypes from "prop-types";
 import { formatDate, getMoment } from "utils/timeFormat";
 import { formatScalarValue } from "utils/formatting";
@@ -232,6 +233,14 @@ const Graph = ({
     <div className={cx("graph-container", marketClass)}>
       <ResponsiveContainer minHeight={300}>
         <LineChart data={data} onMouseMove={mouseUpdate} ref={lineChartRef}>
+          {marketType !== "SCALAR" && (
+            <Tooltip
+              labelFormatter={formatDateTickTooltip}
+              formatter={value => {
+                return [value.toFixed(2) + "%"];
+              }}
+            />
+          )}
           {tooltipPosition && marketType === "SCALAR" && (
             <Tooltip
               cursor={
@@ -241,16 +250,9 @@ const Graph = ({
                 />
               }
               coordinate={{ x: 0, y: 0 }}
+              wrapperStyle={{ zIndex: 100, background: "white", top: "-10px" }}
               position={{ x: -sidebarWidth, y: tooltipPosition.y }}
               content={<TooltipContent unit={unit} decimals={decimals} />}
-            />
-          )}
-          {marketType !== "SCALAR" && (
-            <Tooltip
-              labelFormatter={formatDateTickTooltip}
-              formatter={value => {
-                return [value.toFixed(2) + "%"];
-              }}
             />
           )}
           {data &&
@@ -310,7 +312,9 @@ const Graph = ({
         <div
           className={cx("tooltip-current-position")}
           style={{
-            transform: `translate(${-sidebarWidth}px, ${lastTickPosition.y}px)`
+            transform: `translate(${-sidebarWidth}px, calc(${
+              lastTickPosition.y
+            }px - 50%))`
           }}
         >
           {data &&
