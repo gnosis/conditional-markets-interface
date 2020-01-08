@@ -17,7 +17,7 @@ import { markdownRenderers } from "utils/markdown";
 import { calcSelectedMarketProbabilitiesFromPositionProbabilities } from "utils/probabilities";
 import { formatCollateral } from "utils/formatting";
 
-import { lmsrAddress, GET_TRADES_BY_MARKET_MAKER } from "api/thegraph";
+import { GET_TRADES_BY_MARKET_MAKER } from "api/thegraph";
 
 import prepareTradesData from "../utils/prepareTradesData";
 
@@ -51,7 +51,7 @@ const MarketTable = ({
   }, [isExpanded]);
 
   const { loading, error, data } = useQuery(GET_TRADES_BY_MARKET_MAKER, {
-    variables: { marketMaker: lmsrAddress },
+    variables: { marketMaker: lmsrState.marketMakerAddress },
     pollInterval: 15000
   });
 
@@ -134,10 +134,6 @@ const MarketTable = ({
             { lowerBound, upperBound, type },
             data
           );
-          // const trades = useMemo(
-          //   () => prepareTradesData({ lowerBound, upperBound, type }, data),
-          //   [data]
-          // );
 
           const getValueFromBounds = (value, upperBound, lowerBound) => {
             // Value is a percentage of outcome tokens, should get the value
@@ -293,6 +289,7 @@ MarketTable.propTypes = {
     }).isRequired
   ).isRequired,
   lmsrState: PropTypes.shape({
+    marketMakerAddress: PropTypes.string.isRequired,
     funding: PropTypes.instanceOf(BN).isRequired,
     positionBalances: PropTypes.arrayOf(PropTypes.instanceOf(BN).isRequired)
       .isRequired

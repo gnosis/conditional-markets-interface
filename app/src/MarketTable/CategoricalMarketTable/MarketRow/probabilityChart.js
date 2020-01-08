@@ -12,9 +12,10 @@ const cx = cn.bind(style);
 
 import { useQuery } from "@apollo/react-hooks";
 
-import { lmsrAddress, GET_TRADES_BY_MARKET_MAKER } from "api/thegraph";
+import { GET_TRADES_BY_MARKET_MAKER } from "api/thegraph";
 
 const probabilityChart = ({
+  lmsrAddress,
   marketType,
   colSpan,
   probabilities,
@@ -89,6 +90,7 @@ const probabilityChart = ({
 };
 
 probabilityChart.propTypes = {
+  lmsrAddress: PropTypes.string.isRequired,
   marketType: PropTypes.string.isRequired,
 
   colSpan: PropTypes.number.isRequired,

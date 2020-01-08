@@ -1,26 +1,21 @@
-const conf = require("../../conf");
 const ConditionalTokensRepo = require("./ConditionalTokensRepo");
 import loadContracts from "../../loadContracts";
 
 let instance, instancePromise;
 
-async function _getInstance() {
+async function _getInstance({ lmsrAddress, web3 }) {
   // Get contracts
-  const contracts = await loadContracts();
-
-  // Get ethereum client
-  // const getEthereumClient = require('../../helpers/ethereumClient')
-  // const ethereumClient = await getEthereumClient()
+  const contracts = await loadContracts({ lmsrAddress, web3 });
 
   return new ConditionalTokensRepo({
     contracts
   });
 }
 
-export default async () => {
+export default async props => {
   if (!instance) {
     if (!instancePromise) {
-      instancePromise = _getInstance();
+      instancePromise = _getInstance(props);
     }
 
     instance = await instancePromise;
