@@ -30,6 +30,7 @@ const Market = ({
   dataSource,
   dataSourceUrl,
   type,
+  created,
   index,
   probabilities,
   stagedProbabilities,
@@ -137,6 +138,7 @@ const Market = ({
       </tr>
       <ProbabilityChart
         marketType={type}
+        created={created}
         colSpan={headings.length}
         probabilities={probabilities}
         stagedProbabilities={stagedProbabilities}
@@ -222,7 +224,9 @@ Market.propTypes = {
   disableConditional: PropTypes.bool.isRequired,
   description: PropTypes.string,
   dataSource: PropTypes.string,
-  dataSourceUrl: PropTypes.string
+  dataSourceUrl: PropTypes.string,
+  type: PropTypes.string,
+  created: PropTypes.string
 };
 
 Market.defaultProps = {
