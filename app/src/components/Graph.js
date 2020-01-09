@@ -9,6 +9,7 @@ import PropTypes from "prop-types";
 import { formatDate, getMoment } from "utils/timeFormat";
 import { formatScalarValue } from "utils/formatting";
 import cn from "classnames/bind";
+import moment from "moment";
 
 import styles from "./Graph.scss";
 
@@ -106,6 +107,7 @@ const Graph = ({
   unit,
   entries,
   created,
+  resolutionDate,
   currentProbability,
   marketType
 }) => {
@@ -157,13 +159,17 @@ const Graph = ({
           // with the same index. Is not critical but it's a bug
           index: 0
         },
-        ...entries,
-        {
+        ...entries
+      ];
+
+      if (moment(resolutionDate).isAfter(moment())) {
+        // only add last entry (with currently probabilities) if the market is not already resolved
+        newData.push({
           outcomesProbability: currentProbability,
           date: +new Date(),
           index: entries.length + 1 // +1 because we add the market creation as a datapoint
-        }
-      ];
+        });
+      }
 
       setData(newData);
     }
