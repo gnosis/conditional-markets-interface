@@ -7,8 +7,7 @@ import Sell from "../components/Sell";
 
 import Spinner from "components/Spinner";
 
-import Decimal from "decimal.js-light";
-import { calcSelectedMarketProbabilitiesFromPositionProbabilities } from "utils/probabilities";
+import { getMarketProbabilities } from "utils/probabilities";
 
 const TabComponents = {
   Buy,
@@ -37,29 +36,16 @@ const Sidebar = props => {
   let marketProbabilities = null;
   if (lmsrState != null) {
     const { funding, positionBalances } = lmsrState;
-    // funding = 1000
-    // positionBalances = [100, 500]
 
-    const invB = new Decimal(positionBalances.length)
-      .ln()
-      .div(funding.toString());
-    // 1e-123
-
-    const positionProbabilities = positionBalances.map(balance =>
-      invB
-        .mul(balance.toString())
-        .neg()
-        .exp()
-    );
-    // [ 1e-1000, 5e-1000 ]
-
-    marketProbabilities = calcSelectedMarketProbabilitiesFromPositionProbabilities(
+    const { newMarketProbabilities } = getMarketProbabilities(
+      funding,
+      positionBalances,
       markets,
       positions,
-      marketSelections,
-      positionProbabilities
+      marketSelections
     );
-    // [ 0.4, 0.6 ]
+
+    marketProbabilities = newMarketProbabilities;
   }
 
   if (!marketProbabilities) {

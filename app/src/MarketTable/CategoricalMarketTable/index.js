@@ -10,8 +10,10 @@ import MarketRow from "./MarketRow";
 import Spinner from "components/Spinner";
 import HelpButton from "components/HelpButton";
 
-import { oneDecimal } from "utils/constants";
-import { calcSelectedMarketProbabilitiesFromPositionProbabilities } from "utils/probabilities";
+import {
+  getMarketProbabilities,
+  getStagedMarketProbabilities
+} from "utils/probabilities";
 
 const { BN } = Web3.utils;
 
@@ -43,47 +45,32 @@ const MarketTable = ({
   useMemo(() => {
     if (lmsrState != null) {
       const { funding, positionBalances } = lmsrState;
-      const invB = new Decimal(positionBalances.length)
-        .ln()
-        .div(funding.toString());
-
-      const positionProbabilities = positionBalances.map(balance =>
-        invB
-          .mul(balance.toString())
-          .neg()
-          .exp()
-      );
-      const newMarketProbabilities = calcSelectedMarketProbabilitiesFromPositionProbabilities(
+      const {
+        invB,
+        positionProbabilities,
+        newMarketProbabilities
+      } = getMarketProbabilities(
+        funding,
+        positionBalances,
         markets,
         positions,
-        marketSelections,
-        positionProbabilities
+        marketSelections
       );
       setMarketProbabilities(newMarketProbabilities);
 
       if (stagedTradeAmounts != null) {
-        const unnormalizedPositionProbabilitiesAfterStagedTrade = positionProbabilities.map(
-          (probability, i) =>
-            probability.mul(stagedTradeAmounts[i].mul(invB).exp())
+        const marketProbabilitiesAfterStagedTrade = getStagedMarketProbabilities(
+          {
+            positionProbabilities,
+            invB,
+            stagedTradeAmounts,
+            markets,
+            positions,
+            marketSelections
+          }
         );
-        const normalizer = oneDecimal.div(
-          unnormalizedPositionProbabilitiesAfterStagedTrade.reduce((a, b) =>
-            a.add(b)
-          )
-        );
-        const positionProbabilitiesAfterStagedTrade = unnormalizedPositionProbabilitiesAfterStagedTrade.map(
-          probability => probability.mul(normalizer)
-        );
-
-        const newMarketProbabilitiesAfterStagedTrade = calcSelectedMarketProbabilitiesFromPositionProbabilities(
-          markets,
-          positions,
-          marketSelections,
-          positionProbabilitiesAfterStagedTrade
-        );
-
         setMarketProbabilitiesAfterStagedTrade(
-          newMarketProbabilitiesAfterStagedTrade
+          marketProbabilitiesAfterStagedTrade
         );
       } else {
         setMarketProbabilitiesAfterStagedTrade(null);

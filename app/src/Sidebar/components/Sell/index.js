@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
 import Web3 from "web3";
-import Decimal from "decimal.js-light";
 import { calcPositionGroups } from "utils/position-groups";
 import { getPositionId, combineCollectionIds } from "utils/getIdsUtil";
-import { calcSelectedMarketProbabilitiesFromPositionProbabilities } from "utils/probabilities";
+import { getMarketProbabilities } from "utils/probabilities";
 
-const { toBN, sha3 } = Web3.utils;
+const { BN, toBN, sha3 } = Web3.utils;
 
 import getConditionalTokensRepo from "repositories/ConditionalTokensRepo";
 import getMarketMakersRepo from "repositories/MarketMakersRepo";
@@ -56,24 +55,15 @@ const SellOrPositions = ({
   useEffect(() => {
     if (lmsrState != null) {
       const { funding, positionBalances: lmsrPositionBalances } = lmsrState;
-      const invB = new Decimal(lmsrPositionBalances.length)
-        .ln()
-        .div(funding.toString());
 
-      const positionProbabilities = lmsrPositionBalances.map(balance =>
-        invB
-          .mul(balance.toString())
-          .neg()
-          .exp()
+      const { newMarketProbabilities } = getMarketProbabilities(
+        funding,
+        lmsrPositionBalances,
+        markets,
+        positions,
+        marketSelections
       );
-      setProbabilities(
-        calcSelectedMarketProbabilitiesFromPositionProbabilities(
-          markets,
-          positions,
-          marketSelections,
-          positionProbabilities
-        )
-      );
+      setProbabilities(newMarketProbabilities);
     }
   }, [lmsrState, markets, positions]);
 
@@ -333,6 +323,32 @@ const SellOrPositions = ({
       showHeader={false}
     />
   );
+};
+
+SellOrPositions.propTypes = {
+  markets: PropTypes.arrayOf(
+    PropTypes.shape({
+      conditionId: PropTypes.string.isRequired
+    }).isRequired
+  ).isRequired,
+  marketResolutionStates: PropTypes.array,
+  positions: PropTypes.arrayOf(
+    PropTypes.shape({
+      positionIndex: PropTypes.number.isRequired,
+      outcomes: PropTypes.arrayOf(
+        PropTypes.shape({
+          marketIndex: PropTypes.number.isRequired,
+          outcomeIndex: PropTypes.number.isRequired
+        }).isRequired
+      ).isRequired
+    }).isRequired
+  ).isRequired,
+  lmsrState: PropTypes.shape({
+    marketMakerAddress: PropTypes.string.isRequired,
+    funding: PropTypes.instanceOf(BN).isRequired,
+    positionBalances: PropTypes.arrayOf(PropTypes.instanceOf(BN).isRequired)
+      .isRequired
+  })
 };
 
 export default SellOrPositions;
