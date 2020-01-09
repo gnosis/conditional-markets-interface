@@ -75,8 +75,8 @@ const probabilityChart = ({
           <div className={cx("tab-content")}>
             <Graph
               className={cx("graph")}
-              lowerBound={0}
-              upperBound={100}
+              lowerBound={"0"}
+              upperBound={"100"}
               decimals={0}
               entries={parsedTrades}
               currentProbability={displayedProbabilities}

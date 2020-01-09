@@ -336,8 +336,8 @@ const Graph = ({
 };
 
 Graph.propTypes = {
-  lowerBound: PropTypes.number.isRequired,
-  upperBound: PropTypes.number.isRequired,
+  lowerBound: PropTypes.string.isRequired,
+  upperBound: PropTypes.string.isRequired,
   entries: PropTypes.array,
   currentProbability: PropTypes.array,
   marketType: PropTypes.string.isRequired
