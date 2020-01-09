@@ -8,12 +8,10 @@ import { getMarketProbabilities } from "utils/probabilities";
 const { BN, toBN, sha3 } = Web3.utils;
 
 import getConditionalTokensRepo from "repositories/ConditionalTokensRepo";
-import getMarketMakersRepo from "repositories/MarketMakersRepo";
 import getConditionalTokensService from "services/ConditionalTokensService";
 import Sell from "./SellForm";
 import Positions from "./Positions";
 let conditionalTokensRepo;
-let marketMakersRepo;
 let conditionalTokensService;
 
 // let warnedAboutIds = {};
@@ -38,7 +36,6 @@ const SellOrPositions = ({
   const loadDataLayer = useCallback(() => {
     async function getRepo() {
       conditionalTokensRepo = await getConditionalTokensRepo();
-      marketMakersRepo = await getMarketMakersRepo();
       conditionalTokensService = await getConditionalTokensService();
     }
     getRepo();
@@ -106,7 +103,7 @@ const SellOrPositions = ({
       return Array(length).fill("0");
     };
 
-    if (marketMakersRepo) {
+    if (conditionalTokensService) {
       (async () => {
         if (!positionBalances) return;
         // Make a call for each available position
@@ -120,7 +117,7 @@ const SellOrPositions = ({
 
             // Calculate the balance for this position
             // return as positive value for the frontend
-            return marketMakersRepo
+            return conditionalTokensService
               .calcNetCost(balanceForThisPosition)
               .then(sellPrice => sellPrice.abs());
           })
@@ -129,7 +126,7 @@ const SellOrPositions = ({
         setEstimatedSaleEarnings(allEarningCalculations);
       })();
     }
-  }, [marketMakersRepo, positionBalances]);
+  }, [conditionalTokensService, positionBalances]);
 
   const makeOutcomeSellSelectHandler = useCallback(
     salePositionGroup => () => {
@@ -159,38 +156,16 @@ const SellOrPositions = ({
   ]);
 
   const sellOutcomeTokens = useCallback(async () => {
-    if (stagedTradeAmounts == null) throw new Error(`No sell set yet`);
-
-    if (stagedTransactionType !== "sell outcome tokens")
-      throw new Error(
-        `Can't sell outcome tokens while staged transaction is to ${stagedTransactionType}`
-      );
-
-    const marketMakerAddress = await marketMakersRepo.getAddress();
-    if (
-      !(await conditionalTokensRepo.isApprovedForAll(
-        account,
-        marketMakerAddress
-      ))
-    ) {
-      await conditionalTokensRepo.setApprovalForAll(
-        marketMakerAddress,
-        true,
-        account
-      );
-    }
-
-    const tradeAmounts = stagedTradeAmounts.map(amount => amount.toString());
-    const collateralLimit = await marketMakersRepo.calcNetCost(tradeAmounts);
-
-    await marketMakersRepo.trade(tradeAmounts, collateralLimit, account);
+    await conditionalTokensService.sellOutcomeTokens({
+      stagedTradeAmounts,
+      stagedTransactionType,
+      account
+    });
     clearAllPositions();
   }, [
-    collateral,
     stagedTradeAmounts,
     stagedTransactionType,
-    conditionalTokensRepo,
-    asWrappedTransaction,
+    conditionalTokensService,
     account
   ]);
 
@@ -296,7 +271,7 @@ const SellOrPositions = ({
       stagedTradeAmounts={stagedTradeAmounts}
       setStagedTransactionType={setStagedTransactionType}
       setStagedTradeAmounts={setStagedTradeAmounts}
-      marketMakersRepo={marketMakersRepo}
+      conditionalTokensService={conditionalTokensService}
       collateral={collateral}
       sellOutcomeTokens={sellOutcomeTokens}
       onOutcomeChange={handleChangeOutcome}

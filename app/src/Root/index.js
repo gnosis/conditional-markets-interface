@@ -52,7 +52,10 @@ async function loadBasicData(lmsrAddress, web3) {
   // Load application contracts
   marketMakersRepo = await getMarketMakersRepo({ lmsrAddress, web3 });
   conditionalTokensRepo = await getConditionalTokensRepo({ lmsrAddress, web3 });
-  conditionalTokensService = await getConditionalTokensService();
+  conditionalTokensService = await getConditionalTokensService({
+    lmsrAddress,
+    web3
+  });
 
   const { product } = require("utils/itertools");
 

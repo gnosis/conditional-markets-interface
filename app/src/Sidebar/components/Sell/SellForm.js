@@ -26,7 +26,7 @@ const SellForm = ({
   ongoingTransactionType,
   setStagedTransactionType,
   setStagedTradeAmounts,
-  marketMakersRepo,
+  conditionalTokensService,
   positionBalances,
   collateral,
   sellOutcomeTokens,
@@ -107,7 +107,7 @@ const SellForm = ({
 
       // Calculate the balance for this position
       // return as positive value for the frontend
-      marketMakersRepo
+      conditionalTokensService
         .calcNetCost(balanceForThisPosition)
         .then(tradeEarning => {
           setEstimatedSaleEarning(tradeEarning.abs().toString());
@@ -148,11 +148,6 @@ const SellForm = ({
     },
     [positions, setStagedTradeAmounts, maxSellAmounts]
   );
-
-  const handleSell = useCallback(() => {
-    // setStagedTransactionType("sell outcome tokens");
-    return sellOutcomeTokens();
-  }, [stagedTradeAmounts]);
 
   if (maxSellAmounts.filter(dec => dec.abs().gt(0)).length > 1) {
     console.error("Can only handle single position");
@@ -258,7 +253,7 @@ const SellForm = ({
               className={cx("sell-confirm")}
               onClick={asWrappedTransaction(
                 "sell outcome tokens",
-                handleSell,
+                sellOutcomeTokens,
                 setError
               )}
               disabled={ongoingTransactionType === "sell outcome tokens"}
