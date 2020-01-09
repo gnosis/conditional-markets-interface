@@ -11,7 +11,6 @@ import { Provider } from "react-redux";
 
 // CSS Reset
 import "normalize.css/normalize.css";
-
 // Base Style (loads fonts)
 import "./scss/style.scss";
 

@@ -6,8 +6,6 @@ import { InMemoryCache } from "apollo-cache-inmemory";
 const conf = require("../conf");
 const { THE_GRAPH_API_URL } = conf;
 
-export const lmsrAddress = conf.lmsrAddress;
-
 // 2
 const httpLink = createHttpLink({
   uri: THE_GRAPH_API_URL

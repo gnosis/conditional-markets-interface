@@ -135,16 +135,25 @@ const Graph = ({
       );
     };
 
-    // when new entries are added, or the probability of the selected outcome changes
-    if (entries.length >= data.length || currentProbabilityChanged()) {
+    // Get initial probability for market
+    const getInitialProbability = () => {
       const midValue =
         (parseFloat(upperBound) - parseFloat(lowerBound)) / 2 +
         parseFloat(lowerBound);
+
+      return currentProbability.map(() => {
+        return midValue;
+      });
+    };
+
+    // when new entries are added, or the probability of the selected outcome changes
+    if (entries.length >= data.length || currentProbabilityChanged()) {
+      const initialOutcomesProbability = getInitialProbability();
       const newData = [
         {
-          outcomesProbability: [midValue],
+          outcomesProbability: initialOutcomesProbability,
           date: getMoment(created).valueOf(),
-          // First entry in `entries` comes with index 0 and we add this one also
+          // FIXME First entry in `entries` comes with index 0 and we add this one also
           // with the same index. Is not critical but it's a bug
           index: 0
         },

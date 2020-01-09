@@ -10,8 +10,9 @@ export default class Routes extends Component {
   render() {
     return (
       <Switch>
-        <Route component={Root} exact path="/" />
         <Route component={Sow} exact path="/kyc/sow" />
+        <Route component={Root} exact path="/:lmsrAddress" />
+        <Route component={Root} exact path="/" />
       </Switch>
     );
   }

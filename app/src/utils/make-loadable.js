@@ -7,7 +7,7 @@ const cx = cn.bind(style);
 import Spinner from "components/Spinner";
 import CrashPage from "components/Crash";
 
-const makeLoadable = (Component, childComponents) => {
+const makeLoadable = (Component, props, childComponents) => {
   const loadableWrapped = () => {
     const [loadingState, setLoadingState] = useState("LOADING");
     const [loadedComponents, setLoadedComponents] = useState([]);
@@ -46,7 +46,7 @@ const makeLoadable = (Component, childComponents) => {
     }
 
     if (loadingState === "SUCCESS") {
-      return <Component childComponents={loadedComponents} />;
+      return <Component {...props} childComponents={loadedComponents} />;
     }
   };
 

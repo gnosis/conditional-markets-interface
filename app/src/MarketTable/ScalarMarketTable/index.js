@@ -17,7 +17,7 @@ import { markdownRenderers } from "utils/markdown";
 import { calcSelectedMarketProbabilitiesFromPositionProbabilities } from "utils/probabilities";
 import { formatCollateral } from "utils/formatting";
 
-import { lmsrAddress, GET_TRADES_BY_MARKET_MAKER } from "api/thegraph";
+import { GET_TRADES_BY_MARKET_MAKER } from "api/thegraph";
 
 import prepareTradesData from "../utils/prepareTradesData";
 
@@ -29,6 +29,9 @@ const MarketTable = ({
   markets,
   positions,
   lmsrState,
+  // FIXME `useQuery` hook can't be used after checking if lmsrState exists.
+  // Remove and use address from state if we divide this component in smaller ones
+  lmsrAddress,
   marketSelections,
   setMarketSelections,
   resetMarketSelections,
@@ -37,10 +40,11 @@ const MarketTable = ({
 }) => {
   useEffect(() => {
     resetMarketSelections();
-    return () => {
-      setMarketSelections(null);
-    };
-  }, []);
+    // FIXME This breaks when reloading component after market maker address update
+    // return () => {
+    //   setMarketSelections(null);
+    // };
+  }, [markets]);
   const [isExpanded, setExpanded] = useState(false);
   const [marketProbabilities, setMarketProbabilities] = useState(null);
   const [stagedMarketProbabilities, setStagedMarketProbabilities] = useState(
@@ -135,10 +139,6 @@ const MarketTable = ({
             { lowerBound, upperBound, type },
             data
           );
-          // const trades = useMemo(
-          //   () => prepareTradesData({ lowerBound, upperBound, type }, data),
-          //   [data]
-          // );
 
           const getValueFromBounds = (value, upperBound, lowerBound) => {
             // Value is a percentage of outcome tokens, should get the value
@@ -295,6 +295,7 @@ MarketTable.propTypes = {
     }).isRequired
   ).isRequired,
   lmsrState: PropTypes.shape({
+    marketMakerAddress: PropTypes.string.isRequired,
     funding: PropTypes.instanceOf(BN).isRequired,
     positionBalances: PropTypes.arrayOf(PropTypes.instanceOf(BN).isRequired)
       .isRequired

@@ -37,7 +37,8 @@ const Market = ({
   outcomes,
   marketSelections,
   disableConditional,
-  setMarketSelection
+  setMarketSelection,
+  lmsrState
 }) => {
   const [detailsOpen, setDetailsOpen] = useState(false);
   const handleToggleCollapse = useCallback(() => {
@@ -137,6 +138,7 @@ const Market = ({
         ))}
       </tr>
       <ProbabilityChart
+        lmsrAddress={lmsrState.marketMakerAddress}
         marketType={type}
         created={created}
         colSpan={headings.length}
@@ -225,7 +227,10 @@ Market.propTypes = {
   description: PropTypes.string,
   dataSource: PropTypes.string,
   dataSourceUrl: PropTypes.string,
-  type: PropTypes.string,
+  type: PropTypes.string.isRequired,
+  lmsrState: PropTypes.shape({
+    marketMakerAddress: PropTypes.string.isRequired
+  }),
   created: PropTypes.string
 };
 

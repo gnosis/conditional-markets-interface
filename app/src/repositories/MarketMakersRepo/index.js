@@ -1,60 +1,31 @@
-const conf = require("../../conf");
 const MarketMakersRepo = require("./MarketMakersRepo");
 import loadContracts from "../../loadContracts";
 
-let instance, instancePromise;
+let instance, instancePromise, lmsrAddressCache;
 
-async function _getInstance() {
-  // Get factory
-  // const {
-  //   Factory: AuctionRepo,
-  //   factoryConf: auctionRepoConf
-  // } = conf.getFactory('AUCTION_REPO')
-
+async function _getInstance({ lmsrAddress, web3 }) {
   // Get contracts
-  // const loadContracts = require
-  const contracts = await loadContracts();
+  const contracts = await loadContracts({ lmsrAddress, web3 });
 
-  // Get ethereum client
-  // const getEthereumClient = require('../../helpers/ethereumClient')
-  // const ethereumClient = await getEthereumClient()
-
-  // const {
-  //   CACHE,
-  //   DEFAULT_GAS,
-  //   TRANSACTION_RETRY_TIME,
-  //   GAS_RETRY_INCREMENT,
-  //   OVER_FAST_PRICE_FACTOR,
-  //   GAS_ESTIMATION_CORRECTION_FACTOR,
-  //   DEFAULT_GAS_PRICE_USED
-  // } = conf
-
-  return new MarketMakersRepo({
-    // ethereumClient,
-    contracts // ,
-
-    // Cache
-    // cacheConf: CACHE,
-    //
-    // // Gas price
-    // defaultGas: DEFAULT_GAS,
-    // gasPriceDefault: DEFAULT_GAS_PRICE_USED,
-    //
-    // // Retry logic
-    // transactionRetryTime: TRANSACTION_RETRY_TIME,
-    // gasRetryIncrement: GAS_RETRY_INCREMENT,
-    // overFastPriceFactor: OVER_FAST_PRICE_FACTOR,
-    // gasEstimationCorrectionFactor: GAS_ESTIMATION_CORRECTION_FACTOR,
-    //
-    // // Override config
-    // ...auctionRepoConf
-  });
+  return new MarketMakersRepo({ contracts });
 }
 
-export default async () => {
+// When changing the market maker we have to reset the singleton
+function _resetRepo() {
+  instance = undefined;
+  instancePromise = undefined;
+}
+
+export default async props => {
+  if (props && props.lmsrAddress && props.lmsrAddress !== lmsrAddressCache) {
+    // If marketMakerAddress changes we have to reload contracts
+    _resetRepo();
+  }
+
   if (!instance) {
+    lmsrAddressCache = props.lmsrAddress;
     if (!instancePromise) {
-      instancePromise = _getInstance();
+      instancePromise = _getInstance(props);
     }
 
     instance = await instancePromise;
