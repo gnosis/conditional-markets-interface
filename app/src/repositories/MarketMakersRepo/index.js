@@ -1,7 +1,7 @@
 const MarketMakersRepo = require("./MarketMakersRepo");
 import loadContracts from "../../loadContracts";
 
-let instance, instancePromise;
+let instance, instancePromise, lmsrAddressCache;
 
 async function _getInstance({ lmsrAddress, web3 }) {
   // Get contracts
@@ -10,8 +10,20 @@ async function _getInstance({ lmsrAddress, web3 }) {
   return new MarketMakersRepo({ contracts });
 }
 
+// When changing the market maker we have to reset the singleton
+function _resetRepo() {
+  instance = undefined;
+  instancePromise = undefined;
+}
+
 export default async props => {
+  if (props && props.lmsrAddress && props.lmsrAddress !== lmsrAddressCache) {
+    // If marketMakerAddress changes we have to reload contracts
+    _resetRepo();
+  }
+
   if (!instance) {
+    lmsrAddressCache = props.lmsrAddress;
     if (!instancePromise) {
       instancePromise = _getInstance(props);
     }

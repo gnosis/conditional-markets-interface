@@ -29,10 +29,10 @@ const MarketTable = ({
 }) => {
   useEffect(() => {
     resetMarketSelections();
-    console.log("resetMarketSelections categorical");
-    return () => {
-      setMarketSelections(null);
-    };
+    // FIXME This breaks when reloading component after market maker address update
+    // return () => {
+    //   setMarketSelections(null);
+    // };
   }, [markets]);
 
   const [marketProbabilities, setMarketProbabilities] = useState(null);
