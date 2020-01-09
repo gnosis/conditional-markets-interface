@@ -5,7 +5,6 @@ import React, {
   useRef,
   useMemo
 } from "react";
-import moment from "moment";
 import PropTypes from "prop-types";
 import { formatDate, getMoment } from "utils/timeFormat";
 import { formatScalarValue } from "utils/formatting";
@@ -144,7 +143,7 @@ const Graph = ({
       const newData = [
         {
           outcomesProbability: [midValue],
-          date: moment(created).valueOf(),
+          date: getMoment(created).valueOf(),
           // First entry in `entries` comes with index 0 and we add this one also
           // with the same index. Is not critical but it's a bug
           index: 0
