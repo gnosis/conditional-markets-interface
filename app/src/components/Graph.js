@@ -105,6 +105,7 @@ const Graph = ({
   decimals: parentDecimals,
   unit,
   entries,
+  created,
   currentProbability,
   marketType
 }) => {
@@ -134,13 +135,24 @@ const Graph = ({
       );
     };
 
+    // when new entries are added, or the probability of the selected outcome changes
     if (entries.length >= data.length || currentProbabilityChanged()) {
+      const midValue =
+        (parseFloat(upperBound) - parseFloat(lowerBound)) / 2 +
+        parseFloat(lowerBound);
       const newData = [
+        {
+          outcomesProbability: [midValue],
+          date: getMoment(created).valueOf(),
+          // First entry in `entries` comes with index 0 and we add this one also
+          // with the same index. Is not critical but it's a bug
+          index: 0
+        },
         ...entries,
         {
           outcomesProbability: currentProbability,
           date: +new Date(),
-          index: entries.length
+          index: entries.length + 1 // +1 because we add the market creation as a datapoint
         }
       ];
 
@@ -187,6 +199,7 @@ const Graph = ({
     return formatDate(tick, "MMM D HH:mm");
   });
 
+  /*
   if (data.length <= 2) {
     return (
       <div className={cx("graph-container", "empty")}>
@@ -194,6 +207,7 @@ const Graph = ({
       </div>
     );
   }
+  */
 
   const marketClass = marketType.toLowerCase() + "-graph";
 
@@ -218,6 +232,14 @@ const Graph = ({
     <div className={cx("graph-container", marketClass)}>
       <ResponsiveContainer minHeight={300}>
         <LineChart data={data} onMouseMove={mouseUpdate} ref={lineChartRef}>
+          {marketType !== "SCALAR" && (
+            <Tooltip
+              labelFormatter={formatDateTickTooltip}
+              formatter={value => {
+                return [value.toFixed(2) + "%"];
+              }}
+            />
+          )}
           {tooltipPosition && marketType === "SCALAR" && (
             <Tooltip
               cursor={
@@ -227,16 +249,9 @@ const Graph = ({
                 />
               }
               coordinate={{ x: 0, y: 0 }}
+              wrapperStyle={{ zIndex: 100, background: "white", top: "-10px" }}
               position={{ x: -sidebarWidth, y: tooltipPosition.y }}
               content={<TooltipContent unit={unit} decimals={decimals} />}
-            />
-          )}
-          {marketType !== "SCALAR" && (
-            <Tooltip
-              labelFormatter={formatDateTickTooltip}
-              formatter={value => {
-                return [value.toFixed(2) + "%"];
-              }}
             />
           )}
           {data &&
@@ -296,7 +311,9 @@ const Graph = ({
         <div
           className={cx("tooltip-current-position")}
           style={{
-            transform: `translate(${-sidebarWidth}px, ${lastTickPosition.y}px)`
+            transform: `translate(${-sidebarWidth}px, calc(${
+              lastTickPosition.y
+            }px - 50%))`
           }}
         >
           {data &&
@@ -319,8 +336,8 @@ const Graph = ({
 };
 
 Graph.propTypes = {
-  lowerBound: PropTypes.number.isRequired,
-  upperBound: PropTypes.number.isRequired,
+  lowerBound: PropTypes.string.isRequired,
+  upperBound: PropTypes.string.isRequired,
   entries: PropTypes.array,
   currentProbability: PropTypes.array,
   marketType: PropTypes.string.isRequired

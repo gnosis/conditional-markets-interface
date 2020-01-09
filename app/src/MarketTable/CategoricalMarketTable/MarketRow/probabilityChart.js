@@ -16,6 +16,7 @@ import { GET_TRADES_BY_MARKET_MAKER } from "api/thegraph";
 
 const probabilityChart = ({
   lmsrAddress,
+  created,
   marketType,
   colSpan,
   probabilities,
@@ -75,12 +76,13 @@ const probabilityChart = ({
           <div className={cx("tab-content")}>
             <Graph
               className={cx("graph")}
-              lowerBound={0}
-              upperBound={100}
+              lowerBound={"0"}
+              upperBound={"100"}
               decimals={0}
               entries={parsedTrades}
               currentProbability={displayedProbabilities}
               marketType={marketType}
+              created={created}
             ></Graph>
           </div>
         </td>
@@ -91,8 +93,8 @@ const probabilityChart = ({
 
 probabilityChart.propTypes = {
   lmsrAddress: PropTypes.string.isRequired,
+  created: PropTypes.string.isRequired,
   marketType: PropTypes.string.isRequired,
-
   colSpan: PropTypes.number.isRequired,
   probabilities: PropTypes.array,
   stagedProbabilities: PropTypes.array

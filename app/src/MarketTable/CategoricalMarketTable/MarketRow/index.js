@@ -30,6 +30,7 @@ const Market = ({
   dataSource,
   dataSourceUrl,
   type,
+  created,
   index,
   probabilities,
   stagedProbabilities,
@@ -139,6 +140,7 @@ const Market = ({
       <ProbabilityChart
         lmsrAddress={lmsrState.marketMakerAddress}
         marketType={type}
+        created={created}
         colSpan={headings.length}
         probabilities={probabilities}
         stagedProbabilities={stagedProbabilities}
@@ -228,7 +230,8 @@ Market.propTypes = {
   type: PropTypes.string.isRequired,
   lmsrState: PropTypes.shape({
     marketMakerAddress: PropTypes.string.isRequired
-  })
+  }),
+  created: PropTypes.string
 };
 
 Market.defaultProps = {
