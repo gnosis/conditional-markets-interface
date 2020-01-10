@@ -5,7 +5,8 @@ import React, {
   useRef,
   useMemo
 } from "react";
-import moment from "moment";
+import PropTypes from "prop-types";
+import { formatDate, getMoment } from "utils/timeFormat";
 import { formatScalarValue } from "utils/formatting";
 import cn from "classnames/bind";
 
@@ -104,6 +105,7 @@ const Graph = ({
   decimals: parentDecimals,
   unit,
   entries,
+  created,
   currentProbability,
   marketType
 }) => {
@@ -133,13 +135,33 @@ const Graph = ({
       );
     };
 
+    // Get initial probability for market
+    const getInitialProbability = () => {
+      const midValue =
+        (parseFloat(upperBound) - parseFloat(lowerBound)) / 2 +
+        parseFloat(lowerBound);
+
+      return currentProbability.map(() => {
+        return midValue;
+      });
+    };
+
+    // when new entries are added, or the probability of the selected outcome changes
     if (entries.length >= data.length || currentProbabilityChanged()) {
+      const initialOutcomesProbability = getInitialProbability();
       const newData = [
+        {
+          outcomesProbability: initialOutcomesProbability,
+          date: getMoment(created).valueOf(),
+          // FIXME First entry in `entries` comes with index 0 and we add this one also
+          // with the same index. Is not critical but it's a bug
+          index: 0
+        },
         ...entries,
         {
           outcomesProbability: currentProbability,
           date: +new Date(),
-          index: entries.length
+          index: entries.length + 1 // +1 because we add the market creation as a datapoint
         }
       ];
 
@@ -179,13 +201,14 @@ const Graph = ({
   );
 
   const formatDateTick = useCallback(tick => {
-    return moment(tick).format("MMM D");
+    return formatDate(tick, "MMM D");
   });
 
   const formatDateTickTooltip = useCallback(tick => {
-    return moment(tick).format("MMM D HH:mm");
+    return formatDate(tick, "MMM D HH:mm");
   });
 
+  /*
   if (data.length <= 2) {
     return (
       <div className={cx("graph-container", "empty")}>
@@ -193,13 +216,39 @@ const Graph = ({
       </div>
     );
   }
+  */
 
   const marketClass = marketType.toLowerCase() + "-graph";
+
+  // Create date ticks manually. Use daily pattern (X Axis ticks)
+  const getTicks = useCallback(() => {
+    let range = [];
+    if (data && data[0]) {
+      const startDate = getMoment(data[0].date).startOf("day");
+      const endDate = getMoment(data[data.length - 1].date).endOf("day");
+      while (startDate < endDate) {
+        range.push(getMoment(startDate));
+        startDate.add(1, "days");
+      }
+      range.push(endDate);
+    }
+    return range;
+  }, [data]);
+
+  const ticks = getTicks();
 
   return (
     <div className={cx("graph-container", marketClass)}>
       <ResponsiveContainer minHeight={300}>
         <LineChart data={data} onMouseMove={mouseUpdate} ref={lineChartRef}>
+          {marketType !== "SCALAR" && (
+            <Tooltip
+              labelFormatter={formatDateTickTooltip}
+              formatter={value => {
+                return [value.toFixed(2) + "%"];
+              }}
+            />
+          )}
           {tooltipPosition && marketType === "SCALAR" && (
             <Tooltip
               cursor={
@@ -209,16 +258,9 @@ const Graph = ({
                 />
               }
               coordinate={{ x: 0, y: 0 }}
+              wrapperStyle={{ zIndex: 100, background: "white", top: "-10px" }}
               position={{ x: -sidebarWidth, y: tooltipPosition.y }}
               content={<TooltipContent unit={unit} decimals={decimals} />}
-            />
-          )}
-          {marketType !== "SCALAR" && (
-            <Tooltip
-              labelFormatter={formatDateTickTooltip}
-              formatter={value => {
-                return [value.toFixed(2) + "%"];
-              }}
             />
           )}
           {data &&
@@ -241,7 +283,10 @@ const Graph = ({
             })}
           <XAxis
             dataKey="date"
-            minTickGap={100}
+            minTickGap={20}
+            type="number"
+            scale="time"
+            ticks={ticks}
             domain={[data && data[0] ? "dataMin" : 0, "dataMax"]}
             tickFormatter={formatDateTick}
             interval="preserveEnd"
@@ -275,7 +320,9 @@ const Graph = ({
         <div
           className={cx("tooltip-current-position")}
           style={{
-            transform: `translate(${-sidebarWidth}px, ${lastTickPosition.y}px)`
+            transform: `translate(${-sidebarWidth}px, calc(${
+              lastTickPosition.y
+            }px - 50%))`
           }}
         >
           {data &&
@@ -295,6 +342,14 @@ const Graph = ({
       )}
     </div>
   );
+};
+
+Graph.propTypes = {
+  lowerBound: PropTypes.string.isRequired,
+  upperBound: PropTypes.string.isRequired,
+  entries: PropTypes.array,
+  currentProbability: PropTypes.array,
+  marketType: PropTypes.string.isRequired
 };
 
 export default Graph;

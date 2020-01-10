@@ -7,7 +7,6 @@ import { ApolloProvider } from "@apollo/react-hooks";
 import Spinner from "components/Spinner";
 import CrashPage from "components/Crash";
 import makeLoadable from "../utils/make-loadable";
-import loadContracts from "loadContracts";
 import { loadWeb3 } from "utils/web3";
 import {
   getCollectionId,
@@ -35,7 +34,7 @@ const whitelistEnabled = conf.WHITELIST_ENABLED;
 const SYNC_INTERVAL = 8000;
 const WHITELIST_CHECK_INTERVAL = 30000;
 
-async function loadBasicData({ lmsrAddress }, web3) {
+async function loadBasicData(lmsrAddress, web3) {
   const { toBN } = web3.utils;
 
   let markets = await getQuestions(undefined, lmsrAddress).then(
@@ -51,16 +50,21 @@ async function loadBasicData({ lmsrAddress }, web3) {
   });
 
   // Load application contracts
-  marketMakersRepo = await getMarketMakersRepo();
-  conditionalTokensRepo = await getConditionalTokensRepo();
-  conditionalTokensService = await getConditionalTokensService();
-  const { collateralToken: collateral } = await loadContracts();
+  marketMakersRepo = await getMarketMakersRepo({ lmsrAddress, web3 });
+  conditionalTokensRepo = await getConditionalTokensRepo({ lmsrAddress, web3 });
+  conditionalTokensService = await getConditionalTokensService({
+    lmsrAddress,
+    web3
+  });
 
   const { product } = require("utils/itertools");
 
   const atomicOutcomeSlotCount = (
     await marketMakersRepo.atomicOutcomeSlotCount()
   ).toNumber();
+
+  // Get collateral contract
+  const collateral = await marketMakersRepo.getCollateralToken();
 
   let curAtomicOutcomeSlotCount = 1;
   for (let i = 0; i < markets.length; i++) {
@@ -232,7 +236,7 @@ async function getLMSRAllowance(collateral, account) {
 
 const moduleLoadTime = Date.now();
 
-const RootComponent = ({ childComponents }) => {
+const RootComponent = ({ match, childComponents }) => {
   const [
     MarketTable,
     Sidebar,
@@ -260,22 +264,24 @@ const RootComponent = ({ childComponents }) => {
   const [markets, setMarkets] = useState(null);
   const [positions, setPositions] = useState(null);
 
+  const lmsrAddress = match.params.lmsrAddress
+    ? match.params.lmsrAddress
+    : conf.lmsrAddress;
+
   const init = useCallback(async () => {
-    const config = conf;
+    const { networkId } = conf;
     try {
-      /* eslint-disable no-console */
       console.groupCollapsed("Configuration");
-      console.log(config);
+      console.log(conf);
       console.groupEnd();
 
-      /* eslint-enable no-console */
-      const { web3, account } = await loadWeb3(config.networkId);
+      const { web3, account } = await loadWeb3(networkId);
 
       setWeb3(web3);
       setAccount(account);
 
       const { collateral, markets, positions } = await loadBasicData(
-        config,
+        lmsrAddress,
         web3
       );
 
@@ -298,11 +304,19 @@ const RootComponent = ({ childComponents }) => {
       setLastError(err.message);
       throw err;
     }
-  }, []);
+  }, [lmsrAddress]);
 
+  // First time init
   useEffect(() => {
+    if (loading !== "LOADING") {
+      // we already init app once. We have to clear data
+      setLoading("LOADING");
+      setCollateral(null);
+      setMarkets(null);
+      setPositions(null);
+    }
     init();
-  }, []);
+  }, [lmsrAddress]);
 
   const [lmsrState, setLMSRState] = useState(null);
   const [marketResolutionStates, setMarketResolutionStates] = useState(null);
@@ -313,7 +327,7 @@ const RootComponent = ({ childComponents }) => {
   const [modal, setModal] = useState(null);
 
   // Add effect when 'syncTime' is updated this functions are triggered
-  // As 'syncTime' is setted to 2 seconds all this getters are triggered and setted
+  // As 'syncTime' is setted to 8 seconds all this getters are triggered and setted
   // in the state.
   for (const [loader, dependentParams, setter] of [
     [getAccount, [web3], setAccount],
@@ -515,6 +529,9 @@ const RootComponent = ({ childComponents }) => {
                     marketResolutionStates,
                     positions,
                     lmsrState,
+                    // FIXME `useQuery` hook can't be used after checking if lmsrState exists.
+                    // Remove and use address from state if we divide this component in smaller ones
+                    lmsrAddress,
                     marketSelections,
                     setMarketSelections,
                     stagedTradeAmounts,
@@ -582,8 +599,8 @@ const RootComponent = ({ childComponents }) => {
   }
 };
 
-export default hot(
-  makeLoadable(RootComponent, [
+const loadableComponent = props =>
+  makeLoadable(RootComponent, props, [
     () => import("MarketTable"),
     () => import("Sidebar"),
     () => import("Header"),
@@ -592,5 +609,6 @@ export default hot(
     () => import("components/ApplyBetaHeader"),
     () => import("components/Toasts"),
     () => import("components/Footer")
-  ])
-);
+  ])();
+
+export default hot(props => loadableComponent(props));

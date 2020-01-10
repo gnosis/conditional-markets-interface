@@ -1,22 +1,30 @@
 const ContractLoader = require("./utils/ContractLoader");
-import { loadWeb3 } from "./utils/web3";
 
-const conf = require("./conf");
-
-let contracts;
+let contracts, contractsPromise, lmsrAddressCache;
+function _resetContracts() {
+  contracts = undefined;
+  contractsPromise = undefined;
+  lmsrAddressCache = undefined;
+}
 /**
  * Loads the contracts into an instance.
  * @return {Object} A dictionary object containing the instances of the contracts.
  */
-async function loadContracts() {
+async function loadContracts({ lmsrAddress, web3 }) {
+  if (lmsrAddress !== lmsrAddressCache) {
+    // If marketMakerAddress changes we have to reload contracts
+    _resetContracts();
+  }
+
   if (!contracts) {
-    const { lmsrAddress, networkId } = conf;
+    lmsrAddressCache = lmsrAddress;
+    if (!contractsPromise) {
+      // Load application contracts
+      const contractLoader = new ContractLoader({ lmsrAddress, web3 });
+      contractsPromise = await contractLoader.loadContracts();
+    }
 
-    const { web3 } = await loadWeb3(networkId);
-
-    // Load application contracts
-    const contractLoader = new ContractLoader({ lmsrAddress, web3 });
-    contracts = await contractLoader.loadContracts();
+    contracts = await contractsPromise;
   }
 
   return contracts;

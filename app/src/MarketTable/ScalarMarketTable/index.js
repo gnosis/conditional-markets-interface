@@ -12,12 +12,14 @@ import ResolutionTime from "./ResolutionTime";
 import Spinner from "components/Spinner";
 import Graph from "components/Graph";
 
-import { oneDecimal } from "utils/constants";
 import { markdownRenderers } from "utils/markdown";
-import { calcSelectedMarketProbabilitiesFromPositionProbabilities } from "utils/probabilities";
+import {
+  getMarketProbabilities,
+  getStagedMarketProbabilities
+} from "utils/probabilities";
 import { formatCollateral } from "utils/formatting";
 
-import { lmsrAddress, GET_TRADES_BY_MARKET_MAKER } from "api/thegraph";
+import { GET_TRADES_BY_MARKET_MAKER } from "api/thegraph";
 
 import prepareTradesData from "../utils/prepareTradesData";
 
@@ -29,6 +31,9 @@ const MarketTable = ({
   markets,
   positions,
   lmsrState,
+  // FIXME `useQuery` hook can't be used after checking if lmsrState exists.
+  // Remove and use address from state if we divide this component in smaller ones
+  lmsrAddress,
   marketSelections,
   setMarketSelections,
   resetMarketSelections,
@@ -37,10 +42,11 @@ const MarketTable = ({
 }) => {
   useEffect(() => {
     resetMarketSelections();
-    return () => {
-      setMarketSelections(null);
-    };
-  }, []);
+    // FIXME This breaks when reloading component after market maker address update
+    // return () => {
+    //   setMarketSelections(null);
+    // };
+  }, [markets]);
   const [isExpanded, setExpanded] = useState(false);
   const [marketProbabilities, setMarketProbabilities] = useState(null);
   const [stagedMarketProbabilities, setStagedMarketProbabilities] = useState(
@@ -58,45 +64,31 @@ const MarketTable = ({
   useMemo(() => {
     if (lmsrState != null) {
       const { funding, positionBalances } = lmsrState;
-      const invB = new Decimal(positionBalances.length)
-        .ln()
-        .div(funding.toString());
 
-      const positionProbabilities = positionBalances.map(balance =>
-        invB
-          .mul(balance.toString())
-          .neg()
-          .exp()
-      );
-      const newMarketProbabilities = calcSelectedMarketProbabilitiesFromPositionProbabilities(
+      const {
+        invB,
+        positionProbabilities,
+        newMarketProbabilities
+      } = getMarketProbabilities(
+        funding,
+        positionBalances,
         markets,
         positions,
-        marketSelections,
-        positionProbabilities
+        marketSelections
       );
       setMarketProbabilities(newMarketProbabilities);
 
       if (stagedTradeAmounts != null) {
-        const unnormalizedPositionProbabilitiesAfterStagedTrade = positionProbabilities.map(
-          (probability, i) =>
-            probability.mul(stagedTradeAmounts[i].mul(invB).exp())
+        const marketProbabilitiesAfterStagedTrade = getStagedMarketProbabilities(
+          {
+            positionProbabilities,
+            invB,
+            stagedTradeAmounts,
+            markets,
+            positions,
+            marketSelections
+          }
         );
-        const normalizer = oneDecimal.div(
-          unnormalizedPositionProbabilitiesAfterStagedTrade.reduce((a, b) =>
-            a.add(b)
-          )
-        );
-        const positionProbabilitiesAfterStagedTrade = unnormalizedPositionProbabilitiesAfterStagedTrade.map(
-          probability => probability.mul(normalizer)
-        );
-
-        const marketProbabilitiesAfterStagedTrade = calcSelectedMarketProbabilitiesFromPositionProbabilities(
-          markets,
-          positions,
-          marketSelections,
-          positionProbabilitiesAfterStagedTrade
-        );
-
         setStagedMarketProbabilities(marketProbabilitiesAfterStagedTrade);
       } else {
         setStagedMarketProbabilities(null);
@@ -126,6 +118,7 @@ const MarketTable = ({
             decimals,
             unit,
             description,
+            created,
             type
           },
           index
@@ -134,10 +127,6 @@ const MarketTable = ({
             { lowerBound, upperBound, type },
             data
           );
-          // const trades = useMemo(
-          //   () => prepareTradesData({ lowerBound, upperBound, type }, data),
-          //   [data]
-          // );
 
           const getValueFromBounds = (value, upperBound, lowerBound) => {
             // Value is a percentage of outcome tokens, should get the value
@@ -162,23 +151,6 @@ const MarketTable = ({
                   upperBound,
                   lowerBound
                 );
-
-          // const parsedProbabilities = useMemo(
-          //   () =>
-          //     stagedMarketProbabilities && stagedMarketProbabilities[index]
-          //       ? getValueFromBounds(
-          //           stagedMarketProbabilities[index][1],
-          //           upperBound,
-          //           lowerBound
-          //         )
-          //       : getValueFromBounds(
-          //           marketProbabilities[index][1],
-          //           upperBound,
-          //           lowerBound
-          //         ),
-          //   [stagedMarketProbabilities, marketProbabilities]
-          // );
-
           return (
             <div
               className={cx("markettable-row")}
@@ -221,6 +193,7 @@ const MarketTable = ({
                   decimals={decimals}
                   unit={unit}
                   entries={trades}
+                  created={created}
                   currentProbability={parsedProbabilities}
                   marketType={type}
                 />
@@ -293,6 +266,7 @@ MarketTable.propTypes = {
     }).isRequired
   ).isRequired,
   lmsrState: PropTypes.shape({
+    marketMakerAddress: PropTypes.string.isRequired,
     funding: PropTypes.instanceOf(BN).isRequired,
     positionBalances: PropTypes.arrayOf(PropTypes.instanceOf(BN).isRequired)
       .isRequired
