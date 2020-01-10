@@ -8,7 +8,7 @@ import cn from "classnames/bind";
 import style from "./buy.scss";
 
 import OutcomeCard from "components/OutcomeCard";
-import { zeroDecimal, maxUint256BN } from "utils/constants";
+import { zeroDecimal } from "utils/constants";
 import { formatCollateral } from "utils/formatting";
 import {
   calcPositionGroups,
@@ -19,9 +19,7 @@ const { BN } = Web3.utils;
 
 const cx = cn.bind(style);
 
-import getMarketMakersRepo from "repositories/MarketMakersRepo";
 import getConditionalTokensService from "services/ConditionalTokensService";
-let marketMakersRepo;
 let conditionalTokensService;
 
 const Buy = ({
@@ -43,11 +41,10 @@ const Buy = ({
 }) => {
   // Memoize fetching data files
   const loadDataLayer = useCallback(() => {
-    async function getRepo() {
-      marketMakersRepo = await getMarketMakersRepo();
+    async function getService() {
       conditionalTokensService = await getConditionalTokensService();
     }
-    getRepo();
+    getService();
   }, []);
 
   // Load data layer just on page load
@@ -126,61 +123,33 @@ const Buy = ({
       // empty
     }
 
+  const clearAllPositions = useCallback(() => {
+    setStagedTransactionType(null);
+    setStagedTradeAmounts(null);
+    setInvestmentAmount("");
+    resetMarketSelections(null);
+    setError(null);
+  }, [setStagedTradeAmounts, setInvestmentAmount, setError]);
+
   const buyOutcomeTokens = useCallback(async () => {
-    if (stagedTradeAmounts == null) throw new Error(`No buy set yet`);
-
-    if (stagedTransactionType !== "buy outcome tokens")
-      throw new Error(
-        `Can't buy outcome tokens while staged transaction is to ${stagedTransactionType}`
-      );
-
-    let investmentAmountInUnits;
-    try {
-      investmentAmountInUnits = collateral.toUnitsMultiplier.mul(
-        investmentAmount
-      );
-    } catch (err) {
-      investmentAmountInUnits = zeroDecimal;
-    }
-
-    if (investmentAmountInUnits.gt(collateralBalance.totalAmount.toString()))
-      throw new Error(
-        `Not enough collateral: missing ${formatCollateral(
-          investmentAmountInUnits.sub(collateralBalance.totalAmount.toString()),
-          collateral
-        )}`
-      );
-
-    const tradeAmounts = stagedTradeAmounts.map(amount => amount.toString());
-    const collateralLimit = await marketMakersRepo.calcNetCost(tradeAmounts);
-
-    if (collateral.isWETH && collateralLimit.gt(collateralBalance.amount)) {
-      await collateral.contract.deposit({
-        value: collateralLimit.sub(collateralBalance.amount),
-        from: account
-      });
-    }
-
-    if (!hasAnyAllowance || !hasEnoughAllowance) {
-      const marketMakerAddress = await marketMakersRepo.getAddress();
-      await collateral.contract.approve(
-        marketMakerAddress,
-        maxUint256BN.toString(10),
-        {
-          from: account
-        }
-      );
-    }
-
-    await marketMakersRepo.trade(tradeAmounts, collateralLimit, account);
+    await conditionalTokensService.buyOutcomeTokens({
+      investmentAmount,
+      stagedTradeAmounts,
+      stagedTransactionType,
+      account,
+      collateralBalance,
+      hasAnyAllowance,
+      hasEnoughAllowance
+    });
 
     clearAllPositions();
   }, [
+    investmentAmount,
     hasAnyAllowance,
     hasEnoughAllowance,
     stagedTransactionType,
     stagedTradeAmounts,
-    marketMakersRepo,
+    conditionalTokensService,
     collateral,
     account
   ]);
@@ -233,14 +202,6 @@ const Buy = ({
       );
     }
   }, [collateralBalance, collateral]);
-
-  const clearAllPositions = useCallback(() => {
-    setStagedTransactionType(null);
-    setStagedTradeAmounts(null);
-    setInvestmentAmount("");
-    resetMarketSelections(null);
-    setError(null);
-  }, [setStagedTradeAmounts, setInvestmentAmount, setError]);
 
   useEffect(() => {
     const hasConditional = (marketSelections || []).some(

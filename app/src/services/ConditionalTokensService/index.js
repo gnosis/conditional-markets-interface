@@ -1,5 +1,5 @@
-const ConditionalTokensService = require("./ConditionalTokensService");
 const conf = require("../../conf");
+import ConditionalTokensService from "./ConditionalTokensService";
 import getMarketMakersRepo from "../../repositories/MarketMakersRepo";
 import getConditionalTokensRepo from "../../repositories/ConditionalTokensRepo";
 

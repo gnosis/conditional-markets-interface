@@ -1,21 +1,25 @@
 import React, { useState, useEffect, useCallback } from "react";
+import PropTypes from "prop-types";
+
+import Web3 from "web3";
+
 import cn from "classnames/bind";
 import Spinner from "components/Spinner";
+import PercentageFormat from "components/Formatting/PercentageFormat";
 
 import { fromProbabilityToSlider } from "utils/scalar";
 import { formatScalarValue, formatCollateral } from "utils/formatting";
 
 import style from "./buy.scss";
 import Decimal from "decimal.js-light";
-import { zeroDecimal, maxUint256BN, oneDecimal } from "utils/constants";
+import { zeroDecimal, oneDecimal } from "utils/constants";
 import { calcOutcomeTokenCounts } from "utils/position-groups";
+
+const { BN } = Web3.utils;
 
 const cx = cn.bind(style);
 
-import getMarketMakersRepo from "repositories/MarketMakersRepo";
 import getConditionalTokensService from "services/ConditionalTokensService";
-import PercentageFormat from "components/Formatting/PercentageFormat";
-let marketMakersRepo;
 let conditionalTokensService;
 
 const Buy = ({
@@ -41,11 +45,10 @@ const Buy = ({
 }) => {
   // Memoize fetching data files
   const loadDataLayer = useCallback(() => {
-    async function getRepo() {
-      marketMakersRepo = await getMarketMakersRepo();
+    async function getService() {
       conditionalTokensService = await getConditionalTokensService();
     }
-    getRepo();
+    getService();
   }, []);
 
   // Load data layer just on page load
@@ -238,62 +241,26 @@ const Buy = ({
   }, [setStagedTradeAmounts, setInvestmentAmount, setError]);
 
   const buyOutcomeTokens = useCallback(async () => {
-    if (stagedTradeAmounts == null) throw new Error(`No buy set yet`);
-
-    if (stagedTransactionType !== "buy outcome tokens")
-      throw new Error(
-        `Can't buy outcome tokens while staged transaction is to ${stagedTransactionType}`
-      );
-
-    let investmentAmountInUnits;
-    try {
-      investmentAmountInUnits = collateral.toUnitsMultiplier.mul(
-        investmentAmount
-      );
-    } catch (err) {
-      investmentAmountInUnits = zeroDecimal;
-    }
-
-    if (investmentAmountInUnits.gt(collateralBalance.totalAmount.toString()))
-      throw new Error(
-        `Not enough collateral: missing ${formatCollateral(
-          investmentAmountInUnits.sub(collateralBalance.totalAmount.toString()),
-          collateral
-        )}`
-      );
-
-    const tradeAmounts = stagedTradeAmounts.map(amount => amount.toString());
-    const collateralLimit = await marketMakersRepo.calcNetCost(tradeAmounts);
-
-    if (collateral.isWETH && collateralLimit.gt(collateralBalance.amount)) {
-      await collateral.contract.deposit({
-        value: collateralLimit.sub(collateralBalance.amount),
-        from: account
-      });
-    }
-
-    if (!hasAnyAllowance || !hasEnoughAllowance) {
-      const marketMakerAddress = await marketMakersRepo.getAddress();
-      await collateral.contract.approve(
-        marketMakerAddress,
-        maxUint256BN.toString(10),
-        {
-          from: account
-        }
-      );
-    }
-
-    await marketMakersRepo.trade(tradeAmounts, collateralLimit, account);
+    await conditionalTokensService.buyOutcomeTokens({
+      investmentAmount,
+      stagedTradeAmounts,
+      stagedTransactionType,
+      account,
+      collateralBalance,
+      hasAnyAllowance,
+      hasEnoughAllowance
+    });
 
     clearAllPositions();
     // Show positions component
     makeButtonSelectCallback("Sell");
   }, [
+    investmentAmount,
     hasAnyAllowance,
     hasEnoughAllowance,
     stagedTransactionType,
     stagedTradeAmounts,
-    marketMakersRepo,
+    conditionalTokensService,
     collateral,
     account
   ]);
@@ -472,6 +439,56 @@ const Buy = ({
       </div>
     </div>
   );
+};
+
+Buy.propTypes = {
+  account: PropTypes.string.isRequired,
+  positions: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.string.isRequired,
+      positionIndex: PropTypes.number.isRequired,
+      outcomes: PropTypes.arrayOf(
+        PropTypes.shape({
+          marketIndex: PropTypes.number.isRequired,
+          outcomeIndex: PropTypes.number.isRequired
+        }).isRequired
+      ).isRequired
+    }).isRequired
+  ).isRequired,
+  collateral: PropTypes.shape({
+    contract: PropTypes.object.isRequired,
+    name: PropTypes.string.isRequired,
+    symbol: PropTypes.string.isRequired,
+    decimals: PropTypes.number.isRequired,
+    isWETH: PropTypes.bool.isRequired
+  }).isRequired,
+  collateralBalance: PropTypes.shape({
+    amount: PropTypes.instanceOf(BN).isRequired,
+    unwrappedAmount: PropTypes.instanceOf(BN),
+    totalAmount: PropTypes.instanceOf(BN).isRequired
+  }),
+  lmsrState: PropTypes.shape({
+    funding: PropTypes.instanceOf(BN).isRequired,
+    positionBalances: PropTypes.arrayOf(PropTypes.instanceOf(BN).isRequired)
+      .isRequired,
+    stage: PropTypes.string.isRequired
+  }),
+  lmsrAllowance: PropTypes.instanceOf(BN),
+  marketSelections: PropTypes.arrayOf(
+    PropTypes.shape({
+      isAssumed: PropTypes.bool.isRequired,
+      selectedOutcomeIndex: PropTypes.number
+    }).isRequired
+  ),
+  stagedTradeAmounts: PropTypes.arrayOf(
+    PropTypes.instanceOf(Decimal).isRequired
+  ),
+  setStagedTradeAmounts: PropTypes.func.isRequired,
+  stagedTransactionType: PropTypes.string,
+  setStagedTransactionType: PropTypes.func.isRequired,
+  ongoingTransactionType: PropTypes.string,
+  asWrappedTransaction: PropTypes.func.isRequired,
+  resetMarketSelections: PropTypes.func.isRequired
 };
 
 export default Buy;
