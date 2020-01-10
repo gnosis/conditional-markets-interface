@@ -1,10 +1,4 @@
-import React, {
-  useEffect,
-  useState,
-  useCallback,
-  useRef,
-  useMemo
-} from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import PropTypes from "prop-types";
 import { formatDate, getMoment } from "utils/timeFormat";
 import { formatScalarValue } from "utils/formatting";
@@ -102,15 +96,15 @@ const TooltipContent = ({ active, value, payload, unit, decimals }) => {
 const Graph = ({
   lowerBound,
   upperBound,
-  decimals: parentDecimals,
+  decimals,
   unit,
-  entries,
   created,
   resolutionDate,
-  currentProbability,
-  marketType
+  marketType,
+  entries,
+  currentProbability
 }) => {
-  const [decimals, setDecimals] = useState(parentDecimals || 2);
+  //const [decimals, setDecimals] = useState(parentDecimals || 2);
 
   const [data, setData] = useState(entries);
   const [sidebarWidth, setSidebarWidth] = useState(0);
@@ -121,7 +115,8 @@ const Graph = ({
   const lineRef = useRef(null);
   const lineChartRef = useRef(null);
 
-  useMemo(() => {
+  useEffect(() => {
+    // console.log("memo updates", entries, currentProbability)
     // TODO entries and currentProbability are constantly updating. As data
     // object is updated each render the graph is re-rendered continously.
     // Check how to cache entries and current probability to avoid components
@@ -167,6 +162,13 @@ const Graph = ({
           outcomesProbability: currentProbability,
           date: +new Date(),
           index: entries.length + 1 // +1 because we add the market creation as a datapoint
+        });
+      } else {
+        // when market is resolved, duplicate latest trade but adjust to show on resolution date
+        newData.push({
+          ...entries[entries.length - 1],
+          date: getMoment(resolutionDate).valueOf(),
+          index: entries.length + 1
         });
       }
 
@@ -354,7 +356,15 @@ Graph.propTypes = {
   upperBound: PropTypes.string.isRequired,
   entries: PropTypes.array,
   currentProbability: PropTypes.array,
-  marketType: PropTypes.string.isRequired
+  marketType: PropTypes.string.isRequired,
+  resolutionDate: PropTypes.string.isRequired,
+  created: PropTypes.string.isRequired,
+  decimals: PropTypes.number.isRequired,
+  unit: PropTypes.string
+};
+
+Graph.defaultProps = {
+  unit: "Units"
 };
 
 export default Graph;
