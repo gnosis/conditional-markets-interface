@@ -34,7 +34,7 @@ const Sidebar = props => {
   );
 
   let marketProbabilities = null;
-  if (lmsrState != null) {
+  if (lmsrState != null && marketSelections != null) {
     const { funding, positionBalances } = lmsrState;
 
     const { newMarketProbabilities } = getMarketProbabilities(

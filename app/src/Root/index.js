@@ -255,7 +255,7 @@ const RootComponent = ({ match, childComponents }) => {
   const triggerSync = useCallback(() => {
     setSyncTime(Date.now());
   });
-  useInterval(triggerSync, SYNC_INTERVAL);
+  //useInterval(triggerSync, SYNC_INTERVAL);
   const [toasts, setToasts] = useState([]);
 
   const [web3, setWeb3] = useState(null);
@@ -326,25 +326,63 @@ const RootComponent = ({ match, childComponents }) => {
 
   const [modal, setModal] = useState(null);
 
-  // Add effect when 'syncTime' is updated this functions are triggered
-  // As 'syncTime' is setted to 8 seconds all this getters are triggered and setted
-  // in the state.
-  for (const [loader, dependentParams, setter] of [
-    [getAccount, [web3], setAccount],
-    [getLMSRState, [web3, positions], setLMSRState],
-    [getMarketResolutionStates, [markets], setMarketResolutionStates],
-    [getCollateralBalance, [web3, collateral, account], setCollateralBalance],
-    [getPositionBalances, [positions, account], setPositionBalances],
-    [getLMSRAllowance, [collateral, account], setLMSRAllowance]
-  ])
-    useEffect(() => {
+  // check for changes with JSON.stringify
+  // (probably a bit expensive)
+  const jsonStringChange = useCallback(
+    (prev, setter) => next => {
+      if (JSON.stringify(prev) !== JSON.stringify(next)) {
+        setter(next);
+      }
+    },
+    []
+  );
+
+  // Callback to update all blockchain information
+  const updateFromBlockchain = useCallback(() => {
+    for (const [loader, dependentParams, setter, prev] of [
+      [getAccount, [web3], setAccount, account],
+      [getLMSRState, [web3, positions], setLMSRState, lmsrState],
+      [
+        getMarketResolutionStates,
+        [markets],
+        setMarketResolutionStates,
+        marketResolutionStates
+      ],
+      [
+        getCollateralBalance,
+        [web3, collateral, account],
+        setCollateralBalance,
+        collateralBalance
+      ],
+      [
+        getPositionBalances,
+        [positions, account],
+        setPositionBalances,
+        positionBalances
+      ],
+      [getLMSRAllowance, [collateral, account], setLMSRAllowance, lmsrAllowance]
+    ])
       if (dependentParams.every(p => p != null))
         loader(...dependentParams)
-          .then(setter)
+          .then(jsonStringChange(prev, setter))
           .catch(err => {
             throw err;
           });
-    }, [...dependentParams, syncTime]);
+  }, [
+    web3,
+    positions,
+    markets,
+    collateral,
+    account,
+    lmsrState,
+    lmsrAllowance,
+    marketResolutionStates
+  ]);
+
+  // fetch on load:
+  useEffect(() => {
+    updateFromBlockchain();
+  }, []);
 
   const [marketSelections, setMarketSelections] = useState(null);
   const [stagedTradeAmounts, setStagedTradeAmounts] = useState(null);
@@ -385,7 +423,6 @@ const RootComponent = ({ match, childComponents }) => {
       setWhitelistState("NOT_FOUND");
     }
   }, [account]);
-  useInterval(updateWhitelist, whitelistIntervalTime);
 
   useEffect(() => {
     updateWhitelist();
@@ -494,9 +531,16 @@ const RootComponent = ({ match, childComponents }) => {
     }
   }, []);
 
+  // Whitelist update interval
+  useInterval(updateWhitelist, whitelistIntervalTime);
+
+  // Data update interval
+  useInterval(updateFromBlockchain, SYNC_INTERVAL);
+
+  // Toast update interval
   useInterval(updateToasts, 1000);
 
-  if (loading === "SUCCESS")
+  if (loading === "SUCCESS" && lmsrState) {
     return (
       <ApolloProvider client={client}>
         <div className={cx("page")}>
@@ -580,8 +624,9 @@ const RootComponent = ({ match, childComponents }) => {
         </div>
       </ApolloProvider>
     );
+  }
 
-  if (loading === "LOADING") {
+  if (loading === "LOADING" || !lmsrState) {
     return (
       <div className={cx("loading-page")}>
         <Spinner centered width={100} height={100} />
@@ -597,8 +642,6 @@ const RootComponent = ({ match, childComponents }) => {
     );
   }
 };
-
-RootComponent.whyDidYouRender = true;
 
 const loadableComponent = props =>
   makeLoadable(RootComponent, props, [

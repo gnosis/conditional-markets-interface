@@ -71,11 +71,14 @@ export const calcSelectedMarketProbabilitiesFromPositionProbabilities = (
   const sumConsideredPositionProbabilities = whichPositions =>
     whichPositions
       .filter(({ outcomes }) =>
-        outcomes.every(
-          ({ marketIndex, outcomeIndex }) =>
-            !marketSelections[marketIndex].isAssumed ||
-            outcomeIndex === marketSelections[marketIndex].selectedOutcomeIndex
-        )
+        !marketSelections
+          ? outcomes
+          : outcomes.every(
+              ({ marketIndex, outcomeIndex }) =>
+                !marketSelections[marketIndex].isAssumed ||
+                outcomeIndex ===
+                  marketSelections[marketIndex].selectedOutcomeIndex
+            )
       )
       .reduce(
         (acc, { positionIndex }) =>

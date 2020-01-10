@@ -41,17 +41,18 @@ const probabilityChart = ({
       );
     } else return null;
   }, [marketType, data]);
-
+  
   const getProbabilitiesPercentage = value => value.mul(100).toNumber();
-  const displayedProbabilities = useMemo(
-    () =>
-      probabilities
-        ? probabilities.map(getProbabilitiesPercentage)
-        : stagedProbabilities.map(getProbabilitiesPercentage),
-    [probabilities, stagedProbabilities]
-  );
+  const displayedProbabilities = useMemo(() => {
+    if (!probabilities) {
+      return [];
+    }
+    stagedProbabilities
+      ? probabilities.map(getProbabilitiesPercentage)
+      : stagedProbabilities.map(getProbabilitiesPercentage);
+  }, [probabilities, stagedProbabilities]);
 
-  if (loading) return <Spinner width={32} height={32} />;
+  if (loading || !parsedTrades) return <Spinner width={32} height={32} />;
   if (error) throw new Error(error);
 
   return (

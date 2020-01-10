@@ -123,6 +123,11 @@ const Graph = ({
     // extra work that includes currentProbabilityChanged and if array lengths are different
     const currentProbabilityChanged = () => {
       const dataProbability = data[data.length - 1].outcomesProbability;
+
+      if (!dataProbability || !currentProbability) {
+        return false;
+      }
+
       return (
         dataProbability.length !== currentProbability.length ||
         dataProbability.some(
@@ -165,11 +170,23 @@ const Graph = ({
         });
       } else {
         // when market is resolved, duplicate latest trade but adjust to show on resolution date
-        newData.push({
-          ...entries[entries.length - 1],
-          date: getMoment(resolutionDate).valueOf(),
-          index: entries.length + 1
-        });
+        if (entries.length > 0) {
+          // but only duplicate when there even was a trade
+          newData.push({
+            ...entries[entries.length - 1],
+            date: getMoment(resolutionDate).valueOf(),
+            index: entries.length + 1
+          });
+        } else {
+          // empty and closed should show 50/50
+          newData.push({
+            outcomesProbability: initialOutcomesProbability,
+            date: getMoment(created).valueOf(),
+            // FIXME First entry in `entries` comes with index 0 and we add this one also
+            // with the same index. Is not critical but it's a bug
+            index: entries.length + 1
+          });
+        }
       }
 
       setData(newData);
@@ -243,7 +260,7 @@ const Graph = ({
   }, [data]);
 
   const ticks = getTicks();
-
+  
   return (
     <div className={cx("graph-container", marketClass)}>
       <ResponsiveContainer minHeight={300}>

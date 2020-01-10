@@ -44,6 +44,7 @@ const MarketTable = ({
   ] = useState(null);
   useMemo(() => {
     if (lmsrState != null) {
+      console.log("calc probabilities")
       const { funding, positionBalances } = lmsrState;
       const {
         invB,
@@ -118,7 +119,7 @@ const MarketTable = ({
     )
   ];
 
-  if (!lmsrState) {
+  if (!lmsrState || !marketProbabilities) {
     return <Spinner />;
   }
 

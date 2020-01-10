@@ -62,7 +62,7 @@ const MarketTable = ({
   });
 
   useEffect(() => {
-    if (lmsrState != null) {
+    if (lmsrState != null && marketSelections != null) {
       const { funding, positionBalances } = lmsrState;
 
       const {
