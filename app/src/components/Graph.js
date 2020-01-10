@@ -9,7 +9,6 @@ import PropTypes from "prop-types";
 import { formatDate, getMoment } from "utils/timeFormat";
 import { formatScalarValue } from "utils/formatting";
 import cn from "classnames/bind";
-import moment from "moment";
 
 import styles from "./Graph.scss";
 
@@ -162,7 +161,7 @@ const Graph = ({
         ...entries
       ];
 
-      if (moment(resolutionDate).isAfter(moment())) {
+      if (getMoment(resolutionDate).isAfter(getMoment())) {
         // only add last entry (with currently probabilities) if the market is not already resolved
         newData.push({
           outcomesProbability: currentProbability,
