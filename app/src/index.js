@@ -16,6 +16,12 @@ import "./scss/style.scss";
 
 import Decimal from "decimal.js-light";
 
+// Debug Re-rendering
+if (process.env.NODE_ENV !== 'production') {
+  const whyDidYouRender = require('@welldone-software/why-did-you-render');
+  whyDidYouRender(React);
+}
+
 // Routes
 import Routes from "./Routes";
 

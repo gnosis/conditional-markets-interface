@@ -35,7 +35,7 @@ const MarketTable = ({
   // Remove and use address from state if we divide this component in smaller ones
   lmsrAddress,
   marketSelections,
-  setMarketSelections,
+  // setMarketSelections,
   resetMarketSelections,
   stagedTradeAmounts,
   collateral
@@ -61,7 +61,7 @@ const MarketTable = ({
     pollInterval: 15000
   });
 
-  useMemo(() => {
+  useEffect(() => {
     if (lmsrState != null) {
       const { funding, positionBalances } = lmsrState;
 
@@ -96,6 +96,47 @@ const MarketTable = ({
     }
   }, [lmsrState, markets, positions, marketSelections, stagedTradeAmounts]);
 
+  const getValueFromBounds = useCallback((value, upperBound, lowerBound) => {
+    // Value is a percentage of outcome tokens, should get the value
+    // that it represents compared with bounds
+    return [
+      value
+        .mul(upperBound - lowerBound)
+        .add(lowerBound)
+        .toNumber()
+    ];
+  }, []);
+
+  // update trades on input-change
+  const tradesByMarketIndex = useMemo(() => {
+    if (!error && !loading && data) {
+      return markets.map(({ lowerBound, upperBound, type }) => {
+        return prepareTradesData({ lowerBound, upperBound, type }, data);
+      });
+    }
+    return [];
+  }, [markets, data, loading, error]);
+
+  // update probabilities on input-change
+  const probabilitiesByMarketIndex = useMemo(() => {
+    if (marketProbabilities) {
+      return markets.map(({ upperBound, lowerBound }, index) => {
+        return stagedMarketProbabilities && stagedMarketProbabilities[index]
+          ? getValueFromBounds(
+              stagedMarketProbabilities[index][1],
+              upperBound,
+              lowerBound
+            )
+          : getValueFromBounds(
+              marketProbabilities[index][1],
+              upperBound,
+              lowerBound
+            );
+      });
+    }
+    return [];
+  }, [markets, marketProbabilities, stagedMarketProbabilities]);
+
   if (!lmsrState || !marketProbabilities) {
     return <Spinner />;
   }
@@ -122,127 +163,94 @@ const MarketTable = ({
             type
           },
           index
-        ) => {
-          const trades = prepareTradesData(
-            { lowerBound, upperBound, type },
-            data
-          );
-
-          const getValueFromBounds = (value, upperBound, lowerBound) => {
-            // Value is a percentage of outcome tokens, should get the value
-            // that it represents compared with bounds
-            return [
-              value
-                .mul(upperBound - lowerBound)
-                .add(lowerBound)
-                .toNumber()
-            ];
-          };
-
-          const parsedProbabilities =
-            stagedMarketProbabilities && stagedMarketProbabilities[index]
-              ? getValueFromBounds(
-                  stagedMarketProbabilities[index][1],
-                  upperBound,
-                  lowerBound
-                )
-              : getValueFromBounds(
-                  marketProbabilities[index][1],
-                  upperBound,
-                  lowerBound
-                );
-          return (
-            <div
-              className={cx("markettable-row")}
-              key={`market-${conditionId}`}
-            >
-              <div className={cx("header")}>{title}</div>
-              <div className={cx("subheader")}>
-                <div className={cx("property")}>
-                  <i className={cx("icon", "icon-time")} />{" "}
-                  <ResolutionTime date={resolutionDate} />
-                </div>
-                {dataSource && (
-                  <div className={cx("property")}>
-                    <i className={cx("icon", "icon-oracle")} />
-                    <>
-                      {dataSourceUrl ? (
-                        <a
-                          className={cx("link-oracle")}
-                          href={dataSourceUrl}
-                          rel="noopener noreferrer"
-                          target="_blank"
-                        >
-                          {dataSource}
-                        </a>
-                      ) : (
-                        <>{dataSource}</>
-                      )}
-                    </>
-                  </div>
-                )}
-                <div className={cx("property")}>
-                  <i className={cx("icon", "icon-volume")} />{" "}
-                  {formatCollateral(lmsrState.funding, collateral)}
-                </div>
+        ) => (
+          <div className={cx("markettable-row")} key={`market-${conditionId}`}>
+            <div className={cx("header")}>{title}</div>
+            <div className={cx("subheader")}>
+              <div className={cx("property")}>
+                <i className={cx("icon", "icon-time")} />{" "}
+                <ResolutionTime date={resolutionDate} />
               </div>
-              <div className={cx("prediction")}>
-                <Graph
-                  lowerBound={lowerBound}
-                  upperBound={upperBound}
-                  decimals={decimals}
-                  unit={unit}
-                  entries={trades}
-                  resolutionDate={resolutionDate}
-                  created={created}
-                  currentProbability={parsedProbabilities}
-                  marketType={type}
-                />
-              </div>
-              <div className={cx("details")}>
-                <div className={cx("details-header")}>
-                  <button
-                    type="button"
-                    className={cx("details-expand")}
-                    onClick={handleToggleExpand}
-                  >
-                    Market Details
-                    <span className={cx("expand-button")}>
-                      {isExpanded ? "–" : "+"}
-                    </span>
-                  </button>
+              {dataSource && (
+                <div className={cx("property")}>
+                  <i className={cx("icon", "icon-oracle")} />
+                  <>
+                    {dataSourceUrl ? (
+                      <a
+                        className={cx("link-oracle")}
+                        href={dataSourceUrl}
+                        rel="noopener noreferrer"
+                        target="_blank"
+                      >
+                        {dataSource}
+                      </a>
+                    ) : (
+                      <>{dataSource}</>
+                    )}
+                  </>
                 </div>
-                <div
-                  className={cx("details-content", {
-                    hidden: !isExpanded
-                  })}
-                >
-                  {dataSource && (
-                    <>
-                      <h1>Data Source</h1>
-                      {dataSourceUrl ? (
-                        <a
-                          href={dataSourceUrl}
-                          rel="noopener noreferrer"
-                          target="_blank"
-                        >
-                          {dataSource}
-                        </a>
-                      ) : (
-                        <>{dataSource}</>
-                      )}
-                    </>
-                  )}
-                  <Markdown
-                    className={cx("description")}
-                    source={description || "*No Description for this Market*"}
-                    renderers={markdownRenderers}
-                  />
-                </div>
+              )}
+              <div className={cx("property")}>
+                <i className={cx("icon", "icon-volume")} />{" "}
+                {formatCollateral(lmsrState.funding, collateral)}
               </div>
             </div>
-          );
-        }
+            <div className={cx("prediction")}>
+              <Graph
+                lowerBound={lowerBound}
+                upperBound={upperBound}
+                decimals={decimals}
+                unit={unit}
+                entries={tradesByMarketIndex[index]}
+                resolutionDate={resolutionDate}
+                created={created}
+                currentProbability={probabilitiesByMarketIndex[index]}
+                marketType={type}
+              />
+            </div>
+            <div className={cx("details")}>
+              <div className={cx("details-header")}>
+                <button
+                  type="button"
+                  className={cx("details-expand")}
+                  onClick={handleToggleExpand}
+                >
+                  Market Details
+                  <span className={cx("expand-button")}>
+                    {isExpanded ? "–" : "+"}
+                  </span>
+                </button>
+              </div>
+              <div
+                className={cx("details-content", {
+                  hidden: !isExpanded
+                })}
+              >
+                {dataSource && (
+                  <>
+                    <h1>Data Source</h1>
+                    {dataSourceUrl ? (
+                      <a
+                        href={dataSourceUrl}
+                        rel="noopener noreferrer"
+                        target="_blank"
+                      >
+                        {dataSource}
+                      </a>
+                    ) : (
+                      <>{dataSource}</>
+                    )}
+                  </>
+                )}
+                <Markdown
+                  className={cx("description")}
+                  source={description || "*No Description for this Market*"}
+                  renderers={markdownRenderers}
+                />
+              </div>
+            </div>
+          </div>
+        )
       )}
     </div>
   );
@@ -266,6 +274,7 @@ MarketTable.propTypes = {
       ).isRequired
     }).isRequired
   ).isRequired,
+  lmsrAddress: PropTypes.string.isRequired,
   lmsrState: PropTypes.shape({
     marketMakerAddress: PropTypes.string.isRequired,
     funding: PropTypes.instanceOf(BN).isRequired,
@@ -282,7 +291,11 @@ MarketTable.propTypes = {
   setMarketSelections: PropTypes.func.isRequired,
   stagedTradeAmounts: PropTypes.arrayOf(
     PropTypes.instanceOf(Decimal).isRequired
-  )
+  ),
+  collateral: PropTypes.shape({
+    decimals: PropTypes.number,
+    symbol: PropTypes.string
+  }).isRequired
 };
 
 export default MarketTable;

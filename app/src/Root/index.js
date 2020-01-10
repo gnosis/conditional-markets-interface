@@ -433,37 +433,36 @@ const RootComponent = ({ match, childComponents }) => {
     ]
   );
 
-  const addToast = useCallback(
-    (toastMessage, toastType = "default") => {
-      const toastId = Math.round(Math.random() * 1e9 + 1e10).toString();
-      const creationTime = new Date().getTime() / 1000;
+  const addToast = useCallback((toastMessage, toastType = "default") => {
+    const toastId = Math.round(Math.random() * 1e9 + 1e10).toString();
+    const creationTime = new Date().getTime() / 1000;
 
-      setToasts(prevToasts => [
-        ...prevToasts,
-        {
-          id: toastId,
-          message: toastMessage,
-          type: toastType,
-          created: creationTime,
-          duration: 30 //s
-        }
-      ]);
-    },
-    [toasts]
-  );
+    setToasts(prevToasts => [
+      ...prevToasts,
+      {
+        id: toastId,
+        message: toastMessage,
+        type: toastType,
+        created: creationTime,
+        duration: 30 //s
+      }
+    ]);
+  }, []);
 
   const updateToasts = useCallback(() => {
-    const now = new Date().getTime() / 1000;
+    if (toasts.length > 0) {
+      const now = new Date().getTime() / 1000;
 
-    setToasts(prevToasts => {
-      let newToasts = [];
-      for (let toast of prevToasts) {
-        if (now - toast.created < toast.duration) {
-          newToasts.push(toast);
+      setToasts(prevToasts => {
+        let newToasts = [];
+        for (let toast of prevToasts) {
+          if (now - toast.created < toast.duration) {
+            newToasts.push(toast);
+          }
         }
-      }
-      return newToasts;
-    });
+        return newToasts;
+      });
+    }
   }, [toasts]);
 
   const deleteToast = useCallback(
@@ -598,6 +597,8 @@ const RootComponent = ({ match, childComponents }) => {
     );
   }
 };
+
+RootComponent.whyDidYouRender = true;
 
 const loadableComponent = props =>
   makeLoadable(RootComponent, props, [
