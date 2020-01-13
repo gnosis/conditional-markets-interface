@@ -20,6 +20,7 @@ const probabilityChart = ({
   marketType,
   colSpan,
   probabilities,
+  resolutionDate,
   stagedProbabilities
 }) => {
   const { loading, error, data } = useQuery(GET_TRADES_BY_MARKET_MAKER, {
@@ -80,6 +81,7 @@ const probabilityChart = ({
               upperBound={"100"}
               decimals={0}
               entries={parsedTrades}
+              resolutionDate={resolutionDate}
               currentProbability={displayedProbabilities}
               marketType={marketType}
               created={created}
@@ -96,6 +98,7 @@ probabilityChart.propTypes = {
   created: PropTypes.string.isRequired,
   marketType: PropTypes.string.isRequired,
   colSpan: PropTypes.number.isRequired,
+  resolutionDate: PropTypes.string.isRequired,
   probabilities: PropTypes.array,
   stagedProbabilities: PropTypes.array
 };

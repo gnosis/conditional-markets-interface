@@ -143,6 +143,7 @@ const Market = ({
         created={created}
         colSpan={headings.length}
         probabilities={probabilities}
+        resolutionDate={resolutionDate}
         stagedProbabilities={stagedProbabilities}
       ></ProbabilityChart>
       <tr
