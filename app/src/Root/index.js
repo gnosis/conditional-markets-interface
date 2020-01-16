@@ -34,7 +34,7 @@ const whitelistEnabled = conf.WHITELIST_ENABLED;
 const SYNC_INTERVAL = 8000;
 const WHITELIST_CHECK_INTERVAL = 30000;
 
-async function loadBasicData(lmsrAddress, web3) {
+async function loadBasicData({ lmsrAddress, web3, account }) {
   const { toBN } = web3.utils;
 
   let markets = await getQuestions(undefined, lmsrAddress).then(
@@ -50,11 +50,16 @@ async function loadBasicData(lmsrAddress, web3) {
   });
 
   // Load application contracts
-  marketMakersRepo = await getMarketMakersRepo({ lmsrAddress, web3 });
-  conditionalTokensRepo = await getConditionalTokensRepo({ lmsrAddress, web3 });
+  marketMakersRepo = await getMarketMakersRepo({ lmsrAddress, web3, account });
+  conditionalTokensRepo = await getConditionalTokensRepo({
+    lmsrAddress,
+    web3,
+    account
+  });
   conditionalTokensService = await getConditionalTokensService({
     lmsrAddress,
-    web3
+    web3,
+    account
   });
 
   const { product } = require("utils/itertools");
@@ -274,10 +279,11 @@ const RootComponent = ({ match, childComponents }) => {
         setWeb3(web3);
         setAccount(account);
 
-        const { collateral, markets, positions } = await loadBasicData(
+        const { collateral, markets, positions } = await loadBasicData({
           lmsrAddress,
-          web3
-        );
+          web3,
+          account
+        });
 
         setCollateral(collateral);
         setMarkets(markets);
@@ -315,10 +321,12 @@ const RootComponent = ({ match, childComponents }) => {
   }, [lmsrAddress]);
 
   const setProvider = provider => {
+    setLoading("LOADING");
     init(provider);
   };
 
   const disconnectProvider = () => {
+    setLoading("LOADING");
     init();
   };
 

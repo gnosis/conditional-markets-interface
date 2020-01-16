@@ -4,9 +4,9 @@ import { getAccount } from "../../utils/web3";
 
 let instance, instancePromise, lmsrAddressCache, providerAccountCache;
 
-async function _getInstance({ lmsrAddress, web3 }) {
+async function _getInstance({ lmsrAddress, web3, account }) {
   // Get contracts
-  const contracts = await loadContracts({ lmsrAddress, web3 });
+  const contracts = await loadContracts({ lmsrAddress, web3, account });
 
   return new MarketMakersRepo({ contracts });
 }

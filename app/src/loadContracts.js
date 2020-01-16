@@ -1,5 +1,4 @@
 const ContractLoader = require("./utils/ContractLoader");
-import { getAccount } from "./utils/web3";
 
 let contracts, contractsPromise, lmsrAddressCache, providerAccountCache;
 function _resetContracts() {
@@ -12,19 +11,15 @@ function _resetContracts() {
  * Loads the contracts into an instance.
  * @return {Object} A dictionary object containing the instances of the contracts.
  */
-async function loadContracts({ lmsrAddress, web3 }) {
-  const providerAccount = await getAccount(web3);
-  if (
-    lmsrAddress !== lmsrAddressCache ||
-    providerAccount !== providerAccountCache
-  ) {
+async function loadContracts({ lmsrAddress, web3, account }) {
+  if (lmsrAddress !== lmsrAddressCache || account !== providerAccountCache) {
     // If marketMakerAddress or web3 provider changes we have to reload contracts
     _resetContracts();
   }
 
   if (!contracts) {
     lmsrAddressCache = lmsrAddress;
-    providerAccountCache = providerAccount;
+    providerAccountCache = account;
     if (!contractsPromise) {
       // Load application contracts
       const contractLoader = new ContractLoader({ lmsrAddress, web3 });
