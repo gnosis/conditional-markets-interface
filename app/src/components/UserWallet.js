@@ -1,6 +1,8 @@
 import React from "react";
 import PropTypes from "prop-types";
 import cn from "classnames/bind";
+import Web3Connect from "web3connect";
+import WalletConnectProvider from "@walletconnect/web3-provider";
 
 import Blockies from "react-blockies";
 import Spinner from "components/Spinner";
@@ -17,14 +19,38 @@ const UserWallet = ({
   address,
   whitelistState,
   collateral,
-  collateralBalance
+  collateralBalance,
+  setProvider
 }) => {
+  const connect = provider => {
+    setProvider(provider);
+  };
+
+  const disconnect = () => {
+    setProvider(null);
+  };
+
   if (!address) {
     return (
       <div className={cx("user-wallet")}>
-        <button type="button" className={cx("connect-wallet")}>
-          Connect
-        </button>
+        <Web3Connect.Button
+          className={cx("connect-wallet")}
+          network="rinkeby" // TO-DO set current network
+          providerOptions={{
+            walletconnect: {
+              package: WalletConnectProvider,
+              options: {
+                infuraId: "d743990732244555a1a0e82d5ab90c7f" //process.env.REACT_APP_INFURA_TOKEN
+              }
+            }
+          }}
+          onConnect={provider => {
+            connect(provider);
+          }}
+          onDisconnect={() => {
+            disconnect();
+          }}
+        />
       </div>
     );
   }
@@ -60,6 +86,9 @@ const UserWallet = ({
             className={cx("avatar-image")}
           />
         </div>
+        <button onClick={disconnect} className={cx("disconnect-wallet")}>
+          Disconnect
+        </button>
       </div>
     );
   }
@@ -84,12 +113,15 @@ const UserWallet = ({
           className={cx("avatar-image")}
         />
       </div>
+      <button onClick={disconnect} className={cx("disconnect-wallet")}>
+        Disconnect
+      </button>
     </div>
   );
 };
 
 UserWallet.propTypes = {
-  address: PropTypes.string.isRequired,
+  address: PropTypes.string,
   whitelistState: PropTypes.oneOf([
     "LOADING",
     "NOT_FOUND",
@@ -105,7 +137,8 @@ UserWallet.propTypes = {
   }).isRequired,
   collateralBalance: PropTypes.shape({
     totalAmount: PropTypes.object // DecimalJS
-  }).isRequired
+  }),
+  setProvider: PropTypes.func.isRequired
 };
 
 export default UserWallet;

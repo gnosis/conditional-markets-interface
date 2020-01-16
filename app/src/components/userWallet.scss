@@ -26,10 +26,12 @@
     position: relative;
     border-radius: 100%;
     overflow: hidden;
+    margin: 0 1rem 0 0;
 
       @media #{$tablet-small-max} {
         height: 2.6rem;
         width: 2.6rem;
+        margin: 0 .5rem 0 0;
       }
 
     &-image {
@@ -46,27 +48,25 @@
   > svg > path {
     fill: $black;
   }
-}
+  .connect-wallet, .disconnect-wallet {
+    appearance: none;
+    -webkit-appearance: none;
+    background: none;
+    text-transform: uppercase;
+    font-weight: $bold;
+    border-radius: .3rem;
+    background: $green;
+    color: $white;
+    letter-spacing: .1rem;
+    font-size: 1.2rem;
+    border: 0;
+    padding: 1rem;
 
-.connect-wallet {
-  appearance: none;
-  -webkit-appearance: none;
-  background: none;
-  text-transform: uppercase;
-  font-weight: $bold;
-  border-radius: .3rem;;
-  background: $green;
-  color: $white;
-  letter-spacing: .1rem;
-  font-size: 1.2rem;
-  border: 0;
-  padding: 1rem;
-
-  &:hover, &:focus, &:active {
-    background-color: darken($green, 20%);
+    &:hover, &:focus, &:active {
+      background-color: darken($green, 20%);
+    }
   }
 }
-
 
 .link-button {
   -webkit-appearance: none;

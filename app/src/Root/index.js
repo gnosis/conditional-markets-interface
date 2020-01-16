@@ -7,7 +7,7 @@ import { ApolloProvider } from "@apollo/react-hooks";
 import Spinner from "components/Spinner";
 import CrashPage from "components/Crash";
 import makeLoadable from "../utils/make-loadable";
-import { loadWeb3 } from "utils/web3";
+import { getAccount, loadWeb3 } from "utils/web3";
 import {
   getCollectionId,
   getPositionId,
@@ -173,13 +173,6 @@ async function getCollateralBalance(web3, collateral, account) {
   return collateralBalance;
 }
 
-async function getAccount(web3) {
-  if (web3.defaultAccount == null) {
-    const accounts = await web3.eth.getAccounts();
-    return accounts[0] || null;
-  } else return web3.defaultAccount;
-}
-
 async function getLMSRState(web3, positions) {
   const { fromWei } = web3.utils;
   const [owner, funding, stage, fee, marketMakerAddress] = await Promise.all([
@@ -268,43 +261,46 @@ const RootComponent = ({ match, childComponents }) => {
     ? match.params.lmsrAddress
     : conf.lmsrAddress;
 
-  const init = useCallback(async () => {
-    const { networkId } = conf;
-    try {
-      console.groupCollapsed("Configuration");
-      console.log(conf);
-      console.groupEnd();
+  const init = useCallback(
+    async provider => {
+      const { networkId } = conf;
+      try {
+        console.groupCollapsed("Configuration");
+        console.log(conf);
+        console.groupEnd();
 
-      const { web3, account } = await loadWeb3(networkId);
+        const { web3, account } = await loadWeb3(conf.networkId, provider);
 
-      setWeb3(web3);
-      setAccount(account);
+        setWeb3(web3);
+        setAccount(account);
 
-      const { collateral, markets, positions } = await loadBasicData(
-        lmsrAddress,
-        web3
-      );
+        const { collateral, markets, positions } = await loadBasicData(
+          lmsrAddress,
+          web3
+        );
 
-      setCollateral(collateral);
-      setMarkets(markets);
-      setPositions(positions);
+        setCollateral(collateral);
+        setMarkets(markets);
+        setPositions(positions);
 
-      console.groupCollapsed("Global Debug Variables");
-      console.log("LMSRMarketMaker (Instance) Contract:", marketMakersRepo);
-      console.log("Collateral Settings:", collateral);
-      console.log("Market Settings:", markets);
-      console.log("Account Positions:", positions);
-      console.groupEnd();
+        console.groupCollapsed("Global Debug Variables");
+        console.log("LMSRMarketMaker (Instance) Contract:", marketMakersRepo);
+        console.log("Collateral Settings:", collateral);
+        console.log("Market Settings:", markets);
+        console.log("Account Positions:", positions);
+        console.groupEnd();
 
-      setLoading("SUCCESS");
-    } catch (err) {
-      setLoading("FAILURE");
-      // eslint-disable-next-line
+        setLoading("SUCCESS");
+      } catch (err) {
+        setLoading("FAILURE");
+        // eslint-disable-next-line
       console.error(err);
-      setLastError(err.message);
-      throw err;
-    }
-  }, [lmsrAddress]);
+        setLastError(err.message);
+        throw err;
+      }
+    },
+    [lmsrAddress]
+  );
 
   // First time init
   useEffect(() => {
@@ -317,6 +313,14 @@ const RootComponent = ({ match, childComponents }) => {
     }
     init();
   }, [lmsrAddress]);
+
+  const setProvider = provider => {
+    init(provider);
+  };
+
+  const disconnectProvider = () => {
+    init();
+  };
 
   const [lmsrState, setLMSRState] = useState(null);
   const [marketResolutionStates, setMarketResolutionStates] = useState(null);
@@ -516,9 +520,11 @@ const RootComponent = ({ match, childComponents }) => {
                   whitelistState={whitelistState}
                   collateral={collateral}
                   collateralBalance={collateralBalance}
+                  setProvider={setProvider}
                 />
               }
               menu={<Menu />}
+              logOut={disconnectProvider}
             />
             <div className={cx("sections")}>
               <section className={cx("section", "section-markets")}>

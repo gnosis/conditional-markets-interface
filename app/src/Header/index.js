@@ -11,7 +11,7 @@ const cx = cn.bind(style);
 const isProduction = process.env.NODE_ENV === "production";
 const marketsPage = `${process.env.BASE_URL}${isProduction ? "#markets" : ""}`;
 
-const Header = ({ avatar }) => (
+const Header = ({ avatar, isLogged, logOut }) => (
   <div className={cx("header")}>
     <button
       className={cx("logo")}
@@ -25,7 +25,8 @@ const Header = ({ avatar }) => (
 );
 
 Header.propTypes = {
-  avatar: PropTypes.node.isRequired
+  avatar: PropTypes.node.isRequired,
+  logOut: PropTypes.func.isRequired
 };
 
 export default Header;
