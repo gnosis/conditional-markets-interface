@@ -13,6 +13,7 @@ import {
   getPositionId,
   combineCollectionIds
 } from "utils/getIdsUtil";
+import ToastifyError from "utils/ToastifyError";
 
 import { getWhitelistState } from "api/whitelist";
 import { getQuestions } from "api/operator";
@@ -409,13 +410,23 @@ const RootComponent = ({ match, childComponents }) => {
             await transactionFn();
             addToast("Transaction confirmed.", "success");
           } catch (e) {
-            addToast(
-              <>
-                Unfortunately, the transaction failed.
-                <br />
-              </>,
-              "error"
-            );
+            if (e instanceof ToastifyError) {
+              addToast(
+                <>
+                  {e.message}
+                  <br />
+                </>,
+                "error"
+              );
+            } else {
+              addToast(
+                <>
+                  Unfortunately, the transaction failed.
+                  <br />
+                </>,
+                "error"
+              );
+            }
             throw e;
           } finally {
             setOngoingTransactionType(null);

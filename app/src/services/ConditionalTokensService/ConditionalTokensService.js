@@ -1,6 +1,7 @@
 const assert = require("assert");
-import { zeroDecimal, maxUint256BN, oneDecimal } from "utils/constants";
-import { formatScalarValue, formatCollateral } from "utils/formatting";
+import { zeroDecimal, maxUint256BN } from "utils/constants";
+import { formatCollateral } from "utils/formatting";
+import ToastifyError from "utils/ToastifyError";
 
 export default class ConditionalTokensService {
   constructor({ marketMakersRepo, conditionalTokensRepo }) {
@@ -58,10 +59,10 @@ export default class ConditionalTokensService {
     hasAnyAllowance,
     hasEnoughAllowance
   }) {
-    if (stagedTradeAmounts == null) throw new Error(`No buy set yet`);
+    if (stagedTradeAmounts == null) throw new ToastifyError(`No buy set yet`);
 
     if (stagedTransactionType !== "buy outcome tokens")
-      throw new Error(
+      throw new ToastifyError(
         `Can't buy outcome tokens while staged transaction is to ${stagedTransactionType}`
       );
 
@@ -77,7 +78,7 @@ export default class ConditionalTokensService {
     }
 
     if (investmentAmountInUnits.gt(collateralBalance.totalAmount.toString()))
-      throw new Error(
+      throw new ToastifyError(
         `Not enough collateral: missing ${formatCollateral(
           investmentAmountInUnits.sub(collateralBalance.totalAmount.toString()),
           collateral
@@ -115,10 +116,10 @@ export default class ConditionalTokensService {
     stagedTransactionType,
     account
   }) {
-    if (stagedTradeAmounts == null) throw new Error(`No sell set yet`);
+    if (stagedTradeAmounts == null) throw new ToastifyError(`No sell set yet`);
 
     if (stagedTransactionType !== "sell outcome tokens")
-      throw new Error(
+      throw new ToastifyError(
         `Can't sell outcome tokens while staged transaction is to ${stagedTransactionType}`
       );
 
