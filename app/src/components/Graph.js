@@ -370,7 +370,7 @@ Graph.propTypes = {
   marketType: PropTypes.string.isRequired,
   resolutionDate: PropTypes.string.isRequired,
   created: PropTypes.string.isRequired,
-  decimals: PropTypes.number.isRequired,
+  decimals: PropTypes.number,
   unit: PropTypes.string
 };
 
