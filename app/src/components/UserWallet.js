@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import PropTypes from "prop-types";
 import cn from "classnames/bind";
 import Web3Connect from "web3connect";
@@ -15,6 +15,20 @@ const cx = cn.bind(style);
 const formatAddress = address =>
   `${address.substr(0, 6)}...${address.substr(-4)}`;
 
+let areWeb3ConnectListenersAdded = false;
+
+const web3Connect = new Web3Connect.Core({
+  network: process.env.NETWORK.toLowerCase(),
+  providerOptions: {
+    walletconnect: {
+      package: WalletConnectProvider,
+      options: {
+        infuraId: "d743990732244555a1a0e82d5ab90c7f"
+      }
+    }
+  }
+});
+
 const UserWallet = ({
   address,
   whitelistState,
@@ -22,35 +36,35 @@ const UserWallet = ({
   collateralBalance,
   setProvider
 }) => {
-  const connect = provider => {
-    setProvider(provider);
-  };
-
   const disconnect = () => {
     setProvider(null);
   };
 
+  useEffect(() => {
+    if (!areWeb3ConnectListenersAdded) {
+      areWeb3ConnectListenersAdded = true;
+
+      web3Connect.on("connect", provider => {
+        setProvider(provider);
+      });
+
+      web3Connect.on("disconnect", () => {
+        disconnect();
+      });
+
+      web3Connect.on("close", () => {});
+    }
+  });
+
   if (!address) {
     return (
       <div className={cx("user-wallet")}>
-        <Web3Connect.Button
+        <button
           className={cx("connect-wallet")}
-          network="rinkeby" // TO-DO set current network
-          providerOptions={{
-            walletconnect: {
-              package: WalletConnectProvider,
-              options: {
-                infuraId: "d743990732244555a1a0e82d5ab90c7f" //process.env.REACT_APP_INFURA_TOKEN
-              }
-            }
-          }}
-          onConnect={provider => {
-            connect(provider);
-          }}
-          onDisconnect={() => {
-            disconnect();
-          }}
-        />
+          onClick={() => web3Connect.toggleModal()}
+        >
+          Connect
+        </button>
       </div>
     );
   }

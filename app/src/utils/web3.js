@@ -73,7 +73,7 @@ export async function loadWeb3(networkId, provider) {
   const web3InitErrors = [];
   let web3, account;
   let foundWeb3 = false;
-  //console.log(Web3.givenProvider)
+
   for (const [providerType, providerCandidate] of [
     //["injected web3", window["web3"] && window["web3"]["currentProvider"]],
     ["web3connect provider", provider],
@@ -110,12 +110,5 @@ export async function loadWeb3(networkId, provider) {
         .join("\n")}`
     );
 
-  /*
-  TO-DO: Remove comment
-  (this works with web3connect provider)
-  const { toBN, toWei } = web3.utils
-  const txData = { from: account, to: '0xeA1D10D8737989337326C48930f46cb75EF6d889', value: toBN(toWei('1', 'ether')) }
-  const tx = await web3.eth.sendTransaction(txData)
-  */
   return { web3, account };
 }

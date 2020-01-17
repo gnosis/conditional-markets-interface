@@ -44,12 +44,6 @@ class ContractLoader {
       LMSRMarketMaker
     ]) {
       Contract.setProvider(this._web3.currentProvider);
-
-      console.log(
-        "LOAD CONTRACT SET PROVIDER",
-        this._web3.version,
-        this._web3.currentProvider
-      );
     }
 
     const lmsrMarketMaker = await LMSRMarketMaker.at(this._lmsrAddress);

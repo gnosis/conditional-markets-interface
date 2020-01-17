@@ -325,11 +325,6 @@ const RootComponent = ({ match, childComponents }) => {
     init(provider);
   };
 
-  const disconnectProvider = () => {
-    setLoading("LOADING");
-    init();
-  };
-
   const [lmsrState, setLMSRState] = useState(null);
   const [marketResolutionStates, setMarketResolutionStates] = useState(null);
   const [collateralBalance, setCollateralBalance] = useState(null);
@@ -532,7 +527,7 @@ const RootComponent = ({ match, childComponents }) => {
                 />
               }
               menu={<Menu />}
-              logOut={disconnectProvider}
+              logOut={setProvider}
             />
             <div className={cx("sections")}>
               <section className={cx("section", "section-markets")}>
