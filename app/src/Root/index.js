@@ -7,12 +7,13 @@ import { useQuery } from "@apollo/react-hooks";
 import Spinner from "components/Spinner";
 import CrashPage from "components/Crash";
 import makeLoadable from "../utils/make-loadable";
-import { loadWeb3 } from "utils/web3";
+import { getAccount, loadWeb3 } from "utils/web3";
 import {
   getCollectionId,
   getPositionId,
   combineCollectionIds
 } from "utils/getIdsUtil";
+import ToastifyError from "utils/ToastifyError";
 
 import { getWhitelistState } from "api/whitelist";
 import { getQuestions } from "api/operator";
@@ -34,7 +35,7 @@ const whitelistEnabled = conf.WHITELIST_ENABLED;
 const SYNC_INTERVAL = 8000;
 const WHITELIST_CHECK_INTERVAL = 30000;
 
-async function loadBasicData(lmsrAddress, web3) {
+async function loadBasicData({ lmsrAddress, web3, account }) {
   const { toBN } = web3.utils;
 
   let markets = await getQuestions(undefined, lmsrAddress).then(
@@ -50,11 +51,16 @@ async function loadBasicData(lmsrAddress, web3) {
   });
 
   // Load application contracts
-  marketMakersRepo = await getMarketMakersRepo({ lmsrAddress, web3 });
-  conditionalTokensRepo = await getConditionalTokensRepo({ lmsrAddress, web3 });
+  marketMakersRepo = await getMarketMakersRepo({ lmsrAddress, web3, account });
+  conditionalTokensRepo = await getConditionalTokensRepo({
+    lmsrAddress,
+    web3,
+    account
+  });
   conditionalTokensService = await getConditionalTokensService({
     lmsrAddress,
-    web3
+    web3,
+    account
   });
 
   const { product } = require("utils/itertools");
@@ -173,13 +179,6 @@ async function getCollateralBalance(web3, collateral, account) {
   return collateralBalance;
 }
 
-async function getAccount(web3) {
-  if (web3.defaultAccount == null) {
-    const accounts = await web3.eth.getAccounts();
-    return accounts[0] || null;
-  } else return web3.defaultAccount;
-}
-
 async function getLMSRState(web3, positions) {
   const { fromWei } = web3.utils;
   const [owner, funding, stage, fee, marketMakerAddress] = await Promise.all([
@@ -269,43 +268,47 @@ const RootComponent = ({ match, childComponents }) => {
     ? match.params.lmsrAddress
     : conf.lmsrAddress;
 
-  const init = useCallback(async () => {
-    const { networkId } = conf;
-    try {
-      console.groupCollapsed("Configuration");
-      console.log(conf);
-      console.groupEnd();
+  const init = useCallback(
+    async provider => {
+      const { networkId } = conf;
+      try {
+        console.groupCollapsed("Configuration");
+        console.log(conf);
+        console.groupEnd();
 
-      const { web3, account } = await loadWeb3(networkId);
+        const { web3, account } = await loadWeb3(conf.networkId, provider);
 
-      setWeb3(web3);
-      setAccount(account);
+        setWeb3(web3);
+        setAccount(account);
 
-      const { collateral, markets, positions } = await loadBasicData(
-        lmsrAddress,
-        web3
-      );
+        const { collateral, markets, positions } = await loadBasicData({
+          lmsrAddress,
+          web3,
+          account
+        });
 
-      setCollateral(collateral);
-      setMarkets(markets);
-      setPositions(positions);
+        setCollateral(collateral);
+        setMarkets(markets);
+        setPositions(positions);
 
-      console.groupCollapsed("Global Debug Variables");
-      console.log("LMSRMarketMaker (Instance) Contract:", marketMakersRepo);
-      console.log("Collateral Settings:", collateral);
-      console.log("Market Settings:", markets);
-      console.log("Account Positions:", positions);
-      console.groupEnd();
+        console.groupCollapsed("Global Debug Variables");
+        console.log("LMSRMarketMaker (Instance) Contract:", marketMakersRepo);
+        console.log("Collateral Settings:", collateral);
+        console.log("Market Settings:", markets);
+        console.log("Account Positions:", positions);
+        console.groupEnd();
 
-      setLoading("SUCCESS");
-    } catch (err) {
-      setLoading("FAILURE");
-      // eslint-disable-next-line
+        setLoading("SUCCESS");
+      } catch (err) {
+        setLoading("FAILURE");
+        // eslint-disable-next-line
       console.error(err);
-      setLastError(err.message);
-      throw err;
-    }
-  }, [lmsrAddress]);
+        setLastError(err.message);
+        throw err;
+      }
+    },
+    [lmsrAddress]
+  );
 
   // First time init
   useEffect(() => {
@@ -318,6 +321,11 @@ const RootComponent = ({ match, childComponents }) => {
     }
     init();
   }, [lmsrAddress]);
+
+  const setProvider = provider => {
+    setLoading("LOADING");
+    init(provider);
+  };
 
   const [lmsrState, setLMSRState] = useState(null);
   const [marketResolutionStates, setMarketResolutionStates] = useState(null);
@@ -410,13 +418,23 @@ const RootComponent = ({ match, childComponents }) => {
             await transactionFn();
             addToast("Transaction confirmed.", "success");
           } catch (e) {
-            addToast(
-              <>
-                Unfortunately, the transaction failed.
-                <br />
-              </>,
-              "error"
-            );
+            if (e instanceof ToastifyError) {
+              addToast(
+                <>
+                  {e.message}
+                  <br />
+                </>,
+                "error"
+              );
+            } else {
+              addToast(
+                <>
+                  Unfortunately, the transaction failed.
+                  <br />
+                </>,
+                "error"
+              );
+            }
             throw e;
           } finally {
             setOngoingTransactionType(null);
@@ -528,6 +546,7 @@ const RootComponent = ({ match, childComponents }) => {
               />
             }
             menu={<Menu />}
+            logOut={setProvider}
           />
           <div className={cx("sections")}>
             <section className={cx("section", "section-markets")}>

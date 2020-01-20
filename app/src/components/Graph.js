@@ -156,11 +156,29 @@ const Graph = ({
         ...entries
       ];
 
-      if (getMoment(resolutionDate).isAfter(getMoment())) {
-        // only add last entry (with currently probabilities) if the market is not already resolved
+      const lastEntry = entries[entries.length - 1];
+      const isBeforeResolutionDate = getMoment(resolutionDate).isAfter(
+        getMoment()
+      );
+      const isLastEntryBeforeResolutionDate = getMoment(
+        lastEntry.date
+      ).isBefore(getMoment(resolutionDate));
+
+      if (isBeforeResolutionDate || isLastEntryBeforeResolutionDate) {
+        // Only add last entry (with current probabilities) if the market is not already resolved.
+        // When market is resolved, if latest trade is before selected resolution date, duplicate latest trade
+        // but adjust to show on resolution date (in some special cases there can be trades a bit after resolution date)
+        const newEntry = isBeforeResolutionDate
+          ? {
+              outcomesProbability: currentProbability,
+              date: +new Date()
+            }
+          : {
+              outcomesProbability: lastEntry.outcomesProbability,
+              date: getMoment(resolutionDate).valueOf()
+            };
         newData.push({
-          outcomesProbability: currentProbability,
-          date: +new Date(),
+          ...newEntry,
           index: entries.length + 1 // +1 because we add the market creation as a datapoint
         });
       } else {
@@ -315,7 +333,7 @@ const Graph = ({
               return (
                 <Line
                   key={index}
-                  type="stepBefore"
+                  type="stepAfter"
                   dataKey={dataKey}
                   stroke={stroke}
                   ref={lineRef}
