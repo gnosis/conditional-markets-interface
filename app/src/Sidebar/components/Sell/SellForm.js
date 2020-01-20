@@ -185,7 +185,7 @@ const SellForm = ({
           <div className={cx("entry")}>
             <div className={cx("input-group")}>
               <input
-                type="number"
+                type="string"
                 readOnly
                 value={maxSellAmounts[selectedOutcomeIndex]
                   .div(1e18)

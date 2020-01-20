@@ -325,7 +325,7 @@ const Graph = ({
               return (
                 <Line
                   key={index}
-                  type="stepBefore"
+                  type="stepAfter"
                   dataKey={dataKey}
                   stroke={stroke}
                   ref={lineRef}
