@@ -18,6 +18,7 @@ import style from "./sidebar.scss";
 
 import BuySection from "./Buy";
 import PositionsAndSell from "../components/Sell";
+import Resolved from "../components/Resolved";
 
 const cx = cn.bind(style);
 
@@ -32,6 +33,19 @@ const Sidebar = props => {
 };
 
 const SidebarDesktop = props => {
+  const isInResolvedMode = props.markets.every(
+    ({ status }) => status === "RESOLVED"
+  );
+
+  if (isInResolvedMode) {
+    return (
+      <div className={cx("sidebar")}>
+        <div className={cx("resolved-entry")}>Market Resolved</div>
+        <Resolved {...props} />
+      </div>
+    );
+  }
+
   return (
     <div className={cx("sidebar")}>
       <BuySection {...props} />
@@ -88,21 +102,36 @@ const SidebarMobile = props => {
     setValue(newValue);
   };
 
+  const isInResolvedMode = props.markets.every(
+    ({ status }) => status === "RESOLVED"
+  );
+
   return (
     <div className={cx("sidebar")}>
       <ButtonGroup fullWidth className={cx("ButtonGroup")}>
-        <Button
-          className={cx("order-button")}
-          onClick={() => handleDrawerOpen(0)}
-        >
-          Order Positions
-        </Button>
-        <Button
-          className={cx("your-positions-button")}
-          onClick={() => handleDrawerOpen(1)}
-        >
-          Your Positions
-        </Button>
+        {isInResolvedMode ? (
+          <Button
+            className={cx("resolved-button")}
+            onClick={() => handleDrawerOpen(0)}
+          >
+            Market is resolved
+          </Button>
+        ) : (
+          <>
+            <Button
+              className={cx("order-button")}
+              onClick={() => handleDrawerOpen(0)}
+            >
+              Order Positions
+            </Button>
+            <Button
+              className={cx("your-positions-button")}
+              onClick={() => handleDrawerOpen(1)}
+            >
+              Your Positions
+            </Button>
+          </>
+        )}
       </ButtonGroup>
 
       <Drawer
@@ -119,21 +148,27 @@ const SidebarMobile = props => {
           </IconButton>
         </div>
 
-        <Tabs
-          value={value}
-          onChange={handleChange}
-          variant="fullWidth"
-          classes={{ indicator: cx("tab-indicator") }}
-        >
-          <Tab label="Order Positions" {...a11yProps(0)}></Tab>
-          <Tab label="Your Positions" {...a11yProps(1)}></Tab>
-        </Tabs>
-        <TabPanel value={value} index={0}>
-          <BuySection {...props} />
-        </TabPanel>
-        <TabPanel value={value} index={1}>
-          <PositionsAndSell {...props} />
-        </TabPanel>
+        {isInResolvedMode ? (
+          <Resolved {...props} />
+        ) : (
+          <>
+            <Tabs
+              value={value}
+              onChange={handleChange}
+              variant="fullWidth"
+              classes={{ indicator: cx("tab-indicator") }}
+            >
+              <Tab label="Order Positions" {...a11yProps(0)}></Tab>
+              <Tab label="Your Positions" {...a11yProps(1)}></Tab>
+            </Tabs>
+            <TabPanel value={value} index={0}>
+              <BuySection {...props} />
+            </TabPanel>
+            <TabPanel value={value} index={1}>
+              <PositionsAndSell {...props} />
+            </TabPanel>
+          </>
+        )}
       </Drawer>
     </div>
   );

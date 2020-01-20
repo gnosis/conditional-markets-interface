@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { hot } from "react-hot-loader/root";
 import cn from "classnames/bind";
 import useInterval from "@use-it/interval";
-import { ApolloProvider } from "@apollo/react-hooks";
+import { useQuery } from "@apollo/react-hooks";
 
 import Spinner from "components/Spinner";
 import CrashPage from "components/Crash";
@@ -16,7 +16,7 @@ import {
 
 import { getWhitelistState } from "api/whitelist";
 import { getQuestions } from "api/operator";
-import { client } from "api/thegraph";
+import { GET_TRADES_BY_MARKET_MAKER } from "api/thegraph";
 
 import style from "./root.scss";
 const cx = cn.bind(style);
@@ -195,6 +195,7 @@ async function getLMSRState(web3, positions) {
     positions,
     marketMakerAddress
   );
+
   return { owner, funding, stage, fee, positionBalances, marketMakerAddress };
 }
 
@@ -497,92 +498,100 @@ const RootComponent = ({ match, childComponents }) => {
 
   useInterval(updateToasts, 1000);
 
-  if (loading === "SUCCESS")
+  const { loading: queryLoading, error, data: tradeHistory } = useQuery(
+    GET_TRADES_BY_MARKET_MAKER,
+    {
+      variables: { marketMaker: lmsrAddress },
+      pollInterval: 15000
+    }
+  );
+
+  if (loading === "SUCCESS" && !queryLoading)
     return (
-      <ApolloProvider client={client}>
-        <div className={cx("page")}>
-          <div className={cx("modal-space", { "modal-open": !!modal })}>
-            {modal}
-          </div>
-          <div className={cx("app-space", { "modal-open": !!modal })}>
-            <ApplyBetaHeader
-              openModal={openModal}
-              whitelistState={whitelistState}
-            />
-            <Header
-              avatar={
-                <UserWallet
-                  address={account}
-                  openModal={openModal}
-                  whitelistState={whitelistState}
-                  collateral={collateral}
-                  collateralBalance={collateralBalance}
-                />
-              }
-              menu={<Menu />}
-            />
-            <div className={cx("sections")}>
-              <section className={cx("section", "section-markets")}>
-                <MarketTable
+      <div className={cx("page")}>
+        <div className={cx("modal-space", { "modal-open": !!modal })}>
+          {modal}
+        </div>
+        <div className={cx("app-space", { "modal-open": !!modal })}>
+          <ApplyBetaHeader
+            openModal={openModal}
+            whitelistState={whitelistState}
+          />
+          <Header
+            avatar={
+              <UserWallet
+                address={account}
+                openModal={openModal}
+                whitelistState={whitelistState}
+                collateral={collateral}
+                collateralBalance={collateralBalance}
+              />
+            }
+            menu={<Menu />}
+          />
+          <div className={cx("sections")}>
+            <section className={cx("section", "section-markets")}>
+              <MarketTable
+                {...{
+                  markets,
+                  marketResolutionStates,
+                  positions,
+                  lmsrState,
+                  // FIXME `useQuery` hook can't be used after checking if lmsrState exists.
+                  // Remove and use address from state if we divide this component in smaller ones
+                  lmsrAddress,
+                  marketSelections,
+                  setMarketSelections,
+                  stagedTradeAmounts,
+                  resetMarketSelections,
+                  collateral,
+                  addToast,
+                  openModal,
+                  tradeHistory
+                }}
+              />
+            </section>
+            {account != null && ( // account available
+              <section className={cx("section", "section-positions")}>
+                <Sidebar
                   {...{
+                    account,
                     markets,
-                    marketResolutionStates,
                     positions,
-                    lmsrState,
-                    // FIXME `useQuery` hook can't be used after checking if lmsrState exists.
-                    // Remove and use address from state if we divide this component in smaller ones
-                    lmsrAddress,
+                    positionBalances,
+                    marketResolutionStates,
                     marketSelections,
-                    setMarketSelections,
-                    stagedTradeAmounts,
-                    resetMarketSelections,
                     collateral,
+                    collateralBalance,
+                    lmsrState,
+                    lmsrAllowance,
+                    stagedTradeAmounts,
+                    setStagedTradeAmounts,
+                    stagedTransactionType,
+                    setStagedTransactionType,
+                    ongoingTransactionType,
+                    asWrappedTransaction,
+                    setMarketSelections,
+                    resetMarketSelections,
                     addToast,
-                    openModal
+                    openModal,
+                    tradeHistory,
                   }}
                 />
               </section>
-              {account != null && ( // account available
-                <section className={cx("section", "section-positions")}>
-                  <Sidebar
-                    {...{
-                      account,
-                      markets,
-                      positions,
-                      positionBalances,
-                      marketResolutionStates,
-                      marketSelections,
-                      collateral,
-                      collateralBalance,
-                      lmsrState,
-                      lmsrAllowance,
-                      stagedTradeAmounts,
-                      setStagedTradeAmounts,
-                      stagedTransactionType,
-                      setStagedTransactionType,
-                      ongoingTransactionType,
-                      asWrappedTransaction,
-                      setMarketSelections,
-                      resetMarketSelections,
-                      addToast,
-                      openModal
-                    }}
-                  />
-                </section>
-              )}
-              <Toasts
-                deleteToast={deleteToast}
-                addToast={addToast}
-                toasts={toasts}
-              />
-              <Footer />
-            </div>
+            )}
+            <Toasts
+              deleteToast={deleteToast}
+              addToast={addToast}
+              toasts={toasts}
+            />
+            <Footer />
           </div>
         </div>
-      </ApolloProvider>
+      </div>
     );
 
-  if (loading === "LOADING") {
+  if (loading === "LOADING" || queryLoading) {
     return (
       <div className={cx("loading-page")}>
         <Spinner centered width={100} height={100} />

@@ -38,6 +38,7 @@ const Market = ({
   marketSelections,
   disableConditional,
   setMarketSelection,
+  tradeHistory,
   lmsrState
 }) => {
   const [detailsOpen, setDetailsOpen] = useState(false);
@@ -145,6 +146,7 @@ const Market = ({
         probabilities={probabilities}
         resolutionDate={resolutionDate}
         stagedProbabilities={stagedProbabilities}
+        tradeHistory={tradeHistory}
       ></ProbabilityChart>
       <tr
         className={cx("market-row-tab", {

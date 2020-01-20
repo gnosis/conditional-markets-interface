@@ -166,6 +166,7 @@ const Graph = ({
       } else {
         // when market is resolved, duplicate latest trade but adjust to show on resolution date
         newData.push({
+          outcomesProbability: [50, 50], // gets overwritten, but just incase there are no entries for the graph, it will show 50,50
           ...entries[entries.length - 1],
           date: getMoment(resolutionDate).valueOf(),
           index: entries.length + 1
@@ -175,7 +176,7 @@ const Graph = ({
       setData(newData);
     }
   }, [entries, currentProbability]);
-
+  
   useEffect(() => {
     if (lineRef.current) {
       // position of selected tick
@@ -246,7 +247,7 @@ const Graph = ({
 
   return (
     <div className={cx("graph-container", marketClass)}>
-      <ResponsiveContainer minHeight={300}>
+      <ResponsiveContainer minHeight={300} minWidth="100%">
         <LineChart data={data} onMouseMove={mouseUpdate} ref={lineChartRef}>
           {marketType !== "SCALAR" && (
             <Tooltip
@@ -359,12 +360,13 @@ Graph.propTypes = {
   marketType: PropTypes.string.isRequired,
   resolutionDate: PropTypes.string.isRequired,
   created: PropTypes.string.isRequired,
-  decimals: PropTypes.number.isRequired,
+  decimals: PropTypes.number,
   unit: PropTypes.string
 };
 
 Graph.defaultProps = {
-  unit: "Units"
+  unit: "Units",
+  decimals: 2
 };
 
 export default Graph;

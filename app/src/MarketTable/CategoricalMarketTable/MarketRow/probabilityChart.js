@@ -3,44 +3,34 @@ import PropTypes from "prop-types";
 import cn from "classnames/bind";
 
 import style from "./marketRow.scss";
-import prepareTradesData from "../../utils/prepareTradesData";
+import prepareTradesData from "utils/prepareTradesData";
 
-import Spinner from "components/Spinner";
 import Graph from "components/Graph";
 
 const cx = cn.bind(style);
 
-import { useQuery } from "@apollo/react-hooks";
-
-import { GET_TRADES_BY_MARKET_MAKER } from "api/thegraph";
-
 const probabilityChart = ({
-  lmsrAddress,
   created,
   marketType,
   colSpan,
   probabilities,
   resolutionDate,
-  stagedProbabilities
+  stagedProbabilities,
+  tradeHistory
 }) => {
-  const { loading, error, data } = useQuery(GET_TRADES_BY_MARKET_MAKER, {
-    variables: { marketMaker: lmsrAddress },
-    pollInterval: 15000
-  });
-
   const [chartOpen, setChartOpen] = useState(false);
   const handleToggleCollapse = useCallback(() => {
     setChartOpen(!chartOpen);
   }, [chartOpen]);
 
   const parsedTrades = useMemo(() => {
-    if (!loading && data) {
+    if (tradeHistory) {
       return prepareTradesData(
         { lowerBound: 0, upperBound: 100, type: marketType },
-        data
+        tradeHistory
       );
-    } else return null;
-  }, [marketType, data]);
+    } else return [];
+  }, [marketType, tradeHistory]);
 
   const getProbabilitiesPercentage = value => value.mul(100).toNumber();
   const displayedProbabilities = useMemo(
@@ -50,9 +40,6 @@ const probabilityChart = ({
         : stagedProbabilities.map(getProbabilitiesPercentage),
     [probabilities, stagedProbabilities]
   );
-
-  if (loading) return <Spinner width={32} height={32} />;
-  if (error) throw new Error(error);
 
   return (
     <>
@@ -74,19 +61,21 @@ const probabilityChart = ({
               {chartOpen ? "–" : "+"}
             </span>
           </button>
-          <div className={cx("tab-content")}>
-            <Graph
-              className={cx("graph")}
-              lowerBound={"0"}
-              upperBound={"100"}
-              decimals={0}
-              entries={parsedTrades}
-              resolutionDate={resolutionDate}
-              currentProbability={displayedProbabilities}
-              marketType={marketType}
-              created={created}
-            ></Graph>
-          </div>
+          {chartOpen && (
+            <div className={cx("tab-content")}>
+              <Graph
+                className={cx("graph")}
+                lowerBound={"0"}
+                upperBound={"100"}
+                decimals={0}
+                entries={parsedTrades}
+                resolutionDate={resolutionDate}
+                currentProbability={displayedProbabilities}
+                marketType={marketType}
+                created={created}
+              ></Graph>
+            </div>
+          )}
         </td>
       </tr>
     </>
@@ -94,13 +83,13 @@ const probabilityChart = ({
 };
 
 probabilityChart.propTypes = {
-  lmsrAddress: PropTypes.string.isRequired,
   created: PropTypes.string.isRequired,
   marketType: PropTypes.string.isRequired,
   colSpan: PropTypes.number.isRequired,
   resolutionDate: PropTypes.string.isRequired,
   probabilities: PropTypes.array,
-  stagedProbabilities: PropTypes.array
+  stagedProbabilities: PropTypes.array,
+  tradeHistory: PropTypes.shape({ results: PropTypes.array }).isRequired
 };
 
 export default probabilityChart;

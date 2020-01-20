@@ -1,0 +1,63 @@
+@import "~scss/_variables.scss";
+
+.resolved {
+  font-size: 1.4rem;
+  padding: 2rem 1.8rem;
+  line-height: normal;
+
+  .waiting-for-oracle {
+    font-size: 2rem;
+    text-align: justify;
+    padding-top: 20px;
+  }
+}
+
+.resolve-entry {
+  text-align: center;
+
+  .label, .value {
+    position: relative;
+
+    &::before {
+      content: '';
+      position: absolute;
+    }
+  }
+
+  .label {
+    font-weight: 100;
+  }
+
+  .value {
+    font-weight: bolder;
+    display: inline-block;
+    margin-left: 24px;
+  }
+
+  &.winning-value {
+    .value {
+      &::before {
+        width: 16px;
+        height: 16px;
+        left: -19px;
+  
+        background-color: $green;
+        -webkit-mask: url("~assets/icons/check-circle.svg") no-repeat center;
+        mask: url("~assets/icons/check-circle.svg") no-repeat center;
+      }
+    }
+  }
+
+  &.last-trade {
+    .value {
+      &::before {
+        width: 16px;
+        height: 16px;
+        left: -19px;
+  
+        border-radius: 100%;
+        border: 5px solid #009cb4;
+      }
+    }
+  }
+}
