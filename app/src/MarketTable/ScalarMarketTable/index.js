@@ -193,6 +193,7 @@ const MarketTable = ({
                   decimals={decimals}
                   unit={unit}
                   entries={trades}
+                  resolutionDate={resolutionDate}
                   created={created}
                   currentProbability={parsedProbabilities}
                   marketType={type}

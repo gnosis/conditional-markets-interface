@@ -1,10 +1,4 @@
-import React, {
-  useEffect,
-  useState,
-  useCallback,
-  useRef,
-  useMemo
-} from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import PropTypes from "prop-types";
 import { formatDate, getMoment } from "utils/timeFormat";
 import { formatScalarValue } from "utils/formatting";
@@ -102,14 +96,15 @@ const TooltipContent = ({ active, value, payload, unit, decimals }) => {
 const Graph = ({
   lowerBound,
   upperBound,
-  decimals: parentDecimals,
+  decimals,
   unit,
-  entries,
   created,
-  currentProbability,
-  marketType
+  resolutionDate,
+  marketType,
+  entries,
+  currentProbability
 }) => {
-  const [decimals, setDecimals] = useState(parentDecimals || 2);
+  //const [decimals, setDecimals] = useState(parentDecimals || 2);
 
   const [data, setData] = useState(entries);
   const [sidebarWidth, setSidebarWidth] = useState(0);
@@ -120,7 +115,8 @@ const Graph = ({
   const lineRef = useRef(null);
   const lineChartRef = useRef(null);
 
-  useMemo(() => {
+  useEffect(() => {
+    // console.log("memo updates", entries, currentProbability)
     // TODO entries and currentProbability are constantly updating. As data
     // object is updated each render the graph is re-rendered continously.
     // Check how to cache entries and current probability to avoid components
@@ -157,13 +153,35 @@ const Graph = ({
           // with the same index. Is not critical but it's a bug
           index: 0
         },
-        ...entries,
-        {
-          outcomesProbability: currentProbability,
-          date: +new Date(),
-          index: entries.length + 1 // +1 because we add the market creation as a datapoint
-        }
+        ...entries
       ];
+
+      const lastEntry = entries[entries.length - 1];
+      const isBeforeResolutionDate = getMoment(resolutionDate).isAfter(
+        getMoment()
+      );
+      const isLastEntryBeforeResolutionDate = getMoment(
+        lastEntry.date
+      ).isBefore(getMoment(resolutionDate));
+
+      if (isBeforeResolutionDate || isLastEntryBeforeResolutionDate) {
+        // Only add last entry (with current probabilities) if the market is not already resolved.
+        // When market is resolved, if latest trade is before selected resolution date, duplicate latest trade
+        // but adjust to show on resolution date (in some special cases there can be trades a bit after resolution date)
+        const newEntry = isBeforeResolutionDate
+          ? {
+              outcomesProbability: currentProbability,
+              date: +new Date()
+            }
+          : {
+              outcomesProbability: lastEntry.outcomesProbability,
+              date: getMoment(resolutionDate).valueOf()
+            };
+        newData.push({
+          ...newEntry,
+          index: entries.length + 1 // +1 because we add the market creation as a datapoint
+        });
+      }
 
       setData(newData);
     }
@@ -307,7 +325,7 @@ const Graph = ({
               return (
                 <Line
                   key={index}
-                  type="stepBefore"
+                  type="stepAfter"
                   dataKey={dataKey}
                   stroke={stroke}
                   ref={lineRef}
@@ -349,7 +367,15 @@ Graph.propTypes = {
   upperBound: PropTypes.string.isRequired,
   entries: PropTypes.array,
   currentProbability: PropTypes.array,
-  marketType: PropTypes.string.isRequired
+  marketType: PropTypes.string.isRequired,
+  resolutionDate: PropTypes.string.isRequired,
+  created: PropTypes.string.isRequired,
+  decimals: PropTypes.number.isRequired,
+  unit: PropTypes.string
+};
+
+Graph.defaultProps = {
+  unit: "Units"
 };
 
 export default Graph;
