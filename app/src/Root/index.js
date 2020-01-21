@@ -543,6 +543,7 @@ const RootComponent = ({ match, childComponents }) => {
                 whitelistState={whitelistState}
                 collateral={collateral}
                 collateralBalance={collateralBalance}
+                setProvider={setProvider}
               />
             }
             menu={<Menu />}
