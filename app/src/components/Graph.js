@@ -156,45 +156,47 @@ const Graph = ({
         ...entries
       ];
 
+      // Logic to add last entry if necessary
       const lastEntry = entries[entries.length - 1];
+      const noTrades = entries.length === 0;
+
       const isBeforeResolutionDate = getMoment(resolutionDate).isAfter(
         getMoment()
       );
-      const isLastEntryBeforeResolutionDate = getMoment(
-        lastEntry.date
-      ).isBefore(getMoment(resolutionDate));
 
-      if (isBeforeResolutionDate || isLastEntryBeforeResolutionDate) {
+      const isLastEntryBeforeResolutionDate =
+        !noTrades &&
+        getMoment(lastEntry.date).isBefore(getMoment(resolutionDate));
+
+      if (
+        isBeforeResolutionDate ||
+        noTrades ||
+        isLastEntryBeforeResolutionDate
+      ) {
         // Only add last entry (with current probabilities) if the market is not already resolved.
         // When market is resolved, if latest trade is before selected resolution date, duplicate latest trade
         // but adjust to show on resolution date (in some special cases there can be trades a bit after resolution date)
         const newEntry = isBeforeResolutionDate
           ? {
               outcomesProbability: currentProbability,
-              date: +new Date()
+              date: getMoment().valueOf()
             }
           : {
-              outcomesProbability: lastEntry.outcomesProbability,
+              outcomesProbability: noTrades
+                ? initialOutcomesProbability
+                : lastEntry.outcomesProbability,
               date: getMoment(resolutionDate).valueOf()
             };
         newData.push({
           ...newEntry,
           index: entries.length + 1 // +1 because we add the market creation as a datapoint
         });
-      } else {
-        // when market is resolved, duplicate latest trade but adjust to show on resolution date
-        newData.push({
-          outcomesProbability: [50, 50], // gets overwritten, but just incase there are no entries for the graph, it will show 50,50
-          ...entries[entries.length - 1],
-          date: getMoment(resolutionDate).valueOf(),
-          index: entries.length + 1
-        });
       }
 
       setData(newData);
     }
   }, [entries, currentProbability]);
-  
+
   useEffect(() => {
     if (lineRef.current) {
       // position of selected tick
