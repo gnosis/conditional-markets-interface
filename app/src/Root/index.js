@@ -269,7 +269,6 @@ const RootComponent = ({ match, childComponents }) => {
 
   const init = useCallback(
     async provider => {
-      const { networkId } = conf;
       try {
         console.groupCollapsed("Configuration");
         console.log(conf);
@@ -321,10 +320,13 @@ const RootComponent = ({ match, childComponents }) => {
     init();
   }, [lmsrAddress]);
 
-  const setProvider = provider => {
-    setLoading("LOADING");
-    init(provider);
-  };
+  const setProvider = useCallback(
+    provider => {
+      setLoading("LOADING");
+      init(provider);
+    },
+    [lmsrAddress, init]
+  );
 
   const [lmsrState, setLMSRState] = useState(null);
   const [marketResolutionStates, setMarketResolutionStates] = useState(null);

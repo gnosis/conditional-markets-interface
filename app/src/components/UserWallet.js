@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
 import cn from "classnames/bind";
 import Web3Connect from "web3connect";
@@ -14,8 +14,6 @@ const cx = cn.bind(style);
 
 const formatAddress = address =>
   `${address.substr(0, 6)}...${address.substr(-4)}`;
-
-let areWeb3ConnectListenersAdded = false;
 
 const web3Connect = new Web3Connect.Core({
   network: process.env.NETWORK.toLowerCase(),
@@ -36,25 +34,36 @@ const UserWallet = ({
   collateralBalance,
   setProvider
 }) => {
+  const connect = useCallback(
+    provider => {
+      setProvider(provider);
+    },
+    [setProvider]
+  );
+
   const disconnect = () => {
     setProvider(null);
   };
 
   useEffect(() => {
-    if (!areWeb3ConnectListenersAdded) {
-      areWeb3ConnectListenersAdded = true;
+    web3Connect.on("connect", connect);
 
-      web3Connect.on("connect", provider => {
-        setProvider(provider);
-      });
+    web3Connect.on("disconnect", () => {
+      disconnect();
+    });
 
-      web3Connect.on("disconnect", () => {
+    web3Connect.on("close", () => {});
+    // Cleanup on component destroy (contract reloading needs to recreate connect function)
+    return function cleanupListener() {
+      web3Connect.off("connect", connect);
+
+      web3Connect.off("disconnect", () => {
         disconnect();
       });
 
-      web3Connect.on("close", () => {});
-    }
-  });
+      web3Connect.off("close", () => {});
+    };
+  }, []);
 
   if (!address) {
     return (
