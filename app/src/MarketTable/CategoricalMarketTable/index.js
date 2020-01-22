@@ -108,7 +108,6 @@ const MarketTable = ({
     "#",
     "Market",
     "Implied probability",
-    "",
     "Ends In",
     "Outcome",
     !conditionalDisabled && (
@@ -128,7 +127,7 @@ const MarketTable = ({
         <tr>
           <th>#</th>
           <th>Market</th>
-          <th colSpan={2}>Implied probability</th>
+          <th>Implied probability</th>
           <th>Ends In</th>
           <th>Outcome</th>
           {!conditionalDisabled && (

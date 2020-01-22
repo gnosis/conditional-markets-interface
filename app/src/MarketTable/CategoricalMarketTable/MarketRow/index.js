@@ -10,7 +10,6 @@ import style from "./marketRow.scss";
 
 import ResolutionDate from "./ResolutionDate";
 import Probabilities from "./Probabilities";
-import ProbabilityWording from "./ProbabilityWording";
 import OutcomeSelection from "./OutcomeSelection";
 import ToggleConditional from "./ToggleConditional";
 import ProbabilityChart from "./probabilityChart";
@@ -91,12 +90,6 @@ const Market = ({
     <>{title}</>,
     <Probabilities
       key="probabilities"
-      outcomes={outcomes}
-      probabilities={probabilities}
-      stagedProbabilities={stagedProbabilities}
-    />,
-    <ProbabilityWording
-      key="probabilityWording"
       outcomes={outcomes}
       probabilities={probabilities}
       stagedProbabilities={stagedProbabilities}
