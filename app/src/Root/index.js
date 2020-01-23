@@ -516,7 +516,7 @@ const RootComponent = ({ match, childComponents }) => {
 
   useInterval(updateToasts, 1000);
 
-  const { loading: queryLoading, error, data: tradeHistory } = useQuery(
+  const { loading: queryLoading, error, data: queryData } = useQuery(
     GET_TRADES_BY_MARKET_MAKER,
     {
       variables: { marketMaker: lmsrAddress },
@@ -524,7 +524,9 @@ const RootComponent = ({ match, childComponents }) => {
     }
   );
 
-  if (loading === "SUCCESS" && !queryLoading)
+  if (loading === "SUCCESS" && !queryLoading) {
+    const tradeHistory = queryData.outcomeTokenTrades;
+    
     return (
       <div className={cx("page")}>
         <div className={cx("modal-space", { "modal-open": !!modal })}>
@@ -595,7 +597,7 @@ const RootComponent = ({ match, childComponents }) => {
                     resetMarketSelections,
                     addToast,
                     openModal,
-                    tradeHistory,
+                    tradeHistory
                   }}
                 />
               </section>
@@ -610,6 +612,7 @@ const RootComponent = ({ match, childComponents }) => {
         </div>
       </div>
     );
+  }
 
   if (loading === "LOADING" || queryLoading) {
     return (

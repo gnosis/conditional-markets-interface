@@ -196,6 +196,7 @@ const MarketTable = ({
                 ? marketProbabilitiesAfterStagedTrade[market.index]
                 : null
             }
+            tradeHistory={tradeHistory}
             disableConditional={conditionalDisabled}
             marketSelections={marketSelections}
             setMarketSelection={setMarketSelections}

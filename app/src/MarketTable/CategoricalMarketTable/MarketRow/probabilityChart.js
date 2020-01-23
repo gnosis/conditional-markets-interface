@@ -24,6 +24,7 @@ const probabilityChart = ({
   }, [chartOpen]);
 
   const parsedTrades = useMemo(() => {
+    console.log("useMemo", tradeHistory)
     if (tradeHistory) {
       return prepareTradesData(
         { lowerBound: 0, upperBound: 100, type: marketType },
