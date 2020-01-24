@@ -19,6 +19,10 @@ import Decimal from "decimal.js-light";
 // Routes
 import Routes from "./Routes";
 
+// Apollo
+import { client } from "api/thegraph";
+import { ApolloProvider } from "@apollo/react-hooks";
+
 import { history, store } from "./store";
 
 Decimal.config({
@@ -28,11 +32,13 @@ Decimal.config({
 });
 
 const RouterWrappedApp = (
-  <Provider store={store}>
-    <ConnectedRouter history={history}>
-      <Routes />
-    </ConnectedRouter>
-  </Provider>
+  <ApolloProvider client={client}>
+    <Provider store={store}>
+      <ConnectedRouter history={history}>
+        <Routes />
+      </ConnectedRouter>
+    </Provider>
+  </ApolloProvider>
 );
 
 const rootElement = document.getElementById("root");

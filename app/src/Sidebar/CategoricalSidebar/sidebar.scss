@@ -76,6 +76,10 @@
   line-height: 1.3;
 }
 
+.resolved-entry {
+  @include sidebar-entry();
+}
+
 @mixin sidebar-empty {
   @include sidebar-entry;
   padding: 4rem 1rem;

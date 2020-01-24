@@ -37,6 +37,7 @@ const Market = ({
   marketSelections,
   disableConditional,
   setMarketSelection,
+  tradeHistory,
   lmsrState
 }) => {
   const [detailsOpen, setDetailsOpen] = useState(false);
@@ -119,7 +120,7 @@ const Market = ({
   ].filter(entry => entry !== false); // Filter disabled entries to avoid creating table element
 
   const disableCollapse = !description && !dataSource && !dataSourceUrl;
-
+  
   return (
     <>
       <tr className={cx("market-row")} key={conditionId}>
@@ -138,6 +139,7 @@ const Market = ({
         probabilities={probabilities}
         resolutionDate={resolutionDate}
         stagedProbabilities={stagedProbabilities}
+        tradeHistory={tradeHistory}
       ></ProbabilityChart>
       <tr
         className={cx("market-row-tab", {

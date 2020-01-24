@@ -8,10 +8,10 @@ const sortBy = key => (a, b) => {
   return a[key] >= b[key] ? 1 : -1;
 };
 
-const prepareTradesData = ({ lowerBound, upperBound, type }, queryData) => {
+const prepareTradesData = ({ lowerBound, upperBound, type }, trades) => {
   // these trade information will be put into all markets, basically assuming theres only one market currently
   // todo: only match to markets whose outcomeIndices were purchased or sold
-  const trades = queryData.outcomeTokenTrades
+  const graphTrades = trades
     // In gql we have to order desc to ensure getting latest trades, as maximum query
     // limit by thegraph is 1000. Here we have to reverse the list again
     .sort(sortBy("blockTimestamp"))
@@ -51,7 +51,7 @@ const prepareTradesData = ({ lowerBound, upperBound, type }, queryData) => {
       };
     });
 
-  return trades;
+  return graphTrades;
 };
 
 export default prepareTradesData;

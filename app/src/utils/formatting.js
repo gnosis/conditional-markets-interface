@@ -63,7 +63,7 @@ export const formatAmount = (amount, dividend = 1) => {
     .toString();
 };
 
-export const formatScalarValue = (value, unit, decimals = 0) => {
+export const formatScalarValue = (value, unit = "units", decimals = 0) => {
   return `${value.toFixed(Math.min(decimals, 2))} ${unit}`;
 };
 

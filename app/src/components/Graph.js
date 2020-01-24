@@ -267,7 +267,7 @@ const Graph = ({
 
   return (
     <div className={cx("graph-container", marketClass)}>
-      <ResponsiveContainer minHeight={300}>
+      <ResponsiveContainer minHeight={300} minWidth="100%">
         <LineChart data={data} onMouseMove={mouseUpdate} ref={lineChartRef}>
           {marketType !== "SCALAR" && (
             <Tooltip
@@ -385,7 +385,8 @@ Graph.propTypes = {
 };
 
 Graph.defaultProps = {
-  unit: "Units"
+  unit: "Units",
+  decimals: 2
 };
 
 export default Graph;
