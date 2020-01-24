@@ -69,7 +69,7 @@ export async function tryProvider(providerCandidate, networkId) {
 }
 
 export async function loadWeb3(networkId, provider) {
-  const { default: Web3 } = await import("web3");
+  // const { default: Web3 } = await import("web3");
   const web3InitErrors = [];
   let web3, account;
   let foundWeb3 = false;

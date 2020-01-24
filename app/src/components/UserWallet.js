@@ -4,6 +4,8 @@ import cn from "classnames/bind";
 import Web3Connect from "web3connect";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 
+import conf from "conf";
+
 import Blockies from "react-blockies";
 import Spinner from "components/Spinner";
 import Balance from "./Balance";
@@ -16,7 +18,7 @@ const formatAddress = address =>
   `${address.substr(0, 6)}...${address.substr(-4)}`;
 
 const web3Connect = new Web3Connect.Core({
-  network: process.env.NETWORK.toLowerCase(),
+  network: conf.network,
   providerOptions: {
     walletconnect: {
       package: WalletConnectProvider,
@@ -49,19 +51,16 @@ const UserWallet = ({
     web3Connect.on("connect", connect);
 
     web3Connect.on("disconnect", () => {
-      disconnect();
+      // disconnect();
     });
 
     web3Connect.on("close", () => {});
     // Cleanup on component destroy (contract reloading needs to recreate connect function)
     return function cleanupListener() {
-      web3Connect.off("connect", connect);
-
-      web3Connect.off("disconnect", () => {
-        disconnect();
-      });
-
-      web3Connect.off("close", () => {});
+      // Cleanup all litseners at once
+      web3Connect.off("connect");
+      web3Connect.off("disconnect");
+      web3Connect.off("close");
     };
   }, []);
 

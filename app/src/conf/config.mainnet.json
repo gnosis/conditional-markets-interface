@@ -1,4 +1,5 @@
 {
   "lmsrAddress": "0x0D0128E6b88ae7FDCD9796b417c2DeAF71F0d8c4",
-  "networkId": 1
+  "networkId": 1,
+  "network": "mainnet"
 }
