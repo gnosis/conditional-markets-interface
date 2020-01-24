@@ -33,6 +33,12 @@ const Sidebar = props => {
 };
 
 const SidebarDesktop = props => {
+  const [value, setValue] = React.useState(0);
+
+  const handleChange = (event, newValue) => {
+    setValue(newValue);
+  };
+
   const isInResolvedMode = props.markets.every(
     ({ status }) => status === "RESOLVED"
   );
@@ -48,8 +54,33 @@ const SidebarDesktop = props => {
 
   return (
     <div className={cx("sidebar")}>
-      <BuySection {...props} />
-      <PositionsAndSell {...props} />
+      <Tabs
+        value={value}
+        onChange={handleChange}
+        variant="fullWidth"
+        classes={{ indicator: cx("tab-indicator") }}
+      >
+        <Tab
+          classes={{
+            wrapper: cx("tab-title")
+          }}
+          label="Buy"
+          {...a11yProps(0)}
+        ></Tab>
+        <Tab
+          classes={{
+            wrapper: cx("tab-title")
+          }}
+          label="Positions"
+          {...a11yProps(1)}
+        ></Tab>
+      </Tabs>
+      <TabPanel value={value} index={0}>
+        <BuySection {...props} />
+      </TabPanel>
+      <TabPanel value={value} index={1}>
+        <PositionsAndSell {...props} />
+      </TabPanel>
     </div>
   );
 };
