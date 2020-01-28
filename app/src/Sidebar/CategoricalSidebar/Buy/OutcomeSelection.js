@@ -36,16 +36,14 @@ const OutcomeSelection = ({
   ];
 
   return (
-    <div>
-      <Select
-        options={options}
-        defaultValue={{ value: "no-selection", label: "Select Outcome" }}
-        className={cx("outcome-selection")}
-        value={options[marketSelection.selectedOutcomeIndex + 1]}
-        classNamePrefix="outcome-selection"
-        onChange={handleOutcomeSelect}
-      />
-    </div>
+    <Select
+      options={options}
+      defaultValue={{ value: "no-selection", label: "Select Outcome" }}
+      className={cx("outcome-selection")}
+      value={options[marketSelection.selectedOutcomeIndex + 1]}
+      classNamePrefix="outcome-selection"
+      onChange={handleOutcomeSelect}
+    />
   );
 };
 

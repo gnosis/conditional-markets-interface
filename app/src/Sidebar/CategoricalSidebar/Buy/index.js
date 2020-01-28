@@ -339,7 +339,7 @@ const Buy = ({
   return (
     <>
       <div className={cx("buy-heading")}>
-        Order Position{" "}
+        Pick outcome{" "}
         <button
           type="button"
           className={cx("link-button", "clear")}
@@ -348,13 +348,15 @@ const Buy = ({
           clear all
         </button>
       </div>
-      <OutcomeSelection
-        key="selection"
-        outcomes={markets[forMarketIndex].outcomes}
-        conditionId={markets[forMarketIndex].conditionId}
-        marketSelection={marketSelections[forMarketIndex]}
-        setOutcomeSelection={handleMarketSelection}
-      />
+      <div className={cx("buy-subheading")}>
+        <OutcomeSelection
+          key="selection"
+          outcomes={markets[forMarketIndex].outcomes}
+          conditionId={markets[forMarketIndex].conditionId}
+          marketSelection={marketSelections[forMarketIndex]}
+          setOutcomeSelection={handleMarketSelection}
+        />
+      </div>
       {!outcomeSelected && (
         <div className={cx("buy-empty")}>Select outcome first.</div>
       )}
