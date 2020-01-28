@@ -13,6 +13,8 @@ import { Provider } from "react-redux";
 import "normalize.css/normalize.css";
 // Base Style (loads fonts)
 import "./scss/style.scss";
+import { ThemeProvider } from "@material-ui/core/styles";
+import theme from "scss/muiTheme";
 
 import Decimal from "decimal.js-light";
 
@@ -33,11 +35,13 @@ Decimal.config({
 
 const RouterWrappedApp = (
   <ApolloProvider client={client}>
-    <Provider store={store}>
-      <ConnectedRouter history={history}>
-        <Routes />
-      </ConnectedRouter>
-    </Provider>
+    <ThemeProvider theme={theme}>
+      <Provider store={store}>
+        <ConnectedRouter history={history}>
+          <Routes />
+        </ConnectedRouter>
+      </Provider>
+    </ThemeProvider>
   </ApolloProvider>
 );
 

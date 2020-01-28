@@ -1,6 +1,7 @@
 @import "~scss/_variables.scss";
 
 .sidebar {
+  box-shadow: 0 0 26px rgba(0, 25, 60, 0.12);
   height: 100%;
   width: 100%;
   padding: 0 0 10rem;
@@ -54,10 +55,6 @@
     height: 100%;
   }
 
-  .tab-indicator {
-    background-color: $blue;
-  }
-
   .tab-content {
     @media #{$tablet-small-max} {
       padding: 0 0 10rem;
@@ -90,9 +87,8 @@
 
 // Material UI style overrides
 .tab-title {
-  font-size: 1.4rem;
+  font-size: 1.6rem;
   font-weight: $bold;
-  color: $shadeBlue;
 }
 
 .ButtonGroup {

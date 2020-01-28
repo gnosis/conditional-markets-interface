@@ -56,9 +56,10 @@ const SidebarDesktop = props => {
     <div className={cx("sidebar")}>
       <Tabs
         value={value}
+        indicatorColor="primary"
+        textColor="primary"
         onChange={handleChange}
         variant="fullWidth"
-        classes={{ indicator: cx("tab-indicator") }}
       >
         <Tab
           classes={{
@@ -187,7 +188,7 @@ const SidebarMobile = props => {
               value={value}
               onChange={handleChange}
               variant="fullWidth"
-              classes={{ indicator: cx("tab-indicator") }}
+              indicatorColor="primary"
             >
               <Tab label="Order Positions" {...a11yProps(0)}></Tab>
               <Tab label="Your Positions" {...a11yProps(1)}></Tab>
