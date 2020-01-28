@@ -7,6 +7,7 @@ import Web3 from "web3";
 import cn from "classnames/bind";
 import style from "./buy.scss";
 
+import OutcomeSelection from "./OutcomeSelection";
 import OutcomeCard from "components/OutcomeCard";
 import { zeroDecimal } from "utils/constants";
 import { formatCollateral } from "utils/formatting";
@@ -31,6 +32,7 @@ const Buy = ({
   lmsrAllowance,
   lmsrState,
   marketSelections,
+  setMarketSelections,
   stagedTradeAmounts,
   setStagedTradeAmounts,
   stagedTransactionType,
@@ -110,6 +112,27 @@ const Buy = ({
   ]);
 
   const marketStage = lmsrState && lmsrState.stage;
+
+  const forMarketIndex = 0; // TODO: Multiple scalar markets will break this
+  const handleMarketSelection = useCallback(
+    selection => {
+      setMarketSelections(prevValue => {
+        return prevValue.map((marketSelection, marketSelectionIndex) => {
+          if (forMarketIndex === marketSelectionIndex) {
+            return {
+              selectedOutcomeIndex: selection,
+              isAssumed: selection === -1 ? false : marketSelection.isAssumed
+            };
+          }
+
+          return {
+            ...marketSelection
+          };
+        });
+      });
+    },
+    [marketSelections]
+  );
 
   let hasAnyAllowance = false;
   let hasEnoughAllowance = false;
@@ -325,6 +348,13 @@ const Buy = ({
           clear all
         </button>
       </div>
+      <OutcomeSelection
+        key="selection"
+        outcomes={markets[forMarketIndex].outcomes}
+        conditionId={markets[forMarketIndex].conditionId}
+        marketSelection={marketSelections[forMarketIndex]}
+        setOutcomeSelection={handleMarketSelection}
+      />
       {!outcomeSelected && (
         <div className={cx("buy-empty")}>Select outcome first.</div>
       )}
@@ -431,7 +461,7 @@ const Buy = ({
                 setError
               )}
             >
-              Place Order
+              Buy Position
             </button>
           </div>
         </>

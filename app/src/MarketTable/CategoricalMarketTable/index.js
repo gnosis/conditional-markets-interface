@@ -28,7 +28,7 @@ const MarketTable = ({
   resetMarketSelections,
   stagedTradeAmounts,
   openModal,
-  tradeHistory,
+  tradeHistory
 }) => {
   useEffect(() => {
     resetMarketSelections();
@@ -110,7 +110,6 @@ const MarketTable = ({
     "Market",
     "Implied probability",
     "Ends In",
-    "Outcome",
     !conditionalDisabled && (
       <>
         <span>Conditional</span> <HelpButton openModal={openModal} />
@@ -130,7 +129,6 @@ const MarketTable = ({
           <th>Market</th>
           <th>Implied probability</th>
           <th>Ends In</th>
-          <th>Outcome</th>
           {!conditionalDisabled && (
             <>
               <span>Conditional</span> <HelpButton openModal={openModal} />

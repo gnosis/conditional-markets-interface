@@ -10,7 +10,6 @@ import style from "./marketRow.scss";
 
 import ResolutionDate from "./ResolutionDate";
 import Probabilities from "./Probabilities";
-import OutcomeSelection from "./OutcomeSelection";
 import ToggleConditional from "./ToggleConditional";
 import ProbabilityChart from "./probabilityChart";
 
@@ -45,26 +44,6 @@ const Market = ({
     setDetailsOpen(!detailsOpen);
   }, [detailsOpen]);
 
-  const handleMarketSelection = useCallback(
-    selection => {
-      setMarketSelection(prevValue => {
-        return prevValue.map((marketSelection, marketSelectionIndex) => {
-          if (index === marketSelectionIndex) {
-            return {
-              selectedOutcomeIndex: selection,
-              isAssumed: selection === -1 ? false : marketSelection.isAssumed
-            };
-          }
-
-          return {
-            ...marketSelection
-          };
-        });
-      });
-    },
-    [marketSelections]
-  );
-
   const handleToggleConditional = useCallback(
     isAssumed => {
       let outcomeSelections = [...marketSelections];
@@ -96,15 +75,6 @@ const Market = ({
       stagedProbabilities={stagedProbabilities}
     />,
     <ResolutionDate key="res_date" date={resolutionDate} />,
-    marketSelections && (
-      <OutcomeSelection
-        key="selection"
-        outcomes={outcomes}
-        conditionId={conditionId}
-        marketSelection={marketSelections[index]}
-        setOutcomeSelection={handleMarketSelection}
-      />
-    ),
     marketSelections && !disableConditional && (
       <ToggleConditional
         key="conditional_topggle"
@@ -120,7 +90,7 @@ const Market = ({
   ].filter(entry => entry !== false); // Filter disabled entries to avoid creating table element
 
   const disableCollapse = !description && !dataSource && !dataSourceUrl;
-  
+
   return (
     <>
       <tr className={cx("market-row")} key={conditionId}>
