@@ -109,7 +109,9 @@ const MarketTable = ({
             unit,
             description,
             created,
-            type
+            type,
+            winningOutcome,
+            status,
           },
           index
         ) => {
@@ -128,6 +130,8 @@ const MarketTable = ({
                 .toNumber()
             ];
           };
+
+          const resolutionValue = status === "RESOLVED" && winningOutcome != null ? parseFloat(winningOutcome) : null;
 
           const parsedProbabilities =
             stagedMarketProbabilities && stagedMarketProbabilities[index]
@@ -184,6 +188,7 @@ const MarketTable = ({
                   unit={unit || undefined}
                   entries={trades}
                   resolutionDate={resolutionDate}
+                  resolutionValue={resolutionValue}
                   created={created}
                   currentProbability={parsedProbabilities}
                   marketType={type}
