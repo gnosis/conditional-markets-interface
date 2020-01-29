@@ -322,11 +322,19 @@ const RootComponent = ({ match, childComponents }) => {
   }, [lmsrAddress]);
 
   const setProvider = useCallback(
-    provider => {
+    async provider => {
+      if (
+        provider === null &&
+        web3 &&
+        web3.currentProvider &&
+        web3.currentProvider.close
+      ) {
+        await web3.currentProvider.close();
+      }
       setLoading("LOADING");
       init(provider);
     },
-    [lmsrAddress, init]
+    [lmsrAddress, web3, init]
   );
 
   const [lmsrState, setLMSRState] = useState(null);
@@ -528,7 +536,7 @@ const RootComponent = ({ match, childComponents }) => {
 
   if (loading === "SUCCESS" && !queryLoading) {
     const tradeHistory = queryData.outcomeTokenTrades;
-    
+
     return (
       <div className={cx("page")}>
         <div className={cx("modal-space", { "modal-open": !!modal })}>
@@ -624,7 +632,7 @@ const RootComponent = ({ match, childComponents }) => {
       </div>
     );
   }
-  if (loading === "FAILURE") {
+  if (loading === "FAILURE" || error) {
     return (
       <div>
         <CrashPage errorMessage={lastError} />

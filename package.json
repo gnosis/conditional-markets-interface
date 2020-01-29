@@ -60,7 +60,7 @@
     "redux": "^4.0.5",
     "regenerator-runtime": "^0.13.3",
     "web3": "^1.2.4",
-    "web3connect": "^1.0.0-beta.25"
+    "web3connect": "^1.0.0-beta.26"
   },
   "author": "Gnosis",
   "license": "MIT",
