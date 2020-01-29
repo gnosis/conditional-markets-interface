@@ -60,6 +60,9 @@ const SidebarDesktop = props => {
         textColor="primary"
         onChange={handleChange}
         variant="fullWidth"
+        classes={{
+          root: cx("tab-selector")
+        }}
       >
         <Tab
           classes={{

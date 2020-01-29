@@ -62,9 +62,8 @@
 }
 
 @mixin sidebar-entry {
-  padding: 1.6rem;
+  padding: 1.8rem;
   background-color: $white;
-  border-bottom: .1rem solid $greyBorder;
   font-size: 1.4rem;
   display: flex;
   justify-content: space-between;
@@ -85,9 +84,14 @@
 }
 
 // Material UI style overrides
+.tab-selector {
+  border-bottom: 1px solid $greyBorder;
+}
+
 .tab-title {
   font-size: 1.6rem;
   font-weight: $bold;
+  padding: 1rem;
 }
 
 .ButtonGroup {

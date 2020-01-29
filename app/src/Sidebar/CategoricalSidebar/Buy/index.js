@@ -195,25 +195,25 @@ const Buy = ({
     problemText = "Select position(s) first.";
   }
 
-  const makeStepper = useCallback(amount => {
-    return () => {
-      setStagedTransactionType("buy outcome tokens");
-      setInvestmentAmount(prevValue => {
-        let prevValueDecimal;
-        try {
-          if (prevValue === "") {
-            prevValueDecimal = Decimal(0);
-          } else {
-            prevValueDecimal = Decimal(prevValue);
-          }
-        } catch (err) {
-          return prevValue;
-        }
+  // const makeStepper = useCallback(amount => {
+  //   return () => {
+  //     setStagedTransactionType("buy outcome tokens");
+  //     setInvestmentAmount(prevValue => {
+  //       let prevValueDecimal;
+  //       try {
+  //         if (prevValue === "") {
+  //           prevValueDecimal = Decimal(0);
+  //         } else {
+  //           prevValueDecimal = Decimal(prevValue);
+  //         }
+  //       } catch (err) {
+  //         return prevValue;
+  //       }
 
-        return prevValueDecimal.add(amount).toString();
-      });
-    };
-  }, []);
+  //       return prevValueDecimal.add(amount).toString();
+  //     });
+  //   };
+  // }, []);
 
   const setInvestmentMax = useCallback(() => {
     if (collateralBalance != null && collateral != null) {
@@ -330,12 +330,6 @@ const Buy = ({
     setHumanReadablePositions(humanReadablePositions);
   }, [stagedTradePositionGroups]);
 
-  const outcomeSelected =
-    marketSelections !== null &&
-    marketSelections.some(({ selectedOutcomeIndex }) => {
-      return selectedOutcomeIndex !== -1;
-    });
-
   return (
     <>
       <div className={cx("buy-heading")}>
@@ -348,7 +342,7 @@ const Buy = ({
           clear all
         </button>
       </div>
-      <div className={cx("buy-subheading")}>
+      <div className={cx("buy-select")}>
         <OutcomeSelection
           key="selection"
           outcomes={markets[forMarketIndex].outcomes}
@@ -357,117 +351,109 @@ const Buy = ({
           setOutcomeSelection={handleMarketSelection}
         />
       </div>
-      {!outcomeSelected && (
-        <div className={cx("buy-empty")}>Select outcome first.</div>
-      )}
       {problemText && <div className={cx("buy-empty")}>{problemText}</div>}
       {error && (
         <div className={cx("buy-empty")}>
           {error === true ? "An error has occured" : error.message}
         </div>
       )}
-      {outcomeSelected && (
-        <>
-          <div className={cx("buy-summary")}>
-            {humanReadablePositions &&
-              [
-                humanReadablePositions.payOutWhen,
-                humanReadablePositions.refundWhen,
-                humanReadablePositions.loseInvestmentWhen
-              ]
-                .filter(category => category && category.positions.length)
-                .map(category => (
-                  <Fragment key={category.title}>
-                    <div className={cx("buy-summary-heading")}>
-                      {category.title}
-                    </div>
-                    <div className={cx("buy-summary-category")}>
-                      <div className={cx("category-entries")}>
-                        {category.positions.map(outcome => (
-                          <OutcomeCard
-                            key={`${outcome.marketIndex}-${outcome.outcomeIndex}`}
-                            glueType={category.getGlue()}
-                            // prefixType={category.getPrefix()}
-                            {...outcome}
-                          />
-                        ))}
-                      </div>
-                      <div className={cx("category-values")}>
-                        <p className={cx("category-value", "value")}>
-                          {formatCollateral(category.runningAmount, collateral)}
-                        </p>
-                        {/*<p className={cx("category-value", "margin")}>
-                          ({category.margin > 0 && "+"}
-                          {category.margin * 100}%)
-                          </p>*/}
-                      </div>
-                    </div>
-                  </Fragment>
-                ))}
-          </div>
-          <div className={cx("buy-subheading")}>
-            Total Investment ({collateral.name})
-          </div>
-          <div className={cx("buy-investment")}>
-            <button
-              className={cx("buy-invest", "buy-invest-minus")}
-              onClick={makeStepper(-0.1)}
-              type="button"
-            >
-              –
-            </button>
-            <div className={cx("input-group")}>
-              <button
-                className={cx("input-append", "link-button", "invest-max")}
-                onClick={setInvestmentMax}
-                type="button"
-              >
-                max
-              </button>
-              <input
-                type="number"
-                value={investmentAmount}
-                className={cx("input")}
-                onChange={e => {
-                  setStagedTransactionType("buy outcome tokens");
-                  setInvestmentAmount(e.target.value);
-                }}
-              />
-              <span className={cx("input-append", "collateral-name")}>
-                {collateral.symbol}
-              </span>
-            </div>
-            <button
-              className={cx("buy-invest", "buy-invest-plus")}
-              onClick={makeStepper(0.1)}
-              type="button"
-            >
-              +
-            </button>
-          </div>
-          <div className={cx("buy-confirm")}>
-            <button
-              className={cx("button")}
-              type="button"
-              disabled={
-                //!hasEnoughAllowance ||
-                stagedTransactionType !== "buy outcome tokens" ||
-                stagedTradeAmounts == null ||
-                ongoingTransactionType != null ||
-                marketStage !== "Running" ||
-                error != null
-              }
-              onClick={asWrappedTransaction(
-                "buy outcome tokens",
-                buyOutcomeTokens,
-                setError
-              )}
-            >
-              Buy Position
-            </button>
-          </div>
-        </>
-      )}
+      <div className={cx("buy-summary")}>
+        {humanReadablePositions &&
+          [
+            humanReadablePositions.payOutWhen,
+            humanReadablePositions.refundWhen,
+            humanReadablePositions.loseInvestmentWhen
+          ]
+            .filter(category => category && category.positions.length)
+            .map(category => (
+              <Fragment key={category.title}>
+                <div className={cx("buy-summary-heading")}>
+                  {category.title}
+                </div>
+                <div className={cx("buy-summary-category")}>
+                  <div className={cx("category-entries")}>
+                    {category.positions.map(outcome => (
+                      <OutcomeCard
+                        key={`${outcome.marketIndex}-${outcome.outcomeIndex}`}
+                        glueType={category.getGlue()}
+                        // prefixType={category.getPrefix()}
+                        {...outcome}
+                      />
+                    ))}
+                  </div>
+                  <div className={cx("category-values")}>
+                    <p className={cx("category-value", "value")}>
+                      {formatCollateral(category.runningAmount, collateral)}
+                    </p>
+                    {/*<p className={cx("category-value", "margin")}>
+                      ({category.margin > 0 && "+"}
+                      {category.margin * 100}%)
+                      </p>*/}
+                  </div>
+                </div>
+              </Fragment>
+            ))}
+      </div>
+      <div className={cx("buy-subheading")}>
+        How many <b>&nbsp;outcome tokens&nbsp;</b> do you want to buy?
+      </div>
+      <div className={cx("buy-investment")}>
+        {/* <button
+          className={cx("buy-invest", "buy-invest-minus")}
+          onClick={makeStepper(-0.1)}
+          type="button"
+        >
+          –
+        </button> */}
+        <div className={cx("input-group")}>
+          <button
+            className={cx("input-append", "link-button", "invest-max")}
+            onClick={setInvestmentMax}
+            type="button"
+          >
+            max
+          </button>
+          <input
+            type="number"
+            value={investmentAmount}
+            className={cx("input")}
+            onChange={e => {
+              setStagedTransactionType("buy outcome tokens");
+              setInvestmentAmount(e.target.value);
+            }}
+          />
+          <span className={cx("input-append", "collateral-name")}>
+            {collateral.symbol}
+          </span>
+        </div>
+        {/* <button
+          className={cx("buy-invest", "buy-invest-plus")}
+          onClick={makeStepper(0.1)}
+          type="button"
+        >
+          +
+        </button> */}
+      </div>
+      <div className={cx("buy-confirm")}>
+        <button
+          className={cx("button")}
+          type="button"
+          disabled={
+            stagedTransactionType !== "buy outcome tokens" ||
+            stagedTradeAmounts == null ||
+            ongoingTransactionType != null ||
+            marketStage !== "Running" ||
+            error != null
+          }
+          onClick={asWrappedTransaction(
+            "buy outcome tokens",
+            buyOutcomeTokens,
+            setError
+          )}
+        >
+          Buy Position
+        </button>
+      </div>
     </>
   );
 };
