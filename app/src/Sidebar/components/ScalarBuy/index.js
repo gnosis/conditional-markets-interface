@@ -174,7 +174,7 @@ const Buy = ({
 
     clearAllPositions();
     // Show positions component
-    makeButtonSelectCallback("Sell");
+    makeButtonSelectCallback(1);
   }, [
     investmentAmount,
     hasAnyAllowance,
