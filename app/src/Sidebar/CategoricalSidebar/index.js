@@ -33,19 +33,6 @@ const Sidebar = props => {
 };
 
 const SidebarDesktop = props => {
-  const isInResolvedMode = props.markets.every(
-    ({ status }) => status === "RESOLVED"
-  );
-
-  if (isInResolvedMode) {
-    return (
-      <div className={cx("sidebar")}>
-        <div className={cx("resolved-entry")}>Market Resolved</div>
-        <Resolved {...props} />
-      </div>
-    );
-  }
-
   return <SidebarContent {...props} />;
 };
 
@@ -108,11 +95,7 @@ const SidebarMobile = props => {
           </IconButton>
         </div>
 
-        {isInResolvedMode ? (
-          <Resolved {...props} />
-        ) : (
-          <SidebarContent {...props} tabIndex={tabIndex} />
-        )}
+        <SidebarContent {...props} tabIndex={tabIndex} />
       </Drawer>
     </div>
   );
@@ -153,6 +136,10 @@ function a11yProps(index) {
 }
 
 const SidebarContent = props => {
+  const isInResolvedMode = props.markets.every(
+    ({ status }) => status === "RESOLVED"
+  );
+
   const { tabIndex } = props;
   const [value, setValue] = React.useState(0);
 
@@ -179,27 +166,47 @@ const SidebarContent = props => {
           root: cx("tab-selector")
         }}
       >
-        <Tab
-          classes={{
-            wrapper: cx("tab-title")
-          }}
-          label="Buy"
-          {...a11yProps(0)}
-        ></Tab>
-        <Tab
-          classes={{
-            wrapper: cx("tab-title")
-          }}
-          label="Positions"
-          {...a11yProps(1)}
-        ></Tab>
+        {isInResolvedMode ? (
+          <Tab
+            classes={{
+              wrapper: cx("tab-title")
+            }}
+            label="Market is resolved"
+            {...a11yProps(0)}
+          ></Tab>
+        ) : (
+          <>
+            <Tab
+              classes={{
+                wrapper: cx("tab-title")
+              }}
+              label="Buy"
+              {...a11yProps(0)}
+            ></Tab>
+            <Tab
+              classes={{
+                wrapper: cx("tab-title")
+              }}
+              label="Positions"
+              {...a11yProps(1)}
+            ></Tab>
+          </>
+        )}
       </Tabs>
-      <TabPanel value={value} index={0}>
-        <BuySection {...props} />
-      </TabPanel>
-      <TabPanel value={value} index={1}>
-        <PositionsAndSell {...props} />
-      </TabPanel>
+      {isInResolvedMode ? (
+        <TabPanel value={value} index={0}>
+          <Resolved {...props} />
+        </TabPanel>
+      ) : (
+        <>
+          <TabPanel value={value} index={0}>
+            <BuySection {...props} />
+          </TabPanel>
+          <TabPanel value={value} index={1}>
+            <PositionsAndSell {...props} />
+          </TabPanel>
+        </>
+      )}
     </div>
   );
 };
