@@ -13,30 +13,28 @@
   }
 }
 
-.tooltip {
-  &-inner {
-    font-weight: 800;
-    white-space: nowrap;
-    padding: 0.1rem 0.3rem;
+.tooltip-inner {
+  font-weight: 800;
+  white-space: nowrap;
+  padding: 0.1rem 0.3rem;
 
-    &::before, &::after {
-      content: '';
-      position: absolute;
-      top: 50%;
-      z-index: -1;
-    }
+  &::before, &::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    z-index: -1;
+  }
 
-    &::after {
-      left: -90px;
-      width: 10px;
-      border-bottom: 1px solid black;
-    }
+  &::after {
+    left: -90px;
+    width: 10px;
+    border-bottom: 1px solid black;
+  }
 
-    &::before {
-      left: -80px;
-      width: 80px;
-      border-bottom: 1px dashed black;
-    }
+  &::before {
+    left: -80px;
+    width: 80px;
+    border-bottom: 1px dashed black;
   }
 }
 
@@ -58,10 +56,25 @@
   
     position: absolute;
     top: 0;
+    z-index: -1;
   
     .tooltip-inner {
       border-radius: 3px;
       background-color: #009cb4;
+      color: #fff;
+    }
+  }
+
+  .tooltip-winning-outcome {
+    @include tooltipStyle();
+  
+    position: absolute;
+    top: 0;
+    z-index: -1;
+  
+    .tooltip-inner {
+      border-radius: 3px;
+      background-color: #16ae60;
       color: #fff;
     }
   }
