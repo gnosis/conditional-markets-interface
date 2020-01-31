@@ -111,7 +111,7 @@ SidebarMobile.propTypes = {
   openModal: PropTypes.func.isRequired
 };
 
-function TabPanel(props) {
+const TabPanel = props => {
   const { children, value, index, ...other } = props;
 
   return (
@@ -126,7 +126,7 @@ function TabPanel(props) {
       <Box className={cx("tab-content")}>{children}</Box>
     </Typography>
   );
-}
+};
 
 TabPanel.propTypes = {
   children: PropTypes.node,
@@ -134,12 +134,12 @@ TabPanel.propTypes = {
   value: PropTypes.any.isRequired
 };
 
-function a11yProps(index) {
+const a11yProps = index => {
   return {
     id: `full-width-tab-${index}`,
     "aria-controls": `full-width-tabpanel-${index}`
   };
-}
+};
 
 const ResolvedMarketSidebar = props => {
   const { value, handleChange } = props;
