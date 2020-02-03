@@ -1,12 +1,15 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import PropTypes from "prop-types";
 import { formatDate, getMoment } from "utils/timeFormat";
-import { formatScalarValue } from "utils/formatting";
 import cn from "classnames/bind";
+
+import CursorWithLineConnection from "./CursorWithLineConnection";
+import TooltipContent from "./TooltipContent";
 
 import styles from "./Graph.scss";
 
 import { blueColor, redColor } from "scss/_variables.scss";
+import CheckSvg from "assets/icons/check-circle-green.svg";
 
 const scalarMarketColor = {
   0: "#8884d8"
@@ -23,74 +26,60 @@ import {
   Line,
   Tooltip,
   ResponsiveContainer,
-  ReferenceDot
+  ReferenceDot,
+  ReferenceLine
 } from "recharts";
 
 const cx = cn.bind(styles);
 
-const CursorWithLineConnection = props => {
-  //console.log(props.width)
-  const {
-    points,
-    currentPositionTooltipCoordinates,
-    selectedPositionTooltipCoordinates,
-    width,
-    ...restProps
-  } = props;
-
+const CHECK_ICON_RADIUS = 10;
+const CheckIcon = ({ viewBox: { x, y } }) => {
   return (
-    <g>
-      <line
-        x1={points[0].x}
-        x2={points[1].x}
-        y1={points[0].y}
-        y2={points[1].y}
-        style={{
-          stroke: "#02ae60",
-          strokeWidth: 2
-        }}
-      />
-      <line
-        x1={points[0].x}
-        x2={width + 5}
-        y1={currentPositionTooltipCoordinates.y}
-        y2={currentPositionTooltipCoordinates.y}
-        style={{
-          stroke: "#02ae60",
-          strokeDasharray: "2,2"
-        }}
-      />
-      <line
-        x1={points[0].x}
-        x2={width + 5}
-        y1={selectedPositionTooltipCoordinates.y}
-        y2={selectedPositionTooltipCoordinates.y}
-        style={{
-          stroke: "#02ae60",
-          strokeDasharray: "1,1"
-        }}
-      />
-      <circle
-        cx={points[0].x}
-        cy={currentPositionTooltipCoordinates.y}
-        r={5}
-        fill="#009cb4"
+    <g
+      transform={`translate(${x + CHECK_ICON_RADIUS / 2}, ${y +
+        CHECK_ICON_RADIUS / 2})`}
+    >
+      <circle r={CHECK_ICON_RADIUS} fill="white" />
+      <image
+        x={-CHECK_ICON_RADIUS}
+        y={-CHECK_ICON_RADIUS}
+        href={CheckSvg}
+        height={CHECK_ICON_RADIUS * 2}
+        width={CHECK_ICON_RADIUS * 2}
       />
     </g>
   );
 };
+CheckIcon.propTypes = {
+  viewBox: PropTypes.shape({
+    x: PropTypes.number,
+    y: PropTypes.number
+  }).isRequired
+};
 
-const TooltipContent = ({ active, value, payload, unit, decimals }) => {
-  if (active) {
-    const number = value || payload[0].value;
-    return (
-      <div className={cx("tooltip-inner")}>
-        {formatScalarValue(number, unit, decimals)}
-      </div>
-    );
-  }
+const PositionMarker = ({ x, viewBox, setWinningOutcomeLabelPos }) => {
+  /**
+   * Is unfortunately required to correctly get the position of the ReferenceLine in order to align
+   * the tooltip and the line connecting the tooltip and the ReferenceLine.
+   */
+  const pos = {
+    x: x,
+    y: viewBox.y
+  };
+
+  useEffect(() => {
+    setWinningOutcomeLabelPos(pos);
+  }, []);
 
   return null;
+};
+PositionMarker.propTypes = {
+  x: PropTypes.number.isRequired,
+  viewBox: PropTypes.shape({
+    x: PropTypes.number,
+    y: PropTypes.number
+  }).isRequired,
+  setWinningOutcomeLabelPos: PropTypes.func.isRequired
 };
 
 const Graph = ({
@@ -100,6 +89,7 @@ const Graph = ({
   unit,
   created,
   resolutionDate,
+  resolutionValue,
   marketType,
   entries,
   currentProbability
@@ -111,9 +101,11 @@ const Graph = ({
 
   const [tooltipPosition, setTooltipPosition] = useState(null);
   const [lastTickPosition, setLastTickPosition] = useState(null);
+  const [winningOutcomeLabelPos, setWinningOutcomeLabelPos] = useState(null);
 
   const lineRef = useRef(null);
   const lineChartRef = useRef(null);
+  const winningOutcomeRef = useRef(null);
 
   useEffect(() => {
     // console.log("memo updates", entries, currentProbability)
@@ -236,16 +228,6 @@ const Graph = ({
     return formatDate(tick, "MMM D HH:mm");
   });
 
-  /*
-  if (data.length <= 2) {
-    return (
-      <div className={cx("graph-container", "empty")}>
-        <span>No data yet.</span>
-      </div>
-    );
-  }
-  */
-
   const marketClass = marketType.toLowerCase() + "-graph";
 
   // Create date ticks manually. Use daily pattern (X Axis ticks)
@@ -264,10 +246,9 @@ const Graph = ({
   }, [data]);
 
   const ticks = getTicks();
-
   return (
     <div className={cx("graph-container", marketClass)}>
-      <ResponsiveContainer minHeight={300}>
+      <ResponsiveContainer minHeight={300} minWidth="100%">
         <LineChart data={data} onMouseMove={mouseUpdate} ref={lineChartRef}>
           {marketType !== "SCALAR" && (
             <Tooltip
@@ -342,6 +323,33 @@ const Graph = ({
                 />
               );
             })}
+          {resolutionValue && lastTickPosition && (
+            /* only scalar has resolution value on graph */
+            <ReferenceLine
+              key="resolution-value"
+              stroke="#16ae60"
+              y={resolutionValue}
+              ref={winningOutcomeRef}
+              label={
+                <PositionMarker
+                  x={lastTickPosition.x}
+                  setWinningOutcomeLabelPos={setWinningOutcomeLabelPos}
+                />
+              }
+            />
+          )}
+          {resolutionValue && lastTickPosition && (
+            /* only scalar has resolution value on graph */
+            <ReferenceDot
+              key="resolution-value-dot"
+              r={5}
+              fill="none"
+              stroke="none"
+              y={resolutionValue}
+              x={data[data.length - 1].date}
+              label={<CheckIcon />}
+            />
+          )}
         </LineChart>
       </ResponsiveContainer>
       {lastTickPosition && marketType === "SCALAR" && (
@@ -368,6 +376,24 @@ const Graph = ({
             })}
         </div>
       )}
+      {winningOutcomeLabelPos && (
+        <div
+          className={cx("tooltip-winning-outcome")}
+          style={{
+            transform: `translate(${-sidebarWidth}px, calc(${
+              winningOutcomeLabelPos.y
+            }px - 50%))`
+          }}
+        >
+          <TooltipContent
+            key="resolution-value"
+            active
+            value={resolutionValue}
+            unit={unit}
+            decimals={decimals}
+          />
+        </div>
+      )}
     </div>
   );
 };
@@ -379,13 +405,16 @@ Graph.propTypes = {
   currentProbability: PropTypes.array,
   marketType: PropTypes.string.isRequired,
   resolutionDate: PropTypes.string.isRequired,
+  resolutionValue: PropTypes.string,
   created: PropTypes.string.isRequired,
-  decimals: PropTypes.number.isRequired,
+  decimals: PropTypes.number,
   unit: PropTypes.string
 };
 
 Graph.defaultProps = {
-  unit: "Units"
+  resolutionValue: null,
+  unit: "Units",
+  decimals: 2
 };
 
 export default Graph;

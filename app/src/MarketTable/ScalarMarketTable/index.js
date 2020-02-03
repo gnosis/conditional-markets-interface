@@ -3,7 +3,6 @@ import PropTypes from "prop-types";
 import Web3 from "web3";
 import cn from "classnames/bind";
 import Decimal from "decimal.js-light";
-import { useQuery } from "@apollo/react-hooks";
 
 import Markdown from "react-markdown";
 
@@ -19,9 +18,7 @@ import {
 } from "utils/probabilities";
 import { formatCollateral } from "utils/formatting";
 
-import { GET_TRADES_BY_MARKET_MAKER } from "api/thegraph";
-
-import prepareTradesData from "../utils/prepareTradesData";
+import prepareTradesData from "utils/prepareTradesData";
 
 const { BN } = Web3.utils;
 
@@ -38,7 +35,8 @@ const MarketTable = ({
   setMarketSelections,
   resetMarketSelections,
   stagedTradeAmounts,
-  collateral
+  collateral,
+  tradeHistory,
 }) => {
   useEffect(() => {
     resetMarketSelections();
@@ -55,11 +53,6 @@ const MarketTable = ({
   const handleToggleExpand = useCallback(() => {
     setExpanded(!isExpanded);
   }, [isExpanded]);
-
-  const { loading, error, data } = useQuery(GET_TRADES_BY_MARKET_MAKER, {
-    variables: { marketMaker: lmsrAddress },
-    pollInterval: 15000
-  });
 
   useMemo(() => {
     if (lmsrState != null) {
@@ -100,9 +93,6 @@ const MarketTable = ({
     return <Spinner />;
   }
 
-  if (loading) return <Spinner width={32} height={32} />;
-  if (error) throw new Error(error);
-
   return (
     <div className={cx("markettable")}>
       {markets.map(
@@ -119,13 +109,15 @@ const MarketTable = ({
             unit,
             description,
             created,
-            type
+            type,
+            winningOutcome,
+            status,
           },
           index
         ) => {
           const trades = prepareTradesData(
             { lowerBound, upperBound, type },
-            data
+            tradeHistory
           );
 
           const getValueFromBounds = (value, upperBound, lowerBound) => {
@@ -138,6 +130,8 @@ const MarketTable = ({
                 .toNumber()
             ];
           };
+
+          const resolutionValue = status === "RESOLVED" && winningOutcome != null ? parseFloat(winningOutcome) : null;
 
           const parsedProbabilities =
             stagedMarketProbabilities && stagedMarketProbabilities[index]
@@ -188,12 +182,13 @@ const MarketTable = ({
               </div>
               <div className={cx("prediction")}>
                 <Graph
-                  lowerBound={lowerBound}
-                  upperBound={upperBound}
-                  decimals={decimals}
-                  unit={unit}
+                  lowerBound={lowerBound || undefined}
+                  upperBound={upperBound || undefined}
+                  decimals={decimals || undefined}
+                  unit={unit || undefined}
                   entries={trades}
                   resolutionDate={resolutionDate}
+                  resolutionValue={resolutionValue}
                   created={created}
                   currentProbability={parsedProbabilities}
                   marketType={type}

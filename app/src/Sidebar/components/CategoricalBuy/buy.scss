@@ -1,23 +1,22 @@
 @import "~scss/_variables.scss";
-@import "../sidebar.scss";
+@import "../../sidebar.scss";
 
 .buy {
   &-heading {
     @include sidebar-entry;
-
-    font-weight: $bold;
   }
 
   &-subheading {
     @include sidebar-entry;
-    font-weight: $bold;
-    font-size: 1.3rem;
-    color: $shadeBlue;
     letter-spacing: 0;
-    text-align: center;
     border: 0;
-    justify-content: center;
-    padding: 1.8rem;
+    justify-content: left;
+  }
+
+  &-select {
+    @include sidebar-entry;
+    font-size: 1.6rem;
+    padding-top: 0;
   }
 
   &-empty {
@@ -139,10 +138,10 @@
       position: relative;
       display: flex;
       flex-flow: row nowrap;
-      height: 5rem;
+      height: 6.1rem;
       padding: 0;
       font-weight: $normal;
-      border: .1rem solid $greyBorder2;
+      border: .2rem solid $greyBorder2;
       border-radius: .3rem;
       flex: 1;
       justify-content: space-between;
@@ -171,6 +170,7 @@
     .input-append {
       font-weight: $bold;
       font-size: 1.3rem;
+      text-transform: uppercase;
       color: $blue;
       letter-spacing: 0;
       box-sizing: border-box;
@@ -193,7 +193,7 @@
   width: 100%;
   cursor: pointer;
   color: $white;
-  background: $green;
+  background: $blue;
   border-radius: .2rem;
   height: 5.2rem;
   padding: 0 1rem;

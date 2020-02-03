@@ -93,6 +93,8 @@ $x: "\2715"; // $x: "✕";
 
 // Export directive for webpack to use colors in javascript
 :export {
+  blackColor: $black;
   blueColor: $blue;
   redColor: $red;
+  font: $font;
 }

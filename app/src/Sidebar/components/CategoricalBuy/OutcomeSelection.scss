@@ -2,12 +2,13 @@
 
 :global {
   .outcome-selection {
+    width: 100%;
 
     > .outcome-selection__control {
       position: relative;
       padding: 0;
       border-radius: .2rem;
-      border: .1rem solid $greyBorder2;
+      border: .2rem solid $greyBorder2;
       background: none;
       color: $shadeBlue;
       -webkit-appearance: none;
@@ -15,12 +16,7 @@
       appearance: none;
       outline: 0;
       cursor: pointer;
-      border-color: $blue;
-      min-width: 17rem;
-
-      @media #{$tablet-small-max} {
-        width: 100%;
-      }
+      height: 6.1rem;
 
       &--is-focused {
         background-color: $grey;
@@ -31,7 +27,7 @@
       padding: 0;
     }
 
-    > .outcome-selection__indicator-separator {
+    .outcome-selection__indicator-separator {
       display: none;
     }
 
@@ -43,7 +39,7 @@
         div { cursor: pointer; }
     }
 
-    > .outcome-selection__dropdown-indicator {
+    .outcome-selection__dropdown-indicator {
       background: url("~assets/icons/down-angle.svg") center center / 1.6rem 1rem no-repeat;
       height: 5.2rem;
 

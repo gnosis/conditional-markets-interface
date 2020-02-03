@@ -27,7 +27,8 @@ const MarketTable = ({
   setMarketSelections,
   resetMarketSelections,
   stagedTradeAmounts,
-  openModal
+  openModal,
+  tradeHistory
 }) => {
   useEffect(() => {
     resetMarketSelections();
@@ -108,9 +109,7 @@ const MarketTable = ({
     "#",
     "Market",
     "Implied probability",
-    "",
     "Ends In",
-    "Outcome",
     !conditionalDisabled && (
       <>
         <span>Conditional</span> <HelpButton openModal={openModal} />
@@ -128,9 +127,8 @@ const MarketTable = ({
         <tr>
           <th>#</th>
           <th>Market</th>
-          <th colSpan={2}>Implied probability</th>
+          <th>Implied probability</th>
           <th>Ends In</th>
-          <th>Outcome</th>
           {!conditionalDisabled && (
             <>
               <span>Conditional</span> <HelpButton openModal={openModal} />
@@ -144,6 +142,7 @@ const MarketTable = ({
             key={market.conditionId}
             lmsrState={lmsrState}
             headings={headings}
+            tradeHistory={tradeHistory}
             stagedProbabilities={
               marketProbabilities != null
                 ? marketProbabilities[market.index]
@@ -194,6 +193,7 @@ const MarketTable = ({
                 ? marketProbabilitiesAfterStagedTrade[market.index]
                 : null
             }
+            tradeHistory={tradeHistory}
             disableConditional={conditionalDisabled}
             marketSelections={marketSelections}
             setMarketSelection={setMarketSelections}

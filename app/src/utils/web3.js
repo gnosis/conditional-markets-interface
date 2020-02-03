@@ -37,15 +37,21 @@ export function getReadOnlyProviderForNetworkId(networkId) {
     : `wss://${providerName}.infura.io/ws/v3/d743990732244555a1a0e82d5ab90c7f`;
 }
 
+export async function getAccount(web3) {
+  if (!web3) return null;
+  if (web3.defaultAccount == null) {
+    const accounts = await web3.eth.getAccounts();
+    return accounts[0] || null;
+  } else return web3.defaultAccount;
+}
+
 export async function tryProvider(providerCandidate, networkId) {
   const { default: Web3 } = await import("web3");
 
   if (providerCandidate == null) throw new Error("provider not available");
   if (providerCandidate.enable != null) await providerCandidate.enable();
 
-  let web3, account;
-
-  web3 = new Web3(providerCandidate);
+  const web3 = new Web3(providerCandidate);
   const web3NetworkId = await web3.eth.net.getId();
   if (web3NetworkId != networkId)
     throw new Error(
@@ -57,43 +63,31 @@ export async function tryProvider(providerCandidate, networkId) {
   // attempt to get the main account here
   // so that web3 will emit an error if e.g.
   // the localhost provider cannot be reached
-  if (web3.defaultAccount == null) {
-    const accounts = await web3.eth.getAccounts();
-    account = accounts[0] || null;
-  } else account = web3.defaultAccount;
+  const account = await getAccount(web3);
 
   return { web3, account };
 }
 
-export async function loadWeb3(networkId) {
-  const { default: Web3 } = await import("web3");
-
-  // wait for safe
-  await new Promise(resolve => window.setTimeout(resolve, 1000));
-
+export async function loadWeb3(networkId, provider) {
+  // const { default: Web3 } = await import("web3");
   const web3InitErrors = [];
   let web3, account;
   let foundWeb3 = false;
-  //console.log(Web3.givenProvider)
+
   for (const [providerType, providerCandidate] of [
-    ["injected provider", Web3.givenProvider],
-    [
-      "injected legacy provider",
-      window["web3"] && window["web3"]["currentProvider"]
-    ],
-    ["local websocket", "ws://localhost:8546"],
-    ["local http", "http://localhost:8545"],
+    //["injected web3", window["web3"] && window["web3"]["currentProvider"]],
+    ["web3connect provider", provider],
     [
       `read-only for id ${networkId}`,
       getReadOnlyProviderForNetworkId(networkId)
     ]
   ]) {
     try {
-      const candidateEvalulated =
+      const candidateEvaluated =
         typeof providerCandidate === "function"
           ? providerCandidate()
           : providerCandidate;
-      const providerValues = await tryProvider(candidateEvalulated, networkId);
+      const providerValues = await tryProvider(candidateEvaluated, networkId);
       foundWeb3 = true;
       web3 = providerValues.web3;
       account = providerValues.account;

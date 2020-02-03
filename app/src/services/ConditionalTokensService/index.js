@@ -3,12 +3,12 @@ import ConditionalTokensService from "./ConditionalTokensService";
 import getMarketMakersRepo from "../../repositories/MarketMakersRepo";
 import getConditionalTokensRepo from "../../repositories/ConditionalTokensRepo";
 
-let instance, instancePromise, lmsrAddressCache;
+let instance, instancePromise, lmsrAddressCache, providerAccountCache;
 
-async function _getInstance({ lmsrAddress, web3 }) {
+async function _getInstance({ lmsrAddress, web3, account }) {
   const [marketMakersRepo, conditionalTokensRepo] = await Promise.all([
-    getMarketMakersRepo({ lmsrAddress, web3 }),
-    getConditionalTokensRepo({ lmsrAddress, web3 })
+    getMarketMakersRepo({ lmsrAddress, web3, account }),
+    getConditionalTokensRepo({ lmsrAddress, web3, account })
   ]);
 
   return new ConditionalTokensService({
@@ -25,13 +25,18 @@ function _resetService() {
 }
 
 export default async props => {
-  if (props && props.lmsrAddress && props.lmsrAddress !== lmsrAddressCache) {
+  if (
+    props &&
+    ((props.lmsrAddress && props.lmsrAddress !== lmsrAddressCache) ||
+      props.account !== providerAccountCache)
+  ) {
     // If marketMakerAddress changes we have to reload contracts
     _resetService();
   }
 
   if (!instance) {
     lmsrAddressCache = props.lmsrAddress;
+    providerAccountCache = props.account;
     if (!instancePromise) {
       instancePromise = _getInstance(props);
     }

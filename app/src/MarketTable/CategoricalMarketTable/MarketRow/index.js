@@ -10,8 +10,6 @@ import style from "./marketRow.scss";
 
 import ResolutionDate from "./ResolutionDate";
 import Probabilities from "./Probabilities";
-import ProbabilityWording from "./ProbabilityWording";
-import OutcomeSelection from "./OutcomeSelection";
 import ToggleConditional from "./ToggleConditional";
 import ProbabilityChart from "./probabilityChart";
 
@@ -38,32 +36,13 @@ const Market = ({
   marketSelections,
   disableConditional,
   setMarketSelection,
+  tradeHistory,
   lmsrState
 }) => {
   const [detailsOpen, setDetailsOpen] = useState(false);
   const handleToggleCollapse = useCallback(() => {
     setDetailsOpen(!detailsOpen);
   }, [detailsOpen]);
-
-  const handleMarketSelection = useCallback(
-    selection => {
-      setMarketSelection(prevValue => {
-        return prevValue.map((marketSelection, marketSelectionIndex) => {
-          if (index === marketSelectionIndex) {
-            return {
-              selectedOutcomeIndex: selection,
-              isAssumed: selection === -1 ? false : marketSelection.isAssumed
-            };
-          }
-
-          return {
-            ...marketSelection
-          };
-        });
-      });
-    },
-    [marketSelections]
-  );
 
   const handleToggleConditional = useCallback(
     isAssumed => {
@@ -95,22 +74,7 @@ const Market = ({
       probabilities={probabilities}
       stagedProbabilities={stagedProbabilities}
     />,
-    <ProbabilityWording
-      key="probabilityWording"
-      outcomes={outcomes}
-      probabilities={probabilities}
-      stagedProbabilities={stagedProbabilities}
-    />,
     <ResolutionDate key="res_date" date={resolutionDate} />,
-    marketSelections && (
-      <OutcomeSelection
-        key="selection"
-        outcomes={outcomes}
-        conditionId={conditionId}
-        marketSelection={marketSelections[index]}
-        setOutcomeSelection={handleMarketSelection}
-      />
-    ),
     marketSelections && !disableConditional && (
       <ToggleConditional
         key="conditional_topggle"
@@ -145,6 +109,7 @@ const Market = ({
         probabilities={probabilities}
         resolutionDate={resolutionDate}
         stagedProbabilities={stagedProbabilities}
+        tradeHistory={tradeHistory}
       ></ProbabilityChart>
       <tr
         className={cx("market-row-tab", {

@@ -2,12 +2,12 @@ import React, { useState, useEffect, useCallback } from "react";
 import { hot } from "react-hot-loader/root";
 import cn from "classnames/bind";
 import useInterval from "@use-it/interval";
-import { ApolloProvider } from "@apollo/react-hooks";
+import { useQuery } from "@apollo/react-hooks";
 
 import Spinner from "components/Spinner";
 import CrashPage from "components/Crash";
 import makeLoadable from "../utils/make-loadable";
-import { loadWeb3 } from "utils/web3";
+import { getAccount, loadWeb3 } from "utils/web3";
 import {
   getCollectionId,
   getPositionId,
@@ -17,7 +17,7 @@ import ToastifyError from "utils/ToastifyError";
 
 import { getWhitelistState } from "api/whitelist";
 import { getQuestions } from "api/operator";
-import { client } from "api/thegraph";
+import { GET_TRADES_BY_MARKET_MAKER } from "api/thegraph";
 
 import style from "./root.scss";
 const cx = cn.bind(style);
@@ -35,7 +35,7 @@ const whitelistEnabled = conf.WHITELIST_ENABLED;
 const SYNC_INTERVAL = 8000;
 const WHITELIST_CHECK_INTERVAL = 30000;
 
-async function loadBasicData(lmsrAddress, web3) {
+async function loadBasicData({ lmsrAddress, web3, account }) {
   const { toBN } = web3.utils;
 
   let markets = await getQuestions(undefined, lmsrAddress).then(
@@ -51,11 +51,16 @@ async function loadBasicData(lmsrAddress, web3) {
   });
 
   // Load application contracts
-  marketMakersRepo = await getMarketMakersRepo({ lmsrAddress, web3 });
-  conditionalTokensRepo = await getConditionalTokensRepo({ lmsrAddress, web3 });
+  marketMakersRepo = await getMarketMakersRepo({ lmsrAddress, web3, account });
+  conditionalTokensRepo = await getConditionalTokensRepo({
+    lmsrAddress,
+    web3,
+    account
+  });
   conditionalTokensService = await getConditionalTokensService({
     lmsrAddress,
-    web3
+    web3,
+    account
   });
 
   const { product } = require("utils/itertools");
@@ -174,13 +179,6 @@ async function getCollateralBalance(web3, collateral, account) {
   return collateralBalance;
 }
 
-async function getAccount(web3) {
-  if (web3.defaultAccount == null) {
-    const accounts = await web3.eth.getAccounts();
-    return accounts[0] || null;
-  } else return web3.defaultAccount;
-}
-
 async function getLMSRState(web3, positions) {
   const { fromWei } = web3.utils;
   const [owner, funding, stage, fee, marketMakerAddress] = await Promise.all([
@@ -196,6 +194,7 @@ async function getLMSRState(web3, positions) {
     positions,
     marketMakerAddress
   );
+
   return { owner, funding, stage, fee, positionBalances, marketMakerAddress };
 }
 
@@ -269,43 +268,46 @@ const RootComponent = ({ match, childComponents }) => {
     ? match.params.lmsrAddress
     : conf.lmsrAddress;
 
-  const init = useCallback(async () => {
-    const { networkId } = conf;
-    try {
-      console.groupCollapsed("Configuration");
-      console.log(conf);
-      console.groupEnd();
+  const init = useCallback(
+    async provider => {
+      try {
+        console.groupCollapsed("Configuration");
+        console.log(conf);
+        console.groupEnd();
 
-      const { web3, account } = await loadWeb3(networkId);
+        const { web3, account } = await loadWeb3(conf.networkId, provider);
 
-      setWeb3(web3);
-      setAccount(account);
+        setWeb3(web3);
+        setAccount(account);
 
-      const { collateral, markets, positions } = await loadBasicData(
-        lmsrAddress,
-        web3
-      );
+        const { collateral, markets, positions } = await loadBasicData({
+          lmsrAddress,
+          web3,
+          account
+        });
 
-      setCollateral(collateral);
-      setMarkets(markets);
-      setPositions(positions);
+        setCollateral(collateral);
+        setMarkets(markets);
+        setPositions(positions);
 
-      console.groupCollapsed("Global Debug Variables");
-      console.log("LMSRMarketMaker (Instance) Contract:", marketMakersRepo);
-      console.log("Collateral Settings:", collateral);
-      console.log("Market Settings:", markets);
-      console.log("Account Positions:", positions);
-      console.groupEnd();
+        console.groupCollapsed("Global Debug Variables");
+        console.log("LMSRMarketMaker (Instance) Contract:", marketMakersRepo);
+        console.log("Collateral Settings:", collateral);
+        console.log("Market Settings:", markets);
+        console.log("Account Positions:", positions);
+        console.groupEnd();
 
-      setLoading("SUCCESS");
-    } catch (err) {
-      setLoading("FAILURE");
-      // eslint-disable-next-line
+        setLoading("SUCCESS");
+      } catch (err) {
+        setLoading("FAILURE");
+        // eslint-disable-next-line
       console.error(err);
-      setLastError(err.message);
-      throw err;
-    }
-  }, [lmsrAddress]);
+        setLastError(err.message);
+        throw err;
+      }
+    },
+    [lmsrAddress]
+  );
 
   // First time init
   useEffect(() => {
@@ -318,6 +320,22 @@ const RootComponent = ({ match, childComponents }) => {
     }
     init();
   }, [lmsrAddress]);
+
+  const setProvider = useCallback(
+    async provider => {
+      if (
+        provider === null &&
+        web3 &&
+        web3.currentProvider &&
+        web3.currentProvider.close
+      ) {
+        await web3.currentProvider.close();
+      }
+      setLoading("LOADING");
+      init(provider);
+    },
+    [lmsrAddress, web3, init]
+  );
 
   const [lmsrState, setLMSRState] = useState(null);
   const [marketResolutionStates, setMarketResolutionStates] = useState(null);
@@ -508,92 +526,105 @@ const RootComponent = ({ match, childComponents }) => {
 
   useInterval(updateToasts, 1000);
 
-  if (loading === "SUCCESS")
+  const { loading: queryLoading, error, data: queryData } = useQuery(
+    GET_TRADES_BY_MARKET_MAKER,
+    {
+      variables: { marketMaker: lmsrAddress },
+      pollInterval: 15000
+    }
+  );
+
+  if (loading === "SUCCESS" && !queryLoading) {
+    const tradeHistory = queryData.outcomeTokenTrades;
+
     return (
-      <ApolloProvider client={client}>
-        <div className={cx("page")}>
-          <div className={cx("modal-space", { "modal-open": !!modal })}>
-            {modal}
-          </div>
-          <div className={cx("app-space", { "modal-open": !!modal })}>
-            <ApplyBetaHeader
-              openModal={openModal}
-              whitelistState={whitelistState}
-            />
-            <Header
-              avatar={
-                <UserWallet
-                  address={account}
-                  openModal={openModal}
-                  whitelistState={whitelistState}
-                  collateral={collateral}
-                  collateralBalance={collateralBalance}
-                />
-              }
-              menu={<Menu />}
-            />
-            <div className={cx("sections")}>
-              <section className={cx("section", "section-markets")}>
-                <MarketTable
+      <div className={cx("page")}>
+        <div className={cx("modal-space", { "modal-open": !!modal })}>
+          {modal}
+        </div>
+        <div className={cx("app-space", { "modal-open": !!modal })}>
+          <ApplyBetaHeader
+            openModal={openModal}
+            whitelistState={whitelistState}
+          />
+          <Header
+            avatar={
+              <UserWallet
+                address={account}
+                openModal={openModal}
+                whitelistState={whitelistState}
+                collateral={collateral}
+                collateralBalance={collateralBalance}
+                setProvider={setProvider}
+              />
+            }
+            menu={<Menu />}
+            logOut={setProvider}
+          />
+          <div className={cx("sections")}>
+            <section className={cx("section", "section-markets")}>
+              <MarketTable
+                {...{
+                  markets,
+                  marketResolutionStates,
+                  positions,
+                  lmsrState,
+                  // FIXME `useQuery` hook can't be used after checking if lmsrState exists.
+                  // Remove and use address from state if we divide this component in smaller ones
+                  lmsrAddress,
+                  marketSelections,
+                  setMarketSelections,
+                  stagedTradeAmounts,
+                  resetMarketSelections,
+                  collateral,
+                  addToast,
+                  openModal,
+                  tradeHistory
+                }}
+              />
+            </section>
+            {account != null && ( // account available
+              <section className={cx("section", "section-positions")}>
+                <Sidebar
                   {...{
+                    account,
                     markets,
-                    marketResolutionStates,
                     positions,
-                    lmsrState,
-                    // FIXME `useQuery` hook can't be used after checking if lmsrState exists.
-                    // Remove and use address from state if we divide this component in smaller ones
-                    lmsrAddress,
+                    positionBalances,
+                    marketResolutionStates,
                     marketSelections,
-                    setMarketSelections,
-                    stagedTradeAmounts,
-                    resetMarketSelections,
                     collateral,
+                    collateralBalance,
+                    lmsrState,
+                    lmsrAllowance,
+                    stagedTradeAmounts,
+                    setStagedTradeAmounts,
+                    stagedTransactionType,
+                    setStagedTransactionType,
+                    ongoingTransactionType,
+                    asWrappedTransaction,
+                    setMarketSelections,
+                    resetMarketSelections,
                     addToast,
-                    openModal
+                    openModal,
+                    tradeHistory
                   }}
                 />
               </section>
-              {account != null && ( // account available
-                <section className={cx("section", "section-positions")}>
-                  <Sidebar
-                    {...{
-                      account,
-                      markets,
-                      positions,
-                      positionBalances,
-                      marketResolutionStates,
-                      marketSelections,
-                      collateral,
-                      collateralBalance,
-                      lmsrState,
-                      lmsrAllowance,
-                      stagedTradeAmounts,
-                      setStagedTradeAmounts,
-                      stagedTransactionType,
-                      setStagedTransactionType,
-                      ongoingTransactionType,
-                      asWrappedTransaction,
-                      setMarketSelections,
-                      resetMarketSelections,
-                      addToast,
-                      openModal
-                    }}
-                  />
-                </section>
-              )}
-              <Toasts
-                deleteToast={deleteToast}
-                addToast={addToast}
-                toasts={toasts}
-              />
-              <Footer />
-            </div>
+            )}
+            <Toasts
+              deleteToast={deleteToast}
+              addToast={addToast}
+              toasts={toasts}
+            />
+            <Footer />
           </div>
         </div>
-      </ApolloProvider>
+      </div>
     );
+  }
 
-  if (loading === "LOADING") {
+  if (loading === "LOADING" || queryLoading) {
     return (
       <div className={cx("loading-page")}>
         <Spinner centered width={100} height={100} />
@@ -601,7 +632,7 @@ const RootComponent = ({ match, childComponents }) => {
       </div>
     );
   }
-  if (loading === "FAILURE") {
+  if (loading === "FAILURE" || error) {
     return (
       <div>
         <CrashPage errorMessage={lastError} />
