@@ -20,6 +20,25 @@ export default class ConditionalTokensService {
     );
   }
 
+  async getLMSRState(web3, positions) {
+    const { fromWei } = web3.utils;
+    const [owner, funding, stage, fee, marketMakerAddress] = await Promise.all([
+      this._marketMakersRepo.owner(),
+      this._marketMakersRepo.funding(),
+      this._marketMakersRepo
+        .stage()
+        .then(stage => ["Running", "Paused", "Closed"][stage.toNumber()]),
+      this._marketMakersRepo.fee().then(fee => fromWei(fee)),
+      this._marketMakersRepo.getAddress()
+    ]);
+    const positionBalances = await this.getPositionBalances(
+      positions,
+      marketMakerAddress
+    );
+
+    return { owner, funding, stage, fee, positionBalances, marketMakerAddress };
+  }
+
   async getMarketResolutionStates(markets) {
     return Promise.all(
       markets.map(async ({ conditionId, outcomes }) => {
@@ -44,6 +63,38 @@ export default class ConditionalTokensService {
         } else return { isResolved: false };
       })
     );
+  }
+
+  async getCollateralBalance(web3, account) {
+    const collateralBalance = {};
+    const collateral = await this._marketMakersRepo.getCollateralToken();
+
+    collateralBalance.amount = await collateral.contract.balanceOf(account);
+    if (collateral.isWETH) {
+      collateralBalance.unwrappedAmount = web3.utils.toBN(
+        await web3.eth.getBalance(account)
+      );
+      collateralBalance.totalAmount = collateralBalance.amount.add(
+        collateralBalance.unwrappedAmount
+      );
+    } else {
+      collateralBalance.totalAmount = collateralBalance.amount;
+    }
+
+    return collateralBalance;
+  }
+
+  async getLMSRAllowance(account) {
+    const [marketMakerAddress, collateral] = await Promise.all([
+      this._marketMakersRepo.getAddress(),
+      this._marketMakersRepo.getCollateralToken()
+    ]);
+
+    return collateral.contract.allowance(account, marketMakerAddress);
+  }
+
+  async getOutcomeSlotCount(id) {
+    return this._conditionalTokensRepo.getOutcomeSlotCount(id);
   }
 
   async calcNetCost(amounts) {
