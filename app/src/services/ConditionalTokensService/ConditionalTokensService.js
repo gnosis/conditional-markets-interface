@@ -106,9 +106,7 @@ export default class ConditionalTokensService {
     stagedTradeAmounts,
     stagedTransactionType,
     account,
-    collateralBalance,
-    hasAnyAllowance,
-    hasEnoughAllowance
+    collateralBalance
   }) {
     if (stagedTradeAmounts == null) throw new ToastifyError(`No buy set yet`);
 
@@ -148,7 +146,12 @@ export default class ConditionalTokensService {
       });
     }
 
-    if (!hasAnyAllowance || !hasEnoughAllowance) {
+    const lmsrAllowance = await this.getLMSRAllowance(account);
+    const hasEnoughAllowance = investmentAmountInUnits.lte(
+      lmsrAllowance.toString()
+    );
+
+    if (!hasEnoughAllowance) {
       const marketMakerAddress = await this._marketMakersRepo.getAddress();
       await collateral.contract.approve(
         marketMakerAddress,

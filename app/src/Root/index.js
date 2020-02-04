@@ -273,7 +273,6 @@ const RootComponent = ({ match, childComponents }) => {
   const [marketResolutionStates, setMarketResolutionStates] = useState(null);
   const [collateralBalance, setCollateralBalance] = useState(null);
   const [positionBalances, setPositionBalances] = useState(null);
-  const [lmsrAllowance, setLMSRAllowance] = useState(null);
 
   const [modal, setModal] = useState(null);
 
@@ -305,13 +304,6 @@ const RootComponent = ({ match, childComponents }) => {
     [conditionalTokensService]
   );
 
-  const getLMSRAllowance = useCallback(
-    account => {
-      return conditionalTokensService.getLMSRAllowance(account);
-    },
-    [conditionalTokensService]
-  );
-
   // Add effect when 'syncTime' is updated this functions are triggered
   // As 'syncTime' is setted to 8 seconds all this getters are triggered and setted
   // in the state.
@@ -320,8 +312,7 @@ const RootComponent = ({ match, childComponents }) => {
     [getLMSRState, [web3, positions], setLMSRState],
     [getMarketResolutionStates, [markets], setMarketResolutionStates],
     [getCollateralBalance, [web3, account], setCollateralBalance],
-    [getPositionBalances, [positions, account], setPositionBalances],
-    [getLMSRAllowance, [account], setLMSRAllowance]
+    [getPositionBalances, [positions, account], setPositionBalances]
   ])
     useEffect(() => {
       if (dependentParams.every(p => p != null))
@@ -526,7 +517,6 @@ const RootComponent = ({ match, childComponents }) => {
               />
             }
             menu={<Menu />}
-            logOut={setProvider}
           />
           <div className={cx("sections")}>
             <section className={cx("section", "section-markets")}>
@@ -536,9 +526,6 @@ const RootComponent = ({ match, childComponents }) => {
                   marketResolutionStates,
                   positions,
                   lmsrState,
-                  // FIXME `useQuery` hook can't be used after checking if lmsrState exists.
-                  // Remove and use address from state if we divide this component in smaller ones
-                  lmsrAddress,
                   marketSelections,
                   setMarketSelections,
                   stagedTradeAmounts,
@@ -563,7 +550,6 @@ const RootComponent = ({ match, childComponents }) => {
                     collateral,
                     collateralBalance,
                     lmsrState,
-                    lmsrAllowance,
                     stagedTradeAmounts,
                     setStagedTradeAmounts,
                     stagedTransactionType,

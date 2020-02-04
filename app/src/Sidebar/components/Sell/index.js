@@ -292,10 +292,8 @@ const SellOrPositions = ({
       probabilities={probabilities}
       positionBalances={positionBalances}
       estimatedSaleEarnings={estimatedSaleEarnings}
-      currentSellingPosition={currentSellingPosition}
       makeOutcomeSellSelectHandler={makeOutcomeSellSelectHandler}
       error={error}
-      showHeader={false}
     />
   );
 };

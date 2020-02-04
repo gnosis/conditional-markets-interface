@@ -30,7 +30,6 @@ const Buy = ({
   collateral,
   collateralBalance,
   account,
-  lmsrAllowance,
   positions,
   marketSelections,
   setStagedTradeAmounts,
@@ -129,19 +128,6 @@ const Buy = ({
     []
   );
 
-  let hasAnyAllowance = false;
-  let hasEnoughAllowance = false;
-  if (lmsrAllowance != null) {
-    try {
-      hasAnyAllowance = lmsrAllowance.gtn(0);
-      hasEnoughAllowance = collateral.toUnitsMultiplier
-        .mul(investmentAmount || "0")
-        .lte(lmsrAllowance.toString());
-    } catch (e) {
-      // empty
-    }
-  }
-
   const setInvestmentMax = useCallback(() => {
     if (collateralBalance != null && collateral != null) {
       setStagedTransactionType("buy outcome tokens");
@@ -167,9 +153,7 @@ const Buy = ({
       stagedTradeAmounts,
       stagedTransactionType,
       account,
-      collateralBalance,
-      hasAnyAllowance,
-      hasEnoughAllowance
+      collateralBalance
     });
 
     clearAllPositions();
@@ -177,8 +161,6 @@ const Buy = ({
     makeButtonSelectCallback(1);
   }, [
     investmentAmount,
-    hasAnyAllowance,
-    hasEnoughAllowance,
     stagedTransactionType,
     stagedTradeAmounts,
     conditionalTokensService,
@@ -352,7 +334,6 @@ Buy.propTypes = {
       .isRequired,
     stage: PropTypes.string.isRequired
   }),
-  lmsrAllowance: PropTypes.instanceOf(BN),
   marketSelections: PropTypes.arrayOf(
     PropTypes.shape({
       isAssumed: PropTypes.bool.isRequired,
