@@ -50,8 +50,7 @@ const SellOrPositions = ({
   const [positionGroups, setPositionGroups] = useState(null);
 
   useEffect(() => {
-    if (lmsrState != null) {
-      
+    if (lmsrState !== null) {
       const { funding, positionBalances: lmsrPositionBalances } = lmsrState;
 
       const { newMarketProbabilities } = getMarketProbabilities(

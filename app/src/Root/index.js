@@ -49,7 +49,7 @@ async function loadBasicData({ lmsrAddress, web3, account }) {
     return market;
   });
 
-  // Load application contracts
+  // Load smart contract data layer
   marketMakersRepo = await getMarketMakersRepo({ lmsrAddress, web3, account });
   conditionalTokensService = await getConditionalTokensService({
     lmsrAddress,
@@ -149,7 +149,6 @@ async function loadBasicData({ lmsrAddress, web3, account }) {
   }
 
   return {
-    conditionalTokensService,
     collateral,
     markets,
     positions

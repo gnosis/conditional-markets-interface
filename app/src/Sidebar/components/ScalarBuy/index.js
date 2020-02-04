@@ -11,6 +11,7 @@ import style from "./buy.scss";
 import Decimal from "decimal.js-light";
 import { zeroDecimal } from "utils/constants";
 import { calcOutcomeTokenCounts } from "utils/position-groups";
+import { getMarketProbabilities } from "utils/probabilities";
 
 const { BN } = Web3.utils;
 
@@ -22,7 +23,6 @@ let conditionalTokensService;
 const Buy = ({
   market,
   lmsrState,
-  probabilities,
   marketSelection,
   setMarketSelections,
   stagedTradeAmounts,
@@ -186,12 +186,31 @@ const Buy = ({
     account
   ]);
 
+  const [probabilities, setProbabilities] = useState(null);
+
+  useEffect(() => {
+    if (lmsrState !== null) {
+      const { funding, positionBalances } = lmsrState;
+
+      const { newMarketProbabilities } = getMarketProbabilities(
+        funding,
+        positionBalances,
+        [market],
+        positions,
+        marketSelections
+      );
+
+      // Return probabilities for only one market
+      setProbabilities(newMarketProbabilities[0]);
+    }
+  }, [lmsrState, market, positions]);
+
   if (!probabilities) {
     return <Spinner />;
   }
 
   const showProfitSim =
-    lmsrState != null && marketSelection.selectedOutcomeIndex > -1;
+    lmsrState !== null && marketSelection.selectedOutcomeIndex > -1;
 
   return (
     <div className={cx("buy")}>
@@ -255,7 +274,6 @@ const Buy = ({
           <ProfitSimulator
             {...{
               market,
-              lmsrState,
               probabilities,
               stagedTradeAmounts,
               marketSelection,
@@ -349,7 +367,8 @@ Buy.propTypes = {
   setStagedTransactionType: PropTypes.func.isRequired,
   ongoingTransactionType: PropTypes.string,
   asWrappedTransaction: PropTypes.func.isRequired,
-  resetMarketSelections: PropTypes.func.isRequired
+  resetMarketSelections: PropTypes.func.isRequired,
+  makeButtonSelectCallback: PropTypes.func.isRequired
 };
 
 export default Buy;

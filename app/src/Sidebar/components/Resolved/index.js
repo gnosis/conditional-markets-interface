@@ -1,4 +1,6 @@
 import React, { useMemo } from "react";
+import PropTypes from "prop-types";
+
 import cn from "classnames/bind";
 
 import style from "./resolved.scss";
@@ -64,6 +66,26 @@ const Resolved = ({ markets, tradeHistory }) => {
       </h1>
     </div>
   );
+};
+
+Resolved.propTypes = {
+  markets: PropTypes.arrayOf(
+    PropTypes.shape({
+      lowerBound: PropTypes.string.isRequired,
+      upperBound: PropTypes.string.isRequired,
+      unit: PropTypes.string.isRequired,
+      type: PropTypes.string.isRequired,
+      outcomes: PropTypes.arrayOf(
+        PropTypes.shape({
+          positions: PropTypes.arrayOf(
+            PropTypes.shape({
+              id: PropTypes.string.isRequired
+            }).isRequired
+          ).isRequired
+        }).isRequired
+      ).isRequired
+    }).isRequired
+  ).isRequired
 };
 
 export default Resolved;
