@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { hot } from "react-hot-loader/root";
 import cn from "classnames/bind";
 import useInterval from "@use-it/interval";
-import { useQuery } from "@apollo/react-hooks";
+import { useSubscription } from "@apollo/react-hooks";
 
 import useGlobalState from "hooks/useGlobalState";
 import Spinner from "components/Spinner";
@@ -191,10 +191,7 @@ const RootComponent = ({ match, childComponents }) => {
   const [toasts, setToasts] = useState([]);
 
   const [web3, setWeb3] = useState(null);
-  // const [account, setAccount] = useState(null);
   const [collateral, setCollateral] = useState(null);
-  // const [markets, setMarkets] = useState(null);
-  // const [positions, setPositions] = useState(null);
 
   const lmsrAddress = match.params.lmsrAddress
     ? match.params.lmsrAddress
@@ -269,7 +266,6 @@ const RootComponent = ({ match, childComponents }) => {
     [lmsrAddress, web3, init]
   );
 
-  // const [lmsrState, setLMSRState] = useState(null);
   const [marketResolutionStates, setMarketResolutionStates] = useState(null);
   const [collateralBalance, setCollateralBalance] = useState(null);
   const [positionBalances, setPositionBalances] = useState(null);
@@ -371,7 +367,7 @@ const RootComponent = ({ match, childComponents }) => {
   const asWrappedTransaction = useCallback(
     (wrappedTransactionType, transactionFn) => {
       return async function wrappedAction() {
-        if (ongoingTransactionType != null) {
+        if (ongoingTransactionType !== null) {
           throw new Error(
             `Attempted to ${wrappedTransactionType} while transaction to ${ongoingTransactionType} is ongoing`
           );
@@ -484,11 +480,10 @@ const RootComponent = ({ match, childComponents }) => {
 
   useInterval(updateToasts, 1000);
 
-  const { loading: queryLoading, error, data: queryData } = useQuery(
+  const { loading: queryLoading, error, data: queryData } = useSubscription(
     GET_TRADES_BY_MARKET_MAKER,
     {
-      variables: { marketMaker: lmsrAddress },
-      pollInterval: 15000
+      variables: { marketMaker: lmsrAddress }
     }
   );
 
