@@ -2,6 +2,14 @@
 // @import "../../CategoricalSidebar/Positions/sidebar.scss";
 
 .positions {
+  &.resolved {
+    .positions-subheading {
+      line-height: normal;
+      height: auto;
+      text-align: justify;
+    }
+  }
+
   &-heading {
     //@include sidebar-entry;
     font-size: 1.4rem;

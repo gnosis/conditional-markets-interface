@@ -405,7 +405,7 @@ Graph.propTypes = {
   currentProbability: PropTypes.array,
   marketType: PropTypes.string.isRequired,
   resolutionDate: PropTypes.string.isRequired,
-  resolutionValue: PropTypes.string,
+  resolutionValue: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   created: PropTypes.string.isRequired,
   decimals: PropTypes.number,
   unit: PropTypes.string
