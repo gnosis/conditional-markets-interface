@@ -4,10 +4,12 @@ import { formatCollateral } from "utils/formatting";
 import ToastifyError from "utils/ToastifyError";
 
 export default class ConditionalTokensService {
-  constructor({ marketMakersRepo, conditionalTokensRepo }) {
+  constructor({ web3, marketMakersRepo, conditionalTokensRepo }) {
+    assert(web3, '"web3" instance is required');
     assert(marketMakersRepo, '"marketMakersRepo" is required');
     assert(conditionalTokensRepo, '"conditionalTokensRepo" is required');
 
+    this._web3 = web3;
     this._marketMakersRepo = marketMakersRepo;
     this._conditionalTokensRepo = conditionalTokensRepo;
   }
@@ -20,8 +22,8 @@ export default class ConditionalTokensService {
     );
   }
 
-  async getLMSRState(web3, positions) {
-    const { fromWei } = web3.utils;
+  async getLMSRState(positions) {
+    const { fromWei } = this._web3.utils;
     const [owner, funding, stage, fee, marketMakerAddress] = await Promise.all([
       this._marketMakersRepo.owner(),
       this._marketMakersRepo.funding(),
@@ -65,14 +67,14 @@ export default class ConditionalTokensService {
     );
   }
 
-  async getCollateralBalance(web3, account) {
+  async getCollateralBalance(account) {
     const collateralBalance = {};
     const collateral = await this._marketMakersRepo.getCollateralToken();
 
     collateralBalance.amount = await collateral.contract.balanceOf(account);
     if (collateral.isWETH) {
-      collateralBalance.unwrappedAmount = web3.utils.toBN(
-        await web3.eth.getBalance(account)
+      collateralBalance.unwrappedAmount = this._web3.utils.toBN(
+        await this._web3.eth.getBalance(account)
       );
       collateralBalance.totalAmount = collateralBalance.amount.add(
         collateralBalance.unwrappedAmount

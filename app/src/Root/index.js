@@ -277,8 +277,8 @@ const RootComponent = ({ match, childComponents }) => {
   const [modal, setModal] = useState(null);
 
   const getLMSRState = useCallback(
-    (web3, positions) => {
-      return conditionalTokensService.getLMSRState(web3, positions);
+    positions => {
+      return conditionalTokensService.getLMSRState(positions);
     },
     [conditionalTokensService]
   );
@@ -291,8 +291,8 @@ const RootComponent = ({ match, childComponents }) => {
   );
 
   const getCollateralBalance = useCallback(
-    (web3, account) => {
-      return conditionalTokensService.getCollateralBalance(web3, account);
+    account => {
+      return conditionalTokensService.getCollateralBalance(account);
     },
     [conditionalTokensService]
   );
@@ -309,9 +309,9 @@ const RootComponent = ({ match, childComponents }) => {
   // in the state.
   for (const [loader, dependentParams, setter] of [
     [getAccount, [web3], setAccount],
-    [getLMSRState, [web3, positions], setLMSRState],
+    [getLMSRState, [positions], setLMSRState],
     [getMarketResolutionStates, [markets], setMarketResolutionStates],
-    [getCollateralBalance, [web3, account], setCollateralBalance],
+    [getCollateralBalance, [account], setCollateralBalance],
     [getPositionBalances, [positions, account], setPositionBalances]
   ])
     useEffect(() => {

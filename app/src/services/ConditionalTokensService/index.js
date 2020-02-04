@@ -1,4 +1,3 @@
-const conf = require("../../conf");
 import ConditionalTokensService from "./ConditionalTokensService";
 import getMarketMakersRepo from "../../repositories/MarketMakersRepo";
 import getConditionalTokensRepo from "../../repositories/ConditionalTokensRepo";
@@ -14,7 +13,7 @@ async function _getInstance({ lmsrAddress, web3, account }) {
   return new ConditionalTokensService({
     marketMakersRepo,
     conditionalTokensRepo,
-    markets: conf.MARKETS
+    web3
   });
 }
 
