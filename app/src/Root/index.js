@@ -245,7 +245,7 @@ const RootComponent = ({ match, childComponents }) => {
     UserWallet,
     ApplyBetaHeader,
     Toasts,
-    Footer
+    Footer,
   ] = childComponents;
 
   // Init and set base state
@@ -558,6 +558,7 @@ const RootComponent = ({ match, childComponents }) => {
                 setProvider={setProvider}
               />
             }
+            openModal={openModal}
             menu={<Menu />}
             logOut={setProvider}
           />

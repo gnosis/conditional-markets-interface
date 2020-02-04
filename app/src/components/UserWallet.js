@@ -34,7 +34,9 @@ const UserWallet = ({
   whitelistState,
   collateral,
   collateralBalance,
-  setProvider
+  setProvider,
+  openModal,
+  kyc,
 }) => {
   const connect = useCallback(
     provider => {
@@ -69,7 +71,8 @@ const UserWallet = ({
       <div className={cx("user-wallet")}>
         <button
           className={cx("connect-wallet")}
-          onClick={() => web3Connect.toggleModal()}
+          /*onClick={() => web3Connect.toggleModal()}*/
+          onClick={() => openModal("KYC")}
         >
           Connect
         </button>

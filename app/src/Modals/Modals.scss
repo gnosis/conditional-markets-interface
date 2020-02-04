@@ -13,7 +13,10 @@
 
   &-close {
     position: absolute;
-    top: 2rem;
+    appearance: none;
+    -webkit-appearance: none;
+    border: none;
+    //top: 2rem;
     right: 2rem;
     color: $shadeBlue;
     font-size: 2.8rem;

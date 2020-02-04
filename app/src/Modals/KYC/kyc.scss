@@ -1,0 +1,64 @@
+@import "../Modals.scss";
+@import "~scss/_variables.scss";
+
+.modal {
+  margin: 0;
+  padding: 0;
+
+  &.loading {
+    width: 400px;
+    height: 400px;
+    display: flex;
+    justify-items: center;
+    align-items: center;
+  }
+
+  &-header {
+    font-size: 2.4rem;
+    font-weight: bold;
+    text-align: center;
+    padding: 1.5rem 0;
+    margin: 0;
+
+    border-bottom: 1px solid rgba(0, 30, 59, 0.15);
+  }
+
+  &-body {
+    padding: 1.5rem .5rem;
+  }
+}
+
+.field {
+  width: 100%;
+  max-width: 400px;
+  text-align: left;
+
+  margin: auto;
+  margin-bottom: 1.4rem;
+
+  &.label {
+    display: block;
+    text-align: center;
+    font-size: 2rem;
+    font-weight: bold;
+  }
+
+  &.button {
+    appearance: none;
+    -webkit-appearance: none;
+
+    background-color: #009CB4;
+    color: white;
+    border: none;
+    border-radius: 1.5px;
+
+    font-size: 2.1rem;
+    font-weight: bold;
+    padding: .7rem 1.4rem;
+    text-align: center;
+
+    &:disabled {
+      opacity: 0.5;
+    }
+  }
+}
