@@ -11,6 +11,7 @@ import conf from "conf";
 import Blockies from "react-blockies";
 import Spinner from "components/Spinner";
 import Balance from "./Balance";
+import TradingLimitIndicator from "./TradingLimitIndicator";
 
 import style from "./userWallet.scss";
 
@@ -121,16 +122,7 @@ const UserWallet = ({
 
   return (
     <div className={cx("user-wallet")}>
-      <strong>
-        <Balance
-          collateral={collateral}
-          collateralBalance={collateralBalance}
-        />
-      </strong>
-      <span>&nbsp;–&nbsp;</span>
-      <span className={cx("address")} title={address}>
-        {formatAddress(address)}
-      </span>
+      <TradingLimitIndicator />
       <div className={cx("avatar")}>
         <Blockies
           seed={address.toLowerCase()}
@@ -138,6 +130,17 @@ const UserWallet = ({
           scale={16}
           className={cx("avatar-image")}
         />
+      </div>
+      <div className={cx("account-info")}>
+        <span className={cx("address")} title={address}>
+          {formatAddress(address)}
+        </span>
+        <span className={cx("balance")}>
+          <Balance
+            collateral={collateral}
+            collateralBalance={collateralBalance}
+          />
+        </span>
       </div>
       <button onClick={disconnect} className={cx("disconnect-wallet")}>
         Disconnect

@@ -7,16 +7,30 @@
   align-items: center;
   height: 100%;
 
-  > span {
-    font-size: 1.5rem;
-    color: $black;
-    letter-spacing: 0.05rem;
-    text-align: right;
-    margin: 0 1rem 0 0;
-
+  > div {
+    margin: 0 2rem 0 0;
+  
     @media #{$tablet-small-max} {
-      font-size: 1.2rem;
-      margin: 0 .5rem 0 0;
+      margin: 0 .7rem 0 0;
+    }
+  }
+
+  .account-info {  
+    > span {
+      display: block;
+      color: $shadeBlue;
+      letter-spacing: 0.05rem;
+      font-size: 1.4rem;
+      line-height: 1.9rem;
+
+      @media #{$tablet-small-max} {
+        font-size: 1.2rem;
+        line-height: 1.4rem;
+      }
+    }
+
+    .balance {
+      font-weight: bold;
     }
   }
 
