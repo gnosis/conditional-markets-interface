@@ -41,7 +41,7 @@ export const formatCollateral = (amount, collateral) => {
   }
 
   const collateralValue = amountFullUnits
-    .toSignificantDigits(collateralSignificantDigits)
+    .toDecimalPlaces(collateralSignificantDigits)
     .toString();
   return `${collateralValue} ${collateral.symbol}`;
 };
@@ -59,7 +59,7 @@ export const formatAmount = (amount, dividend = 1) => {
 
   return amountDecimal
     .div(dividend)
-    .toSignificantDigits(quantitySiginificantDigits)
+    .toDecimalPlaces(quantitySiginificantDigits)
     .toString();
 };
 

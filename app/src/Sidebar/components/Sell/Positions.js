@@ -34,21 +34,26 @@ const Positions = ({
   }
 
   return (
-    <div className={cx("positions")}>
+    <div className={cx("positions", { resolved: allMarketsResolved })}>
       {positionGroups.length === 0 && (
         <div className={cx("positions-empty")}>You have no positions.</div>
       )}
       {allMarketsResolved && (
         <>
-          <div className={cx("positions-subheading")}>
-            Redeeming your positions will net you a total of{" "}
-            {formatCollateral(redemptionAmount, collateral)}
-          </div>
+          {redemptionAmount.toString() != "0" && (
+            <div className={cx("positions-subheading")}>
+              Redeeming your positions will net you a total of{" "}
+              {formatCollateral(redemptionAmount, collateral)}
+            </div>
+          )}
           <div className={cx("positions-redeem")}>
             <button
               type="button"
               className={cx("redeem-all")}
-              disabled={ongoingTransactionType != null}
+              disabled={
+                ongoingTransactionType != null ||
+                redemptionAmount.toString() == "0"
+              }
               onClick={asWrappedTransaction(
                 "redeem positions",
                 redeemPositions,

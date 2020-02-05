@@ -3,12 +3,14 @@ import PropTypes from "prop-types";
 
 import cn from "classnames/bind";
 
+import Sell from "../Sell";
+
 import style from "./resolved.scss";
 import prepareTradesData from "utils/prepareTradesData";
 
 const cx = cn.bind(style);
 
-const Resolved = ({ markets, tradeHistory }) => {
+const Resolved = ({ markets, tradeHistory, ...props }) => {
   const targetMarket = markets[0];
 
   if (markets.length > 1) {
@@ -57,12 +59,13 @@ const Resolved = ({ markets, tradeHistory }) => {
             </span>
           </p>
         )}
+      <Sell markets={markets} {...props} />
     </div>
   ) : (
     <div className={cx("resolved")}>
       <h1 className={cx("waiting-for-oracle")}>
-        Market closed but no winning outcome was set yet. Please wait until the
-        oracle has been resolved.
+        Market closed but not all winning outcome were set yet. Please wait
+        until the oracle is fully resolved.
       </h1>
     </div>
   );
