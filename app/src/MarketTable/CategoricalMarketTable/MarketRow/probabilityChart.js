@@ -12,17 +12,11 @@ const cx = cn.bind(style);
 const probabilityChart = ({
   created,
   marketType,
-  colSpan,
   probabilities,
   resolutionDate,
   stagedProbabilities,
   tradeHistory
 }) => {
-  const [chartOpen, setChartOpen] = useState(false);
-  const handleToggleCollapse = useCallback(() => {
-    setChartOpen(!chartOpen);
-  }, [chartOpen]);
-
   const parsedTrades = useMemo(() => {
     if (tradeHistory) {
       return prepareTradesData(
@@ -42,50 +36,25 @@ const probabilityChart = ({
   );
 
   return (
-    <>
-      <tr
-        className={cx("market-row-tab", {
-          hidden: !chartOpen
-          // disable: disableChartCollapse
-        })}
-        onClick={handleToggleCollapse}
-      >
-        <td colSpan={colSpan}>
-          <button
-            type="button"
-            className={cx("expand-collapse")}
-            onClick={handleToggleCollapse}
-          >
-            Probability Chart
-            <span className={cx("expand-collapse-icon")}>
-              {chartOpen ? "–" : "+"}
-            </span>
-          </button>
-          {chartOpen && (
-            <div className={cx("tab-content")}>
-              <Graph
-                className={cx("graph")}
-                lowerBound={"0"}
-                upperBound={"100"}
-                decimals={0}
-                entries={parsedTrades}
-                resolutionDate={resolutionDate}
-                currentProbability={displayedProbabilities}
-                marketType={marketType}
-                created={created}
-              ></Graph>
-            </div>
-          )}
-        </td>
-      </tr>
-    </>
+    <div className={cx("tab-content")}>
+      <Graph
+        className={cx("graph")}
+        lowerBound={"0"}
+        upperBound={"100"}
+        decimals={0}
+        entries={parsedTrades}
+        resolutionDate={resolutionDate}
+        currentProbability={displayedProbabilities}
+        marketType={marketType}
+        created={created}
+      ></Graph>
+    </div>
   );
 };
 
 probabilityChart.propTypes = {
   created: PropTypes.string.isRequired,
   marketType: PropTypes.string.isRequired,
-  colSpan: PropTypes.number.isRequired,
   resolutionDate: PropTypes.string.isRequired,
   probabilities: PropTypes.array,
   stagedProbabilities: PropTypes.array,

@@ -42,12 +42,10 @@
 
   tbody {
     background: $white;
-    box-shadow: 0 .2rem 1rem 0 rgba(0, 25, 60, 0.10);
-    border-radius: .2rem;
 
-      @media #{$tablet-small-max} {
-        background: transparent;
-      }
+    @media #{$tablet-small-max} {
+      background: transparent;
+    }
 
     tr {
       @media #{$tablet-small-max} {
@@ -68,37 +66,6 @@
         .explanation {
           width: 100%;
         }
-      }
-    }
-
-    .market-row {
-      td {
-        text-align: left;
-
-        @media #{$tablet-small-max} {
-          display: block;
-          width: 100%;
-        }
-
-        // Index
-        &:nth-child(1) {
-          text-align: center;
-          font-weight: $bold;
-        }
-
-        // Probability
-        &:nth-child(3) {
-          width: auto;
-
-          @media #{$desktop} {
-            width: 30rem;
-          }
-
-          @media #{$tablet-small-max} {
-            width: 100%;
-          }
-        }
-
       }
     }
 

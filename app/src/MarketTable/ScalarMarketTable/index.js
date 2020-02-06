@@ -7,7 +7,7 @@ import Decimal from "decimal.js-light";
 import Markdown from "react-markdown";
 
 import style from "./marketTable.scss";
-import ResolutionTime from "./ResolutionTime";
+import ResolutionTime from "../components/ResolutionTime";
 import Spinner from "components/Spinner";
 import Graph from "components/Graph";
 

@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback } from "react";
 import PropTypes from "prop-types";
 import Web3 from "web3";
 import cn from "classnames/bind";
@@ -8,12 +8,14 @@ import Markdown from "react-markdown";
 
 import style from "./marketRow.scss";
 
-import ResolutionDate from "./ResolutionDate";
+import Tabs from "../../components/Tabs";
+import ResolutionTime from "../../components/ResolutionTime";
 import Probabilities from "./Probabilities";
 import ToggleConditional from "./ToggleConditional";
 import ProbabilityChart from "./probabilityChart";
 
 import { markdownRenderers } from "utils/markdown";
+import { formatCollateral } from "utils/formatting";
 
 const cx = cn.bind(style);
 
@@ -22,7 +24,6 @@ const { BN } = Web3.utils;
 const Market = ({
   conditionId,
   title,
-  headings,
   resolutionDate,
   description,
   dataSource,
@@ -34,16 +35,12 @@ const Market = ({
   stagedProbabilities,
   outcomes,
   marketSelections,
+  collateral,
   disableConditional,
   setMarketSelection,
   tradeHistory,
   lmsrState
 }) => {
-  const [detailsOpen, setDetailsOpen] = useState(false);
-  const handleToggleCollapse = useCallback(() => {
-    setDetailsOpen(!detailsOpen);
-  }, [detailsOpen]);
-
   const handleToggleConditional = useCallback(
     isAssumed => {
       let outcomeSelections = [...marketSelections];
@@ -73,68 +70,25 @@ const Market = ({
       outcomes={outcomes}
       probabilities={probabilities}
       stagedProbabilities={stagedProbabilities}
-    />,
-    <ResolutionDate key="res_date" date={resolutionDate} />,
-    marketSelections && !disableConditional && (
-      <ToggleConditional
-        key="conditional_topggle"
-        disabled={
-          !marketSelections[index].isAssumed &&
-          marketSelections[index].selectedOutcomeIndex === -1
-        }
-        conditionId={conditionId}
-        toggleConditional={handleToggleConditional}
-        conditionalActive={marketSelections[index].isAssumed}
-      />
-    )
-  ].filter(entry => entry !== false); // Filter disabled entries to avoid creating table element
-
-  const disableCollapse = !description && !dataSource && !dataSourceUrl;
+    />
+  ];
 
   return (
     <>
       <tr className={cx("market-row")} key={conditionId}>
-        {entries.map((entry, index) => (
-          <td key={`tr_row_${index}_${conditionId}`}>
-            <div className={cx("market-row-heading")}>{headings[index]}</div>
-            <div className={cx("market-row-content")}>{entry}</div>
-          </td>
-        ))}
-      </tr>
-      <ProbabilityChart
-        lmsrAddress={lmsrState.marketMakerAddress}
-        marketType={type}
-        created={created}
-        colSpan={headings.length}
-        probabilities={probabilities}
-        resolutionDate={resolutionDate}
-        stagedProbabilities={stagedProbabilities}
-        tradeHistory={tradeHistory}
-      ></ProbabilityChart>
-      <tr
-        className={cx("market-row-tab", {
-          hidden: !detailsOpen,
-          disable: disableCollapse
-        })}
-        onClick={handleToggleCollapse}
-      >
-        <td colSpan={headings.length}>
-          <button
-            type="button"
-            className={cx("expand-collapse")}
-            onClick={handleToggleCollapse}
-          >
-            View market details
-            <span className={cx("expand-collapse-icon")}>
-              {detailsOpen ? "–" : "+"}
-            </span>
-          </button>
-          <div className={cx("tab-content")}>
-            {dataSource && (
+        <div className={cx("header")}>{title}</div>
+        <div className={cx("subheader")}>
+          <div className={cx("property")}>
+            <i className={cx("icon", "icon-time")} />{" "}
+            <ResolutionTime date={resolutionDate} />
+          </div>
+          {dataSource && (
+            <div className={cx("property")}>
+              <i className={cx("icon", "icon-oracle")} />
               <>
-                <h1>Data Source</h1>
                 {dataSourceUrl ? (
                   <a
+                    className={cx("link-oracle")}
                     href={dataSourceUrl}
                     rel="noopener noreferrer"
                     target="_blank"
@@ -145,13 +99,50 @@ const Market = ({
                   <>{dataSource}</>
                 )}
               </>
-            )}
-            <Markdown
-              className={cx("description")}
-              source={description || "*No Description for this Market*"}
-              renderers={markdownRenderers}
-            />
+            </div>
+          )}
+          <div className={cx("property")}>
+            <i className={cx("icon", "icon-volume")} />{" "}
+            {formatCollateral(lmsrState.funding, collateral)}
           </div>
+        </div>
+      </tr>
+      <tr>
+        <td>
+          <Tabs tabTitles={["Chart", "Details"]}>
+            <ProbabilityChart
+              lmsrAddress={lmsrState.marketMakerAddress}
+              marketType={type}
+              created={created}
+              probabilities={probabilities}
+              resolutionDate={resolutionDate}
+              stagedProbabilities={stagedProbabilities}
+              tradeHistory={tradeHistory}
+            ></ProbabilityChart>
+            <div className={cx("tab-content")}>
+              {dataSource && (
+                <>
+                  <h1>Data Source</h1>
+                  {dataSourceUrl ? (
+                    <a
+                      href={dataSourceUrl}
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      {dataSource}
+                    </a>
+                  ) : (
+                    <>{dataSource}</>
+                  )}
+                </>
+              )}
+              <Markdown
+                className={cx("description")}
+                source={description || "*No Description for this Market*"}
+                renderers={markdownRenderers}
+              />
+            </div>
+          </Tabs>
         </td>
       </tr>
     </>
@@ -163,7 +154,6 @@ Market.propTypes = {
   index: PropTypes.number.isRequired,
 
   title: PropTypes.string.isRequired,
-  headings: PropTypes.arrayOf(PropTypes.node).isRequired,
   resolutionDate: PropTypes.string.isRequired,
   outcomes: PropTypes.arrayOf(
     PropTypes.shape({

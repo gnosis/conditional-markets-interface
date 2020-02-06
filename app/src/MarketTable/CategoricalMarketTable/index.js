@@ -21,6 +21,7 @@ const cx = cn.bind(style);
 
 const MarketTable = ({
   markets,
+  collateral,
   positions,
   lmsrState,
   marketSelections,
@@ -123,19 +124,6 @@ const MarketTable = ({
 
   return (
     <table className={cx("market-table")}>
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Market</th>
-          <th>Implied probability</th>
-          <th>Ends In</th>
-          {!conditionalDisabled && (
-            <>
-              <span>Conditional</span> <HelpButton openModal={openModal} />
-            </>
-          )}
-        </tr>
-      </thead>
       <tbody>
         {conditionalMarkets.map(market => (
           <MarketRow
@@ -182,7 +170,7 @@ const MarketTable = ({
           <MarketRow
             key={market.conditionId}
             lmsrState={lmsrState}
-            headings={headings}
+            collateral={collateral}
             stagedProbabilities={
               marketProbabilities != null
                 ? marketProbabilities[market.index]

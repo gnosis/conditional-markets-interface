@@ -1,218 +1,54 @@
 @import "~scss/_variables.scss";
 
 .market-row {
-  height: auto;
-  min-height: 12rem;
-  background-color: transparent;
-  border: none;
-  font-size: 1.4rem;
-  line-height: 1.5;
+  margin: 0 auto;
+  padding-top: 1rem;
+  width: 40vw;
 
-  @media #{$tablet-small-max} {
-    font-size: 1.6rem;
-  }
-
-  td {
-    text-align: center;
-    border: none;
-    padding: 1.2rem .8rem;
-    position: relative;
-
-      @media #{$tablet-small-max} {
-        padding: 1.6rem 0;
-        width: 100%;
-      }
-
-      &:first-child {
-        @media #{$tablet-small-max} {
-          display: none;
-        }
-      }
-
-      // Hiding the empty header
-      &:nth-of-type(3) {
-        // @media #{$tablet-small-max} {
-        //   display: none;
-        // }
-      }
-
-      // Hidding the probability wordings until we find another solution.
-      &:nth-of-type(4) {
-        @media #{$tablet-small-max}{
-          display: none;
-        }
-      }
-  }
-
-  td:nth-child(2) {
-    text-align: left;
-    padding-top: 0;
-  }
-
-  &-heading {
-    display: none;
-    white-space: nowrap;
-    color: rgba(0, 0, 0, .6);
-    text-transform: uppercase;
-    padding: .2rem;
-
-    @media #{$tablet-small-max} {
-      font-weight: $bold;
-      font-size: 1.1rem;
-      line-height: 1;
-      padding: 1.6rem 0;
-      color: $shadeBlue;
-      width: 100%;
-      text-align: center;
-      letter-spacing: .05rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-  }
-
-  &-tab {
-    cursor: pointer;
-
-    &.disable {
-      display: none;
-    }
-
-    line-height: normal;
-
-    h1 {
-      font-weight: $bold;
-      font-size: 1.6rem;
-      margin: 2rem 0;
-    }
-
-    h2 {
-      font-weight: $bold;
-      font-size: 1.6rem;
-      margin: 2rem 0;
-    }
-
-    h3 {
-      font-weight: $bold;
-      font-size: 1.6rem;
-      margin: 2rem 0;
-    }
-
-    h4, h5, h6 {
-      font-weight: $bold;
-      font-size: 1.6rem;
-    }
-
-    a {
-      color: $blue;
-    }
-
-    .tab-content {
-      padding: 0 0.8rem 3.2rem;
-
-        > h1 {
-          margin: 1rem 0;
-        }
-
-        > .description {
-          margin: 1rem 0;
-        }
-
-        > .description > p {
-          font-size: 1.3rem;
-          line-height: 1.5;
-          margin: 0 0 1.6rem;
-        }
-    }
-
-    &.hidden {
-      .tab-content {
-        display: none;
-      }
-    }
-
-    background-color: $grey;
-
-    td {
-      text-align: left;
-      padding: 1.2rem 0.8rem;
-      font-weight: $normal;
-      font-size: 1.6rem;
-
-        @media #{$tablet-small-max} {
-          padding: 0;
-          width: 100%;
-        }
-    }
-
-    &:not(.hidden) {
-      .market-details-header {
-        margin-bottom: 4rem;
-      }
-    }
-
-    .market-details-header {
-      color: #00193c;
-      line-height: normal;
-      //padding: 1rem 0;
-    }
-
-    .expand-collapse {
-      width: 100%;
-      font-size: 1.6rem;
-      font-weight: $bold;
-      cursor: pointer;
-      padding: 2rem 0.8rem;
-      display: flex;
-      appearance: none;
-      -webkit-appearance: none;
-      background: none;
-      border: none;
-      outline: none;
-
-      @media #{$tablet-small-max} {
-        justify-content: center;
-      }
-
-      &-icon {
-        font-weight: $normal;
-        font-size: 2.4rem;
-        line-height: 1.6rem;
-        margin-left: auto;
-
-          @media #{$tablet-small-max} {
-            margin: 0 0 0 1.6rem;
-          }
-      }
-    }
-  }
-
-  &:not(:last-child) {
-    border-bottom: .1rem solid $greyBorder2;
-  }
-
-  .mobile-index {
-    font-weight: $bold;
-    color: $black;
-    display: none;
-
-    @media #{$tablet-small-max} {
-      display: block;
-      font-weight: $bold;
-      font-size: 1.1rem;
-      color: $black;
-      letter-spacing: 0.05rem;
-      background: $greyBorder2;
-      padding: .5rem 1rem;
-      border-radius: .2rem;
-      margin: 1rem 0;
-    }
-  }
-}
-
-.market-row-content {
   @media #{$tablet-small-max} {
     width: 100%;
-    text-align: center;
+  }
+
+  .header {
+    display: block;
+    width: 100%;
+    font-size: 2.4rem;
+    font-weight: 600;
+    color: $black;
+  }
+
+  .subheader {
+    margin: 1rem 0;
+
+    display: flex;
+    flex-direction: row;
+
+    .property {
+      font-size: 1.2rem;
+
+      .icon {
+        display: inline;
+        padding-left: 2rem;
+
+        margin-right: 0.5rem;
+
+        &-time {
+          background: url("~assets/icons/market_ends.svg") center center no-repeat;
+        }
+        &-oracle {
+          background: url("~assets/icons/market_oracle.svg") center center no-repeat;
+        }
+        &-volume {
+          background: url("~assets/icons/market_funding.svg") center center no-repeat;
+        }
+      }
+
+      .link-oracle {
+        text-decoration: none;
+        color: $black;
+      }
+
+      margin-right: 1rem;
+    }
   }
 }
