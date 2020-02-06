@@ -3,11 +3,14 @@ import PropTypes from "prop-types";
 import cn from "classnames/bind";
 
 import LinearProgress from "@material-ui/core/LinearProgress";
-import InputLabel from '@material-ui/core/InputLabel';
+import InputLabel from "@material-ui/core/InputLabel";
 
 import style from "./tradingLimitIndicator.scss";
 
 const cx = cn.bind(style);
+
+const MIN = 0;
+const MAX = 150;
 
 // MIN = Minimum expected value
 // MAX = Maximium expected value
@@ -15,13 +18,13 @@ const cx = cn.bind(style);
 const normalise = value => ((value - MIN) * 100) / (MAX - MIN);
 
 const TradingLimitIndicator = () => {
-  const [volume, setVolume] = React.useState(100);
+  const [volume, setVolume] = React.useState(105);
 
   return (
     <div className={cx("trading-indicator")}>
       <LinearProgress
         variant="determinate"
-        value={volume}
+        value={normalise(volume)}
         classes={{
           root: cx("linear-progress"),
           barColorPrimary: cx("linear-progress-bar")
@@ -29,7 +32,7 @@ const TradingLimitIndicator = () => {
       />
       <div className={cx("progress-label")}>
         <span>
-          105 / <strong>150€</strong>
+          105€ / <strong>150€</strong>
         </span>
       </div>
       <InputLabel
