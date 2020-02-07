@@ -127,9 +127,9 @@ const Market = ({
               {...probabilityChartProps}
               marketType={type}
               created={created}
-              probabilities={stagedProbabilities}
+              probabilities={probabilities}
               resolutionDate={resolutionDate}
-              stagedProbabilities={probabilities}
+              stagedProbabilities={stagedProbabilities}
               tradeHistory={tradeHistory}
             ></ProbabilityChart>
             <Probabilities

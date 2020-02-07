@@ -113,12 +113,12 @@ const MarketTable = ({
           key={market.conditionId}
           lmsrState={lmsrState}
           tradeHistory={tradeHistory}
-          stagedProbabilities={
+          probabilities={
             marketProbabilities != null
               ? marketProbabilities[market.index]
               : null
           }
-          probabilities={
+          stagedProbabilities={
             stagedMarketProbabilities != null
               ? stagedMarketProbabilities[market.index]
               : null
@@ -153,12 +153,12 @@ const MarketTable = ({
           key={market.conditionId}
           lmsrState={lmsrState}
           collateral={collateral}
-          stagedProbabilities={
+          probabilities={
             marketProbabilities != null
               ? marketProbabilities[market.index]
               : null
           }
-          probabilities={
+          stagedProbabilities={
             stagedMarketProbabilities != null
               ? stagedMarketProbabilities[market.index]
               : null

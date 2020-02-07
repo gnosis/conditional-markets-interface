@@ -18,18 +18,19 @@ import { formatProbability } from "utils/formatting";
 const cx = cn.bind(style);
 
 const Probabilities = ({ outcomes, probabilities, stagedProbabilities }) => {
-  const displayedProbabilities = probabilities
-    ? probabilities
-    : stagedProbabilities;
+  const displayedProbabilities = stagedProbabilities
+    ? stagedProbabilities
+    : probabilities;
+
   return (
     <div className={cx("probabilities")}>
       {displayedProbabilities && (
         <>
           {outcomes.map((outcome, index) => {
-            const changeInProbability = (probabilities || stagedProbabilities)[
+            const changeInProbability = (stagedProbabilities || probabilities)[
               index
             ]
-              .sub(stagedProbabilities[index])
+              .sub(probabilities[index])
               .mul(100)
               .toDecimalPlaces(probabilityDecimalPlaces);
             return (
