@@ -123,73 +123,71 @@ const MarketTable = ({
   }
 
   return (
-    <table className={cx("market-table")}>
-      <tbody>
-        {conditionalMarkets.map(market => (
-          <MarketRow
-            key={market.conditionId}
-            lmsrState={lmsrState}
-            headings={headings}
-            tradeHistory={tradeHistory}
-            stagedProbabilities={
-              marketProbabilities != null
-                ? marketProbabilities[market.index]
-                : null
-            }
-            probabilities={
-              marketProbabilitiesAfterStagedTrade != null
-                ? marketProbabilitiesAfterStagedTrade[market.index]
-                : null
-            }
-            marketSelections={marketSelections}
-            setMarketSelection={setMarketSelections}
-            {...market}
-          />
-        ))}
-        {conditionalMarkets.length > 0 && (
-          <>
-            <tr className={cx("explanation-row")}>
-              <td
-                colSpan={6}
-                className={cx("explanation", "explanation-top", "arrow")}
-              >
-                <span>If</span>
-              </td>
-            </tr>
-            <tr className={cx("explanation-row")}>
-              <td
-                colSpan={6}
-                className={cx("explanation", "explanation-down", "arrow")}
-              >
-                <span>Then</span>
-              </td>
-            </tr>
-          </>
-        )}
-        {nonConditionalMarkets.map(market => (
-          <MarketRow
-            key={market.conditionId}
-            lmsrState={lmsrState}
-            collateral={collateral}
-            stagedProbabilities={
-              marketProbabilities != null
-                ? marketProbabilities[market.index]
-                : null
-            }
-            probabilities={
-              marketProbabilitiesAfterStagedTrade != null
-                ? marketProbabilitiesAfterStagedTrade[market.index]
-                : null
-            }
-            tradeHistory={tradeHistory}
-            disableConditional={conditionalDisabled}
-            marketSelections={marketSelections}
-            setMarketSelection={setMarketSelections}
-            {...market}
-          />
-        ))}
-      </tbody>
-    </table>
+    <div className={cx("market-table")}>
+      {conditionalMarkets.map(market => (
+        <MarketRow
+          key={market.conditionId}
+          lmsrState={lmsrState}
+          headings={headings}
+          tradeHistory={tradeHistory}
+          stagedProbabilities={
+            marketProbabilities != null
+              ? marketProbabilities[market.index]
+              : null
+          }
+          probabilities={
+            marketProbabilitiesAfterStagedTrade != null
+              ? marketProbabilitiesAfterStagedTrade[market.index]
+              : null
+          }
+          marketSelections={marketSelections}
+          setMarketSelection={setMarketSelections}
+          {...market}
+        />
+      ))}
+      {conditionalMarkets.length > 0 && (
+        <>
+          <tr className={cx("explanation-row")}>
+            <td
+              colSpan={6}
+              className={cx("explanation", "explanation-top", "arrow")}
+            >
+              <span>If</span>
+            </td>
+          </tr>
+          <tr className={cx("explanation-row")}>
+            <td
+              colSpan={6}
+              className={cx("explanation", "explanation-down", "arrow")}
+            >
+              <span>Then</span>
+            </td>
+          </tr>
+        </>
+      )}
+      {nonConditionalMarkets.map(market => (
+        <MarketRow
+          key={market.conditionId}
+          lmsrState={lmsrState}
+          collateral={collateral}
+          stagedProbabilities={
+            marketProbabilities != null
+              ? marketProbabilities[market.index]
+              : null
+          }
+          probabilities={
+            marketProbabilitiesAfterStagedTrade != null
+              ? marketProbabilitiesAfterStagedTrade[market.index]
+              : null
+          }
+          tradeHistory={tradeHistory}
+          disableConditional={conditionalDisabled}
+          marketSelections={marketSelections}
+          setMarketSelection={setMarketSelections}
+          {...market}
+        />
+      ))}
+    </div>
   );
 };
 

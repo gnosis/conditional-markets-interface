@@ -11,7 +11,6 @@ import style from "./marketRow.scss";
 import Tabs from "../../components/Tabs";
 import ResolutionTime from "../../components/ResolutionTime";
 import Probabilities from "../../components/Probabilities";
-import ToggleConditional from "./ToggleConditional";
 import ProbabilityChart from "./probabilityChart";
 
 import { markdownRenderers } from "utils/markdown";
@@ -75,7 +74,7 @@ const Market = ({
 
   return (
     <>
-      <tr className={cx("market-row")} key={conditionId}>
+      <div className={cx("market-row")} key={`market-${conditionId}`}>
         <div className={cx("header")}>{title}</div>
         <div className={cx("subheader")}>
           <div className={cx("property")}>
@@ -106,52 +105,48 @@ const Market = ({
             {formatCollateral(lmsrState.funding, collateral)}
           </div>
         </div>
-      </tr>
-      <tr>
-        <td>
-          <Tabs tabTitles={["Chart", "Details"]}>
-            <div className={cx("tab-content")}>
-              <ProbabilityChart
-                lmsrAddress={lmsrState.marketMakerAddress}
-                marketType={type}
-                created={created}
-                probabilities={probabilities}
-                resolutionDate={resolutionDate}
-                stagedProbabilities={stagedProbabilities}
-                tradeHistory={tradeHistory}
-              ></ProbabilityChart>
-              <Probabilities
-                outcomes={outcomes}
-                probabilities={probabilities}
-                stagedProbabilities={stagedProbabilities}
-              />
-            </div>
-            <div className={cx("tab-content")}>
-              {dataSource && (
-                <>
-                  <h1>Data Source</h1>
-                  {dataSourceUrl ? (
-                    <a
-                      href={dataSourceUrl}
-                      rel="noopener noreferrer"
-                      target="_blank"
-                    >
-                      {dataSource}
-                    </a>
-                  ) : (
-                    <>{dataSource}</>
-                  )}
-                </>
-              )}
-              <Markdown
-                className={cx("description")}
-                source={description || "*No Description for this Market*"}
-                renderers={markdownRenderers}
-              />
-            </div>
-          </Tabs>
-        </td>
-      </tr>
+        <Tabs tabTitles={["Chart", "Details"]}>
+          <div className={cx("tab-content")}>
+            <ProbabilityChart
+              lmsrAddress={lmsrState.marketMakerAddress}
+              marketType={type}
+              created={created}
+              probabilities={probabilities}
+              resolutionDate={resolutionDate}
+              stagedProbabilities={stagedProbabilities}
+              tradeHistory={tradeHistory}
+            ></ProbabilityChart>
+            <Probabilities
+              outcomes={outcomes}
+              probabilities={probabilities}
+              stagedProbabilities={stagedProbabilities}
+            />
+          </div>
+          <div className={cx("tab-content")}>
+            {dataSource && (
+              <>
+                <h1>Data Source</h1>
+                {dataSourceUrl ? (
+                  <a
+                    href={dataSourceUrl}
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    {dataSource}
+                  </a>
+                ) : (
+                  <>{dataSource}</>
+                )}
+              </>
+            )}
+            <Markdown
+              className={cx("description")}
+              source={description || "*No Description for this Market*"}
+              renderers={markdownRenderers}
+            />
+          </div>
+        </Tabs>
+      </div>
     </>
   );
 };
