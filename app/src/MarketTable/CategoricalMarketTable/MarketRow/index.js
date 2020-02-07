@@ -10,7 +10,7 @@ import style from "./marketRow.scss";
 
 import Tabs from "../../components/Tabs";
 import ResolutionTime from "../../components/ResolutionTime";
-import Probabilities from "./Probabilities";
+import Probabilities from "../../components/Probabilities";
 import ToggleConditional from "./ToggleConditional";
 import ProbabilityChart from "./probabilityChart";
 
@@ -110,15 +110,22 @@ const Market = ({
       <tr>
         <td>
           <Tabs tabTitles={["Chart", "Details"]}>
-            <ProbabilityChart
-              lmsrAddress={lmsrState.marketMakerAddress}
-              marketType={type}
-              created={created}
-              probabilities={probabilities}
-              resolutionDate={resolutionDate}
-              stagedProbabilities={stagedProbabilities}
-              tradeHistory={tradeHistory}
-            ></ProbabilityChart>
+            <div className={cx("tab-content")}>
+              <ProbabilityChart
+                lmsrAddress={lmsrState.marketMakerAddress}
+                marketType={type}
+                created={created}
+                probabilities={probabilities}
+                resolutionDate={resolutionDate}
+                stagedProbabilities={stagedProbabilities}
+                tradeHistory={tradeHistory}
+              ></ProbabilityChart>
+              <Probabilities
+                outcomes={outcomes}
+                probabilities={probabilities}
+                stagedProbabilities={stagedProbabilities}
+              />
+            </div>
             <div className={cx("tab-content")}>
               {dataSource && (
                 <>

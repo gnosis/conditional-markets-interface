@@ -1,0 +1,86 @@
+@import "~scss/_variables.scss";
+
+.probabilities {
+  display: flex;
+  justify-content: center;
+
+  .outcome-bar {
+    display: flex;
+    align-items: center;
+    min-width: 20rem;
+
+      @media #{$tablet} {
+        min-width: 12rem;
+      }
+  }
+
+  .change-percentage {
+    align-self: center;
+    margin-left: 1rem;
+    min-width: 4rem;
+    font-weight: $bold;
+    font-size: 1.3rem;
+    letter-spacing: 0;
+    line-height: 1;
+
+    &:not(.negative) {
+      color: $green;
+    }
+
+    &.negative {
+      color: $red;
+    }
+  }
+
+  .probability {
+    flex: 1;
+    position: relative;
+    border-bottom: .2rem solid $white;
+    margin: 0.2rem 0;
+    height: 3.4rem;
+
+    .bar {
+      padding: 0.4rem 0.2rem;
+      height: 100%;
+
+      transition: width .4s ease;
+    }
+
+    .label {
+      line-height: 0;
+      top: 50%;
+      position: absolute;
+
+      .dot {
+        width: 2.4rem;
+        height: 0;
+        display: inline-block;
+        position: relative;
+
+        &::after {
+          content: '';
+          display: block;
+          background-color: currentColor;
+          position: absolute;
+          left: calc(50% - .6rem);
+          width: 1.2rem;
+          height: 1.2rem;
+          margin-top: -1.1rem;
+          border-radius: 100%;
+        }
+      }
+
+      &.amount {
+        right: 1rem;
+        font-size: 1.4rem;
+        font-weight: $normal;
+        color: $shadeBlue;
+      }
+
+      &.outcome {
+        left: 0.2rem;
+        font-weight: $bold;
+      }
+    }
+  }
+}

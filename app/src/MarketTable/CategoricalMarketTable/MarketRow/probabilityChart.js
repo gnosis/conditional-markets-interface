@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useMemo } from "react";
+import React, { useMemo } from "react";
 import PropTypes from "prop-types";
 import cn from "classnames/bind";
 
@@ -36,19 +36,17 @@ const probabilityChart = ({
   );
 
   return (
-    <div className={cx("tab-content")}>
-      <Graph
-        className={cx("graph")}
-        lowerBound={"0"}
-        upperBound={"100"}
-        decimals={0}
-        entries={parsedTrades}
-        resolutionDate={resolutionDate}
-        currentProbability={displayedProbabilities}
-        marketType={marketType}
-        created={created}
-      ></Graph>
-    </div>
+    <Graph
+      className={cx("graph")}
+      lowerBound={"0"}
+      upperBound={"100"}
+      decimals={0}
+      entries={parsedTrades}
+      resolutionDate={resolutionDate}
+      currentProbability={displayedProbabilities}
+      marketType={marketType}
+      created={created}
+    ></Graph>
   );
 };
 
