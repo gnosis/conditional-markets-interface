@@ -85,8 +85,8 @@ $medium: 500;
 $bold: 700;
 
 // Font sizes
-$base-font-size: 10px;
-$base-line-height: 10px;
+$base-font-size: 1.2rem;
+$base-line-height: 1.2rem;
 
 // HTML Entity characters (e.g. for use with pseudo-elements)
 $x: "\2715"; // $x: "✕";
@@ -97,4 +97,6 @@ $x: "\2715"; // $x: "✕";
   blueColor: $blue;
   redColor: $red;
   font: $font;
+  fontSize: $base-font-size;
+  lineHeight: $base-line-height;
 }

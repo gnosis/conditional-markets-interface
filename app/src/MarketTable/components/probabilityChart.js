@@ -65,8 +65,11 @@ const probabilityChart = ({
 };
 
 probabilityChart.propTypes = {
-  created: PropTypes.string.isRequired,
+  lowerBound: PropTypes.string.isRequired,
+  upperBound: PropTypes.string.isRequired,
+  decimals: PropTypes.number.isRequired,
   marketType: PropTypes.string.isRequired,
+  created: PropTypes.string.isRequired,
   resolutionDate: PropTypes.string.isRequired,
   probabilities: PropTypes.array,
   stagedProbabilities: PropTypes.array,
