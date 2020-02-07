@@ -8,8 +8,8 @@ import Markdown from "react-markdown";
 
 import style from "./marketTable.scss";
 import ResolutionTime from "../components/ResolutionTime";
+import ProbabilityChart from "../components/probabilityChart";
 import Spinner from "components/Spinner";
-import Graph from "components/Graph";
 
 import { markdownRenderers } from "utils/markdown";
 import {
@@ -17,8 +17,6 @@ import {
   getStagedMarketProbabilities
 } from "utils/probabilities";
 import { formatCollateral } from "utils/formatting";
-
-import prepareTradesData from "utils/prepareTradesData";
 
 const { BN } = Web3.utils;
 
@@ -112,39 +110,10 @@ const MarketTable = ({
           },
           index
         ) => {
-          const trades = prepareTradesData(
-            { lowerBound, upperBound, type },
-            tradeHistory
-          );
-
-          const getValueFromBounds = (value, upperBound, lowerBound) => {
-            // Value is a percentage of outcome tokens, should get the value
-            // that it represents compared with bounds
-            return [
-              value
-                .mul(upperBound - lowerBound)
-                .add(lowerBound)
-                .toNumber()
-            ];
-          };
-
           const resolutionValue =
             status === "RESOLVED" && winningOutcome != null
               ? parseFloat(winningOutcome)
               : null;
-
-          const parsedProbabilities =
-            stagedMarketProbabilities && stagedMarketProbabilities[index]
-              ? getValueFromBounds(
-                  stagedMarketProbabilities[index][1],
-                  upperBound,
-                  lowerBound
-                )
-              : getValueFromBounds(
-                  marketProbabilities[index][1],
-                  upperBound,
-                  lowerBound
-                );
           return (
             <div
               className={cx("markettable-row")}
@@ -181,18 +150,22 @@ const MarketTable = ({
                 </div>
               </div>
               <div className={cx("prediction")}>
-                <Graph
+                <ProbabilityChart
                   lowerBound={lowerBound || undefined}
                   upperBound={upperBound || undefined}
                   decimals={decimals || undefined}
                   unit={unit || undefined}
-                  entries={trades}
+                  marketType={type}
+                  created={created}
+                  probabilities={marketProbabilities[index]}
                   resolutionDate={resolutionDate}
                   resolutionValue={resolutionValue}
-                  created={created}
-                  currentProbability={parsedProbabilities}
-                  marketType={type}
-                />
+                  stagedProbabilities={
+                    stagedMarketProbabilities &&
+                    stagedMarketProbabilities[index]
+                  }
+                  tradeHistory={tradeHistory}
+                ></ProbabilityChart>
               </div>
               <div className={cx("details")}>
                 <div className={cx("details-header")}>

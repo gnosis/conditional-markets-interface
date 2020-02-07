@@ -11,7 +11,7 @@ import style from "./marketRow.scss";
 import Tabs from "../../components/Tabs";
 import ResolutionTime from "../../components/ResolutionTime";
 import Probabilities from "../../components/Probabilities";
-import ProbabilityChart from "./probabilityChart";
+import ProbabilityChart from "../../components/probabilityChart";
 
 import { markdownRenderers } from "utils/markdown";
 import { formatCollateral } from "utils/formatting";
@@ -108,12 +108,15 @@ const Market = ({
         <Tabs tabTitles={["Chart", "Details"]}>
           <div className={cx("tab-content")}>
             <ProbabilityChart
-              lmsrAddress={lmsrState.marketMakerAddress}
+              lowerBound={"0"}
+              upperBound={"100"}
+              decimals={0}
+              unit={"%"}
               marketType={type}
               created={created}
-              probabilities={probabilities}
+              probabilities={stagedProbabilities}
               resolutionDate={resolutionDate}
-              stagedProbabilities={stagedProbabilities}
+              stagedProbabilities={probabilities}
               tradeHistory={tradeHistory}
             ></ProbabilityChart>
             <Probabilities
