@@ -8,10 +8,10 @@ import Markdown from "react-markdown";
 
 import style from "./marketRow.scss";
 
-import Tabs from "../../components/Tabs";
-import ResolutionTime from "../../components/ResolutionTime";
-import Probabilities from "../../components/Probabilities";
-import ProbabilityChart from "../../components/probabilityChart";
+import Tabs from "../components/Tabs";
+import ResolutionTime from "../components/ResolutionTime";
+import Probabilities from "../components/Probabilities";
+import ProbabilityChart from "../components/probabilityChart";
 
 import { markdownRenderers } from "utils/markdown";
 import { formatCollateral } from "utils/formatting";
@@ -33,6 +33,12 @@ const Market = ({
   probabilities,
   stagedProbabilities,
   outcomes,
+  lowerBound,
+  upperBound,
+  decimals,
+  unit,
+  status,
+  winningOutcome,
   marketSelections,
   collateral,
   disableConditional,
@@ -61,16 +67,26 @@ const Market = ({
     [marketSelections]
   );
 
-  const entries = [
-    `${index + 1}`,
-    <>{title}</>,
-    <Probabilities
-      key="probabilities"
-      outcomes={outcomes}
-      probabilities={probabilities}
-      stagedProbabilities={stagedProbabilities}
-    />
-  ];
+  const resolutionValue =
+    status === "RESOLVED" && winningOutcome != null
+      ? parseFloat(winningOutcome)
+      : null;
+
+  const probabilityChartProps =
+    type === "CATEGORICAL"
+      ? {
+          lowerBound: "0",
+          upperBound: "100",
+          decimals: 0,
+          unit: "%"
+        }
+      : {
+          lowerBound,
+          upperBound,
+          decimals,
+          unit,
+          resolutionValue
+        };
 
   return (
     <>
@@ -108,10 +124,7 @@ const Market = ({
         <Tabs tabTitles={["Chart", "Details"]}>
           <div className={cx("tab-content")}>
             <ProbabilityChart
-              lowerBound={"0"}
-              upperBound={"100"}
-              decimals={0}
-              unit={"%"}
+              {...probabilityChartProps}
               marketType={type}
               created={created}
               probabilities={stagedProbabilities}
