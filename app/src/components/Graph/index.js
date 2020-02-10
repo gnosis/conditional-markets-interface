@@ -303,6 +303,7 @@ const Graph = ({
           <YAxis
             orientation="right"
             type="number"
+            unit={unit}
             domain={[parseFloat(lowerBound), parseFloat(upperBound)]}
           />
           {data &&

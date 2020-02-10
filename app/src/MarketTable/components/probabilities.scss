@@ -6,12 +6,15 @@
 
   .outcome-bar {
     display: flex;
-    align-items: center;
+    flex-direction: column;
+
+    > * {
+      padding: 0.3rem 0;
+    }
   }
 
   .change-percentage {
     align-self: center;
-    margin-left: 1rem;
     min-width: 4rem;
     font-weight: $bold;
     font-size: 1.3rem;

@@ -132,11 +132,13 @@ const Market = ({
               stagedProbabilities={stagedProbabilities}
               tradeHistory={tradeHistory}
             ></ProbabilityChart>
-            <Probabilities
-              outcomes={outcomes}
-              probabilities={probabilities}
-              stagedProbabilities={stagedProbabilities}
-            />
+            {type === "CATEGORICAL" &&
+              <Probabilities
+                outcomes={outcomes}
+                probabilities={probabilities}
+                stagedProbabilities={stagedProbabilities}
+              />
+            }
           </div>
           <div className={cx("tab-content")}>
             {dataSource && (
