@@ -8,16 +8,12 @@ import TooltipContent from "./TooltipContent";
 
 import styles from "./Graph.scss";
 
-import { blueColor, redColor } from "scss/_variables.scss";
 import CheckSvg from "assets/icons/check-circle-green.svg";
 
-const scalarMarketColor = {
-  0: "#8884d8"
-};
-const categoricalMarketColors = {
-  0: blueColor,
-  1: redColor
-};
+import {
+  scalarMarketColor,
+  categoricalMarketColors
+} from "utils/outcomes-color";
 
 import {
   LineChart,
@@ -90,6 +86,7 @@ const Graph = ({
   created,
   resolutionDate,
   resolutionValue,
+  totalOutcomes,
   marketType,
   entries,
   currentProbability
@@ -126,7 +123,7 @@ const Graph = ({
     // Get initial probability for market
     const getInitialProbability = () => {
       const midValue =
-        (parseFloat(upperBound) - parseFloat(lowerBound)) / 2 +
+        (parseFloat(upperBound) - parseFloat(lowerBound)) / totalOutcomes +
         parseFloat(lowerBound);
 
       return currentProbability.map(() => {
@@ -407,6 +404,7 @@ Graph.propTypes = {
   marketType: PropTypes.string.isRequired,
   resolutionDate: PropTypes.string.isRequired,
   resolutionValue: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  totalOutcomes: PropTypes.number,
   created: PropTypes.string.isRequired,
   decimals: PropTypes.number,
   unit: PropTypes.string

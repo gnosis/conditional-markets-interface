@@ -5,6 +5,8 @@ import PropTypes from "prop-types";
 import Select from "react-select";
 import { Dot } from "components/OutcomeCard";
 
+import { formatProbability } from "utils/formatting";
+
 // Styles
 import cn from "classnames/bind";
 import style from "./OutcomeSelection.scss";
@@ -13,6 +15,7 @@ const cx = cn.bind(style);
 
 const OutcomeSelection = ({
   outcomes,
+  probabilities,
   marketSelection,
   setOutcomeSelection
 }) => {
@@ -28,7 +31,10 @@ const OutcomeSelection = ({
     ...outcomes.map((outcome, index) => ({
       label: (
         <>
-          <Dot index={index} /> {outcome.title}
+          <Dot index={index} />
+          <span className={cx("outcome-title")}>{outcome.title}</span> {"("}
+          {probabilities && formatProbability(probabilities[index])}
+          {")"}
         </>
       ),
       value: index

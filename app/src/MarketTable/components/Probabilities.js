@@ -2,18 +2,11 @@ import React from "react";
 import PropTypes from "prop-types";
 import cn from "classnames/bind";
 
-import style from "./probabilities.scss";
 import { probabilityDecimalPlaces } from "utils/constants";
-import { blueColor, redColor } from "scss/_variables.scss";
-const scalarMarketColor = {
-  0: "#8884d8"
-};
-const categoricalMarketColors = {
-  0: blueColor,
-  1: redColor
-};
-
 import { formatProbability } from "utils/formatting";
+import { categoricalMarketColors } from "utils/outcomes-color";
+
+import style from "./probabilities.scss";
 
 const cx = cn.bind(style);
 

@@ -6,6 +6,8 @@ import Decimal from "decimal.js-light";
 
 import style from "./marketTable.scss";
 
+import useGlobalState from "hooks/useGlobalState";
+
 import MarketRow from "./MarketRow";
 import Spinner from "components/Spinner";
 
@@ -38,7 +40,9 @@ const MarketTable = ({
     // };
   }, [markets]);
 
-  const [marketProbabilities, setMarketProbabilities] = useState(null);
+  const { marketProbabilities, setMarketProbabilities } = useGlobalState();
+
+  // const [marketProbabilities, setMarketProbabilities] = useState(null);
   const [stagedMarketProbabilities, setStagedMarketProbabilities] = useState(
     null
   );

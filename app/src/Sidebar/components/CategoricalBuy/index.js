@@ -7,6 +7,8 @@ import Web3 from "web3";
 import cn from "classnames/bind";
 import style from "./buy.scss";
 
+import useGlobalState from "hooks/useGlobalState";
+
 import OutcomeSelection from "./OutcomeSelection";
 import OutcomeCard from "components/OutcomeCard";
 import { zeroDecimal } from "utils/constants";
@@ -53,6 +55,8 @@ const Buy = ({
   useEffect(() => {
     loadDataLayer();
   }, []);
+
+  const { marketProbabilities } = useGlobalState();
 
   const [investmentAmount, setInvestmentAmount] = useState("");
   const [humanReadablePositions, setHumanReadablePositions] = useState(null);
@@ -332,6 +336,7 @@ const Buy = ({
         <OutcomeSelection
           key="selection"
           outcomes={markets[forMarketIndex].outcomes}
+          probabilities={marketProbabilities[forMarketIndex]}
           conditionId={markets[forMarketIndex].conditionId}
           marketSelection={marketSelections[forMarketIndex]}
           setOutcomeSelection={handleMarketSelection}

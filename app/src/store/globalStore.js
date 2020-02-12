@@ -6,6 +6,7 @@ const initialState = {
   markets: null,
   positions: null,
   lmsrState: null,
+  marketProbabilities: null,
   error: null
 };
 

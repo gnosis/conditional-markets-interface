@@ -57,6 +57,7 @@ const probabilityChart = ({
       entries={parsedTrades}
       resolutionDate={resolutionDate}
       resolutionValue={resolutionValue}
+      totalOutcomes={probabilities.length}
       currentProbability={displayedProbabilities}
       marketType={marketType}
       created={created}
