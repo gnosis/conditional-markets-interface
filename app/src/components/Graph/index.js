@@ -231,13 +231,18 @@ const Graph = ({
   const getTicks = useCallback(() => {
     let range = [];
     if (data && data[0]) {
-      const startDate = getMoment(data[0].date).startOf("day");
-      const endDate = getMoment(data[data.length - 1].date).endOf("day");
+      const startDate = getMoment(data[0].date);
+      const endDate = getMoment(data[data.length - 1].date);
+
+      range.push(startDate.valueOf());
+      startDate.startOf("day");
+      startDate.add(1, "days");
+
       while (startDate < endDate) {
-        range.push(getMoment(startDate));
+        range.push(startDate.valueOf());
         startDate.add(1, "days");
       }
-      range.push(endDate);
+      range.push(endDate.valueOf());
     }
     return range;
   }, [data]);
@@ -295,7 +300,7 @@ const Graph = ({
             ticks={ticks}
             domain={[data && data[0] ? "dataMin" : 0, "dataMax"]}
             tickFormatter={formatDateTick}
-            interval="preserveEnd"
+            interval="preserveStartEnd"
           />
           <YAxis
             orientation="right"
