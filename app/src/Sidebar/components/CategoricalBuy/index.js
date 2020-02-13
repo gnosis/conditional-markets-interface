@@ -185,26 +185,6 @@ const Buy = ({
     problemText = "Select position(s) first.";
   }
 
-  // const makeStepper = useCallback(amount => {
-  //   return () => {
-  //     setStagedTransactionType("buy outcome tokens");
-  //     setInvestmentAmount(prevValue => {
-  //       let prevValueDecimal;
-  //       try {
-  //         if (prevValue === "") {
-  //           prevValueDecimal = Decimal(0);
-  //         } else {
-  //           prevValueDecimal = Decimal(prevValue);
-  //         }
-  //       } catch (err) {
-  //         return prevValue;
-  //       }
-
-  //       return prevValueDecimal.add(amount).toString();
-  //     });
-  //   };
-  // }, []);
-
   const setInvestmentMax = useCallback(() => {
     if (collateralBalance != null && collateral != null) {
       setStagedTransactionType("buy outcome tokens");
@@ -389,13 +369,6 @@ const Buy = ({
         How many <b>&nbsp;outcome tokens&nbsp;</b> do you want to buy?
       </div>
       <div className={cx("buy-investment")}>
-        {/* <button
-          className={cx("buy-invest", "buy-invest-minus")}
-          onClick={makeStepper(-0.1)}
-          type="button"
-        >
-          –
-        </button> */}
         <div className={cx("input-group")}>
           <button
             className={cx("input-append", "link-button", "invest-max")}
@@ -417,13 +390,6 @@ const Buy = ({
             {collateral.symbol}
           </span>
         </div>
-        {/* <button
-          className={cx("buy-invest", "buy-invest-plus")}
-          onClick={makeStepper(0.1)}
-          type="button"
-        >
-          +
-        </button> */}
       </div>
       <div className={cx("buy-confirm")}>
         <button

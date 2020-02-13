@@ -2,6 +2,7 @@
 
 .probabilities {
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
 
   .outcome-bar {

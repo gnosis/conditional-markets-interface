@@ -32,9 +32,12 @@ const OutcomeSelection = ({
       label: (
         <>
           <Dot index={index} />
-          <span className={cx("outcome-title")}>{outcome.title}</span> {"("}
-          {probabilities && formatProbability(probabilities[index])}
-          {")"}
+          <span className={cx("outcome-title")}>{outcome.title}</span>
+          {probabilities && (
+            <span className={cx("outcome-probability")}>
+              ({formatProbability(probabilities[index])})
+            </span>
+          )}
         </>
       ),
       value: index
@@ -59,6 +62,7 @@ OutcomeSelection.propTypes = {
       short: PropTypes.string.isRequired
     }).isRequired
   ).isRequired,
+  probabilities: PropTypes.array,
   marketSelection: PropTypes.shape({
     selectedOutcomeIndex: PropTypes.number,
     isAssumed: PropTypes.bool.isRequired
