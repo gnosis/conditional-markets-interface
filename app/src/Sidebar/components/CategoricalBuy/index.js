@@ -10,6 +10,7 @@ import style from "./buy.scss";
 import useGlobalState from "hooks/useGlobalState";
 
 import OutcomeSelection from "./OutcomeSelection";
+import AmountInput from "../Buy/AmountInput";
 import OutcomeCard from "components/OutcomeCard";
 import { zeroDecimal } from "utils/constants";
 import { formatCollateral } from "utils/formatting";
@@ -365,31 +366,19 @@ const Buy = ({
               </Fragment>
             ))}
       </div>
-      <div className={cx("buy-subheading")}>
-        How many <b>&nbsp;outcome tokens&nbsp;</b> do you want to buy?
-      </div>
       <div className={cx("buy-investment")}>
-        <div className={cx("input-group")}>
-          <button
-            className={cx("input-append", "link-button", "invest-max")}
-            onClick={setInvestmentMax}
-            type="button"
-          >
-            max
-          </button>
-          <input
-            type="number"
-            value={investmentAmount}
-            className={cx("input")}
-            onChange={e => {
-              setStagedTransactionType("buy outcome tokens");
-              setInvestmentAmount(e.target.value);
-            }}
-          />
-          <span className={cx("input-append", "collateral-name")}>
-            {collateral.symbol}
-          </span>
-        </div>
+        <label className={cx("input-label")}>
+          How many <b>&nbsp;outcome tokens&nbsp;</b> do you want to buy?
+        </label>
+        <AmountInput
+          {...{
+            collateral,
+            setInvestmentMax,
+            investmentAmount,
+            setStagedTransactionType,
+            setInvestmentAmount
+          }}
+        />
       </div>
       <div className={cx("buy-confirm")}>
         <button

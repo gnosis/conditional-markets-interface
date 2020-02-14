@@ -8,9 +8,6 @@
 
   &-subheading {
     @include sidebar-entry;
-    letter-spacing: 0;
-    border: 0;
-    justify-content: left;
   }
 
   &-select {
@@ -93,17 +90,17 @@
   }
 
   &-investment {
-    @include sidebar-entry;
-    font-size: 1.5rem;
-    line-height: 1;
-    display: flex;
-    position: relative;
-    border-bottom: none;
-    padding-top: 0;
-    box-sizing: border-box;
-    width: 100%;
-    justify-content: center;
-    align-items: center;
+    padding: 1rem 2rem;
+    font-size: 1.4rem;
+    line-height: normal;
+    color: $shadeBlue;
+
+    .input-label {
+      color: $black;
+      small {
+        color: $shadeBlue;
+      }
+    }
 
     .buy-invest {
       -webkit-appearance: none;
@@ -125,61 +122,9 @@
       box-sizing: border-box;
       margin-top: -.7rem;
 
-      &-minus {
-        padding: 0 .5rem 0 0;
-      }
-
       &:hover, &:focus, &:active {
         color: darken($blue, 20%);
       }
-    }
-
-    .input-group {
-      position: relative;
-      display: flex;
-      flex-flow: row nowrap;
-      height: 6.1rem;
-      padding: 0;
-      font-weight: $normal;
-      border: .2rem solid $greyBorder2;
-      border-radius: .3rem;
-      flex: 1;
-      justify-content: space-between;
-      margin: 0;
-    }
-
-    .input {
-      border: 0;
-      font-size: 1.5rem;
-      color: $shadeBlue;
-      letter-spacing: 0;
-      text-align: right;
-      font-weight: $normal;
-      margin: 0 0 0 auto;
-      outline: 0;
-      flex: 1 1 auto;
-      box-sizing: border-box;
-
-      &::-webkit-inner-spin-button,
-      &::-webkit-outer-spin-button {
-        -webkit-appearance: none;
-        margin: 0;
-      }
-    }
-
-    .input-append {
-      font-weight: $bold;
-      font-size: 1.3rem;
-      text-transform: uppercase;
-      color: $blue;
-      letter-spacing: 0;
-      box-sizing: border-box;
-      padding: 0 .5rem;
-      flex: 1;
-
-
-      &:first-child {}
-      &:last-child {}
     }
   }
 }
