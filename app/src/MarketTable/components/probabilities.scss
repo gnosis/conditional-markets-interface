@@ -7,10 +7,14 @@
 
   .outcome-bar {
     display: flex;
-    flex-direction: column;
+    flex: 0 1 50%;
+
+    // &:nth-child(odd) {
+    //   justify-content: flex-end;
+    // }
 
     > * {
-      padding: 0.3rem 0;
+      padding: 0.7rem 0;
     }
   }
 
@@ -34,8 +38,6 @@
   .probability {
     display: flex;
     align-items: center;
-    // position: relative;
-    border-bottom: .2rem solid $white;
     margin: 0 1rem;
     // height: 3.4rem;
 

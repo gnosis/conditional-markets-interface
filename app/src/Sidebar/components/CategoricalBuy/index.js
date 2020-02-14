@@ -329,7 +329,21 @@ const Buy = ({
           {error === true ? "An error has occured" : error.message}
         </div>
       )}
-      <div className={cx("buy-summary")}>
+      <div className={cx("buy-investment")}>
+        <label className={cx("input-label")}>
+          How many <b>&nbsp;outcome tokens&nbsp;</b> do you want to buy?
+        </label>
+        <AmountInput
+          {...{
+            collateral,
+            setInvestmentMax,
+            investmentAmount,
+            setStagedTransactionType,
+            setInvestmentAmount
+          }}
+        />
+      </div>
+      {/* <div className={cx("buy-summary")}>
         {humanReadablePositions &&
           [
             humanReadablePositions.payOutWhen,
@@ -361,25 +375,11 @@ const Buy = ({
                       ({category.margin > 0 && "+"}
                       {category.margin * 100}%)
                       </p>*/}
-                  </div>
+                  {/*</div>
                 </div>
               </Fragment>
             ))}
-      </div>
-      <div className={cx("buy-investment")}>
-        <label className={cx("input-label")}>
-          How many <b>&nbsp;outcome tokens&nbsp;</b> do you want to buy?
-        </label>
-        <AmountInput
-          {...{
-            collateral,
-            setInvestmentMax,
-            investmentAmount,
-            setStagedTransactionType,
-            setInvestmentAmount
-          }}
-        />
-      </div>
+      </div> */}
       <div className={cx("buy-confirm")}>
         <button
           className={cx("button")}

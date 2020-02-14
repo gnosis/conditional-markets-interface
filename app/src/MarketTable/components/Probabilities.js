@@ -41,10 +41,11 @@ const Probabilities = ({ outcomes, probabilities, stagedProbabilities }) => {
                         color: categoricalMarketColors[index]
                       }}
                     />{" "}
-                    <span>{outcome.title}</span>{" "}
+                    <span>{outcome.title}</span>
                   </div>
                   <div className={cx("label", "amount")}>
-                    ({formatProbability(displayedProbabilities[index])})
+                    {" - "}
+                    {formatProbability(displayedProbabilities[index])}
                   </div>
                 </div>
 
