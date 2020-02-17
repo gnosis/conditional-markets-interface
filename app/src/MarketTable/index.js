@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import Web3 from "web3";
 import cn from "classnames/bind";
@@ -34,11 +34,11 @@ const MarketTable = ({
 }) => {
   useEffect(() => {
     resetMarketSelections();
-    // FIXME This breaks when reloading component after market maker address update
-    // return () => {
-    //   setMarketSelections(null);
-    // };
-  }, [markets]);
+    return () => {
+      setMarketSelections(null);
+      setMarketProbabilities(null);
+    };
+  }, []);
 
   const { marketProbabilities, setMarketProbabilities } = useGlobalState();
 
@@ -46,8 +46,13 @@ const MarketTable = ({
   const [stagedMarketProbabilities, setStagedMarketProbabilities] = useState(
     null
   );
-  useMemo(() => {
-    if (lmsrState != null) {
+
+  useEffect(() => {
+    if (
+      lmsrState !== null &&
+      lmsrState.positionBalances.length === positions.length &&
+      marketSelections
+    ) {
       const { funding, positionBalances } = lmsrState;
       const {
         invB,
@@ -117,11 +122,7 @@ const MarketTable = ({
           key={market.conditionId}
           lmsrState={lmsrState}
           tradeHistory={tradeHistory}
-          probabilities={
-            marketProbabilities != null
-              ? marketProbabilities[market.index]
-              : null
-          }
+          probabilities={marketProbabilities[market.index]}
           stagedProbabilities={
             stagedMarketProbabilities != null
               ? stagedMarketProbabilities[market.index]

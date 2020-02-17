@@ -246,6 +246,7 @@ const RootComponent = ({ match, childComponents }) => {
       setCollateral(null);
       setMarkets(null);
       setPositions(null);
+      setLMSRState(null);
     }
     init();
   }, [lmsrAddress]);
@@ -311,13 +312,13 @@ const RootComponent = ({ match, childComponents }) => {
     [getPositionBalances, [positions, account], setPositionBalances]
   ])
     useEffect(() => {
-      if (dependentParams.every(p => p != null))
+      if (dependentParams.every(p => p != null) && conditionalTokensService)
         loader(...dependentParams)
           .then(setter)
           .catch(err => {
             throw err;
           });
-    }, [...dependentParams, syncTime]);
+    }, [...dependentParams, conditionalTokensService, syncTime]);
 
   const [marketSelections, setMarketSelections] = useState(null);
   const [stagedTradeAmounts, setStagedTradeAmounts] = useState(null);
@@ -326,7 +327,7 @@ const RootComponent = ({ match, childComponents }) => {
   const [ongoingTransactionType, setOngoingTransactionType] = useState(null);
 
   const resetMarketSelections = useCallback(() => {
-    if (markets != null) {
+    if (markets !== null) {
       setMarketSelections(
         Array.from({ length: markets.length }, () => ({
           selectedOutcomeIndex: -1, // no selection
