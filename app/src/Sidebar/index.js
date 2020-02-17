@@ -174,7 +174,7 @@ ResolvedMarketSidebar.propTypes = {
 
 const SidebarContent = props => {
   const { markets, marketSelections, tabIndex } = props;
-  if (markets && markets.length > 0) {
+  if (markets && markets.length > 0 && marketSelections) {
     let BuyComponent;
     if (markets[0].type === "CATEGORICAL") {
       BuyComponent = CategoricalBuy;

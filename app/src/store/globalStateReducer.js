@@ -20,6 +20,11 @@ const globalStateReducer = (state, action) => {
         ...state,
         lmsrState: action.payload
       };
+    case "SET_PROBABILITIES":
+      return {
+        ...state,
+        marketProbabilities: action.payload
+      };
   }
 };
 

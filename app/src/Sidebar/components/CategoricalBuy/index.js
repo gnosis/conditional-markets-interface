@@ -7,7 +7,10 @@ import Web3 from "web3";
 import cn from "classnames/bind";
 import style from "./buy.scss";
 
+import useGlobalState from "hooks/useGlobalState";
+
 import OutcomeSelection from "./OutcomeSelection";
+import AmountInput from "../Buy/AmountInput";
 import OutcomeCard from "components/OutcomeCard";
 import { zeroDecimal } from "utils/constants";
 import { formatCollateral } from "utils/formatting";
@@ -52,7 +55,12 @@ const Buy = ({
   // Load data layer just on page load
   useEffect(() => {
     loadDataLayer();
+    return () => {
+      setStagedTradeAmounts(null);
+    };
   }, []);
+
+  const { marketProbabilities } = useGlobalState();
 
   const [investmentAmount, setInvestmentAmount] = useState("");
   const [humanReadablePositions, setHumanReadablePositions] = useState(null);
@@ -180,26 +188,6 @@ const Buy = ({
   } else if (!marketSelections) {
     problemText = "Select position(s) first.";
   }
-
-  // const makeStepper = useCallback(amount => {
-  //   return () => {
-  //     setStagedTransactionType("buy outcome tokens");
-  //     setInvestmentAmount(prevValue => {
-  //       let prevValueDecimal;
-  //       try {
-  //         if (prevValue === "") {
-  //           prevValueDecimal = Decimal(0);
-  //         } else {
-  //           prevValueDecimal = Decimal(prevValue);
-  //         }
-  //       } catch (err) {
-  //         return prevValue;
-  //       }
-
-  //       return prevValueDecimal.add(amount).toString();
-  //     });
-  //   };
-  // }, []);
 
   const setInvestmentMax = useCallback(() => {
     if (collateralBalance != null && collateral != null) {
@@ -332,6 +320,9 @@ const Buy = ({
         <OutcomeSelection
           key="selection"
           outcomes={markets[forMarketIndex].outcomes}
+          probabilities={
+            marketProbabilities && marketProbabilities[forMarketIndex]
+          }
           conditionId={markets[forMarketIndex].conditionId}
           marketSelection={marketSelections[forMarketIndex]}
           setOutcomeSelection={handleMarketSelection}
@@ -343,7 +334,21 @@ const Buy = ({
           {error === true ? "An error has occured" : error.message}
         </div>
       )}
-      <div className={cx("buy-summary")}>
+      <div className={cx("buy-investment")}>
+        <label className={cx("input-label")}>
+          How many <b>&nbsp;outcome tokens&nbsp;</b> do you want to buy?
+        </label>
+        <AmountInput
+          {...{
+            collateral,
+            setInvestmentMax,
+            investmentAmount,
+            setStagedTransactionType,
+            setInvestmentAmount
+          }}
+        />
+      </div>
+      {/* <div className={cx("buy-summary")}>
         {humanReadablePositions &&
           [
             humanReadablePositions.payOutWhen,
@@ -375,51 +380,11 @@ const Buy = ({
                       ({category.margin > 0 && "+"}
                       {category.margin * 100}%)
                       </p>*/}
-                  </div>
+      {/*</div>
                 </div>
               </Fragment>
             ))}
-      </div>
-      <div className={cx("buy-subheading")}>
-        How many <b>&nbsp;outcome tokens&nbsp;</b> do you want to buy?
-      </div>
-      <div className={cx("buy-investment")}>
-        {/* <button
-          className={cx("buy-invest", "buy-invest-minus")}
-          onClick={makeStepper(-0.1)}
-          type="button"
-        >
-          –
-        </button> */}
-        <div className={cx("input-group")}>
-          <button
-            className={cx("input-append", "link-button", "invest-max")}
-            onClick={setInvestmentMax}
-            type="button"
-          >
-            max
-          </button>
-          <input
-            type="number"
-            value={investmentAmount}
-            className={cx("input")}
-            onChange={e => {
-              setStagedTransactionType("buy outcome tokens");
-              setInvestmentAmount(e.target.value);
-            }}
-          />
-          <span className={cx("input-append", "collateral-name")}>
-            {collateral.symbol}
-          </span>
-        </div>
-        {/* <button
-          className={cx("buy-invest", "buy-invest-plus")}
-          onClick={makeStepper(0.1)}
-          type="button"
-        >
-          +
-        </button> */}
-      </div>
+      </div> */}
       <div className={cx("buy-confirm")}>
         <button
           className={cx("button")}

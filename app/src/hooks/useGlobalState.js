@@ -20,6 +20,10 @@ const useGlobalState = () => {
     dispatch({ type: "SET_LMSR_STATE", payload: lmsrState });
   };
 
+  const setMarketProbabilities = probabilities => {
+    dispatch({ type: "SET_PROBABILITIES", payload: probabilities });
+  };
+
   return {
     account: state.account,
     setAccount,
@@ -28,7 +32,9 @@ const useGlobalState = () => {
     positions: state.positions,
     setPositions,
     lmsrState: state.lmsrState,
-    setLMSRState
+    setLMSRState,
+    marketProbabilities: state.marketProbabilities,
+    setMarketProbabilities
   };
 };
 
