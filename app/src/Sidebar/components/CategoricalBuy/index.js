@@ -55,6 +55,9 @@ const Buy = ({
   // Load data layer just on page load
   useEffect(() => {
     loadDataLayer();
+    return () => {
+      setStagedTradeAmounts(null);
+    };
   }, []);
 
   const { marketProbabilities } = useGlobalState();
@@ -317,7 +320,9 @@ const Buy = ({
         <OutcomeSelection
           key="selection"
           outcomes={markets[forMarketIndex].outcomes}
-          probabilities={marketProbabilities[forMarketIndex]}
+          probabilities={
+            marketProbabilities && marketProbabilities[forMarketIndex]
+          }
           conditionId={markets[forMarketIndex].conditionId}
           marketSelection={marketSelections[forMarketIndex]}
           setOutcomeSelection={handleMarketSelection}
@@ -375,7 +380,7 @@ const Buy = ({
                       ({category.margin > 0 && "+"}
                       {category.margin * 100}%)
                       </p>*/}
-                  {/*</div>
+      {/*</div>
                 </div>
               </Fragment>
             ))}

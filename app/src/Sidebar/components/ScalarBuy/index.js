@@ -51,6 +51,9 @@ const Buy = ({
   // Load data layer just on page load
   useEffect(() => {
     loadDataLayer();
+    return () => {
+      setStagedTradeAmounts(null);
+    };
   }, []);
 
   const [investmentAmount, setInvestmentAmount] = useState("");
