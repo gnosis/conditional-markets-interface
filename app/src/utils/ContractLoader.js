@@ -1,10 +1,8 @@
-// const environment = process.env.NODE_ENV;
-// const isLocal = environment === 'local';
-const assert = require("assert");
+import TruffleContract from "@truffle/contract";
+import assert from "assert";
+import getCollateralInfo from "./collateral-info";
 
-const getCollateralInfo = require("./collateral-info");
-
-class ContractLoader {
+export default class ContractLoader {
   constructor({ lmsrAddress, web3 }) {
     assert(lmsrAddress, '"lmsrAddress is required"');
     assert(web3, '"web3 is required"');
@@ -15,14 +13,12 @@ class ContractLoader {
 
   async loadContracts() {
     const [
-      { default: TruffleContract },
       ERC20DetailedArtifact,
       IDSTokenArtifact,
       WETH9Artifact,
       ConditionalTokensArtifact,
       LMSRMarketMakerArtifact
     ] = await Promise.all([
-      import("@truffle/contract"),
       import("../../../build/contracts/ERC20Detailed.json"),
       import("../../../build/contracts/IDSToken.json"),
       import("../../../build/contracts/WETH9.json"),
@@ -71,5 +67,3 @@ class ContractLoader {
     return getCollateralInfo(this._web3, contractsObject, lmsrMarketMaker);
   }
 }
-
-module.exports = ContractLoader;

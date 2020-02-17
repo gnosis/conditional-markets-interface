@@ -1,4 +1,4 @@
-const ContractLoader = require("./utils/ContractLoader");
+import ContractLoader from "./utils/ContractLoader";
 
 let contracts, contractsPromise, lmsrAddressCache, providerAccountCache;
 function _resetContracts() {
