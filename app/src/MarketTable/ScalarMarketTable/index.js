@@ -28,15 +28,12 @@ const MarketTable = ({
   markets,
   positions,
   lmsrState,
-  // FIXME `useQuery` hook can't be used after checking if lmsrState exists.
-  // Remove and use address from state if we divide this component in smaller ones
-  lmsrAddress,
   marketSelections,
   setMarketSelections,
   resetMarketSelections,
   stagedTradeAmounts,
   collateral,
-  tradeHistory,
+  tradeHistory
 }) => {
   useEffect(() => {
     resetMarketSelections();
@@ -111,7 +108,7 @@ const MarketTable = ({
             created,
             type,
             winningOutcome,
-            status,
+            status
           },
           index
         ) => {
@@ -131,7 +128,10 @@ const MarketTable = ({
             ];
           };
 
-          const resolutionValue = status === "RESOLVED" && winningOutcome != null ? parseFloat(winningOutcome) : null;
+          const resolutionValue =
+            status === "RESOLVED" && winningOutcome != null
+              ? parseFloat(winningOutcome)
+              : null;
 
           const parsedProbabilities =
             stagedMarketProbabilities && stagedMarketProbabilities[index]

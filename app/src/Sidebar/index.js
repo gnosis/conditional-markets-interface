@@ -17,14 +17,11 @@ import CloseIcon from "@material-ui/icons/Close";
 import cn from "classnames/bind";
 import style from "./sidebar.scss";
 
-import Spinner from "components/Spinner";
 import PositionsAndSell from "./components/Sell";
 import Resolved from "./components/Resolved";
 
 import CategoricalBuy from "./components/CategoricalBuy";
 import ScalarBuy from "./components/ScalarBuy";
-
-import { getMarketProbabilities } from "utils/probabilities";
 
 const cx = cn.bind(style);
 
@@ -176,7 +173,7 @@ ResolvedMarketSidebar.propTypes = {
 };
 
 const SidebarContent = props => {
-  const { markets, lmsrState, positions, marketSelections, tabIndex } = props;
+  const { markets, marketSelections, tabIndex } = props;
   if (markets && markets.length > 0) {
     let BuyComponent;
     if (markets[0].type === "CATEGORICAL") {
@@ -211,32 +208,12 @@ const SidebarContent = props => {
       [value]
     );
 
-    let marketProbabilities = null;
-    if (lmsrState != null) {
-      const { funding, positionBalances } = lmsrState;
-
-      const { newMarketProbabilities } = getMarketProbabilities(
-        funding,
-        positionBalances,
-        markets,
-        positions,
-        marketSelections
-      );
-
-      marketProbabilities = newMarketProbabilities;
-    }
-
     const selectedComponentsProps = {
       ...props,
       market: markets[0],
       marketSelection: marketSelections[0],
-      probabilities: marketProbabilities && marketProbabilities[0],
       makeButtonSelectCallback
     };
-
-    if (!marketProbabilities) {
-      return <Spinner />;
-    }
 
     if (isInResolvedMode) {
       return (
@@ -290,6 +267,11 @@ const SidebarContent = props => {
 };
 
 SidebarContent.propTypes = {
+  markets: PropTypes.arrayOf(
+    PropTypes.shape({
+      type: PropTypes.string.isRequired
+    }).isRequired
+  ).isRequired,
   tabIndex: PropTypes.number
 };
 

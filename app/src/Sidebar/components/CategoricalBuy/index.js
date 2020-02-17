@@ -29,7 +29,6 @@ const Buy = ({
   positions,
   collateral,
   collateralBalance,
-  lmsrAllowance,
   lmsrState,
   marketSelections,
   setMarketSelections,
@@ -135,18 +134,6 @@ const Buy = ({
     [marketSelections]
   );
 
-  let hasAnyAllowance = false;
-  let hasEnoughAllowance = false;
-  if (lmsrAllowance != null)
-    try {
-      hasAnyAllowance = lmsrAllowance.gtn(0);
-      hasEnoughAllowance = collateral.toUnitsMultiplier
-        .mul(investmentAmount || "0")
-        .lte(lmsrAllowance.toString());
-    } catch (e) {
-      // empty
-    }
-
   const clearAllPositions = useCallback(() => {
     setStagedTransactionType(null);
     setStagedTradeAmounts(null);
@@ -161,9 +148,7 @@ const Buy = ({
       stagedTradeAmounts,
       stagedTransactionType,
       account,
-      collateralBalance,
-      hasAnyAllowance,
-      hasEnoughAllowance
+      collateralBalance
     });
 
     clearAllPositions();
@@ -171,8 +156,6 @@ const Buy = ({
     makeButtonSelectCallback(1);
   }, [
     investmentAmount,
-    hasAnyAllowance,
-    hasEnoughAllowance,
     stagedTransactionType,
     stagedTradeAmounts,
     conditionalTokensService,
@@ -506,7 +489,6 @@ Buy.propTypes = {
       .isRequired,
     stage: PropTypes.string.isRequired
   }),
-  lmsrAllowance: PropTypes.instanceOf(BN),
   marketSelections: PropTypes.arrayOf(
     PropTypes.shape({
       isAssumed: PropTypes.bool.isRequired,

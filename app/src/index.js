@@ -26,6 +26,7 @@ import { client } from "api/thegraph";
 import { ApolloProvider } from "@apollo/react-hooks";
 
 import { history, store } from "./store";
+import GlobalStore from "store/globalStore";
 
 Decimal.config({
   precision: 80,
@@ -38,7 +39,9 @@ const RouterWrappedApp = (
     <ThemeProvider theme={theme}>
       <Provider store={store}>
         <ConnectedRouter history={history}>
-          <Routes />
+          <GlobalStore>
+            <Routes />
+          </GlobalStore>
         </ConnectedRouter>
       </Provider>
     </ThemeProvider>

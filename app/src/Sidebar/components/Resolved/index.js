@@ -1,7 +1,9 @@
 import React, { useMemo } from "react";
+import PropTypes from "prop-types";
+
 import cn from "classnames/bind";
 
-import Sell from '../Sell';
+import Sell from "../Sell";
 
 import style from "./resolved.scss";
 import prepareTradesData from "utils/prepareTradesData";
@@ -62,10 +64,31 @@ const Resolved = ({ markets, tradeHistory, ...props }) => {
   ) : (
     <div className={cx("resolved")}>
       <h1 className={cx("waiting-for-oracle")}>
-        Market closed but not all winning outcome were set yet. Please wait until the oracle is fully resolved.
+        Market closed but not all winning outcome were set yet. Please wait
+        until the oracle is fully resolved.
       </h1>
     </div>
   );
+};
+
+Resolved.propTypes = {
+  markets: PropTypes.arrayOf(
+    PropTypes.shape({
+      lowerBound: PropTypes.string.isRequired,
+      upperBound: PropTypes.string.isRequired,
+      unit: PropTypes.string.isRequired,
+      type: PropTypes.string.isRequired,
+      outcomes: PropTypes.arrayOf(
+        PropTypes.shape({
+          positions: PropTypes.arrayOf(
+            PropTypes.shape({
+              id: PropTypes.string.isRequired
+            }).isRequired
+          ).isRequired
+        }).isRequired
+      ).isRequired
+    }).isRequired
+  ).isRequired
 };
 
 export default Resolved;

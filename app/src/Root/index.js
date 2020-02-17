@@ -2,8 +2,9 @@ import React, { useState, useEffect, useCallback } from "react";
 import { hot } from "react-hot-loader/root";
 import cn from "classnames/bind";
 import useInterval from "@use-it/interval";
-import { useQuery } from "@apollo/react-hooks";
+import { useSubscription } from "@apollo/react-hooks";
 
+import useGlobalState from "hooks/useGlobalState";
 import Spinner from "components/Spinner";
 import CrashPage from "components/Crash";
 import makeLoadable from "../utils/make-loadable";
@@ -25,10 +26,8 @@ const cx = cn.bind(style);
 import conf from "../conf";
 
 import getMarketMakersRepo from "../repositories/MarketMakersRepo";
-import getConditionalTokensRepo from "../repositories/ConditionalTokensRepo";
 import getConditionalTokensService from "../services/ConditionalTokensService";
 let marketMakersRepo;
-let conditionalTokensRepo;
 let conditionalTokensService;
 
 const whitelistEnabled = conf.WHITELIST_ENABLED;
@@ -50,13 +49,8 @@ async function loadBasicData({ lmsrAddress, web3, account }) {
     return market;
   });
 
-  // Load application contracts
+  // Load smart contract data layer
   marketMakersRepo = await getMarketMakersRepo({ lmsrAddress, web3, account });
-  conditionalTokensRepo = await getConditionalTokensRepo({
-    lmsrAddress,
-    web3,
-    account
-  });
   conditionalTokensService = await getConditionalTokensService({
     lmsrAddress,
     web3,
@@ -77,7 +71,7 @@ async function loadBasicData({ lmsrAddress, web3, account }) {
     const market = markets[i];
     const conditionId = await marketMakersRepo.conditionIds(i);
     const numSlots = (
-      await conditionalTokensRepo.getOutcomeSlotCount(conditionId)
+      await conditionalTokensService.getOutcomeSlotCount(conditionId)
     ).toNumber();
 
     if (numSlots === 0) {
@@ -155,83 +149,10 @@ async function loadBasicData({ lmsrAddress, web3, account }) {
   }
 
   return {
-    conditionalTokensService,
     collateral,
     markets,
     positions
   };
-}
-
-async function getCollateralBalance(web3, collateral, account) {
-  const collateralBalance = {};
-  collateralBalance.amount = await collateral.contract.balanceOf(account);
-  if (collateral.isWETH) {
-    collateralBalance.unwrappedAmount = web3.utils.toBN(
-      await web3.eth.getBalance(account)
-    );
-    collateralBalance.totalAmount = collateralBalance.amount.add(
-      collateralBalance.unwrappedAmount
-    );
-  } else {
-    collateralBalance.totalAmount = collateralBalance.amount;
-  }
-
-  return collateralBalance;
-}
-
-async function getLMSRState(web3, positions) {
-  const { fromWei } = web3.utils;
-  const [owner, funding, stage, fee, marketMakerAddress] = await Promise.all([
-    marketMakersRepo.owner(),
-    marketMakersRepo.funding(),
-    marketMakersRepo
-      .stage()
-      .then(stage => ["Running", "Paused", "Closed"][stage.toNumber()]),
-    marketMakersRepo.fee().then(fee => fromWei(fee)),
-    marketMakersRepo.getAddress()
-  ]);
-  const positionBalances = await getPositionBalances(
-    positions,
-    marketMakerAddress
-  );
-
-  return { owner, funding, stage, fee, positionBalances, marketMakerAddress };
-}
-
-async function getPositionBalances(positions, account) {
-  return Promise.all(
-    positions.map(position =>
-      conditionalTokensRepo.balanceOf(account, position.id)
-    )
-  );
-}
-
-async function getMarketResolutionStates(markets) {
-  return Promise.all(
-    markets.map(async ({ conditionId, outcomes }) => {
-      const payoutDenominator = await conditionalTokensRepo.payoutDenominator(
-        conditionId
-      );
-      if (payoutDenominator.gtn(0)) {
-        const payoutNumerators = await Promise.all(
-          outcomes.map((_, outcomeIndex) =>
-            conditionalTokensRepo.payoutNumerators(conditionId, outcomeIndex)
-          )
-        );
-
-        return {
-          isResolved: true,
-          payoutNumerators,
-          payoutDenominator
-        };
-      } else return { isResolved: false };
-    })
-  );
-}
-
-async function getLMSRAllowance(collateral, account) {
-  const marketMakerAddress = await marketMakersRepo.getAddress();
-  return collateral.contract.allowance(account, marketMakerAddress);
 }
 
 const moduleLoadTime = Date.now();
@@ -248,6 +169,17 @@ const RootComponent = ({ match, childComponents }) => {
     Footer
   ] = childComponents;
 
+  const {
+    account,
+    setAccount,
+    markets,
+    setMarkets,
+    positions,
+    setPositions,
+    lmsrState,
+    setLMSRState
+  } = useGlobalState();
+
   // Init and set base state
   const [loading, setLoading] = useState("LOADING");
   const [lastError, setLastError] = useState(null);
@@ -259,10 +191,7 @@ const RootComponent = ({ match, childComponents }) => {
   const [toasts, setToasts] = useState([]);
 
   const [web3, setWeb3] = useState(null);
-  const [account, setAccount] = useState(null);
   const [collateral, setCollateral] = useState(null);
-  const [markets, setMarkets] = useState(null);
-  const [positions, setPositions] = useState(null);
 
   const lmsrAddress = match.params.lmsrAddress
     ? match.params.lmsrAddress
@@ -301,7 +230,7 @@ const RootComponent = ({ match, childComponents }) => {
       } catch (err) {
         setLoading("FAILURE");
         // eslint-disable-next-line
-      console.error(err);
+        console.error(err);
         setLastError(err.message);
         throw err;
       }
@@ -337,24 +266,49 @@ const RootComponent = ({ match, childComponents }) => {
     [lmsrAddress, web3, init]
   );
 
-  const [lmsrState, setLMSRState] = useState(null);
   const [marketResolutionStates, setMarketResolutionStates] = useState(null);
   const [collateralBalance, setCollateralBalance] = useState(null);
   const [positionBalances, setPositionBalances] = useState(null);
-  const [lmsrAllowance, setLMSRAllowance] = useState(null);
 
   const [modal, setModal] = useState(null);
+
+  const getLMSRState = useCallback(
+    positions => {
+      return conditionalTokensService.getLMSRState(positions);
+    },
+    [conditionalTokensService]
+  );
+
+  const getMarketResolutionStates = useCallback(
+    markets => {
+      return conditionalTokensService.getMarketResolutionStates(markets);
+    },
+    [conditionalTokensService]
+  );
+
+  const getCollateralBalance = useCallback(
+    account => {
+      return conditionalTokensService.getCollateralBalance(account);
+    },
+    [conditionalTokensService]
+  );
+
+  const getPositionBalances = useCallback(
+    (positions, account) => {
+      return conditionalTokensService.getPositionBalances(positions, account);
+    },
+    [conditionalTokensService]
+  );
 
   // Add effect when 'syncTime' is updated this functions are triggered
   // As 'syncTime' is setted to 8 seconds all this getters are triggered and setted
   // in the state.
   for (const [loader, dependentParams, setter] of [
     [getAccount, [web3], setAccount],
-    [getLMSRState, [web3, positions], setLMSRState],
+    [getLMSRState, [positions], setLMSRState],
     [getMarketResolutionStates, [markets], setMarketResolutionStates],
-    [getCollateralBalance, [web3, collateral, account], setCollateralBalance],
-    [getPositionBalances, [positions, account], setPositionBalances],
-    [getLMSRAllowance, [collateral, account], setLMSRAllowance]
+    [getCollateralBalance, [account], setCollateralBalance],
+    [getPositionBalances, [positions, account], setPositionBalances]
   ])
     useEffect(() => {
       if (dependentParams.every(p => p != null))
@@ -413,7 +367,7 @@ const RootComponent = ({ match, childComponents }) => {
   const asWrappedTransaction = useCallback(
     (wrappedTransactionType, transactionFn) => {
       return async function wrappedAction() {
-        if (ongoingTransactionType != null) {
+        if (ongoingTransactionType !== null) {
           throw new Error(
             `Attempted to ${wrappedTransactionType} while transaction to ${ongoingTransactionType} is ongoing`
           );
@@ -526,11 +480,10 @@ const RootComponent = ({ match, childComponents }) => {
 
   useInterval(updateToasts, 1000);
 
-  const { loading: queryLoading, error, data: queryData } = useQuery(
+  const { loading: queryLoading, error, data: queryData } = useSubscription(
     GET_TRADES_BY_MARKET_MAKER,
     {
-      variables: { marketMaker: lmsrAddress },
-      pollInterval: 15000
+      variables: { marketMaker: lmsrAddress }
     }
   );
 
@@ -559,7 +512,6 @@ const RootComponent = ({ match, childComponents }) => {
               />
             }
             menu={<Menu />}
-            logOut={setProvider}
           />
           <div className={cx("sections")}>
             <section className={cx("section", "section-markets")}>
@@ -569,9 +521,6 @@ const RootComponent = ({ match, childComponents }) => {
                   marketResolutionStates,
                   positions,
                   lmsrState,
-                  // FIXME `useQuery` hook can't be used after checking if lmsrState exists.
-                  // Remove and use address from state if we divide this component in smaller ones
-                  lmsrAddress,
                   marketSelections,
                   setMarketSelections,
                   stagedTradeAmounts,
@@ -596,7 +545,6 @@ const RootComponent = ({ match, childComponents }) => {
                     collateral,
                     collateralBalance,
                     lmsrState,
-                    lmsrAllowance,
                     stagedTradeAmounts,
                     setStagedTradeAmounts,
                     stagedTransactionType,

@@ -4,10 +4,12 @@ import { formatCollateral } from "utils/formatting";
 import ToastifyError from "utils/ToastifyError";
 
 export default class ConditionalTokensService {
-  constructor({ marketMakersRepo, conditionalTokensRepo }) {
+  constructor({ web3, marketMakersRepo, conditionalTokensRepo }) {
+    assert(web3, '"web3" instance is required');
     assert(marketMakersRepo, '"marketMakersRepo" is required');
     assert(conditionalTokensRepo, '"conditionalTokensRepo" is required');
 
+    this._web3 = web3;
     this._marketMakersRepo = marketMakersRepo;
     this._conditionalTokensRepo = conditionalTokensRepo;
   }
@@ -18,6 +20,25 @@ export default class ConditionalTokensService {
         this._conditionalTokensRepo.balanceOf(account, position.id)
       )
     );
+  }
+
+  async getLMSRState(positions) {
+    const { fromWei } = this._web3.utils;
+    const [owner, funding, stage, fee, marketMakerAddress] = await Promise.all([
+      this._marketMakersRepo.owner(),
+      this._marketMakersRepo.funding(),
+      this._marketMakersRepo
+        .stage()
+        .then(stage => ["Running", "Paused", "Closed"][stage.toNumber()]),
+      this._marketMakersRepo.fee().then(fee => fromWei(fee)),
+      this._marketMakersRepo.getAddress()
+    ]);
+    const positionBalances = await this.getPositionBalances(
+      positions,
+      marketMakerAddress
+    );
+
+    return { owner, funding, stage, fee, positionBalances, marketMakerAddress };
   }
 
   async getMarketResolutionStates(markets) {
@@ -46,6 +67,38 @@ export default class ConditionalTokensService {
     );
   }
 
+  async getCollateralBalance(account) {
+    const collateralBalance = {};
+    const collateral = await this._marketMakersRepo.getCollateralToken();
+
+    collateralBalance.amount = await collateral.contract.balanceOf(account);
+    if (collateral.isWETH) {
+      collateralBalance.unwrappedAmount = this._web3.utils.toBN(
+        await this._web3.eth.getBalance(account)
+      );
+      collateralBalance.totalAmount = collateralBalance.amount.add(
+        collateralBalance.unwrappedAmount
+      );
+    } else {
+      collateralBalance.totalAmount = collateralBalance.amount;
+    }
+
+    return collateralBalance;
+  }
+
+  async getLMSRAllowance(account) {
+    const [marketMakerAddress, collateral] = await Promise.all([
+      this._marketMakersRepo.getAddress(),
+      this._marketMakersRepo.getCollateralToken()
+    ]);
+
+    return collateral.contract.allowance(account, marketMakerAddress);
+  }
+
+  async getOutcomeSlotCount(id) {
+    return this._conditionalTokensRepo.getOutcomeSlotCount(id);
+  }
+
   async calcNetCost(amounts) {
     return this._marketMakersRepo.calcNetCost(amounts);
   }
@@ -55,9 +108,7 @@ export default class ConditionalTokensService {
     stagedTradeAmounts,
     stagedTransactionType,
     account,
-    collateralBalance,
-    hasAnyAllowance,
-    hasEnoughAllowance
+    collateralBalance
   }) {
     if (stagedTradeAmounts == null) throw new ToastifyError(`No buy set yet`);
 
@@ -97,7 +148,12 @@ export default class ConditionalTokensService {
       });
     }
 
-    if (!hasAnyAllowance || !hasEnoughAllowance) {
+    const lmsrAllowance = await this.getLMSRAllowance(account);
+    const hasEnoughAllowance = investmentAmountInUnits.lte(
+      lmsrAllowance.toString()
+    );
+
+    if (!hasEnoughAllowance) {
       const marketMakerAddress = await this._marketMakersRepo.getAddress();
       await collateral.contract.approve(
         marketMakerAddress,
