@@ -481,16 +481,13 @@ const RootComponent = ({ match, childComponents }) => {
 
   useInterval(updateToasts, 1000);
 
-  const { loading: queryLoading, error, data: queryData } = useSubscription(
-    GET_TRADES_BY_MARKET_MAKER,
-    {
-      variables: { marketMaker: lmsrAddress }
-    }
-  );
+  const { data: queryData } = useSubscription(GET_TRADES_BY_MARKET_MAKER, {
+    variables: { marketMaker: lmsrAddress }
+  });
+  // Load page even when we get no response from thegraph
+  const tradeHistory = queryData && queryData.outcomeTokenTrades;
 
-  if (loading === "SUCCESS" && !queryLoading) {
-    const tradeHistory = queryData.outcomeTokenTrades;
-
+  if (loading === "SUCCESS") {
     return (
       <div className={cx("page")}>
         <div className={cx("modal-space", { "modal-open": !!modal })}>
@@ -573,7 +570,7 @@ const RootComponent = ({ match, childComponents }) => {
     );
   }
 
-  if (loading === "LOADING" || queryLoading) {
+  if (loading === "LOADING") {
     return (
       <div className={cx("loading-page")}>
         <Spinner centered width={100} height={100} />
@@ -581,7 +578,7 @@ const RootComponent = ({ match, childComponents }) => {
       </div>
     );
   }
-  if (loading === "FAILURE" || error) {
+  if (loading === "FAILURE") {
     return (
       <div>
         <CrashPage errorMessage={lastError} />
