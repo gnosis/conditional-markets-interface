@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import cn from "classnames/bind";
 
@@ -11,18 +11,22 @@ import style from "./probabilities.scss";
 const cx = cn.bind(style);
 
 const Probabilities = ({ outcomes, probabilities, stagedProbabilities }) => {
-  const displayedProbabilities = stagedProbabilities
-    ? stagedProbabilities
-    : probabilities;
+  const [displayedProbabilities, setDisplayedProbabilities] = useState(
+    probabilities
+  );
+
+  useEffect(() => {
+    stagedProbabilities
+      ? setDisplayedProbabilities(stagedProbabilities)
+      : setDisplayedProbabilities(probabilities);
+  }, [probabilities, stagedProbabilities]);
 
   return (
     <div className={cx("probabilities")}>
       {displayedProbabilities && (
         <>
           {outcomes.map((outcome, index) => {
-            const changeInProbability = (stagedProbabilities || probabilities)[
-              index
-            ]
+            const changeInProbability = displayedProbabilities[index]
               .sub(probabilities[index])
               .mul(100)
               .toDecimalPlaces(probabilityDecimalPlaces);
