@@ -43,27 +43,31 @@ export default class ContractLoader {
     }
 
     const lmsrMarketMaker = await LMSRMarketMaker.at(this._lmsrAddress);
+    const [pmSystemAddress, collateralTokenAddress] = await Promise.all([
+      lmsrMarketMaker.pmSystem(),
+      lmsrMarketMaker.collateralToken()
+    ]);
 
-    const pmSystem = await ConditionalTokens.at(
-      await lmsrMarketMaker.pmSystem()
-    );
-
-    const collateralToken = await this.loadCollateralInfo(
-      { ERC20Detailed, IDSToken, WETH9 },
-      lmsrMarketMaker
-    );
+    const [pmSystem, collateralToken] = await Promise.all([
+      ConditionalTokens.at(pmSystemAddress),
+      this.loadCollateralInfo(
+        { ERC20Detailed, IDSToken, WETH9 },
+        collateralTokenAddress
+      )
+    ]);
 
     return {
-      ERC20Detailed,
-      IDSToken,
-      WETH9,
       collateralToken,
       pmSystem,
       lmsrMarketMaker
     };
   }
 
-  async loadCollateralInfo(contractsObject, lmsrMarketMaker) {
-    return getCollateralInfo(this._web3, contractsObject, lmsrMarketMaker);
+  async loadCollateralInfo(contractsObject, collateralTokenAddress) {
+    return getCollateralInfo(
+      this._web3,
+      contractsObject,
+      collateralTokenAddress
+    );
   }
 }
