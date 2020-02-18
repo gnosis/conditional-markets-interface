@@ -5,7 +5,7 @@ import Decimal from "decimal.js-light";
 import cn from "classnames/bind";
 import style from "./BuySummary.scss";
 
-import { zeroDecimal } from "utils/constants";
+import { zeroDecimal, probabilityDecimalPlaces } from "utils/constants";
 import { formatCollateral } from "utils/formatting";
 import { calcPositionGroups } from "utils/position-groups";
 
@@ -58,9 +58,14 @@ const BuySummary = ({
         humanReadablePositions.payOutWhen.runningAmount = hasEnteredInvestment
           ? runningAmount
           : zeroDecimal;
+        humanReadablePositions.payOutWhen.changeInProbability = hasEnteredInvestment
+          ? collateral.fromUnitsMultiplier.mul(runningAmount.toString())
+              .sub(investmentAmount)
+              .mul(100)
+              .toDecimalPlaces(probabilityDecimalPlaces)
+          : zeroDecimal;
 
         // all lose invests
-
         // invert outcome sets
         humanReadablePositions.loseInvestmentWhen.positions = outcomeSet.map(
           selectedOutcome => {
@@ -112,6 +117,17 @@ const BuySummary = ({
                 <div className={cx("category-values")}>
                   <p className={cx("category-value", "value")}>
                     {formatCollateral(category.runningAmount, collateral)}
+                    {category.changeInProbability &&
+                      category.changeInProbability.abs().gt(0.01) && (
+                        <span
+                          className={cx("change-percentage", {
+                            negative: category.changeInProbability.lt(0)
+                          })}
+                        >
+                          {" "}
+                          {category.changeInProbability.toString()}%
+                        </span>
+                      )}
                   </p>
                 </div>
               </div>
@@ -162,7 +178,8 @@ BuySummary.propTypes = {
   ),
   stagedTradeAmounts: PropTypes.arrayOf(
     PropTypes.instanceOf(Decimal).isRequired
-  )
+  ),
+  investmentAmount: PropTypes.string
 };
 
 export default BuySummary;

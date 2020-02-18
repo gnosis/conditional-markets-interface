@@ -13,15 +13,20 @@
         color: $green;
       }
     
-      &-negative {
-        color: $red;
-      }
-    
       .category-value {    
         margin: 1rem 0;
 
         &.value {
           font-weight: $bold;
+        }
+
+        .change-percentage {
+          font-weight: $normal;
+          color: $green;
+
+          &.negative {
+            color: $red;
+          }
         }
       }
     }
