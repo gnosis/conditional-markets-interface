@@ -1,0 +1,29 @@
+@import "~scss/_variables.scss";
+@import "../../sidebar.scss";
+
+.summary {
+  &-heading {
+  }
+  
+  &-category {
+    font-size: 1.5rem;
+  
+    .category-values {
+      &-positive {
+        color: $green;
+      }
+    
+      &-negative {
+        color: $red;
+      }
+    
+      .category-value {    
+        margin: 1rem 0;
+
+        &.value {
+          font-weight: $bold;
+        }
+      }
+    }
+  }
+}
