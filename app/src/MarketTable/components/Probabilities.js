@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import cn from "classnames/bind";
+import Decimal from "decimal.js-light";
 
 import { probabilityDecimalPlaces } from "utils/constants";
 import { formatProbability } from "utils/formatting";
@@ -73,8 +74,8 @@ const Probabilities = ({ outcomes, probabilities, stagedProbabilities }) => {
 
 Probabilities.propTypes = {
   outcomes: PropTypes.arrayOf(PropTypes.object),
-  probabilities: PropTypes.arrayOf(PropTypes.number),
-  stagedProbabilities: PropTypes.arrayOf(PropTypes.object)
+  probabilities: PropTypes.arrayOf(PropTypes.instanceOf(Decimal)),
+  stagedProbabilities: PropTypes.arrayOf(PropTypes.instanceOf(Decimal))
 };
 
 export default Probabilities;

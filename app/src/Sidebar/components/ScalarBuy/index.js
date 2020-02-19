@@ -225,7 +225,8 @@ const Buy = ({
       </div>
       <div className={cx("selected-invest")}>
         <label className={cx("fieldset-label")}>
-          How many <b>&nbsp;outcome tokens&nbsp;</b> do you want to buy?
+          How much <b>&nbsp;{collateral.symbol}&nbsp;</b> would you like to
+          invest?
         </label>
         <AmountInput
           {...{

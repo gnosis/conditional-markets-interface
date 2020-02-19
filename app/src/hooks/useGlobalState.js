@@ -24,6 +24,10 @@ const useGlobalState = () => {
     dispatch({ type: "SET_PROBABILITIES", payload: probabilities });
   };
 
+  const setCollateral = collateral => {
+    dispatch({ type: "SET_COLLATERAL", payload: collateral });
+  };
+
   return {
     account: state.account,
     setAccount,
@@ -34,7 +38,9 @@ const useGlobalState = () => {
     lmsrState: state.lmsrState,
     setLMSRState,
     marketProbabilities: state.marketProbabilities,
-    setMarketProbabilities
+    setMarketProbabilities,
+    collateral: state.collateral,
+    setCollateral
   };
 };
 
