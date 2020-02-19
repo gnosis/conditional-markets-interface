@@ -1,4 +1,3 @@
-import { zeroDecimal, oneDecimal } from "./constants";
 import Decimal from "decimal.js-light";
 
 export const fromProbabilityToSlider = (market, probability) => {

@@ -1,0 +1,84 @@
+@import "~scss/_variables.scss";
+
+.market-row {
+  margin: 0 auto;
+  width: 40vw;
+
+  @media #{$tablet-small-max} {
+    width: 90vw;
+  }
+
+  .header {
+    display: block;
+    width: 100%;
+    font-size: 2.4rem;
+    font-weight: 600;
+    color: $black;
+  }
+
+  .subheader {
+    margin: 1rem 0;
+
+    display: flex;
+    flex-direction: row;
+
+    .property {
+      font-size: 1.2rem;
+      margin-right: 3rem;
+
+      .icon {
+        display: inline;
+        padding-left: 2rem;
+
+        margin-right: 0.5rem;
+
+        &-time {
+          background: url("~assets/icons/market_ends.svg") center center no-repeat;
+        }
+        &-oracle {
+          background: url("~assets/icons/market_oracle.svg") center center no-repeat;
+        }
+        &-volume {
+          background: url("~assets/icons/market_funding.svg") center center no-repeat;
+        }
+      }
+
+      .link-oracle {
+        text-decoration: none;
+        color: $black;
+      }
+    }
+  }
+
+  .tab {
+    &-content {
+      line-height: normal;
+      font-size: 1.2rem;
+      padding: 2rem 0;
+
+      h1 {
+        font-weight: 600;
+        font-size: 1.6rem;
+        margin: 2rem 0;
+      }
+      h2 {
+        font-weight: 600;
+        font-size: 1.6rem;
+        margin: 2rem 0;
+      }
+      h3 {
+        font-weight: 600;
+        font-size: 1.6rem;
+        margin: 2rem 0;
+      }
+      h4, h5, h6 {
+        font-weight: 600;
+        font-size: 1.6rem;
+      }
+
+      a {
+        color: $blue;
+      }
+    }
+  }
+}

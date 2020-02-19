@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
 import cn from "classnames/bind";
 import Decimal from "decimal.js-light";
-import Web3 from "web3";
 
 import PercentageFormat from "components/Formatting/PercentageFormat";
 
@@ -10,15 +9,12 @@ import { fromProbabilityToSlider } from "utils/scalar";
 import { formatScalarValue, formatCollateral } from "utils/formatting";
 import { zeroDecimal, oneDecimal } from "utils/constants";
 
-const { BN } = Web3.utils;
-
 import style from "./profitSimulator.scss";
 
 const cx = cn.bind(style);
 
 const profitSimulator = ({
   market,
-  lmsrState,
   probabilities,
   stagedTradeAmounts,
   marketSelection,
@@ -34,14 +30,14 @@ const profitSimulator = ({
     cost: 0
   });
 
-  const [sliderValue, setSliderValue] = useState(parseFloat(market.lowerBound));
-
   const decimalUpper = new Decimal(market.upperBound);
   const decimalLower = new Decimal(market.lowerBound);
 
+  const [sliderValue, setSliderValue] = useState(decimalLower);
+
   useEffect(() => {
     if (probabilities) {
-      const value = fromProbabilityToSlider(market, probabilities[0]);
+      const value = fromProbabilityToSlider(market, probabilities[1]);
       setSliderValue(value);
     }
   }, []);
@@ -51,11 +47,7 @@ const profitSimulator = ({
   }, []);
 
   useEffect(() => {
-    if (
-      lmsrState != null &&
-      stagedTradeAmounts &&
-      marketSelection.selectedOutcomeIndex > -1
-    ) {
+    if (stagedTradeAmounts && marketSelection.selectedOutcomeIndex > -1) {
       const maxPayout = new Decimal(
         stagedTradeAmounts[marketSelection.selectedOutcomeIndex]
       );
@@ -100,7 +92,7 @@ const profitSimulator = ({
           : 0
       });
     }
-  }, [lmsrState, sliderValue, marketSelection, stagedTradeAmounts]);
+  }, [sliderValue, marketSelection, stagedTradeAmounts]);
 
   return (
     <>
@@ -175,13 +167,6 @@ const profitSimulator = ({
               {formatCollateral(profitSim.fee, collateral)}
             </span>
           </div>*/}
-          {/*<div className={cx("row")}>
-            <span className={cx("label")}>Total Cost</span>
-            <span className={cx("spacer")} />
-            <span className={cx("value")}>
-              {formatCollateral(profitSim.cost, collateral)}
-            </span>
-          </div>*/}
         </div>
       </div>
     </>
@@ -204,6 +189,7 @@ profitSimulator.propTypes = {
       }).isRequired
     ).isRequired
   }).isRequired,
+  probabilities: PropTypes.arrayOf(PropTypes.shape()),
   collateral: PropTypes.shape({
     contract: PropTypes.object.isRequired,
     name: PropTypes.string.isRequired,
@@ -211,12 +197,6 @@ profitSimulator.propTypes = {
     decimals: PropTypes.number.isRequired,
     isWETH: PropTypes.bool.isRequired
   }).isRequired,
-  lmsrState: PropTypes.shape({
-    funding: PropTypes.instanceOf(BN).isRequired,
-    positionBalances: PropTypes.arrayOf(PropTypes.instanceOf(BN).isRequired)
-      .isRequired,
-    stage: PropTypes.string.isRequired
-  }),
   stagedTradeAmounts: PropTypes.arrayOf(
     PropTypes.instanceOf(Decimal).isRequired
   )

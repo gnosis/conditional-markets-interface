@@ -69,6 +69,12 @@ $greyBorder: #D8D8D8;
 $greyBorder2: #dedfde;
 $red: #FF685E;
 $green: #02AE60;
+$violet: #805eff;
+$lightGreen: #4ec300;
+$lightBlue: #1b9cfd;
+$orange: #ff7f0e;
+$brown: #8c564b;
+$pink: #e377c2;
 
 // Fonts
 $arial: Arial, Helvetica, sans-serif;
@@ -85,8 +91,8 @@ $medium: 500;
 $bold: 700;
 
 // Font sizes
-$base-font-size: 10px;
-$base-line-height: 10px;
+$base-font-size: 1.2rem;
+$base-line-height: 1.2rem;
 
 // HTML Entity characters (e.g. for use with pseudo-elements)
 $x: "\2715"; // $x: "✕";
@@ -96,5 +102,13 @@ $x: "\2715"; // $x: "✕";
   blackColor: $black;
   blueColor: $blue;
   redColor: $red;
+  violetColor: $violet;
+  lightGreenColor: $lightGreen;
+  lightBlueColor: $lightBlue;
+  orangeColor: $orange;
+  brownColor: $brown;
+  pinkColor: $pink;
   font: $font;
+  fontSize: $base-font-size;
+  lineHeight: $base-line-height;
 }

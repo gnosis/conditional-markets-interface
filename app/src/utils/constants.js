@@ -18,4 +18,14 @@ export const collateralSignificantDigits = 5;
 export const quantitySiginificantDigits = 3;
 export const collateralConsiderAsZeroDigits = 10;
 
-export const outcomeColors = [Color("#D9F6FB"), Color("#FFE6EA")];
+export const outcomeColors = [
+  Color("#D9F6FB"),
+  Color("#FFE6EA"),
+  Color("#BFBCBB"),
+  Color("#BFBCBB"),
+  Color("#BFBCBB"),
+  Color("#BFBCBB"),
+  Color("#BFBCBB"),
+  Color("#BFBCBB"),
+  Color("#BFBCBB")
+];
