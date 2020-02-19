@@ -68,35 +68,35 @@ const BuySummary = ({
 
         // all lose invests
         // invert outcome sets
-        humanReadablePositions.loseInvestmentWhen.positions = outcomeSet.map(
-          selectedOutcome => {
-            if (selectedOutcome.outcomeIndex == -1) {
-              return selectedOutcome;
-            }
+        // humanReadablePositions.loseInvestmentWhen.positions = outcomeSet.map(
+        //   selectedOutcome => {
+        //     if (selectedOutcome.outcomeIndex == -1) {
+        //       return selectedOutcome;
+        //     }
 
-            if (marketSelections[selectedOutcome.marketIndex].isAssumed) {
-              return {
-                ...selectedOutcome,
-                ...markets[selectedOutcome.marketIndex].outcomes[
-                  selectedOutcome.outcomeIndex
-                ]
-              };
-            }
+        //     if (marketSelections[selectedOutcome.marketIndex].isAssumed) {
+        //       return {
+        //         ...selectedOutcome,
+        //         ...markets[selectedOutcome.marketIndex].outcomes[
+        //           selectedOutcome.outcomeIndex
+        //         ]
+        //       };
+        //     }
 
-            return {
-              ...selectedOutcome,
-              ...markets[selectedOutcome.marketIndex].outcomes[
-                selectedOutcome.outcomeIndex == 0 ? 1 : 0
-              ],
-              outcomeIndex: selectedOutcome.outcomeIndex == 0 ? 1 : 0
-            };
-          }
-        );
-        humanReadablePositions.loseInvestmentWhen.runningAmount = Decimal(
-          hasEnteredInvestment ? investmentAmount : zeroDecimal
-        )
-          .neg()
-          .mul(Math.pow(10, collateral.decimals));
+        //     return {
+        //       ...selectedOutcome,
+        //       ...markets[selectedOutcome.marketIndex].outcomes[
+        //         selectedOutcome.outcomeIndex == 0 ? 1 : 0
+        //       ],
+        //       outcomeIndex: selectedOutcome.outcomeIndex == 0 ? 1 : 0
+        //     };
+        //   }
+        // );
+        // humanReadablePositions.loseInvestmentWhen.runningAmount = Decimal(
+        //   hasEnteredInvestment ? investmentAmount : zeroDecimal
+        // )
+        //   .neg()
+        //   .mul(Math.pow(10, collateral.decimals));
       }
     );
 
@@ -107,8 +107,8 @@ const BuySummary = ({
     <>
       {humanReadablePositions &&
         [
-          humanReadablePositions.payOutWhen,
-          humanReadablePositions.loseInvestmentWhen
+          humanReadablePositions.payOutWhen // ,
+          // humanReadablePositions.loseInvestmentWhen
         ]
           .filter(category => category && category.positions.length)
           .map(category => (
