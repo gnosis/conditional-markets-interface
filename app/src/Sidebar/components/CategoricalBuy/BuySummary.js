@@ -58,9 +58,10 @@ const BuySummary = ({
         humanReadablePositions.payOutWhen.runningAmount = hasEnteredInvestment
           ? runningAmount
           : zeroDecimal;
-        humanReadablePositions.payOutWhen.changeInProbability = hasEnteredInvestment
+        humanReadablePositions.payOutWhen.increment = hasEnteredInvestment
           ? collateral.fromUnitsMultiplier.mul(runningAmount.toString())
               .sub(investmentAmount)
+              .div(investmentAmount)
               .mul(100)
               .toDecimalPlaces(probabilityDecimalPlaces)
           : zeroDecimal;
@@ -117,17 +118,16 @@ const BuySummary = ({
                 <div className={cx("category-values")}>
                   <p className={cx("category-value", "value")}>
                     {formatCollateral(category.runningAmount, collateral)}
-                    {category.changeInProbability &&
-                      category.changeInProbability.abs().gt(0.01) && (
-                        <span
-                          className={cx("change-percentage", {
-                            negative: category.changeInProbability.lt(0)
-                          })}
-                        >
-                          {" "}
-                          {category.changeInProbability.toString()}%
-                        </span>
-                      )}
+                    {category.increment && category.increment.abs().gt(0.01) && (
+                      <span
+                        className={cx("change-percentage", {
+                          negative: category.increment.lt(0)
+                        })}
+                      >
+                        {" "}
+                        {category.increment.toString()}%
+                      </span>
+                    )}
                   </p>
                 </div>
               </div>
