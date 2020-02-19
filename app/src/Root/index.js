@@ -27,8 +27,6 @@ import conf from "../conf";
 
 import getMarketMakersRepo from "../repositories/MarketMakersRepo";
 import getConditionalTokensService from "../services/ConditionalTokensService";
-let marketMakersRepo;
-let conditionalTokensService;
 
 const whitelistEnabled = conf.WHITELIST_ENABLED;
 const SYNC_INTERVAL = 8000;
@@ -37,25 +35,29 @@ const WHITELIST_CHECK_INTERVAL = 30000;
 async function loadBasicData({ lmsrAddress, web3, account }) {
   const { toBN } = web3.utils;
 
-  let markets = await getQuestions(undefined, lmsrAddress).then(
-    ({ results }) => results
-  );
+  const [
+    markets,
+    marketMakersRepo,
+    conditionalTokensService
+  ] = await Promise.all([
+    // query operator for markets
+    getQuestions(undefined, lmsrAddress).then(({ results }) => {
+      return results.map(market => {
+        market.outcomes = market.outcomeNames.map(outcome => {
+          return { title: outcome, short: outcome };
+        });
 
-  markets = markets.map(market => {
-    market.outcomes = market.outcomeNames.map(outcome => {
-      return { title: outcome, short: outcome };
-    });
-
-    return market;
-  });
-
-  // Load smart contract data layer
-  marketMakersRepo = await getMarketMakersRepo({ lmsrAddress, web3, account });
-  conditionalTokensService = await getConditionalTokensService({
-    lmsrAddress,
-    web3,
-    account
-  });
+        return market;
+      });
+    }),
+    // Load smart contract data layer
+    getMarketMakersRepo({ lmsrAddress, web3, account }),
+    getConditionalTokensService({
+      lmsrAddress,
+      web3,
+      account
+    })
+  ]);
 
   const { product } = require("utils/itertools");
 
@@ -151,7 +153,8 @@ async function loadBasicData({ lmsrAddress, web3, account }) {
   return {
     collateral,
     markets,
-    positions
+    positions,
+    conditionalTokensService
   };
 }
 
@@ -192,6 +195,9 @@ const RootComponent = ({ match, childComponents }) => {
 
   const [web3, setWeb3] = useState(null);
   const [collateral, setCollateral] = useState(null);
+  const [conditionalTokensService, setConditionalTokensService] = useState(
+    null
+  );
 
   const lmsrAddress = match.params.lmsrAddress
     ? match.params.lmsrAddress
@@ -209,18 +215,24 @@ const RootComponent = ({ match, childComponents }) => {
         setWeb3(web3);
         setAccount(account);
 
-        const { collateral, markets, positions } = await loadBasicData({
+        const {
+          collateral,
+          markets,
+          positions,
+          conditionalTokensService
+        } = await loadBasicData({
           lmsrAddress,
           web3,
           account
         });
 
+        setConditionalTokensService(conditionalTokensService);
         setCollateral(collateral);
         setMarkets(markets);
         setPositions(positions);
 
         console.groupCollapsed("Global Debug Variables");
-        console.log("LMSRMarketMaker (Instance) Contract:", marketMakersRepo);
+        // console.log("LMSRMarketMaker (Instance) Contract:", marketMakersRepo);
         console.log("Collateral Settings:", collateral);
         console.log("Market Settings:", markets);
         console.log("Account Positions:", positions);
@@ -246,6 +258,8 @@ const RootComponent = ({ match, childComponents }) => {
       setCollateral(null);
       setMarkets(null);
       setPositions(null);
+      setConditionalTokensService(null);
+      setLMSRState(null);
     }
     init();
   }, [lmsrAddress]);
@@ -311,13 +325,13 @@ const RootComponent = ({ match, childComponents }) => {
     [getPositionBalances, [positions, account], setPositionBalances]
   ])
     useEffect(() => {
-      if (dependentParams.every(p => p != null))
+      if (dependentParams.every(p => p != null) && conditionalTokensService)
         loader(...dependentParams)
           .then(setter)
           .catch(err => {
             throw err;
           });
-    }, [...dependentParams, syncTime]);
+    }, [...dependentParams, conditionalTokensService, syncTime]);
 
   const [marketSelections, setMarketSelections] = useState(null);
   const [stagedTradeAmounts, setStagedTradeAmounts] = useState(null);
@@ -326,7 +340,7 @@ const RootComponent = ({ match, childComponents }) => {
   const [ongoingTransactionType, setOngoingTransactionType] = useState(null);
 
   const resetMarketSelections = useCallback(() => {
-    if (markets != null) {
+    if (markets !== null) {
       setMarketSelections(
         Array.from({ length: markets.length }, () => ({
           selectedOutcomeIndex: -1, // no selection
@@ -480,16 +494,13 @@ const RootComponent = ({ match, childComponents }) => {
 
   useInterval(updateToasts, 1000);
 
-  const { loading: queryLoading, error, data: queryData } = useSubscription(
-    GET_TRADES_BY_MARKET_MAKER,
-    {
-      variables: { marketMaker: lmsrAddress }
-    }
-  );
+  const { data: queryData } = useSubscription(GET_TRADES_BY_MARKET_MAKER, {
+    variables: { marketMaker: lmsrAddress }
+  });
+  // Load page even when we get no response from thegraph
+  const tradeHistory = queryData && queryData.outcomeTokenTrades;
 
-  if (loading === "SUCCESS" && !queryLoading) {
-    const tradeHistory = queryData.outcomeTokenTrades;
-
+  if (loading === "SUCCESS") {
     return (
       <div className={cx("page")}>
         <div className={cx("modal-space", { "modal-open": !!modal })}>
@@ -572,7 +583,7 @@ const RootComponent = ({ match, childComponents }) => {
     );
   }
 
-  if (loading === "LOADING" || queryLoading) {
+  if (loading === "LOADING") {
     return (
       <div className={cx("loading-page")}>
         <Spinner centered width={100} height={100} />
@@ -580,7 +591,7 @@ const RootComponent = ({ match, childComponents }) => {
       </div>
     );
   }
-  if (loading === "FAILURE" || error) {
+  if (loading === "FAILURE") {
     return (
       <div>
         <CrashPage errorMessage={lastError} />

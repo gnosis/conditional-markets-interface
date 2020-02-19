@@ -1,3 +1,5 @@
+@import "~scss/_variables.scss";
+
 .graph-container {
   position: relative;
 
@@ -16,7 +18,7 @@
 .tooltip-inner {
   font-weight: 800;
   white-space: nowrap;
-  padding: 0.1rem 0.3rem;
+  padding: 0.5rem 0.3rem;
 
   &::before, &::after {
     content: '';
@@ -26,21 +28,21 @@
   }
 
   &::after {
-    left: -90px;
-    width: 10px;
-    border-bottom: 1px solid black;
+    left: -5px;
+    width: 5px;
+    border-bottom: 1px solid $black;
   }
 
-  &::before {
-    left: -80px;
-    width: 80px;
-    border-bottom: 1px dashed black;
-  }
+  // &::before {
+  //   left: 0px;
+  //   width: 10px;
+  //   border-bottom: 1px dashed $black;
+  // }
 }
 
 @mixin tooltipStyle() {
   transition: none !important;
-  right: -178px;
+  right: -80px;
 }
 
 .scalar-graph {
@@ -56,12 +58,16 @@
   
     position: absolute;
     top: 0;
-    z-index: -1;
+    z-index: 1;
   
     .tooltip-inner {
       border-radius: 3px;
-      background-color: #009cb4;
+      background-color: $blue;
       color: #fff;
+
+      &::after {
+        border-bottom: 1px solid $blue;
+      }
     }
   }
 
@@ -70,7 +76,7 @@
   
     position: absolute;
     top: 0;
-    z-index: -1;
+    z-index: 1;
   
     .tooltip-inner {
       border-radius: 3px;

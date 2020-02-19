@@ -1,14 +1,15 @@
 import React, { useState, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
+import Decimal from "decimal.js-light";
 
 import Web3 from "web3";
 
 import cn from "classnames/bind";
 import Spinner from "components/Spinner";
 import ProfitSimulator from "./profitSimulator";
+import AmountInput from "../Buy/AmountInput";
 
 import style from "./buy.scss";
-import Decimal from "decimal.js-light";
 import { zeroDecimal } from "utils/constants";
 import { calcOutcomeTokenCounts } from "utils/position-groups";
 import { getMarketProbabilities } from "utils/probabilities";
@@ -50,6 +51,9 @@ const Buy = ({
   // Load data layer just on page load
   useEffect(() => {
     loadDataLayer();
+    return () => {
+      setStagedTradeAmounts(null);
+    };
   }, []);
 
   const [investmentAmount, setInvestmentAmount] = useState("");
@@ -220,26 +224,18 @@ const Buy = ({
         </div>
       </div>
       <div className={cx("selected-invest")}>
-        <label className={cx("fieldset-label")}>Specify Amount</label>
-        <div className={cx("input")}>
-          <button
-            type="button"
-            className={cx("input-max")}
-            onClick={setInvestmentMax}
-          >
-            MAX
-          </button>
-          <input
-            type="text"
-            className={cx("investment")}
-            value={investmentAmount}
-            onChange={e => {
-              setStagedTransactionType("buy outcome tokens");
-              setInvestmentAmount(e.target.value);
-            }}
-          />
-          <span className={cx("input-right")}>{collateral.symbol}</span>
-        </div>
+        <label className={cx("fieldset-label")}>
+          How many <b>&nbsp;outcome tokens&nbsp;</b> do you want to buy?
+        </label>
+        <AmountInput
+          {...{
+            collateral,
+            setInvestmentMax,
+            investmentAmount,
+            setStagedTransactionType,
+            setInvestmentAmount
+          }}
+        />
       </div>
       <div className={cx("pl-sim")}>
         <div className={cx("desc")}>

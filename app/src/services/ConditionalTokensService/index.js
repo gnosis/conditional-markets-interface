@@ -40,7 +40,7 @@ export default async props => {
       instancePromise = _getInstance(props);
     }
 
-    instance = await instancePromise;
+    instance = instancePromise;
   }
 
   return instance;

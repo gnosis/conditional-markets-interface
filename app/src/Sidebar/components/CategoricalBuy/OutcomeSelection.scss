@@ -49,5 +49,15 @@
         display: none;
       }
     }
+
+    .outcome-title {
+      font-weight: bold;
+      padding: 0 0.7rem;
+    }
+
+    .outcome-probability {
+      color: $shadeBlue;
+      font-weight: 400;
+    }
   }
 }

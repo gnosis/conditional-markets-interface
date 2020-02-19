@@ -25,18 +25,18 @@ const Resolved = ({ markets, tradeHistory, ...props }) => {
 
   const fullyResolved = markets.every(market => market.winningOutcome != null);
 
-  const tradeData = useMemo(
-    () =>
-      prepareTradesData(
+  const tradeData = useMemo(() => {
+    if (tradeHistory) {
+      return prepareTradesData(
         {
           lowerBound: targetMarket.lowerBound || 0,
           upperBound: targetMarket.upperBound || 100,
           type: targetMarket.type
         },
         tradeHistory
-      ),
-    [tradeHistory, markets[0]]
-  );
+      );
+    } else return [];
+  }, [tradeHistory, markets[0]]);
   const lastTrade =
     tradeData.length > 0 ? tradeData[tradeData.length - 1] : null;
 

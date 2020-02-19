@@ -1,0 +1,82 @@
+@import "~scss/_variables.scss";
+
+.probabilities {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+
+  .outcome-bar {
+    display: flex;
+    flex: 0 1 50%;
+
+    // &:nth-child(odd) {
+    //   justify-content: flex-end;
+    // }
+
+    > * {
+      padding: 0.7rem 0;
+    }
+  }
+
+  .change-percentage {
+    align-self: center;
+    min-width: 4rem;
+    font-weight: $bold;
+    font-size: 1.3rem;
+    letter-spacing: 0;
+    line-height: 1;
+
+    &:not(.negative) {
+      color: $green;
+    }
+
+    &.negative {
+      color: $red;
+    }
+  }
+
+  .probability {
+    display: flex;
+    align-items: center;
+    margin: 0 1rem;
+    // height: 3.4rem;
+
+    .bar {
+      padding: 0.4rem 0.2rem;
+      height: 100%;
+
+      transition: width .4s ease;
+    }
+
+    .label {
+      .dot {
+        width: 2.4rem;
+        height: 0;
+        display: inline-block;
+        position: relative;
+
+        &::after {
+          content: '';
+          display: block;
+          background-color: currentColor;
+          position: absolute;
+          left: calc(50% - .6rem);
+          width: 1.2rem;
+          height: 1.2rem;
+          margin-top: -1rem;
+          border-radius: 100%;
+        }
+      }
+
+      &.amount {
+        font-size: 1.2rem;
+        font-weight: $normal;
+        color: $shadeBlue;
+      }
+
+      &.outcome {
+        font-weight: $bold;
+      }
+    }
+  }
+}

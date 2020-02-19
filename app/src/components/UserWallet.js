@@ -22,6 +22,7 @@ const formatAddress = address =>
 
 const web3Connect = new Web3Connect.Core({
   network: conf.network,
+  // cacheProvider: true,
   providerOptions: {
     walletconnect: {
       package: WalletConnectProvider,
@@ -49,6 +50,7 @@ const UserWallet = ({
   );
 
   const disconnect = () => {
+    // web3Connect.clearCachedProvider();
     setProvider(null);
   };
 
