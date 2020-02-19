@@ -7,6 +7,7 @@ const initialState = {
   positions: null,
   lmsrState: null,
   marketProbabilities: null,
+  collateral: null,
   error: null
 };
 

@@ -180,7 +180,9 @@ const RootComponent = ({ match, childComponents }) => {
     positions,
     setPositions,
     lmsrState,
-    setLMSRState
+    setLMSRState,
+    collateral,
+    setCollateral
   } = useGlobalState();
 
   // Init and set base state
@@ -194,7 +196,6 @@ const RootComponent = ({ match, childComponents }) => {
   const [toasts, setToasts] = useState([]);
 
   const [web3, setWeb3] = useState(null);
-  const [collateral, setCollateral] = useState(null);
   const [conditionalTokensService, setConditionalTokensService] = useState(
     null
   );
@@ -531,12 +532,10 @@ const RootComponent = ({ match, childComponents }) => {
                   markets,
                   marketResolutionStates,
                   positions,
-                  lmsrState,
                   marketSelections,
                   setMarketSelections,
                   stagedTradeAmounts,
                   resetMarketSelections,
-                  collateral,
                   addToast,
                   openModal,
                   tradeHistory
