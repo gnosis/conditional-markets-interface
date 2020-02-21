@@ -60,7 +60,7 @@ const Buy = ({
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    //if (stagedTransactionType !== "buy outcome tokens") return;
+    if (stagedTransactionType !== "buy outcome tokens") return;
 
     let hasEnteredInvestment = false;
 
