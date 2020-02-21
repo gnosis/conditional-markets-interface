@@ -4,7 +4,7 @@ import Select from "react-select";
 import Web3 from "web3";
 import cn from "classnames/bind";
 
-import OutcomeCard, { Dot } from "components/OutcomeCard";
+import { Dot } from "components/OutcomeCard";
 import Spinner from "components/Spinner";
 import { zeroDecimal, collateralSignificantDigits } from "utils/constants";
 
@@ -143,6 +143,7 @@ const SellForm = ({
         updateEstimatedEarnings(value);
 
         tradeAmounts[selectedOutcomeIndex] = tradeAmountInWei;
+        console.log("Updating trade amounts", tradeAmounts);
         setStagedTradeAmounts(tradeAmounts);
       }
     },

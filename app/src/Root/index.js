@@ -501,6 +501,9 @@ const RootComponent = ({ match, childComponents }) => {
   // Load page even when we get no response from thegraph
   const tradeHistory = queryData && queryData.outcomeTokenTrades;
 
+  const isInResolvedMode =
+    markets && markets.every(({ status }) => status === "RESOLVED");
+
   if (loading === "SUCCESS") {
     return (
       <div className={cx("page")}>
@@ -541,7 +544,7 @@ const RootComponent = ({ match, childComponents }) => {
                 }}
               />
             </section>
-            {account != null && ( // account available
+            {(account != null || isInResolvedMode) && ( // account available or show resolution state
               <section className={cx("section", "section-positions")}>
                 <Sidebar
                   {...{

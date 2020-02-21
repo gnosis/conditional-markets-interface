@@ -12,13 +12,9 @@ const cx = cn.bind(style);
 
 const Positions = ({
   positionGroups,
-  allMarketsResolved,
-  redemptionAmount,
   collateral,
-  redeemPositions,
   setError,
   ongoingTransactionType,
-  asWrappedTransaction,
   probabilities,
   positionBalances,
   estimatedSaleEarnings,
@@ -34,45 +30,11 @@ const Positions = ({
   }
 
   return (
-    <div className={cx("positions", { resolved: allMarketsResolved })}>
+    <div className={cx("positions")}>
       {positionGroups.length === 0 && (
         <div className={cx("positions-empty")}>You have no positions.</div>
       )}
-      {allMarketsResolved && (
-        <>
-          {redemptionAmount.toString() != "0" && (
-            <div className={cx("positions-subheading")}>
-              Redeeming your positions will net you a total of{" "}
-              {formatCollateral(redemptionAmount, collateral)}
-            </div>
-          )}
-          <div className={cx("positions-redeem")}>
-            <button
-              type="button"
-              className={cx("redeem-all")}
-              disabled={
-                ongoingTransactionType != null ||
-                redemptionAmount.toString() == "0"
-              }
-              onClick={asWrappedTransaction(
-                "redeem positions",
-                redeemPositions,
-                setError
-              )}
-            >
-              {ongoingTransactionType === "redeem positions" ? (
-                <Spinner inverted width={25} height={25} />
-              ) : (
-                <>Redeem Positions</>
-              )}
-            </button>
-          </div>
-          {error != null && (
-            <span className={cx("error")}>{error.message}</span>
-          )}
-        </>
-      )}
-      {!allMarketsResolved && positionGroups.length > 0 && (
+      {positionGroups.length > 0 && (
         <table className={cx("position-entries-table")}>
           <thead>
             <tr>
