@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React from "react";
 import PropTypes from "prop-types";
 import Web3 from "web3";
 import cn from "classnames/bind";
@@ -9,7 +9,7 @@ import style from "./marketRow.scss";
 
 import useGlobalState from "hooks/useGlobalState";
 
-import Tabs from "../components/Tabs";
+import Tabs from "components/Tabs";
 import ResolutionTime from "../components/ResolutionTime";
 import Probabilities from "../components/Probabilities";
 import ProbabilityChart from "../components/probabilityChart";

@@ -153,7 +153,11 @@ const MarketTable = ({
       {nonConditionalMarkets.map(market => (
         <MarketRow
           key={market.conditionId}
-          probabilities={marketProbabilities[market.index]}
+          probabilities={
+            marketProbabilities !== null
+              ? marketProbabilities[market.index]
+              : null
+          }
           stagedProbabilities={
             stagedMarketProbabilities != null
               ? stagedMarketProbabilities[market.index]

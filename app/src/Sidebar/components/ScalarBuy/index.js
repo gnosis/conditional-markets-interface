@@ -38,7 +38,7 @@ const Buy = ({
   ongoingTransactionType,
   resetMarketSelections,
   asWrappedTransaction,
-  makeButtonSelectCallback
+  selectTabCallback
 }) => {
   // Memoize fetching data files
   const loadDataLayer = useCallback(() => {
@@ -162,7 +162,7 @@ const Buy = ({
 
     clearAllPositions();
     // Show positions component
-    makeButtonSelectCallback(1);
+    selectTabCallback(1);
   }, [
     investmentAmount,
     stagedTransactionType,
@@ -346,7 +346,7 @@ Buy.propTypes = {
   ongoingTransactionType: PropTypes.string,
   asWrappedTransaction: PropTypes.func.isRequired,
   resetMarketSelections: PropTypes.func.isRequired,
-  makeButtonSelectCallback: PropTypes.func.isRequired
+  selectTabCallback: PropTypes.func.isRequired
 };
 
 export default Buy;

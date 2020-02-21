@@ -537,7 +537,6 @@ const RootComponent = ({ match, childComponents }) => {
                   stagedTradeAmounts,
                   resetMarketSelections,
                   addToast,
-                  openModal,
                   tradeHistory
                 }}
               />

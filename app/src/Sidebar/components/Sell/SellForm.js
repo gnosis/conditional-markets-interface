@@ -1,13 +1,14 @@
 import React, { useCallback, useEffect, useState } from "react";
-import cn from "classnames/bind";
-import style from "./positions.scss";
 import Decimal from "decimal.js-light";
+import Select from "react-select";
+import Web3 from "web3";
+import cn from "classnames/bind";
+
 import OutcomeCard, { Dot } from "components/OutcomeCard";
 import Spinner from "components/Spinner";
 import { zeroDecimal, collateralSignificantDigits } from "utils/constants";
 
-import Select from "react-select";
-import Web3 from "web3";
+import style from "./positions.scss";
 
 const { toBN } = Web3.utils;
 
@@ -18,7 +19,6 @@ const getBaseArray = length => {
 };
 
 const SellForm = ({
-  markets,
   currentSellingPosition,
   onCancelSell,
   positions,
