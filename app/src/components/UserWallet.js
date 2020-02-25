@@ -71,8 +71,7 @@ const UserWallet = ({
       <div className={cx("user-wallet")}>
         <button
           className={cx("connect-wallet")}
-          /*onClick={() => web3Connect.toggleModal()}*/
-          onClick={() => openModal("KYC")}
+          onClick={() => web3Connect.toggleModal()}
         >
           Connect
         </button>

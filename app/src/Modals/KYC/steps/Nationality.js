@@ -1,56 +1,97 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useState, useEffect } from "react";
 import { Form, Field } from "react-final-form";
 import classnames from "classnames/bind";
 import style from "../kyc.scss";
 import Select from "components/Form/Select";
+import Spinner from "components/Spinner";
+
+import { getResidenceCountries } from "api/whitelist";
 
 import { STEP_REJECTED, STEP_PERSONAL } from "../";
+import { isRequired, validator } from "utils/validations";
 
 const cx = classnames.bind(style);
 
-const COUNTRIES = [
-  {
-    id: "123123123",
-    name: "Germany",
-    can_sdd: false,
-    iso2: "DE",
-    iso3: "DEU"
-  },
-  {
-    id: "4553534",
-    name: "French Polynesia	",
-    can_sdd: false,
-    iso2: "PF",
-    iso3: "PFY"
-  },
-  {
-    id: "359935485",
-    name: "Luxembourg	",
-    can_sdd: true,
-    iso2: "LU",
-    iso3: "LUX"
-  },
-  {
-    id: "329039222",
-    name: "Uzbekistan",
-    can_sdd: true,
-    iso2: "UZ",
-    iso3: "UZB"
-  }
-];
+const FIELDS = {
+  nationality: isRequired
+};
 
 const Nationality = ({ closeModal, updatePerson, handleAdvanceStep }) => {
+  const [countries, setCountries] = useState();
+  const [loadingState, setIsLoading] = useState("PENDING");
+
+  const fetchCountries = useCallback(async () => {
+    try {
+      setIsLoading("PENDING");
+      const countries = await getResidenceCountries();
+
+      if (!countries) throw new Error("invalid response");
+
+      setCountries(countries);
+      setIsLoading("SUCCESS");
+    } catch (e) {
+      setIsLoading("FAILURE");
+    }
+  }, []);
+
   const onSubmit = useCallback(values => {
-    console.log(values)
     updatePerson(prevValues => ({
       ...prevValues,
-      nationality: values.nationality.value.id
+      countryNationalityIso2: values.nationality.value.iso2,
     }));
 
     handleAdvanceStep(
-      values.nationality.value.can_sdd ? STEP_PERSONAL : STEP_REJECTED
+      values.nationality.value.canSdd ? STEP_PERSONAL : STEP_REJECTED
     );
   }, []);
+
+  useEffect(() => {
+    fetchCountries();
+  }, []);
+
+  if (loadingState === "PENDING") {
+    return (
+      <>
+        <div className={cx("modal-header")}>
+          Create account
+          <button
+            type="button"
+            onClick={closeModal}
+            className={cx("modal-close")}
+          />
+        </div>
+        <div className={cx("modal-body")}>
+          <Spinner />;
+        </div>
+      </>
+    );
+  }
+
+  if (loadingState === "FAILURE") {
+    return (
+      <>
+        <div className={cx("modal-header")}>
+          Create account
+          <button
+            type="button"
+            onClick={closeModal}
+            className={cx("modal-close")}
+          />
+        </div>
+        <div className={cx("modal-body")}>
+          <p>Could not load country list. Please try again.</p>
+          <button
+            type="button"
+            className={cx("field", "button")}
+            onClick={fetchCountries}
+          >
+            Retry
+          </button>
+        </div>
+      </>
+    );
+  }
+
   return (
     <>
       <div className={cx("modal-header")}>
@@ -64,6 +105,7 @@ const Nationality = ({ closeModal, updatePerson, handleAdvanceStep }) => {
       <div className={cx("modal-body")}>
         <Form
           onSubmit={onSubmit}
+          validate={validator(FIELDS)}
           render={({ handleSubmit }) => (
             <form onSubmit={handleSubmit}>
               <label className={cx("field", "label")}>
@@ -73,12 +115,12 @@ const Nationality = ({ closeModal, updatePerson, handleAdvanceStep }) => {
                 component={Select}
                 name="nationality"
                 className={cx("field", "select")}
-                options={COUNTRIES.map(({ id, name, can_sdd }) => ({
-                  value: { id, can_sdd },
-                  label: name
+                options={countries.map(nationality => ({
+                  value: nationality,
+                  label: nationality.name
                 }))}
               />
-              <button className={cx("field", "button")}>Next</button>
+              <button className={cx("field", "button", "primary")}>Next</button>
             </form>
           )}
         />

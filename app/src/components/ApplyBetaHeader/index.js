@@ -19,7 +19,8 @@ const ApplyBetaHeader = ({ openModal, whitelistState }) => {
         <button
           type="button"
           className={cx("apply-banner-button")}
-          onClick={() => openModal("applyBeta", { whitelistState })}
+          /*onClick={() => openModal("applyBeta", { whitelistState })}*/
+          onClick={() => openModal("KYC", { whitelistState })}
         >
           Apply Now
         </button>

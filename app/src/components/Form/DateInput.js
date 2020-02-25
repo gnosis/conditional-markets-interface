@@ -1,17 +1,31 @@
 import React from "react";
 import PropTypes from "prop-types";
 import cn from "classnames/bind";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker-cssmodules.css";
 
-import style from "./TextInput.scss";
+import style from "./DateInput.scss";
 
 const cx = cn.bind(style);
 
-const TextInput = ({ className, input, meta: { touched, error }, label, ...props }) => {
+const DateInput = ({
+  className,
+  input,
+  meta: { touched, error },
+  label,
+  ...props
+}) => {
   return (
-    <div className={cx("field", { "has-error": touched && error })}>
+    <div
+      className={cx("field", {
+        "has-error": touched && error,
+        "anim-label": !!input.value
+      })}
+    >
       <div className={cx("box")}>
-        <input
+        <DatePicker
           type="text"
+          selected={input.value}
           {...props}
           placeholder=" "
           className={cn(cx("input"), className)}
@@ -24,7 +38,7 @@ const TextInput = ({ className, input, meta: { touched, error }, label, ...props
   );
 };
 
-TextInput.propTypes = {
+DateInput.propTypes = {
   input: PropTypes.shape({
     onChange: PropTypes.func
   }).isRequired,
@@ -35,8 +49,8 @@ TextInput.propTypes = {
   className: PropTypes.string
 };
 
-TextInput.defaultProps = {
+DateInput.defaultProps = {
   className: null
 };
 
-export default TextInput;
+export default DateInput;

@@ -3,17 +3,27 @@ import ReactSelect from "react-select";
 import PropTypes from "prop-types";
 import cn from "classnames/bind";
 
-import style from "./select.scss";
+import style from "./Select.scss";
 
 const cx = cn.bind(style);
+const customStyles = {
+  control: (styles, { error }) => ({
+    ...styles,
+    borderColor: "red"
+  })
+};
 
-const Select = ({ options, className, input }) => {
+const Select = ({ options, className, input, meta: { touched, error } }) => {
   return (
-    <ReactSelect
-      className={cn(cx("select"), className)}
-      options={options}
-      {...input}
-    />
+    <div className={cn(cx("field"), className)}>
+      <ReactSelect
+        className={cx("select")}
+        options={options}
+        //styles={customStyles}
+        {...input}
+      />
+      {touched && error && <span className={cx("error")}>{error}</span>}
+    </div>
   );
 };
 
@@ -27,7 +37,10 @@ Select.propTypes = {
   input: PropTypes.shape({
     onChange: PropTypes.func
   }).isRequired,
-  className: PropTypes.string,
+  meta: PropTypes.shape({
+    onChange: PropTypes.func
+  }).isRequired,
+  className: PropTypes.string
 };
 
 Select.defaultProps = {

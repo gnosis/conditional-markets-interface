@@ -105,9 +105,7 @@ module.exports = {
       NODE_ENV: "development",
       NETWORK: false,
       WHITELIST_ENABLED: isProduction,
-      WHITELIST_API: isProduction
-        ? "https://sight-whitelist.staging.gnosisdev.com/api/v1"
-        : "/api",
+      WHITELIST_API: "https://sight-whitelist.staging.gnosisdev.com/api/v1",
       OPERATOR_API: "",
       BASE_URL: "/"
     })

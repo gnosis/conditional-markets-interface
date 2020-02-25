@@ -1,0 +1,25 @@
+@import "./TextInput";
+
+.datefield {
+  &[readonly] {
+    cursor: disabled;
+    +.label {
+      opacity: 0.7;
+    }
+  }
+  
+  &:not([readonly]):focus, &:not(:placeholder-shown) {
+    +.label {
+      font-size: 1rem;
+      top: 0;
+      transform: translate(0, 1.5px) scale(0.75);
+    }
+  }
+}
+
+:global {
+  .react-datepicker-wrapper { width: 100% }
+  .react-datepicker {
+    font-size: 100%;
+  }
+}

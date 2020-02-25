@@ -7,25 +7,29 @@ import style from "./kyc.scss";
 
 const cx = cn.bind(style);
 
-export const STEP_NATIONALITY = 0;
-export const STEP_PERSONAL = 1;
-export const STEP_REJECTED = 2;
-export const STEP_ACCEPTED = 3;
+export const STEP_RESIDENCE = "RESIDENCE";
+export const STEP_NATIONALITY = "NATIONALITY";
+export const STEP_PERSONAL = "PERSONAL";
+export const STEP_REJECTED = "REJECTED";
+export const STEP_APPROVED = "APPROVED";
+export const STEP_PENDING = "PENDING";
 
 // Child components loaded lazily on KYC load
-const STEP_COMPONENTS = [
-  () => import("./steps/Nationality"),
-  () => import("./steps/Personal"),
-  () => import("./steps/Rejected"),
-  () => import("./steps/Accepted")
-];
+const STEP_COMPONENTS = {
+  [STEP_RESIDENCE]: () => import("./steps/EuropeResident"),
+  [STEP_NATIONALITY]: () => import("./steps/Nationality"),
+  [STEP_PERSONAL]: () => import("./steps/Personal"),
+  [STEP_REJECTED]: () => import("./steps/Rejected"),
+  [STEP_APPROVED]: () => import("./steps/Approved"),
+  [STEP_PENDING]: () => import("./steps/Pending")
+};
 
 const KYC = ({ closeModal }) => {
   const [stepComponents, setStepComponents] = useState(null);
   const [loading, setLoading] = useState("LOADING");
 
   const [person, setPerson] = useState({});
-  const [currentStepIndex, setCurrentStepIndex] = useState(STEP_NATIONALITY);
+  const [currentStepIndex, setCurrentStepIndex] = useState(STEP_RESIDENCE);
 
   const handleAdvanceStep = useCallback(nextStep => {
     setCurrentStepIndex(nextStep);
@@ -34,12 +38,17 @@ const KYC = ({ closeModal }) => {
   useEffect(() => {
     (async () => {
       setLoading("LOADING");
-      const loadedComponentFiles = await Promise.all(
-        STEP_COMPONENTS.map(loader => loader())
+      const loadedStepComponents = {};
+      const loadedAllComponents = await Promise.all(
+        Object.keys(STEP_COMPONENTS).map(async stepName => {
+          loadedStepComponents[stepName] = (
+            await STEP_COMPONENTS[stepName]()
+          ).default;
+        })
       );
-      setStepComponents(
-        loadedComponentFiles.map(({ default: Component }) => Component)
-      );
+      await loadedAllComponents;
+
+      setStepComponents(loadedStepComponents);
       setLoading("SUCCESS");
     })();
   }, ["hot"]);

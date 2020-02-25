@@ -1,0 +1,12 @@
+$errorColor: #f02525;
+
+.field {
+  width: fit-content;
+  margin: auto;
+  margin-bottom: 0.8rem;
+  .error {
+    color: $errorColor;
+    display: block;
+    padding: .6rem .4rem;
+  }
+}
