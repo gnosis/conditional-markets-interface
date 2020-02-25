@@ -8,16 +8,12 @@ import TooltipContent from "./TooltipContent";
 
 import styles from "./Graph.scss";
 
-import { blueColor, redColor } from "scss/_variables.scss";
 import CheckSvg from "assets/icons/check-circle-green.svg";
 
-const scalarMarketColor = {
-  0: "#8884d8"
-};
-const categoricalMarketColors = {
-  0: blueColor,
-  1: redColor
-};
+import {
+  scalarMarketColor,
+  categoricalMarketColors
+} from "utils/outcomes-color";
 
 import {
   LineChart,
@@ -90,6 +86,7 @@ const Graph = ({
   created,
   resolutionDate,
   resolutionValue,
+  totalOutcomes,
   marketType,
   entries,
   currentProbability
@@ -126,7 +123,7 @@ const Graph = ({
     // Get initial probability for market
     const getInitialProbability = () => {
       const midValue =
-        (parseFloat(upperBound) - parseFloat(lowerBound)) / 2 +
+        (parseFloat(upperBound) - parseFloat(lowerBound)) / totalOutcomes +
         parseFloat(lowerBound);
 
       return currentProbability.map(() => {
@@ -234,13 +231,18 @@ const Graph = ({
   const getTicks = useCallback(() => {
     let range = [];
     if (data && data[0]) {
-      const startDate = getMoment(data[0].date).startOf("day");
-      const endDate = getMoment(data[data.length - 1].date).endOf("day");
+      const startDate = getMoment(data[0].date);
+      const endDate = getMoment(data[data.length - 1].date);
+
+      range.push(startDate.valueOf());
+      startDate.startOf("day");
+      startDate.add(1, "days");
+
       while (startDate < endDate) {
-        range.push(getMoment(startDate));
+        range.push(startDate.valueOf());
         startDate.add(1, "days");
       }
-      range.push(endDate);
+      range.push(endDate.valueOf());
     }
     return range;
   }, [data]);
@@ -298,11 +300,12 @@ const Graph = ({
             ticks={ticks}
             domain={[data && data[0] ? "dataMin" : 0, "dataMax"]}
             tickFormatter={formatDateTick}
-            interval="preserveEnd"
+            interval="preserveStartEnd"
           />
           <YAxis
             orientation="right"
             type="number"
+            unit={unit}
             domain={[parseFloat(lowerBound), parseFloat(upperBound)]}
           />
           {data &&
@@ -405,7 +408,8 @@ Graph.propTypes = {
   currentProbability: PropTypes.array,
   marketType: PropTypes.string.isRequired,
   resolutionDate: PropTypes.string.isRequired,
-  resolutionValue: PropTypes.string,
+  resolutionValue: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  totalOutcomes: PropTypes.number,
   created: PropTypes.string.isRequired,
   decimals: PropTypes.number,
   unit: PropTypes.string

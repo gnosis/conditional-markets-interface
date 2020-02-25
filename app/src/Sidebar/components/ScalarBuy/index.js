@@ -1,16 +1,18 @@
 import React, { useState, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
+import Decimal from "decimal.js-light";
 
 import Web3 from "web3";
 
 import cn from "classnames/bind";
 import Spinner from "components/Spinner";
 import ProfitSimulator from "./profitSimulator";
+import AmountInput from "../Buy/AmountInput";
 
 import style from "./buy.scss";
-import Decimal from "decimal.js-light";
 import { zeroDecimal } from "utils/constants";
 import { calcOutcomeTokenCounts } from "utils/position-groups";
+import { getMarketProbabilities } from "utils/probabilities";
 
 const { BN } = Web3.utils;
 
@@ -22,7 +24,6 @@ let conditionalTokensService;
 const Buy = ({
   market,
   lmsrState,
-  probabilities,
   marketSelection,
   setMarketSelections,
   stagedTradeAmounts,
@@ -30,7 +31,6 @@ const Buy = ({
   collateral,
   collateralBalance,
   account,
-  lmsrAllowance,
   positions,
   marketSelections,
   setStagedTradeAmounts,
@@ -38,7 +38,7 @@ const Buy = ({
   ongoingTransactionType,
   resetMarketSelections,
   asWrappedTransaction,
-  makeButtonSelectCallback
+  selectTabCallback
 }) => {
   // Memoize fetching data files
   const loadDataLayer = useCallback(() => {
@@ -51,13 +51,16 @@ const Buy = ({
   // Load data layer just on page load
   useEffect(() => {
     loadDataLayer();
+    return () => {
+      setStagedTradeAmounts(null);
+    };
   }, []);
 
   const [investmentAmount, setInvestmentAmount] = useState("");
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    //if (stagedTransactionType !== "buy outcome tokens") return;
+    if (stagedTransactionType !== "buy outcome tokens") return;
 
     let hasEnteredInvestment = false;
 
@@ -129,19 +132,6 @@ const Buy = ({
     []
   );
 
-  let hasAnyAllowance = false;
-  let hasEnoughAllowance = false;
-  if (lmsrAllowance != null) {
-    try {
-      hasAnyAllowance = lmsrAllowance.gtn(0);
-      hasEnoughAllowance = collateral.toUnitsMultiplier
-        .mul(investmentAmount || "0")
-        .lte(lmsrAllowance.toString());
-    } catch (e) {
-      // empty
-    }
-  }
-
   const setInvestmentMax = useCallback(() => {
     if (collateralBalance != null && collateral != null) {
       setStagedTransactionType("buy outcome tokens");
@@ -167,18 +157,14 @@ const Buy = ({
       stagedTradeAmounts,
       stagedTransactionType,
       account,
-      collateralBalance,
-      hasAnyAllowance,
-      hasEnoughAllowance
+      collateralBalance
     });
 
     clearAllPositions();
     // Show positions component
-    makeButtonSelectCallback(1);
+    selectTabCallback(1);
   }, [
     investmentAmount,
-    hasAnyAllowance,
-    hasEnoughAllowance,
     stagedTransactionType,
     stagedTradeAmounts,
     conditionalTokensService,
@@ -186,12 +172,31 @@ const Buy = ({
     account
   ]);
 
+  const [probabilities, setProbabilities] = useState(null);
+
+  useEffect(() => {
+    if (lmsrState !== null) {
+      const { funding, positionBalances } = lmsrState;
+
+      const { newMarketProbabilities } = getMarketProbabilities(
+        funding,
+        positionBalances,
+        [market],
+        positions,
+        marketSelections
+      );
+
+      // Return probabilities for only one market
+      setProbabilities(newMarketProbabilities[0]);
+    }
+  }, [lmsrState, market, positions]);
+
   if (!probabilities) {
     return <Spinner />;
   }
 
   const showProfitSim =
-    lmsrState != null && marketSelection.selectedOutcomeIndex > -1;
+    lmsrState !== null && marketSelection.selectedOutcomeIndex > -1;
 
   return (
     <div className={cx("buy")}>
@@ -219,26 +224,19 @@ const Buy = ({
         </div>
       </div>
       <div className={cx("selected-invest")}>
-        <label className={cx("fieldset-label")}>Specify Amount</label>
-        <div className={cx("input")}>
-          <button
-            type="button"
-            className={cx("input-max")}
-            onClick={setInvestmentMax}
-          >
-            MAX
-          </button>
-          <input
-            type="text"
-            className={cx("investment")}
-            value={investmentAmount}
-            onChange={e => {
-              setStagedTransactionType("buy outcome tokens");
-              setInvestmentAmount(e.target.value);
-            }}
-          />
-          <span className={cx("input-right")}>{collateral.symbol}</span>
-        </div>
+        <label className={cx("fieldset-label")}>
+          How much <b>&nbsp;{collateral.symbol}&nbsp;</b> would you like to
+          invest?
+        </label>
+        <AmountInput
+          {...{
+            collateral,
+            setInvestmentMax,
+            investmentAmount,
+            setStagedTransactionType,
+            setInvestmentAmount
+          }}
+        />
       </div>
       <div className={cx("pl-sim")}>
         <div className={cx("desc")}>
@@ -255,7 +253,6 @@ const Buy = ({
           <ProfitSimulator
             {...{
               market,
-              lmsrState,
               probabilities,
               stagedTradeAmounts,
               marketSelection,
@@ -334,7 +331,6 @@ Buy.propTypes = {
       .isRequired,
     stage: PropTypes.string.isRequired
   }),
-  lmsrAllowance: PropTypes.instanceOf(BN),
   marketSelections: PropTypes.arrayOf(
     PropTypes.shape({
       isAssumed: PropTypes.bool.isRequired,
@@ -349,7 +345,8 @@ Buy.propTypes = {
   setStagedTransactionType: PropTypes.func.isRequired,
   ongoingTransactionType: PropTypes.string,
   asWrappedTransaction: PropTypes.func.isRequired,
-  resetMarketSelections: PropTypes.func.isRequired
+  resetMarketSelections: PropTypes.func.isRequired,
+  selectTabCallback: PropTypes.func.isRequired
 };
 
 export default Buy;

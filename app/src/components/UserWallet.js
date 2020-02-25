@@ -4,6 +4,8 @@ import cn from "classnames/bind";
 import Web3Connect from "web3connect";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 
+import useGlobalState from "hooks/useGlobalState";
+
 import conf from "conf";
 
 import Blockies from "react-blockies";
@@ -19,6 +21,7 @@ const formatAddress = address =>
 
 const web3Connect = new Web3Connect.Core({
   network: conf.network,
+  // cacheProvider: true,
   providerOptions: {
     walletconnect: {
       package: WalletConnectProvider,
@@ -30,7 +33,7 @@ const web3Connect = new Web3Connect.Core({
 });
 
 const UserWallet = ({
-  address,
+  //address,
   whitelistState,
   collateral,
   collateralBalance,
@@ -38,6 +41,8 @@ const UserWallet = ({
   openModal,
   kyc
 }) => {
+  const { account: address } = useGlobalState();
+
   const connect = useCallback(
     provider => {
       setProvider(provider);
@@ -46,6 +51,7 @@ const UserWallet = ({
   );
 
   const disconnect = () => {
+    // web3Connect.clearCachedProvider();
     setProvider(null);
   };
 
@@ -145,7 +151,7 @@ const UserWallet = ({
 };
 
 UserWallet.propTypes = {
-  address: PropTypes.string,
+  // address: PropTypes.string,
   whitelistState: PropTypes.oneOf([
     "LOADING",
     "NOT_FOUND",

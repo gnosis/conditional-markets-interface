@@ -2,8 +2,8 @@ import React from "react";
 import cn from "classnames/bind";
 import Decimal from "decimal.js-light";
 import style from "./positions.scss";
-import OutcomeCard, { Dot } from "components/OutcomeCard";
 
+import OutcomeCard, { Dot } from "components/OutcomeCard";
 import Spinner from "components/Spinner";
 
 import { formatCollateral, formatAmount } from "utils/formatting";
@@ -22,43 +22,38 @@ const Positions = ({
   probabilities,
   positionBalances,
   estimatedSaleEarnings,
-  currentSellingPosition,
   makeOutcomeSellSelectHandler,
-  error,
-  showHeader
+  error
 }) => {
   if (positionGroups === null) {
     return (
-      <>
-        {showHeader && (
-          <div className={cx("positions-heading")}>Your Positions</div>
-        )}
-        <div className={cx("positions-empty")}>
-          <Spinner width={25} height={25} centered />
-        </div>
-      </>
+      <div className={cx("positions-empty")}>
+        <Spinner width={25} height={25} centered />
+      </div>
     );
   }
 
   return (
-    <div className={cx("positions")}>
-      {showHeader && (
-        <div className={cx("positions-heading")}>Your Positions</div>
-      )}
+    <div className={cx("positions", { resolved: allMarketsResolved })}>
       {positionGroups.length === 0 && (
         <div className={cx("positions-empty")}>You have no positions.</div>
       )}
       {allMarketsResolved && (
         <>
-          <div className={cx("positions-subheading")}>
-            Redeeming your positions will net you a total of{" "}
-            {formatCollateral(redemptionAmount, collateral)}
-          </div>
+          {redemptionAmount.toString() != "0" && (
+            <div className={cx("positions-subheading")}>
+              Redeeming your positions will net you a total of{" "}
+              {formatCollateral(redemptionAmount, collateral)}
+            </div>
+          )}
           <div className={cx("positions-redeem")}>
             <button
               type="button"
               className={cx("redeem-all")}
-              disabled={ongoingTransactionType != null}
+              disabled={
+                ongoingTransactionType != null ||
+                redemptionAmount.toString() == "0"
+              }
               onClick={asWrappedTransaction(
                 "redeem positions",
                 redeemPositions,

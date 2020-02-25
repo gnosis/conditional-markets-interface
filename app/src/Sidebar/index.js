@@ -5,11 +5,6 @@ import Media from "react-media";
 import Button from "@material-ui/core/Button";
 import ButtonGroup from "@material-ui/core/ButtonGroup";
 
-import Tabs from "@material-ui/core/Tabs";
-import Tab from "@material-ui/core/Tab";
-import Typography from "@material-ui/core/Typography";
-import Box from "@material-ui/core/Box";
-
 import Drawer from "@material-ui/core/Drawer";
 import IconButton from "@material-ui/core/IconButton";
 import CloseIcon from "@material-ui/icons/Close";
@@ -17,14 +12,11 @@ import CloseIcon from "@material-ui/icons/Close";
 import cn from "classnames/bind";
 import style from "./sidebar.scss";
 
-import Spinner from "components/Spinner";
+import Tabs from "components/Tabs";
 import PositionsAndSell from "./components/Sell";
 import Resolved from "./components/Resolved";
-
 import CategoricalBuy from "./components/CategoricalBuy";
 import ScalarBuy from "./components/ScalarBuy";
-
-import { getMarketProbabilities } from "utils/probabilities";
 
 const cx = cn.bind(style);
 
@@ -101,7 +93,11 @@ const SidebarMobile = props => {
           </IconButton>
         </div>
 
-        <SidebarContent {...props} tabIndex={tabIndex} />
+        <SidebarContent
+          {...props}
+          tabIndex={tabIndex}
+          setTabIndex={setTabIndex}
+        />
       </Drawer>
     </div>
   );
@@ -111,61 +107,14 @@ SidebarMobile.propTypes = {
   openModal: PropTypes.func.isRequired
 };
 
-const TabPanel = props => {
-  const { children, value, index, ...other } = props;
-
-  return (
-    <Typography
-      component="div"
-      role="tabpanel"
-      hidden={value !== index}
-      id={`full-width-tabpanel-${index}`}
-      aria-labelledby={`full-width-tab-${index}`}
-      {...other}
-    >
-      <Box className={cx("tab-content")}>{children}</Box>
-    </Typography>
-  );
-};
-
-TabPanel.propTypes = {
-  children: PropTypes.node,
-  index: PropTypes.any.isRequired,
-  value: PropTypes.any.isRequired
-};
-
-const a11yProps = index => {
-  return {
-    id: `full-width-tab-${index}`,
-    "aria-controls": `full-width-tabpanel-${index}`
-  };
-};
-
 const ResolvedMarketSidebar = props => {
-  const { value, handleChange } = props;
   return (
     <div className={cx("sidebar")}>
-      <Tabs
-        value={value}
-        indicatorColor="primary"
-        textColor="primary"
-        onChange={handleChange}
-        variant="fullWidth"
-        classes={{
-          root: cx("tab-selector")
-        }}
-      >
-        <Tab
-          classes={{
-            wrapper: cx("tab-title")
-          }}
-          label="Market is resolved"
-          {...a11yProps(0)}
-        ></Tab>
+      <Tabs tabTitles={["Market is resolved"]}>
+        <div className={cx("tab-content")}>
+          <Resolved {...props} />
+        </div>
       </Tabs>
-      <TabPanel value={value} index={0}>
-        <Resolved {...props} />
-      </TabPanel>
     </div>
   );
 };
@@ -176,8 +125,8 @@ ResolvedMarketSidebar.propTypes = {
 };
 
 const SidebarContent = props => {
-  const { markets, lmsrState, positions, marketSelections, tabIndex } = props;
-  if (markets && markets.length > 0) {
+  const { markets, marketSelections, tabIndex, setTabIndex } = props;
+  if (markets && markets.length > 0 && marketSelections) {
     let BuyComponent;
     if (markets[0].type === "CATEGORICAL") {
       BuyComponent = CategoricalBuy;
@@ -193,10 +142,6 @@ const SidebarContent = props => {
 
     const [value, setValue] = useState(0);
 
-    const handleChange = useCallback((event, newValue) => {
-      setValue(newValue);
-    });
-
     useEffect(() => {
       // Handle which tab is open in mobile view
       if (tabIndex !== undefined) {
@@ -204,83 +149,41 @@ const SidebarContent = props => {
       }
     }, [tabIndex]);
 
-    const makeButtonSelectCallback = useCallback(
+    const selectTabCallback = useCallback(
       tab => {
         setValue(tab);
+        if (setTabIndex) {
+          setTabIndex(tab);
+        }
       },
       [value]
     );
-
-    let marketProbabilities = null;
-    if (lmsrState != null) {
-      const { funding, positionBalances } = lmsrState;
-
-      const { newMarketProbabilities } = getMarketProbabilities(
-        funding,
-        positionBalances,
-        markets,
-        positions,
-        marketSelections
-      );
-
-      marketProbabilities = newMarketProbabilities;
-    }
 
     const selectedComponentsProps = {
       ...props,
       market: markets[0],
       marketSelection: marketSelections[0],
-      probabilities: marketProbabilities && marketProbabilities[0],
-      makeButtonSelectCallback
+      selectTabCallback
     };
 
-    if (!marketProbabilities) {
-      return <Spinner />;
-    }
-
     if (isInResolvedMode) {
-      return (
-        <ResolvedMarketSidebar
-          {...props}
-          value={value}
-          handleChange={handleChange}
-        />
-      );
+      return <ResolvedMarketSidebar {...props} />;
     }
 
     return (
       <div className={cx("sidebar")}>
         <Tabs
-          value={value}
-          indicatorColor="primary"
-          textColor="primary"
-          onChange={handleChange}
-          variant="fullWidth"
-          classes={{
-            root: cx("tab-selector")
-          }}
+          tabTitles={["Buy", "Positions"]}
+          parentValue={value}
+          parentSetValue={selectTabCallback}
         >
-          <Tab
-            classes={{
-              wrapper: cx("tab-title")
-            }}
-            label="Buy"
-            {...a11yProps(0)}
-          ></Tab>
-          <Tab
-            classes={{
-              wrapper: cx("tab-title")
-            }}
-            label="Positions"
-            {...a11yProps(1)}
-          ></Tab>
+          <div className={cx("tab-content")}>
+            <BuyComponent {...selectedComponentsProps} />
+          </div>
+          <div className={cx("tab-content")}>
+            <PositionsAndSell {...props} />
+          </div>
         </Tabs>
-        <TabPanel value={value} index={0}>
-          <BuyComponent {...selectedComponentsProps} />
-        </TabPanel>
-        <TabPanel value={value} index={1}>
-          <PositionsAndSell {...props} />
-        </TabPanel>
       </div>
     );
   }
@@ -290,7 +193,13 @@ const SidebarContent = props => {
 };
 
 SidebarContent.propTypes = {
-  tabIndex: PropTypes.number
+  markets: PropTypes.arrayOf(
+    PropTypes.shape({
+      type: PropTypes.string.isRequired
+    }).isRequired
+  ).isRequired,
+  tabIndex: PropTypes.number,
+  setTabIndex: PropTypes.func
 };
 
 export default Sidebar;

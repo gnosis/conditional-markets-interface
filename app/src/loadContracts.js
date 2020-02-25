@@ -1,4 +1,4 @@
-const ContractLoader = require("./utils/ContractLoader");
+import ContractLoader from "./utils/ContractLoader";
 
 let contracts, contractsPromise, lmsrAddressCache, providerAccountCache;
 function _resetContracts() {
@@ -23,10 +23,10 @@ async function loadContracts({ lmsrAddress, web3, account }) {
     if (!contractsPromise) {
       // Load application contracts
       const contractLoader = new ContractLoader({ lmsrAddress, web3 });
-      contractsPromise = await contractLoader.loadContracts();
+      contractsPromise = contractLoader.loadContracts();
     }
 
-    contracts = await contractsPromise;
+    contracts = contractsPromise;
   }
 
   return contracts;

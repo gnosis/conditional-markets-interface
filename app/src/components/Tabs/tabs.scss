@@ -1,0 +1,12 @@
+@import "~scss/_variables.scss";
+
+// Material UI style overrides
+.tab-selector {
+  border-bottom: 1px solid $greyBorder;
+}
+
+.tab-title {
+  font-size: 1.4rem;
+  font-weight: $bold;
+  padding: 1rem;
+}
