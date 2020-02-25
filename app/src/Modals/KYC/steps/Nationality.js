@@ -37,7 +37,7 @@ const Nationality = ({ closeModal, updatePerson, handleAdvanceStep }) => {
   const onSubmit = useCallback(values => {
     updatePerson(prevValues => ({
       ...prevValues,
-      countryNationalityIso2: values.nationality.value.iso2,
+      countryNationalityIso2: values.nationality.value.iso2
     }));
 
     handleAdvanceStep(

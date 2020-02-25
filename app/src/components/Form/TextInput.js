@@ -6,7 +6,13 @@ import style from "./TextInput.scss";
 
 const cx = cn.bind(style);
 
-const TextInput = ({ className, input, meta: { touched, error }, label, ...props }) => {
+const TextInput = ({
+  className,
+  input,
+  meta: { touched, error },
+  label,
+  ...props
+}) => {
   return (
     <div className={cx("field", { "has-error": touched && error })}>
       <div className={cx("box")}>

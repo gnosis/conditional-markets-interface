@@ -46,7 +46,7 @@ export const setSourceOfFunds = async sowInformation => {
 
 export const postPersonalDetails = async personalDetails => {
   const url = `${WHITELIST_API_URL}/sdd/users/`;
-  console.log(personalDetails)
+  console.log(personalDetails);
   const response = await fetch(url, {
     method: "POST",
     body: JSON.stringify(personalDetails),

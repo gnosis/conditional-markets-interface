@@ -9,8 +9,6 @@ const cx = classnames.bind(style);
 const Pending = ({ closeModal, handleAdvanceStep }) => {
   const [checkedIndices, setCheckedIndicies] = useState([false, false]);
 
-  
-
   return (
     <>
       <div className={cx("modal-header")}>

@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { Form, Field } from "react-final-form";
+import { FORM_ERROR } from "final-form";
 import { getMoment } from "utils/timeFormat";
 
 import DateInput from "components/Form/DateInput";
@@ -33,7 +34,7 @@ const VALIDATIONS = {
   captcha: [isRequired]
 };
 
-const Personal = ({ closeModal, updatePerson, handleAdvanceStep }) => {
+const Personal = ({ closeModal, person, updatePerson, handleAdvanceStep }) => {
   const [countries, setCountries] = useState();
   const [loadingState, setIsLoading] = useState("PENDING");
 
@@ -51,27 +52,37 @@ const Personal = ({ closeModal, updatePerson, handleAdvanceStep }) => {
     }
   }, []);
 
-  const onSubmit = useCallback(async values => {
-    const personalDetails = {
-      ...values,
-      idDocumentType: values.idDocumentType.value,
-      documentExpiryDate: getMoment(values.idDocumentExpiryDate).format(),
-      countryResidenceIso2: values.countryResidence.value.iso2
-    };
+  const onSubmit = useCallback(
+    async values => {
+      const personalDetails = {
+        ...values,
+        ...person,
+        idDocumentType: values.idDocumentType.value,
+        documentExpiryDate: getMoment(values.idDocumentExpiryDate).format(
+          "Y-MM-DD"
+        ),
+        countryResidenceIso2: values.countryResidence.value.iso2
+      };
 
-    updatePerson(prevValues => ({
-      ...prevValues,
-      ...personalDetails
-    }));
+      updatePerson(personalDetails);
 
-    const [response, json] = await postPersonalDetails(personalDetails)
+      const [response, json] = await postPersonalDetails(personalDetails);
 
-    if (!response.ok) {
-      return { [FORM_ERROR]: "Did not succeed" }
-    }
+      if (!response.ok) {
+        if (response.code === 400) {
+          return json;
+        } else {
+          return {
+            [FORM_ERROR]:
+              "Unfortunately, the whitelisting API returned a non-standard error. Please try again later."
+          };
+        }
+      }
 
-    handleAdvanceStep(STEP_PENDING);
-  }, []);
+      handleAdvanceStep(STEP_PENDING);
+    },
+    [person]
+  );
 
   useEffect(() => {
     fetchCountries();

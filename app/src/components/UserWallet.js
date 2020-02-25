@@ -36,7 +36,7 @@ const UserWallet = ({
   collateralBalance,
   setProvider,
   openModal,
-  kyc,
+  kyc
 }) => {
   const connect = useCallback(
     provider => {
