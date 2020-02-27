@@ -169,8 +169,10 @@
     margin: 1rem 0;
     font-weight: 700;
 
-    &.check &::before {
-      background-image: url("~assets/icons/check-circle-green.svg");
+    &.check {
+      &::before {
+        background-image: url("~assets/icons/check-circle-green.svg");
+      }
     }
 
     &::before {
@@ -212,4 +214,29 @@
     }
   }
 
+}
+
+@keyframes animate-rotate {
+  0% { transform: rotate(0deg);  }
+  50% { transform: rotate(359deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes animate-pulse {
+  0% { transform: scale(1); }
+  33% { transform: scale(1.05); }
+  66% { transform: scale(0.95); }
+  100% { transform: scale(1); }
+}
+
+.emote-pending-anim {
+  g path:first-child {
+    animation: animate-rotate infinite 3s ease-in-out;
+    transform-origin: calc(50% - 10px) calc(50% - 10px);
+  }
+
+  g path:not(:first-child) {
+    animation: animate-pulse infinite 1s ease-in-out;
+    transform-origin: calc(50% - 10px) calc(50% - 10px);
+  }
 }

@@ -169,7 +169,7 @@ const RootComponent = ({ match, childComponents }) => {
     UserWallet,
     ApplyBetaHeader,
     Toasts,
-    Footer,
+    Footer
   ] = childComponents;
 
   const {
@@ -492,6 +492,7 @@ const RootComponent = ({ match, childComponents }) => {
       setLoading("ERROR");
     }
   }, []);
+  window.openModal = openModal;
 
   useInterval(updateToasts, 1000);
 

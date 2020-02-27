@@ -27,16 +27,51 @@ const ReasonNationality = ({ person }) => (
     </span>
   </>
 );
+ReasonNationality.propTypes = {
+  person: PropTypes.shape({
+    nationalityName: PropTypes.string
+  }).isRequired
+};
+
+const ReasonTierOneCheck = () => (
+  <>
+    <div className={cx("modal-heading")}>Application rejected.</div>
+    <span>
+      The personal details submitted were matched against a name on a sanction
+      list.
+    </span>
+    <br />
+    <br />
+    <span>
+      If you believe this to be a mistake, please contact{" "}
+      <a
+        href="mailto:compliance@sight.pm"
+        target="_BLANK"
+        rel="noreferrer noopener"
+      >
+        compliance@sight.pm
+      </a>
+    </span>
+    <br />
+  </>
+);
 
 const REASON_COMPONENTS = {
-  unknown: () => <span>You may not join Sight at this time.</span>,
-  "nationality-rejected": ReasonNationality
+  unknown: function ReasonUnknown() {
+    return <span>You may not join Sight at this time.</span>;
+  },
+  "nationality-rejected": ReasonNationality,
+  tier1check: ReasonTierOneCheck
 };
 
 const Rejected = props => {
   const { closeModal, reason } = props;
 
-  const TargetComponent = REASON_COMPONENTS["nationality-rejected"];
+  let TargetComponent = REASON_COMPONENTS["unknown"];
+
+  if (Object.keys(REASON_COMPONENTS).indexOf(reason) > -1) {
+    TargetComponent = REASON_COMPONENTS[reason];
+  }
 
   return (
     <>
@@ -68,11 +103,15 @@ const Rejected = props => {
 
 Rejected.propTypes = {
   closeModal: PropTypes.func.isRequired,
-  reason: PropTypes.string
+  reason: PropTypes.string,
+  person: PropTypes.shape({
+    nationalityName: PropTypes.string
+  })
 };
 
 Rejected.defaultProps = {
-  reason: "unknown"
+  reason: "unknown",
+  person: null
 };
 
 export default Rejected;

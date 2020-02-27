@@ -1,17 +1,13 @@
-import React, { useCallback } from "react";
-import { Form, Field } from "react-final-form";
+import React from "react";
+import PropTypes from "prop-types";
 import classnames from "classnames/bind";
 import style from "../kyc.scss";
-import Select from "components/Form/Select";
 
-import { STEP_REJECTED, STEP_NATIONALITY, STEP_RESIDENCE } from "../";
+import { STEP_REJECTED, STEP_NATIONALITY } from "../";
 
 const cx = classnames.bind(style);
 
-const Nationality = ({ closeModal, handleAdvanceStep }) => {
-  const onSubmit = useCallback(values => {
-    handleAdvanceStep(values.is_eu_resident ? STEP_NATIONALITY : STEP_REJECTED);
-  }, []);
+const Residence = ({ closeModal, handleAdvanceStep }) => {
   return (
     <>
       <div className={cx("modal-header")}>
@@ -41,7 +37,9 @@ const Nationality = ({ closeModal, handleAdvanceStep }) => {
             type="button"
             className={cx("field", "button", "secondary")}
             onClick={() =>
-              handleAdvanceStep(STEP_REJECTED, { reason: "non-eu" })
+              handleAdvanceStep(STEP_REJECTED, {
+                reason: "nationality-rejected"
+              })
             }
           >
             No
@@ -52,4 +50,9 @@ const Nationality = ({ closeModal, handleAdvanceStep }) => {
   );
 };
 
-export default Nationality;
+Residence.propTypes = {
+  closeModal: PropTypes.func.isRequired,
+  handleAdvanceStep: PropTypes.func.isRequired
+};
+
+export default Residence;

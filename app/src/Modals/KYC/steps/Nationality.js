@@ -1,4 +1,5 @@
 import React, { useCallback, useState, useEffect } from "react";
+import PropTypes from "prop-types";
 import { Form, Field } from "react-final-form";
 import classnames from "classnames/bind";
 import style from "../kyc.scss";
@@ -41,7 +42,9 @@ const Nationality = ({ closeModal, updatePerson, handleAdvanceStep }) => {
     }));
 
     handleAdvanceStep(
-      values.nationality.value.canSdd ? STEP_PERSONAL : STEP_REJECTED
+      values.nationality.value.canSdd
+        ? STEP_PERSONAL
+        : [STEP_REJECTED, { reason: "nationality" }]
     );
   }, []);
 
@@ -127,6 +130,11 @@ const Nationality = ({ closeModal, updatePerson, handleAdvanceStep }) => {
       </div>
     </>
   );
+};
+Nationality.propTypes = {
+  closeModal: PropTypes.func.isRequired,
+  handleAdvanceStep: PropTypes.func.isRequired,
+  updatePerson: PropTypes.func.isRequired
 };
 
 export default Nationality;

@@ -1,4 +1,5 @@
-import React, { useCallback, useState } from "react";
+import React from "react";
+import PropTypes from "prop-types";
 import classnames from "classnames/bind";
 import style from "../kyc.scss";
 
@@ -6,9 +7,7 @@ import EmotePending from "assets/img/emote_approve.svg";
 
 const cx = classnames.bind(style);
 
-const Approved = ({ closeModal, handleAdvanceStep }) => {
-  const [checkedIndices, setCheckedIndicies] = useState([false, false]);
-
+const Approved = ({ closeModal }) => {
   return (
     <>
       <div className={cx("modal-header")}>
@@ -73,6 +72,10 @@ const Approved = ({ closeModal, handleAdvanceStep }) => {
       </div>
     </>
   );
+};
+
+Approved.propTypes = {
+  closeModal: PropTypes.func.isRequired
 };
 
 export default Approved;

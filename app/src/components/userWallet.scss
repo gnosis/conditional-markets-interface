@@ -48,7 +48,7 @@
   > svg > path {
     fill: $black;
   }
-  .connect-wallet, .disconnect-wallet {
+  .connect-wallet, .disconnect-wallet, .kyc-button {
     appearance: none;
     -webkit-appearance: none;
     background: none;
@@ -61,9 +61,18 @@
     font-size: 1.2rem;
     border: 0;
     padding: 1rem;
+    margin: 0 1rem;
 
     &:hover, &:focus, &:active {
       background-color: darken($green, 20%);
+    }    
+  }
+
+  .kyc-button {
+    background-color: $blue;
+
+    &:hover, &:focus, &:active {
+      background-color: darken($blue, 20%);
     }
   }
 }

@@ -24,16 +24,32 @@ const STEP_COMPONENTS = {
   [STEP_PENDING]: () => import("./steps/Pending")
 };
 
-const KYC = ({ closeModal }) => {
+const KYC = ({ closeModal, initialStep }) => {
   const [stepComponents, setStepComponents] = useState(null);
   const [loading, setLoading] = useState("LOADING");
 
   const [person, setPerson] = useState({});
   const [currentStepIndex, setCurrentStepIndex] = useState(STEP_RESIDENCE);
+  const [currentStepProps, setCurrentStepProps] = useState({});
+
+  useEffect(() => {
+    // on load, jump to prop step
+    if (initialStep) {
+      setCurrentStepIndex(initialStep);
+    }
+  }, []);
 
   const handleAdvanceStep = useCallback(nextStep => {
-    setCurrentStepIndex(nextStep);
+    if (Array.isArray(nextStep)) {
+      const [step, props] = nextStep;
+      setCurrentStepIndex(step);
+      setCurrentStepProps(props);
+    } else {
+      setCurrentStepIndex(nextStep);
+    }
   }, []);
+  // debug
+  //window.advanceStep = handleAdvanceStep;
 
   useEffect(() => {
     (async () => {
@@ -69,13 +85,19 @@ const KYC = ({ closeModal }) => {
         updatePerson={setPerson}
         closeModal={closeModal}
         handleAdvanceStep={handleAdvanceStep}
+        {...currentStepProps}
       />
     </div>
   );
 };
 
 KYC.propTypes = {
-  closeModal: PropTypes.func.isRequired
+  closeModal: PropTypes.func.isRequired,
+  initialStep: PropTypes.string
+};
+
+KYC.defaultProps = {
+  initialStep: null
 };
 
 export default KYC;

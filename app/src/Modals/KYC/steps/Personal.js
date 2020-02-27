@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
+import PropTypes from "prop-types";
 import { Form, Field } from "react-final-form";
 import { FORM_ERROR } from "final-form";
 import { getMoment } from "utils/timeFormat";
@@ -17,6 +18,7 @@ import cn from "classnames/bind";
 import style from "../kyc.scss";
 import { isRequired, validator, isEmail } from "../../../utils/validations";
 import { STEP_PENDING } from "../";
+import useGlobalState from "hooks/useGlobalState";
 
 const cx = cn.bind(style);
 
@@ -35,6 +37,7 @@ const VALIDATIONS = {
 };
 
 const Personal = ({ closeModal, person, updatePerson, handleAdvanceStep }) => {
+  const { account } = useGlobalState();
   const [countries, setCountries] = useState();
   const [loadingState, setIsLoading] = useState("PENDING");
 
@@ -71,6 +74,11 @@ const Personal = ({ closeModal, person, updatePerson, handleAdvanceStep }) => {
       if (!response.ok) {
         if (response.code === 400) {
           return json;
+        } else if (response.code === 403) {
+          return {
+            [FORM_ERROR]:
+              "Your address is already being processed. Please wait until your application has been approved."
+          };
         } else {
           return {
             [FORM_ERROR]:
@@ -144,7 +152,7 @@ const Personal = ({ closeModal, person, updatePerson, handleAdvanceStep }) => {
         <Form
           onSubmit={onSubmit}
           validate={validator(VALIDATIONS)}
-          render={({ handleSubmit, submitError }) => (
+          render={({ handleSubmit, submitError, submitting }) => (
             <form onSubmit={handleSubmit}>
               <label className={cx("field", "heading")}>
                 Please provider your information and agree to our policies:
@@ -201,7 +209,7 @@ const Personal = ({ closeModal, person, updatePerson, handleAdvanceStep }) => {
                     label="Wallet address"
                     component={WalletInput}
                     readOnly
-                    initialValue={"0x12345678"}
+                    initialValue={account}
                   />
                   <Field
                     name="email"
@@ -243,13 +251,22 @@ const Personal = ({ closeModal, person, updatePerson, handleAdvanceStep }) => {
               <Field name="captcha" component={Captcha} />
 
               {submitError && <p className={cx("error")}>{submitError}</p>}
-              <button className={cx("field", "button")}>Next</button>
+              <button disabled={submitting} className={cx("field", "button")}>
+                {submitting ? "Please wait" : "Next"}
+              </button>
             </form>
           )}
         />
       </div>
     </>
   );
+};
+
+Personal.propTypes = {
+  closeModal: PropTypes.func.isRequired,
+  person: PropTypes.func.isRequired,
+  updatePerson: PropTypes.func.isRequired,
+  handleAdvanceStep: PropTypes.func.isRequired
 };
 
 export default Personal;
