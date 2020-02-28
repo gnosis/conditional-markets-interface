@@ -44,7 +44,7 @@ const applyBeta = ({ closeModal, whitelistState }) => {
   return (
     <div className={cx(["modal", "apply-modal"])}>
       <div className={cx("modal-header")}>
-        <a href="#" className={cx("modal-close")} onClick={closeModal}></a>{" "}
+        <span className={cx("modal-close")} onClick={closeModal}></span>{" "}
         <img className={cx("modal-header-image")} src={Logo} alt="kyc-logo" />
         <p>
           Apply for the <b>closed Beta</b>

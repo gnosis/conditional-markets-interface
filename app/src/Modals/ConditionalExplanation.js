@@ -12,8 +12,7 @@ const ConditionalExplanation = ({ closeModal }) => {
   return (
     <div className={cx("modal")}>
       <div className={cx("modal-header")}>
-        <a href="#" className={cx("modal-close")} onClick={closeModal}>
-        </a>{" "}
+        <span className={cx("modal-close")} onClick={closeModal}></span>{" "}
         What is a conditional market?
       </div>
       <div className={cx("modal-body")}>
