@@ -49,7 +49,7 @@ const KYC = ({ closeModal, initialStep }) => {
     }
   }, []);
   // debug
-  //window.advanceStep = handleAdvanceStep;
+  window.advanceStep = handleAdvanceStep;
 
   useEffect(() => {
     (async () => {

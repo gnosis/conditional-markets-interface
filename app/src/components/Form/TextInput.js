@@ -2,31 +2,30 @@ import React from "react";
 import PropTypes from "prop-types";
 import cn from "classnames/bind";
 
+import { TextField } from "@material-ui/core";
+
 import style from "./TextInput.scss";
 
 const cx = cn.bind(style);
 
 const TextInput = ({
-  className,
+  // className,
   input,
   meta: { touched, error },
   label,
+  variant,
   ...props
 }) => {
   return (
-    <div className={cx("field", { "has-error": touched && error })}>
-      <div className={cx("box")}>
-        <input
-          type="text"
-          {...props}
-          placeholder=" "
-          className={cn(cx("input"), className)}
-          {...input}
-        />
-        <label className={cx("label")}>{label}</label>
-      </div>
-      {touched && error && <span className={cx("error")}>{error}</span>}
-    </div>
+    <TextField
+      className={cx("field")}
+      {...input}
+      error={touched && error}
+      helperText={touched && error}
+      label={label}
+      variant={variant}
+      {...props}
+    />
   );
 };
 
@@ -35,14 +34,17 @@ TextInput.propTypes = {
     onChange: PropTypes.func
   }).isRequired,
   meta: PropTypes.shape({
-    onChange: PropTypes.func
+    touched: PropTypes.bool,
+    error: PropTypes.string
   }).isRequired,
-  wrapComponent: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
+  label: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
+  variant: PropTypes.string,
   className: PropTypes.string
 };
 
 TextInput.defaultProps = {
-  className: null
+  className: null,
+  variant: "outlined"
 };
 
 export default TextInput;

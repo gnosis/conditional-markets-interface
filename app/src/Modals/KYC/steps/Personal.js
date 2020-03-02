@@ -7,6 +7,7 @@ import { getMoment } from "utils/timeFormat";
 import DateInput from "components/Form/DateInput";
 import WalletInput from "components/Form/WalletInput";
 import TextInput from "components/Form/TextInput";
+import CheckboxInput from "components/Form/Checkbox";
 import Select from "components/Form/Select";
 import Captcha from "components/Form/Captcha";
 import Spinner from "components/Spinner";
@@ -20,6 +21,8 @@ import { isRequired, validator, isEmail } from "../../../utils/validations";
 import { STEP_PENDING } from "../";
 import useGlobalState from "hooks/useGlobalState";
 
+import TOS_DocumentURL from "assets/pdfs/TOS_SIGHT_JULY_2019.pdf";
+
 const cx = cn.bind(style);
 
 // email, country_residence(iso2), country_nationality(iso2), eth_address, id_document_type, id_document_number, document_expiry_date, first_name, middle_name (optional), last_name, address_line1, address_line2 (optional), postal_code, city
@@ -32,6 +35,9 @@ const VALIDATIONS = {
   city: [isRequired],
   countryResidence: [isRequired],
   idDocumentNumber: [isRequired],
+  documentExpiryDate: [isRequired],
+  acceptTos: [isRequired],
+  acceptPrivacy: [isRequired],
   email: [isRequired, isEmail],
   captcha: [isRequired]
 };
@@ -61,7 +67,7 @@ const Personal = ({ closeModal, person, updatePerson, handleAdvanceStep }) => {
         ...values,
         ...person,
         idDocumentType: values.idDocumentType.value,
-        documentExpiryDate: getMoment(values.idDocumentExpiryDate).format(
+        documentExpiryDate: getMoment(values.documentExpiryDate).format(
           "Y-MM-DD"
         ),
         countryResidenceIso2: values.countryResidence.value.iso2
@@ -178,7 +184,7 @@ const Personal = ({ closeModal, person, updatePerson, handleAdvanceStep }) => {
                     component={TextInput}
                   />
                   <Field
-                    name="idDocumentExpiryDate"
+                    name="documentExpiryDate"
                     label="Document Expiration"
                     minDate={new Date()}
                     component={DateInput}
@@ -240,12 +246,51 @@ const Personal = ({ closeModal, person, updatePerson, handleAdvanceStep }) => {
                     name="countryResidence"
                     label="Country*"
                     component={Select}
-                    options={countries.map(nationality => ({
-                      value: nationality,
-                      label: nationality.name
-                    }))}
+                    options={countries
+                      .filter(country => country.canSdd)
+                      .map(nationality => ({
+                        value: nationality,
+                        label: nationality.name
+                      }))}
                   />
                 </div>
+              </div>
+
+              <div className={cx("field-row")}>
+                <Field
+                  name="acceptTos"
+                  component={CheckboxInput}
+                  type="checkbox"
+                  label={
+                    <a
+                      href={TOS_DocumentURL}
+                      target="_BLANK"
+                      rel="noreferrer noopener"
+                    >
+                      Terms & Conditions*
+                    </a>
+                  }
+                />
+                <Field
+                  name="acceptPrivacy"
+                  component={CheckboxInput}
+                  type="checkbox"
+                  label={
+                    <a
+                      href="https://sight.pm/privacy.html"
+                      target="_BLANK"
+                      rel="noreferrer noopener"
+                    >
+                      Privacy Policy*
+                    </a>
+                  }
+                />
+                <Field
+                  name="acceptNewsletter"
+                  component={CheckboxInput}
+                  type="checkbox"
+                  label="Newsletter & Updates"
+                />
               </div>
 
               <Field name="captcha" component={Captcha} />

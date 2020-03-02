@@ -1,18 +1,10 @@
 $errorColor: #f02525;
 
-.field {
-  width: 100%;
-  text-align: left;
 
+.select {
+  margin-bottom: .8rem;
   &.has-error {
-    .box {
-      border-color: $errorColor;
-      .label { color: $errorColor }
-    }
-  }
-
-  &:not(.has-error) {
-    margin-bottom: .8rem;
+    border-color: $errorColor;
   }
 
   .error {
@@ -21,9 +13,5 @@ $errorColor: #f02525;
     padding: .6rem .4rem;
     line-height: normal;
     text-align: left;
-  }
-
-  .select {
-    align-items: flex-start;
   }
 }

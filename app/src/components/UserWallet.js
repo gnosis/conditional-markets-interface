@@ -128,7 +128,7 @@ const UserWallet = ({
         <button
           type="button"
           className={cx("kyc-button", "whitelistStatus")}
-          onClick={() => openModal("KYC", { step: "PENDING" })}
+          onClick={() => openModal("KYC", { initialStep: "PENDING" })}
         >
           Verification in Progress for your Account
         </button>

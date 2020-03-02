@@ -6,8 +6,10 @@ import style from "../kyc.scss";
 import EmotePending from "assets/img/emote_approve.svg";
 
 const cx = classnames.bind(style);
+import useGlobalState from "hooks/useGlobalState";
 
 const Approved = ({ closeModal }) => {
+  const { account } = useGlobalState();
   return (
     <>
       <div className={cx("modal-header")}>
@@ -32,7 +34,7 @@ const Approved = ({ closeModal }) => {
               <div className={cx("entry")}>
                 <div className={cx("label")}>Wallet Address</div>
                 <div className={cx("dots")} />
-                <div className={cx("value")}>0x123434343</div>
+                <div className={cx("value")}>{account}</div>
               </div>
               <div className={cx("entry")}>
                 <div className={cx("label")}>Tier Level</div>

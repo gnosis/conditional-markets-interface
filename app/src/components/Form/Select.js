@@ -7,20 +7,28 @@ import style from "./Select.scss";
 
 const cx = cn.bind(style);
 const customStyles = {
-  control: (styles, { error }) => ({
+  control: styles => ({
     ...styles,
-    borderColor: "red"
+    borderColor: "inherit",
+    padding: "5.44px 14px" // mimiking material-ui sizes
   })
 };
 
-const Select = ({ options, className, input, meta: { touched, error } }) => {
+const Select = ({
+  options,
+  className,
+  input,
+  meta: { touched, error },
+  ...props
+}) => {
   return (
     <div className={cn(cx("field"), className)}>
       <ReactSelect
-        className={cx("select")}
+        className={cx("select", { "has-error": touched && error })}
         options={options}
-        //styles={customStyles}
+        styles={customStyles}
         {...input}
+        {...props}
       />
       {touched && error && <span className={cx("error")}>{error}</span>}
     </div>
@@ -38,7 +46,8 @@ Select.propTypes = {
     onChange: PropTypes.func
   }).isRequired,
   meta: PropTypes.shape({
-    onChange: PropTypes.func
+    touched: PropTypes.bool,
+    error: PropTypes.string
   }).isRequired,
   className: PropTypes.string
 };

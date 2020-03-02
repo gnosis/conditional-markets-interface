@@ -1,5 +1,9 @@
 @import "./TextInput";
 
+.field {
+  z-index: auto !important;
+}
+
 .datefield {
   &[readonly] {
     cursor: disabled;
@@ -21,5 +25,8 @@
   .react-datepicker-wrapper { width: 100% }
   .react-datepicker {
     font-size: 100%;
+  }
+  .react-datepicker-popper {
+    z-index: 100;
   }
 }

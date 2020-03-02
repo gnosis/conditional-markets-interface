@@ -75,6 +75,16 @@ module.exports = {
         exclude: [path.resolve(__dirname, "assets", "icons")]
       },
       {
+        test: /\.pdf$/,
+        use: {
+          loader: "file-loader",
+          options: {
+            name: "[name].[ext]",
+            outputPath: "docs/"
+          }
+        }
+      },
+      {
         test: /.*\/icons\/.*\.svg$/,
         use: {
           loader: "svg-url-loader",

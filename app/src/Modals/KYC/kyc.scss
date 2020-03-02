@@ -42,6 +42,7 @@
     padding: 1.5rem 4rem;
     max-width: 600px;
     margin: auto;
+    text-align: left;
     line-height: 1.5;
     color: #526877;
 
@@ -83,6 +84,21 @@
   margin: auto;
   margin-bottom: 1.4rem;
 
+  &-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    margin-bottom: 1.4rem;
+
+    a {
+      color: $shadeBlue;
+
+      &:hover, &:focus, &:active {
+        color: lighten($shadeBlue, 20%);
+      }
+    }
+  }
+
   &-group {
     display: flex;
     flex-direction: row;
@@ -97,6 +113,7 @@
   }
 
   &.button {
+    display: block;
     appearance: none;
     -webkit-appearance: none;
 
@@ -142,7 +159,6 @@
 .panes {
   display: flex;
   flex-direction: row;
-  margin-bottom: 2rem;
 
   .pane {
     padding: .4rem;

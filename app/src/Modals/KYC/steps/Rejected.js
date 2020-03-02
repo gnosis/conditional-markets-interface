@@ -66,6 +66,7 @@ const REASON_COMPONENTS = {
 
 const Rejected = props => {
   const { closeModal, reason } = props;
+  console.log({ reason });
 
   let TargetComponent = REASON_COMPONENTS["unknown"];
 

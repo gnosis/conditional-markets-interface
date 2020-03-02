@@ -1,32 +1,21 @@
 import React from "react";
 import PropTypes from "prop-types";
-import cn from "classnames/bind";
+//import cn from "classnames/bind";
 
-import style from "./TextInput.scss";
+//import style from "./TextInput.scss";
+import TextInput from "./TextInput";
 
-const cx = cn.bind(style);
+//const cx = cn.bind(style);
 
-const WalletInput = ({
-  className,
-  input,
-  meta: { touched, error },
-  label,
-  ...props
-}) => {
+const WalletInput = ({ className, input, meta, ...props }) => {
   return (
-    <div className={cx("field", { "has-error": touched && error })}>
-      <div className={cx("box")}>
-        <input
-          type="text"
-          {...props}
-          placeholder=" "
-          className={cn(cx("input"), className)}
-          {...input}
-        />
-        <label className={cx("label")}>{label}</label>
-      </div>
-      {touched && error && <span className={cx("error")}>{error}</span>}
-    </div>
+    <TextInput
+      className={className}
+      input={input}
+      meta={meta}
+      readOnly
+      {...props}
+    />
   );
 };
 
