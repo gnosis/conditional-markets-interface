@@ -42,6 +42,20 @@ const prepareTradesData = ({ lowerBound, upperBound, type }, trades) => {
             .mul(100)
             .toNumber();
         });
+
+        // FIXME rounding issues
+        const probabilityTotal = outcomesProbability.reduce(
+          (acc, probability) => acc + Number.parseFloat(probability.toFixed(2)),
+          0
+        );
+        const probabilityDifference = 100 - probabilityTotal;
+        const maximum = Math.max(...outcomesProbability);
+        const maximumIndex = outcomesProbability.findIndex(
+          value => value === maximum
+        );
+        outcomesProbability[maximumIndex] =
+          outcomesProbability[maximumIndex] + probabilityDifference;
+        // FIXME END
       }
 
       return {
