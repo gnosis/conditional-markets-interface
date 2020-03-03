@@ -100,3 +100,26 @@ export const calcSelectedMarketProbabilitiesFromPositionProbabilities = (
         )
   );
 };
+
+export const roundCategoricalProbabilities = outcomesProbability => {
+  // FIXME rounding issues
+  const probabilityTotal = outcomesProbability.reduce(
+    (acc, probability) => acc.add(probability.toDecimalPlaces(4, Decimal.ROUND_HALF_UP)),
+    new Decimal(0)
+  );
+  const probabilityDifference = new Decimal(1).sub(probabilityTotal);
+  let maxValue = outcomesProbability[0];
+  let maxIndex = 0;
+  outcomesProbability.forEach((value, index) => {
+    if (value.greaterThan(maxValue)) {
+      maxValue = value;
+      maxIndex = index;
+    }
+  });
+
+  outcomesProbability[maxIndex] = outcomesProbability[maxIndex].add(
+    probabilityDifference
+  );
+
+  return outcomesProbability;
+};

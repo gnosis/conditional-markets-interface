@@ -13,7 +13,8 @@ import Spinner from "components/Spinner";
 
 import {
   getMarketProbabilities,
-  getStagedMarketProbabilities
+  getStagedMarketProbabilities,
+  roundCategoricalProbabilities
 } from "utils/probabilities";
 
 // const { BN } = Web3.utils;
@@ -65,7 +66,14 @@ const MarketTable = ({
         positions,
         marketSelections
       );
-      setMarketProbabilities(newMarketProbabilities);
+      let marketProbabilities = newMarketProbabilities;
+      if (markets && markets[0] && markets[0].type === "CATEGORICAL") {
+        // FIXME rounding issues
+        marketProbabilities = marketProbabilities.map(outcomeProbabilities =>
+          roundCategoricalProbabilities(outcomeProbabilities)
+        );
+      }
+      setMarketProbabilities(marketProbabilities);
 
       if (stagedTradeAmounts != null) {
         const marketProbabilitiesAfterStagedTrade = getStagedMarketProbabilities(

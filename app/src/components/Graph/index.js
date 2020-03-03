@@ -126,9 +126,25 @@ const Graph = ({
         (parseFloat(upperBound) - parseFloat(lowerBound)) / totalOutcomes +
         parseFloat(lowerBound);
 
-      return currentProbability.map(() => {
+      let initialProbability = currentProbability.map(() => {
         return midValue;
       });
+
+      // FIXME rounding issues
+      const probabilityTotal = initialProbability.reduce(
+        (acc, probability) => acc + Number.parseFloat(probability.toFixed(2)),
+        0
+      );
+      const probabilityDifference = 100 - probabilityTotal;
+      const maximum = Math.max(...initialProbability);
+      const maximumIndex = initialProbability.findIndex(
+        value => value === maximum
+      );
+      initialProbability[maximumIndex] =
+        initialProbability[maximumIndex] + probabilityDifference;
+      // FIXME END
+
+      return initialProbability;
     };
 
     // when new entries are added, or the probability of the selected outcome changes

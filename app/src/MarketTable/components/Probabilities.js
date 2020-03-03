@@ -5,6 +5,7 @@ import Decimal from "decimal.js-light";
 
 import { probabilityDecimalPlaces } from "utils/constants";
 import { formatProbability } from "utils/formatting";
+import { roundCategoricalProbabilities } from "utils/probabilities";
 import { categoricalMarketColors } from "utils/outcomes-color";
 
 import style from "./probabilities.scss";
@@ -17,9 +18,14 @@ const Probabilities = ({ outcomes, probabilities, stagedProbabilities }) => {
   );
 
   useEffect(() => {
-    stagedProbabilities
-      ? setDisplayedProbabilities(stagedProbabilities)
-      : setDisplayedProbabilities(probabilities);
+    if (stagedProbabilities) {
+      setDisplayedProbabilities(
+        // FIXME rounding issues
+        roundCategoricalProbabilities(stagedProbabilities)
+      );
+    } else {
+      setDisplayedProbabilities(probabilities);
+    }
   }, [probabilities, stagedProbabilities]);
 
   return (
