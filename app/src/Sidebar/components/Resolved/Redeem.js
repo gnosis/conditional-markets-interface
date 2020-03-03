@@ -3,6 +3,8 @@ import PropTypes from "prop-types";
 import cn from "classnames/bind";
 import Web3 from "web3";
 
+import useGlobalState from "hooks/useGlobalState";
+
 const { toBN } = Web3.utils;
 
 import Spinner from "components/Spinner";
@@ -23,12 +25,13 @@ const Redeem = ({
   positionBalances,
   marketResolutionStates,
   positions,
-  collateral,
   ongoingTransactionType,
   asWrappedTransaction,
   error,
   setError
 }) => {
+  const { collateral } = useGlobalState();
+
   // Memoize fetching data files
   const loadDataLayer = useCallback(() => {
     async function getRepo() {

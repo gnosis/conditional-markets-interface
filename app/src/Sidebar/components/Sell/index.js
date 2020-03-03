@@ -17,7 +17,6 @@ const SellOrPositions = ({
   account,
   markets,
   positions,
-  collateral,
   lmsrState,
   positionBalances,
   marketSelections,
@@ -68,7 +67,7 @@ const SellOrPositions = ({
         positions,
         positionBalances
       );
-      console.log("position groups", positionGroups);
+
       setPositionGroups(
         positionGroups
         //   positionGroups.filter(positionGroup => {
@@ -134,13 +133,14 @@ const SellOrPositions = ({
   const handleChangeOutcome = useCallback(
     ({ value }) => {
       // TODO: ONLY WORKS WITH BINARY
+      console.log("position groups", positionGroups);
+      console.log("value", value);
       setCurrentSellingPosition(positionGroups[value]);
     },
     [positionGroups]
   );
 
   const clearAllPositions = useCallback(() => {
-    console.log("Call clear all positions");
     setCurrentSellingPosition(null);
     setStagedTransactionType(null);
     setStagedTradeAmounts(null);
@@ -179,7 +179,6 @@ const SellOrPositions = ({
       setStagedTransactionType={setStagedTransactionType}
       setStagedTradeAmounts={setStagedTradeAmounts}
       conditionalTokensService={conditionalTokensService}
-      collateral={collateral}
       sellOutcomeTokens={sellOutcomeTokens}
       onOutcomeChange={handleChangeOutcome}
       asWrappedTransaction={asWrappedTransaction}
@@ -189,7 +188,6 @@ const SellOrPositions = ({
   ) : (
     <Positions
       positionGroups={positionGroups}
-      collateral={collateral}
       setError={setError}
       ongoingTransactionType={ongoingTransactionType}
       probabilities={probabilities}

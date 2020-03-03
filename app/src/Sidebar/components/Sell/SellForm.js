@@ -4,6 +4,8 @@ import Select from "react-select";
 import Web3 from "web3";
 import cn from "classnames/bind";
 
+import useGlobalState from "hooks/useGlobalState";
+
 import { Dot } from "components/OutcomeCard";
 import Spinner from "components/Spinner";
 import { zeroDecimal, collateralSignificantDigits } from "utils/constants";
@@ -22,18 +24,18 @@ const SellForm = ({
   currentSellingPosition,
   onCancelSell,
   positions,
-  stagedTradeAmounts,
   ongoingTransactionType,
   setStagedTransactionType,
   setStagedTradeAmounts,
   conditionalTokensService,
   positionBalances,
-  collateral,
   sellOutcomeTokens,
   onOutcomeChange,
   positionGroups,
   asWrappedTransaction
 }) => {
+  const { collateral } = useGlobalState();
+
   const groupedSellAmounts = Array.from({ length: positions.length }, (_, i) =>
     currentSellingPosition.positions.find(
       ({ positionIndex }) => positionIndex === i
@@ -49,8 +51,7 @@ const SellForm = ({
   const [estimatedSaleEarning, setEstimatedSaleEarning] = useState(null);
   const [error, setError] = useState(null);
   const {
-    outcomeIndex: selectedOutcomeIndex,
-    marketIndex
+    outcomeIndex: selectedOutcomeIndex
   } = currentSellingPosition.outcomeSet[0]; // # 0 index because single markets for now
   const availableOutcomes = positionGroups.map(
     ({ outcomeSet: [outcome] }, index) => ({
@@ -143,7 +144,6 @@ const SellForm = ({
         updateEstimatedEarnings(value);
 
         tradeAmounts[selectedOutcomeIndex] = tradeAmountInWei;
-        console.log("Updating trade amounts", tradeAmounts);
         setStagedTradeAmounts(tradeAmounts);
       }
     },
@@ -171,7 +171,7 @@ const SellForm = ({
         />
       </div>
       <div className={cx("sell-form")}>
-        <div className={cx("sell-form-row")}>
+        {/* <div className={cx("sell-form-row")}>
           <label>Position</label>
           <div className={cx("entry")}>
             <Select
@@ -180,7 +180,7 @@ const SellForm = ({
               onChange={onOutcomeChange}
             />
           </div>
-        </div>
+        </div> */}
         <div className={cx("sell-form-row")}>
           <label>Quantity</label>
           <div className={cx("entry")}>

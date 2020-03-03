@@ -3,6 +3,8 @@ import cn from "classnames/bind";
 import Decimal from "decimal.js-light";
 import style from "./positions.scss";
 
+import useGlobalState from "hooks/useGlobalState";
+
 import OutcomeCard, { Dot } from "components/OutcomeCard";
 import Spinner from "components/Spinner";
 
@@ -12,7 +14,6 @@ const cx = cn.bind(style);
 
 const Positions = ({
   positionGroups,
-  collateral,
   setError,
   ongoingTransactionType,
   probabilities,
@@ -21,6 +22,8 @@ const Positions = ({
   makeOutcomeSellSelectHandler,
   error
 }) => {
+  const { collateral } = useGlobalState();
+
   if (positionGroups === null) {
     return (
       <div className={cx("positions-empty")}>
