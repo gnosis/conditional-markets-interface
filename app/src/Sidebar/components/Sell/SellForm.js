@@ -4,7 +4,9 @@ import Select from "react-select";
 import Web3 from "web3";
 import cn from "classnames/bind";
 
-import OutcomeCard, { Dot } from "components/OutcomeCard";
+import useGlobalState from "hooks/useGlobalState";
+
+import { Dot } from "components/OutcomeCard";
 import Spinner from "components/Spinner";
 import { zeroDecimal, collateralSignificantDigits } from "utils/constants";
 
@@ -22,18 +24,18 @@ const SellForm = ({
   currentSellingPosition,
   onCancelSell,
   positions,
-  stagedTradeAmounts,
   ongoingTransactionType,
   setStagedTransactionType,
   setStagedTradeAmounts,
   conditionalTokensService,
   positionBalances,
-  collateral,
   sellOutcomeTokens,
   onOutcomeChange,
   positionGroups,
   asWrappedTransaction
 }) => {
+  const { collateral } = useGlobalState();
+
   const groupedSellAmounts = Array.from({ length: positions.length }, (_, i) =>
     currentSellingPosition.positions.find(
       ({ positionIndex }) => positionIndex === i
@@ -45,24 +47,32 @@ const SellForm = ({
     amount => new Decimal(amount.toString())
   );
 
+  const [selectOutcomeValue, setSelectOutcomeValue] = useState(null);
   const [sellAmountFullUnit, setSellAmountFullUnit] = useState("0");
   const [estimatedSaleEarning, setEstimatedSaleEarning] = useState(null);
   const [error, setError] = useState(null);
   const {
-    outcomeIndex: selectedOutcomeIndex,
-    marketIndex
+    outcomeIndex: selectedOutcomeIndex
   } = currentSellingPosition.outcomeSet[0]; // # 0 index because single markets for now
   const availableOutcomes = positionGroups.map(
     ({ outcomeSet: [outcome] }, index) => ({
       label: (
         <>
-          <Dot index={index} />{" "}
+          <Dot index={outcome.outcomeIndex} />{" "}
           {outcome.title[0].toUpperCase() + outcome.title.slice(1)}
         </>
       ),
       value: index
     })
   );
+
+  useEffect(() => {
+    const findIndex = positionGroups.findIndex(({ outcomeSet: [{ outcomeIndex }] }) => {
+      return outcomeIndex === selectedOutcomeIndex;
+    });
+
+    setSelectOutcomeValue(findIndex);
+  }, [currentSellingPosition, availableOutcomes]);
 
   const setSellAmountToMax = useCallback(() => {
     const maxInvest = new Decimal(
@@ -165,7 +175,6 @@ const SellForm = ({
         <button
           className={cx("sell-cancel")}
           type="button"
-          defaultValue={selectedOutcomeIndex}
           onClick={onCancelSell}
         />
       </div>
@@ -175,7 +184,7 @@ const SellForm = ({
           <div className={cx("entry")}>
             <Select
               options={availableOutcomes}
-              value={availableOutcomes[selectedOutcomeIndex]}
+              value={availableOutcomes[selectOutcomeValue]}
               onChange={onOutcomeChange}
             />
           </div>

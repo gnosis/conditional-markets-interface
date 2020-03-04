@@ -172,7 +172,7 @@ export default class ConditionalTokensService {
     stagedTransactionType,
     account
   }) {
-    if (stagedTradeAmounts == null) throw new ToastifyError(`No sell set yet`);
+    if (stagedTradeAmounts == null) throw new ToastifyError(`No sell amount selected`);
 
     if (stagedTransactionType !== "sell outcome tokens")
       throw new ToastifyError(
