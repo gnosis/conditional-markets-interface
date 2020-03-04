@@ -47,6 +47,7 @@ const SellForm = ({
     amount => new Decimal(amount.toString())
   );
 
+  const [selectOutcomeValue, setSelectOutcomeValue] = useState(null);
   const [sellAmountFullUnit, setSellAmountFullUnit] = useState("0");
   const [estimatedSaleEarning, setEstimatedSaleEarning] = useState(null);
   const [error, setError] = useState(null);
@@ -57,13 +58,21 @@ const SellForm = ({
     ({ outcomeSet: [outcome] }, index) => ({
       label: (
         <>
-          <Dot index={index} />{" "}
+          <Dot index={outcome.outcomeIndex} />{" "}
           {outcome.title[0].toUpperCase() + outcome.title.slice(1)}
         </>
       ),
       value: index
     })
   );
+
+  useEffect(() => {
+    const findIndex = positionGroups.findIndex(({ outcomeSet: [{ outcomeIndex }] }) => {
+      return outcomeIndex === selectedOutcomeIndex;
+    });
+
+    setSelectOutcomeValue(findIndex);
+  }, [currentSellingPosition, availableOutcomes]);
 
   const setSellAmountToMax = useCallback(() => {
     const maxInvest = new Decimal(
@@ -166,21 +175,20 @@ const SellForm = ({
         <button
           className={cx("sell-cancel")}
           type="button"
-          defaultValue={selectedOutcomeIndex}
           onClick={onCancelSell}
         />
       </div>
       <div className={cx("sell-form")}>
-        {/* <div className={cx("sell-form-row")}>
+        <div className={cx("sell-form-row")}>
           <label>Position</label>
           <div className={cx("entry")}>
             <Select
               options={availableOutcomes}
-              value={availableOutcomes[selectedOutcomeIndex]}
+              value={availableOutcomes[selectOutcomeValue]}
               onChange={onOutcomeChange}
             />
           </div>
-        </div> */}
+        </div>
         <div className={cx("sell-form-row")}>
           <label>Quantity</label>
           <div className={cx("entry")}>
