@@ -133,8 +133,6 @@ const SellOrPositions = ({
   const handleChangeOutcome = useCallback(
     ({ value }) => {
       // TODO: ONLY WORKS WITH BINARY
-      console.log("position groups", positionGroups);
-      console.log("value", value);
       setCurrentSellingPosition(positionGroups[value]);
     },
     [positionGroups]
