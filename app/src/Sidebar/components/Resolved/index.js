@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 
 import cn from "classnames/bind";
 
-import Sell from "../Sell";
+import Redeem from "./Redeem";
 
 import style from "./resolved.scss";
 import prepareTradesData from "utils/prepareTradesData";
@@ -59,7 +59,7 @@ const Resolved = ({ markets, tradeHistory, ...props }) => {
             </span>
           </p>
         )}
-      <Sell markets={markets} {...props} />
+      <Redeem markets={markets} {...props} />
     </div>
   ) : (
     <div className={cx("resolved")}>

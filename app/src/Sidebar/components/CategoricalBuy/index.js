@@ -38,7 +38,7 @@ const Buy = ({
   ongoingTransactionType,
   resetMarketSelections,
   asWrappedTransaction,
-  makeButtonSelectCallback
+  selectTabCallback
 }) => {
   // Memoize fetching data files
   const loadDataLayer = useCallback(() => {
@@ -156,7 +156,7 @@ const Buy = ({
 
     clearAllPositions();
     // Show positions component
-    makeButtonSelectCallback(1);
+    selectTabCallback(1);
   }, [
     investmentAmount,
     stagedTransactionType,
@@ -217,7 +217,8 @@ const Buy = ({
       )}
       <div className={cx("buy-investment")}>
         <label className={cx("input-label")}>
-          How many <b>&nbsp;outcome tokens&nbsp;</b> do you want to buy?
+          How much <b>&nbsp;{collateral.symbol}&nbsp;</b> would you like to
+          invest?
         </label>
         <AmountInput
           {...{
@@ -326,7 +327,7 @@ Buy.propTypes = {
   asWrappedTransaction: PropTypes.func.isRequired,
   setMarketSelections: PropTypes.func.isRequired,
   resetMarketSelections: PropTypes.func.isRequired,
-  makeButtonSelectCallback: PropTypes.func.isRequired
+  selectTabCallback: PropTypes.func.isRequired
 };
 
 export default Buy;

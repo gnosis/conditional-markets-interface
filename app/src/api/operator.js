@@ -1,5 +1,5 @@
-const conf = require("../conf");
-const { OPERATOR_API_URL } = conf;
+const conf = require("conf");
+const { OPERATOR_API_URL, network } = conf;
 
 const createQueryString = params => {
   return Object.keys(params)
@@ -11,7 +11,15 @@ const createQueryString = params => {
     .join("&");
 };
 
+const getQuestionsMock = () => {
+  return { results: conf.markets };
+};
+
 export const getQuestions = async (status, marketMaker, limit, offset) => {
+  if (network === "local") {
+    return getQuestionsMock();
+  }
+
   const apiUrl = `${OPERATOR_API_URL}/questions/`;
   const params = {
     status,

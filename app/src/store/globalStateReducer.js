@@ -25,6 +25,11 @@ const globalStateReducer = (state, action) => {
         ...state,
         marketProbabilities: action.payload
       };
+    case "SET_COLLATERAL":
+      return {
+        ...state,
+        collateral: action.payload
+      };
   }
 };
 

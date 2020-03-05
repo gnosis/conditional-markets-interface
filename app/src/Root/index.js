@@ -180,7 +180,9 @@ const RootComponent = ({ match, childComponents }) => {
     positions,
     setPositions,
     lmsrState,
-    setLMSRState
+    setLMSRState,
+    collateral,
+    setCollateral
   } = useGlobalState();
 
   // Init and set base state
@@ -194,7 +196,6 @@ const RootComponent = ({ match, childComponents }) => {
   const [toasts, setToasts] = useState([]);
 
   const [web3, setWeb3] = useState(null);
-  const [collateral, setCollateral] = useState(null);
   const [conditionalTokensService, setConditionalTokensService] = useState(
     null
   );
@@ -500,6 +501,9 @@ const RootComponent = ({ match, childComponents }) => {
   // Load page even when we get no response from thegraph
   const tradeHistory = queryData && queryData.outcomeTokenTrades;
 
+  const isInResolvedMode =
+    markets && markets.every(({ status }) => status === "RESOLVED");
+
   if (loading === "SUCCESS") {
     return (
       <div className={cx("page")}>
@@ -531,19 +535,16 @@ const RootComponent = ({ match, childComponents }) => {
                   markets,
                   marketResolutionStates,
                   positions,
-                  lmsrState,
                   marketSelections,
                   setMarketSelections,
                   stagedTradeAmounts,
                   resetMarketSelections,
-                  collateral,
                   addToast,
-                  openModal,
                   tradeHistory
                 }}
               />
             </section>
-            {account != null && ( // account available
+            {(account != null || isInResolvedMode) && ( // account available or show resolution state
               <section className={cx("section", "section-positions")}>
                 <Sidebar
                   {...{

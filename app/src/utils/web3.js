@@ -33,7 +33,9 @@ export function getReadOnlyProviderForNetworkId(networkId) {
   }[networkId];
 
   return providerName == null
-    ? null
+    ? networkId == 437894314313
+      ? `http://localhost:8545`
+      : null
     : `wss://${providerName}.infura.io/ws/v3/d743990732244555a1a0e82d5ab90c7f`;
 }
 
@@ -47,7 +49,6 @@ export async function getAccount(web3) {
 
 export async function tryProvider(providerCandidate, networkId) {
   const { default: Web3 } = await import("web3");
-
   if (providerCandidate == null) throw new Error("provider not available");
   if (providerCandidate.enable != null) await providerCandidate.enable();
 
@@ -69,7 +70,6 @@ export async function tryProvider(providerCandidate, networkId) {
 }
 
 export async function loadWeb3(networkId, provider) {
-  // const { default: Web3 } = await import("web3");
   const web3InitErrors = [];
   let web3, account;
   let foundWeb3 = false;
@@ -103,7 +103,7 @@ export async function loadWeb3(networkId, provider) {
     }
   }
 
-  if (!foundWeb3)
+  if (!foundWeb3 || (provider && web3InitErrors.length > 0))
     throw new Error(
       `could not get valid Web3 instance; got following errors:\n${web3InitErrors
         .map(([providerCandidate, e]) => `${providerCandidate} -> ${e}`)

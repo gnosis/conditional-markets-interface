@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
-import Web3 from "web3";
+// import Web3 from "web3";
 import cn from "classnames/bind";
 import Decimal from "decimal.js-light";
 
@@ -13,23 +13,21 @@ import Spinner from "components/Spinner";
 
 import {
   getMarketProbabilities,
-  getStagedMarketProbabilities
+  getStagedMarketProbabilities,
+  roundCategoricalProbabilities
 } from "utils/probabilities";
 
-const { BN } = Web3.utils;
+// const { BN } = Web3.utils;
 
 const cx = cn.bind(style);
 
 const MarketTable = ({
   markets,
   positions,
-  lmsrState,
   marketSelections,
   setMarketSelections,
   resetMarketSelections,
   stagedTradeAmounts,
-  openModal,
-  collateral,
   tradeHistory
 }) => {
   useEffect(() => {
@@ -40,9 +38,12 @@ const MarketTable = ({
     };
   }, []);
 
-  const { marketProbabilities, setMarketProbabilities } = useGlobalState();
+  const {
+    lmsrState,
+    marketProbabilities,
+    setMarketProbabilities
+  } = useGlobalState();
 
-  // const [marketProbabilities, setMarketProbabilities] = useState(null);
   const [stagedMarketProbabilities, setStagedMarketProbabilities] = useState(
     null
   );
@@ -65,7 +66,14 @@ const MarketTable = ({
         positions,
         marketSelections
       );
-      setMarketProbabilities(newMarketProbabilities);
+      let marketProbabilities = newMarketProbabilities;
+      if (markets && markets[0] && markets[0].type === "CATEGORICAL") {
+        // FIXME rounding issues
+        marketProbabilities = marketProbabilities.map(outcomeProbabilities =>
+          roundCategoricalProbabilities(outcomeProbabilities)
+        );
+      }
+      setMarketProbabilities(marketProbabilities);
 
       if (stagedTradeAmounts != null) {
         const marketProbabilitiesAfterStagedTrade = getStagedMarketProbabilities(
@@ -84,8 +92,6 @@ const MarketTable = ({
       }
     }
   }, [lmsrState, markets, positions, marketSelections, stagedTradeAmounts]);
-
-  const conditionalDisabled = markets.length === 1;
 
   const conditionalMarketIndices = (marketSelections || []).reduce(
     (acc, { isAssumed }, index) => (isAssumed ? [...acc, index] : acc),
@@ -120,7 +126,6 @@ const MarketTable = ({
       {conditionalMarkets.map(market => (
         <MarketRow
           key={market.conditionId}
-          lmsrState={lmsrState}
           tradeHistory={tradeHistory}
           probabilities={marketProbabilities[market.index]}
           stagedProbabilities={
@@ -156,10 +161,8 @@ const MarketTable = ({
       {nonConditionalMarkets.map(market => (
         <MarketRow
           key={market.conditionId}
-          lmsrState={lmsrState}
-          collateral={collateral}
           probabilities={
-            marketProbabilities != null
+            marketProbabilities !== null
               ? marketProbabilities[market.index]
               : null
           }
@@ -169,9 +172,6 @@ const MarketTable = ({
               : null
           }
           tradeHistory={tradeHistory}
-          disableConditional={conditionalDisabled}
-          marketSelections={marketSelections}
-          setMarketSelection={setMarketSelections}
           {...market}
         />
       ))}
@@ -196,11 +196,11 @@ MarketTable.propTypes = {
       ).isRequired
     }).isRequired
   ).isRequired,
-  lmsrState: PropTypes.shape({
-    funding: PropTypes.instanceOf(BN).isRequired,
-    positionBalances: PropTypes.arrayOf(PropTypes.instanceOf(BN).isRequired)
-      .isRequired
-  }),
+  // lmsrState: PropTypes.shape({
+  //   funding: PropTypes.instanceOf(BN).isRequired,
+  //   positionBalances: PropTypes.arrayOf(PropTypes.instanceOf(BN).isRequired)
+  //     .isRequired
+  // }),
   marketSelections: PropTypes.arrayOf(
     PropTypes.shape({
       selectedOutcomeIndex: PropTypes.number,
@@ -211,8 +211,7 @@ MarketTable.propTypes = {
   setMarketSelections: PropTypes.func.isRequired,
   stagedTradeAmounts: PropTypes.arrayOf(
     PropTypes.instanceOf(Decimal).isRequired
-  ),
-  openModal: PropTypes.func.isRequired
+  )
 };
 
 export default MarketTable;

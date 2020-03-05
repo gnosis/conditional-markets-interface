@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import PropTypes from "prop-types";
 
 import Tabs from "@material-ui/core/Tabs";
@@ -11,7 +11,7 @@ import style from "./tabs.scss";
 
 const cx = cn.bind(style);
 
-const TabPanel = props => {
+export const TabPanel = props => {
   const { children, value, index, ...other } = props;
 
   return (
@@ -41,12 +41,37 @@ const a11yProps = index => {
   };
 };
 
-const MarketDetailsTabs = ({ children, tabTitles }) => {
-  const [value, setValue] = useState(0);
+const CustomTabs = ({ children, tabTitles, parentValue, parentSetValue }) => {
+  const [value, setValue] = useState(parentValue || 0);
+
+  useEffect(() => {
+    if (parentValue !== undefined && parentSetValue !== value) {
+      setValue(parentValue);
+    }
+  }, [parentValue]);
 
   const handleChange = useCallback((event, newValue) => {
     setValue(newValue);
+    if (parentSetValue) {
+      parentSetValue(newValue);
+    }
   });
+
+  const renderChildren = ({ children, value }) => {
+    if (Array.isArray(children)) {
+      return children.map((child, index) => (
+        <TabPanel key={index} value={value} index={index}>
+          {child}
+        </TabPanel>
+      ));
+    } else {
+      return (
+        <TabPanel value={value} index={0}>
+          {children}
+        </TabPanel>
+      );
+    }
+  };
 
   return (
     <div className={cx("")}>
@@ -71,18 +96,16 @@ const MarketDetailsTabs = ({ children, tabTitles }) => {
           ></Tab>
         ))}
       </Tabs>
-      {children.map((child, index) => (
-        <TabPanel key={index} value={value} index={index}>
-          {child}
-        </TabPanel>
-      ))}
+      {renderChildren({ children, value })}
     </div>
   );
 };
 
-MarketDetailsTabs.propTypes = {
+CustomTabs.propTypes = {
   children: PropTypes.node,
-  tabTitles: PropTypes.array.isRequired
+  tabTitles: PropTypes.array.isRequired,
+  parentValue: PropTypes.number,
+  parentSetValue: PropTypes.func
 };
 
-export default MarketDetailsTabs;
+export default CustomTabs;

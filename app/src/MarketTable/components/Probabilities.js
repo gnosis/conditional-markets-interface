@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import cn from "classnames/bind";
+import Decimal from "decimal.js-light";
 
 import { probabilityDecimalPlaces } from "utils/constants";
 import { formatProbability } from "utils/formatting";
+import { roundCategoricalProbabilities } from "utils/probabilities";
 import { categoricalMarketColors } from "utils/outcomes-color";
 
 import style from "./probabilities.scss";
@@ -16,9 +18,14 @@ const Probabilities = ({ outcomes, probabilities, stagedProbabilities }) => {
   );
 
   useEffect(() => {
-    stagedProbabilities
-      ? setDisplayedProbabilities(stagedProbabilities)
-      : setDisplayedProbabilities(probabilities);
+    if (stagedProbabilities) {
+      setDisplayedProbabilities(
+        // FIXME rounding issues
+        roundCategoricalProbabilities(stagedProbabilities)
+      );
+    } else {
+      setDisplayedProbabilities(probabilities);
+    }
   }, [probabilities, stagedProbabilities]);
 
   return (
@@ -73,8 +80,8 @@ const Probabilities = ({ outcomes, probabilities, stagedProbabilities }) => {
 
 Probabilities.propTypes = {
   outcomes: PropTypes.arrayOf(PropTypes.object),
-  probabilities: PropTypes.arrayOf(PropTypes.number),
-  stagedProbabilities: PropTypes.arrayOf(PropTypes.object)
+  probabilities: PropTypes.arrayOf(PropTypes.instanceOf(Decimal)),
+  stagedProbabilities: PropTypes.arrayOf(PropTypes.instanceOf(Decimal))
 };
 
 export default Probabilities;

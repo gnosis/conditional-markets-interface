@@ -80,10 +80,12 @@
 
   .fieldset-label {
     font-size: 1.4rem;
+    line-height: 3rem;
     color: $black;
-      small {
-        color: $shadeBlue;
-      }
+
+    small {
+      color: $shadeBlue;
+    }
   }
 
   .pl-sim {

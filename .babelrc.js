@@ -8,7 +8,10 @@ module.exports = {
   plugins: ["@babel/plugin-syntax-dynamic-import", "react-hot-loader/babel"],
   env: {
     test: {
-      presets: ["@babel/preset-react"]
+      presets: [
+        ['@babel/preset-env', {targets: {node: 'current'}}],
+        "@babel/preset-react"
+      ]
     }
   }
 }
