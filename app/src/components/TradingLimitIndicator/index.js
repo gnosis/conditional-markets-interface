@@ -1,6 +1,8 @@
-import React from "react";
+import React, { useEffect } from "react";
 import PropTypes from "prop-types";
 import cn from "classnames/bind";
+
+import { getCurrentTradingVolume } from "api/whitelist";
 
 import LinearProgress from "@material-ui/core/LinearProgress";
 import InputLabel from "@material-ui/core/InputLabel";
@@ -17,11 +19,15 @@ const MAX = 150;
 // Function to normalise the values (MIN / MAX could be integrated)
 const normalise = value => ((value - MIN) * 100) / (MAX - MIN);
 
-const TradingLimitIndicator = () => {
-  const [volume, setVolume] = React.useState(105);
+const TradingLimitIndicator = ({ openModal }) => {
+  const [volume, setVolume] = React.useState(0);
+
+  useEffect(() => {
+    setVolume(getCurrentTradingVolume());
+  }, []);
 
   return (
-    <div className={cx("trading-indicator")}>
+    <div className={cx("trading-indicator")} onClick={() => openModal("tradeOverLimit")}>
       <LinearProgress
         variant="determinate"
         value={normalise(volume)}
@@ -32,7 +38,7 @@ const TradingLimitIndicator = () => {
       />
       <div className={cx("progress-label")}>
         <span>
-          105€ / <strong>150€</strong>
+          {volume}€ / <strong>{MAX}€</strong>
         </span>
       </div>
       <InputLabel

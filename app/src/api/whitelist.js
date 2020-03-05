@@ -32,3 +32,7 @@ export const setSourceOfFunds = async sowInformation => {
     }
   });
 };
+
+export const getCurrentTradingVolume = accountAddress => {
+  return Math.floor(Math.random() * 151);
+};

@@ -35,6 +35,7 @@ const web3Connect = new Web3Connect.Core({
 
 const UserWallet = ({
   //address,
+  openModal,
   whitelistState,
   collateral,
   collateralBalance,
@@ -124,7 +125,7 @@ const UserWallet = ({
 
   return (
     <div className={cx("user-wallet")}>
-      <TradingLimitIndicator />
+      <TradingLimitIndicator openModal={openModal} />
       <div className={cx("avatar")}>
         <Blockies
           seed={address.toLowerCase()}
