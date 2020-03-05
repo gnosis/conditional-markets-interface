@@ -33,7 +33,9 @@ export function getReadOnlyProviderForNetworkId(networkId) {
   }[networkId];
 
   return providerName == null
-    ? null
+    ? networkId == 437894314313
+      ? `http://localhost:8545`
+      : null
     : `wss://${providerName}.infura.io/ws/v3/d743990732244555a1a0e82d5ab90c7f`;
 }
 
