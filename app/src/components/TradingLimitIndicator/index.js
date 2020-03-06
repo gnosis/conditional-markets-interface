@@ -27,7 +27,18 @@ const TradingLimitIndicator = ({ openModal }) => {
   }, []);
 
   return (
-    <div className={cx("trading-indicator")} onClick={() => openModal("tradeOverLimit")}>
+    <div
+      className={cx("trading-indicator")}
+      onClick={() =>
+        openModal("tradeOverLimit", {
+          account: "account",
+          tier: 1,
+          volume,
+          maxVolume: MAX,
+          tradeValue: 12
+        })
+      }
+    >
       <LinearProgress
         variant="determinate"
         value={normalise(volume)}

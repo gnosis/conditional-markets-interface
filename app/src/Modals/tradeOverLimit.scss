@@ -2,11 +2,42 @@
 @import "../scss/_variables.scss";
 
 .over-limit-modal {
+  .modal-header {
+    margin: 2.5rem 0;
+  }
+
   .modal-body {
     display:flex;
     flex-flow: column;
+    padding: 1rem 15rem;
   }
 
+  .account-details {
+    width: 80%;
+    margin: auto;
+    padding: 1rem 0;
+    background-color: $lightBlue;
+    color: $shadeBlue;
+
+    .divider{
+      margin: 1rem 0;
+    }
+    
+    &-element {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 0.6rem 1.2rem;
+      font-size: 1.4rem;
+      
+      .dotted-separator {
+        border-bottom: 1px dotted $shadeBlue;
+        flex: 1;
+        margin: 0 0.3rem;
+      }
+    }
+  }
+  
   // Material ui styles overrides
   .upgrade-button {
     background: $blue;
@@ -14,7 +45,7 @@
     padding: 1.6rem 6rem;
     box-shadow: none;
     font-family: $font;
-    margin: 1.6rem auto 0;
+    margin: 1.6rem auto;
 
     &-label {
         font-weight: $bold;
@@ -26,5 +57,8 @@
         text-transform: none;
         font-family: inherit;;
     }
+  }
+  .cancel-button {
+    font-size: 1.4rem;
   }
 }
