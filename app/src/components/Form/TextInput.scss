@@ -1,0 +1,15 @@
+$errorColor: #f02525;
+
+.field {
+  width: 100%;
+  text-align: left;
+
+  margin-bottom: .8rem !important;
+}
+
+
+:global {
+  .MuiFormHelperText-contained {
+    text-align: left;
+  }
+}

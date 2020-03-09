@@ -13,7 +13,10 @@
 
   &-close {
     position: absolute;
-    top: 2rem;
+    appearance: none;
+    -webkit-appearance: none;
+    border: none;
+    //top: 2rem;
     right: 2rem;
     color: $shadeBlue;
     font-size: 2.8rem;
@@ -54,7 +57,7 @@
         font-size: 1.6rem;
         color: $shadeBlue;
         letter-spacing: 0;
-        text-align: center;
+        //text-align: center;
         line-height: 1.2;
       }
   }

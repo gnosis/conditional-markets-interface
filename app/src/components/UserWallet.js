@@ -37,7 +37,8 @@ const UserWallet = ({
   whitelistState,
   collateral,
   collateralBalance,
-  setProvider
+  setProvider,
+  openModal
 }) => {
   const { account: address } = useGlobalState();
 
@@ -99,12 +100,38 @@ const UserWallet = ({
     );
   }
 
+  if (whitelistState === "NOT_FOUND") {
+    return (
+      <div className={cx("user-wallet")}>
+        <button onClick={() => openModal("KYC")} className={cx("kyc-button")}>
+          Create Account
+        </button>
+        <span title={address}>{formatAddress(address)}</span>
+        <div className={cx("avatar")}>
+          <Blockies
+            seed={address.toLowerCase()}
+            size={8}
+            scale={16}
+            className={cx("avatar-image")}
+          />
+        </div>
+        <button onClick={disconnect} className={cx("disconnect-wallet")}>
+          Disconnect
+        </button>
+      </div>
+    );
+  }
+
   if (whitelistState === "PENDING_KYC" || whitelistState === "BLOCKED") {
     return (
       <div className={cx("user-wallet")}>
-        <span className={cx("whitelistStatus")}>
+        <button
+          type="button"
+          className={cx("kyc-button", "whitelistStatus")}
+          onClick={() => openModal("KYC", { initialStep: "PENDING" })}
+        >
           Verification in Progress for your Account
-        </span>
+        </button>
         <span title={address}>{formatAddress(address)}</span>
         <div className={cx("avatar")}>
           <Blockies
@@ -166,7 +193,8 @@ UserWallet.propTypes = {
   collateralBalance: PropTypes.shape({
     totalAmount: PropTypes.object // DecimalJS
   }),
-  setProvider: PropTypes.func.isRequired
+  setProvider: PropTypes.func.isRequired,
+  openModal: PropTypes.func.isRequired
 };
 
 export default UserWallet;

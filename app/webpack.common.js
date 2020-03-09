@@ -75,6 +75,16 @@ module.exports = {
         exclude: [path.resolve(__dirname, "assets", "icons")]
       },
       {
+        test: /\.pdf$/,
+        use: {
+          loader: "file-loader",
+          options: {
+            name: "[name].[ext]",
+            outputPath: "docs/"
+          }
+        }
+      },
+      {
         test: /.*\/icons\/.*\.svg$/,
         use: {
           loader: "svg-url-loader",
@@ -105,9 +115,7 @@ module.exports = {
       NODE_ENV: "development",
       NETWORK: false,
       WHITELIST_ENABLED: isProduction,
-      WHITELIST_API: isProduction
-        ? "https://sight-whitelist.staging.gnosisdev.com/api/v1"
-        : "/api",
+      WHITELIST_API: "https://sight-whitelist.staging.gnosisdev.com/api",
       OPERATOR_API: "",
       BASE_URL: "/"
     })
