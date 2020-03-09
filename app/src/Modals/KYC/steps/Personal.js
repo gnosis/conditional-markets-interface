@@ -39,7 +39,7 @@ const VALIDATIONS = {
   acceptTos: [isRequired],
   acceptPrivacy: [isRequired],
   email: [isRequired, isEmail],
-  captcha: [isRequired]
+  recaptchaToken: [isRequired]
 };
 
 const Personal = ({ closeModal, person, updatePerson, handleAdvanceStep }) => {
@@ -293,7 +293,7 @@ const Personal = ({ closeModal, person, updatePerson, handleAdvanceStep }) => {
                 />
               </div>
 
-              <Field name="captcha" component={Captcha} />
+              <Field name="recaptchaToken" component={Captcha} />
 
               {submitError && <p className={cx("error")}>{submitError}</p>}
               <button disabled={submitting} className={cx("field", "button")}>
