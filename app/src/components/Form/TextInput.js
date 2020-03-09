@@ -18,7 +18,7 @@ const TextInput = ({
 }) => {
   return (
     <TextField
-      className={cx("field")}
+      classes={{ root: cx("field") }}
       {...input}
       error={touched && error}
       helperText={touched && error}

@@ -1,59 +1,24 @@
 import React from "react";
 import PropTypes from "prop-types";
 import cn from "classnames/bind";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker-cssmodules.css";
 
-import { TextField } from "@material-ui/core";
+import { DatePicker } from "@material-ui/pickers";
 
 import style from "./DateInput.scss";
 
 const cx = cn.bind(style);
 
-/*
-type="text"
-selected={input.value}
-{...props}
-placeholder=" "
-className={cn(cx("input"), className)}
-{...input}
-*/
-
-const CustomDatePicker = props => {
-  const { input, ...rest } = props;
+const DateInput = ({ input, meta, label, variant, ...props }) => {
   return (
     <DatePicker
-      selected={input.value}
-      className={cx("datefield")}
-      {...input}
-      {...rest}
-    />
-  );
-};
-CustomDatePicker.propTypes = {
-  input: PropTypes.shape({
-    onChange: PropTypes.func,
-    value: PropTypes.any
-  }).isRequired
-};
-
-const DateInput = ({
-  input,
-  meta: { touched, error },
-  label,
-  variant,
-  ...props
-}) => {
-  console.log(touched, error);
-  return (
-    <TextField
-      className={cx("field")}
-      {...input}
-      error={touched && error}
-      helperText={touched && error}
+      classes={{ root: cx("field") }}
+      error={meta.touched && meta.error}
+      helperText={meta.touched && meta.error}
       label={label}
-      InputProps={{ inputComponent: CustomDatePicker }}
-      variant={variant}
+      inputVariant={variant}
+      variant="inline"
+      format="L"
+      {...input}
       {...props}
     />
   );

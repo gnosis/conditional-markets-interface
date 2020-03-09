@@ -186,7 +186,7 @@ const Personal = ({ closeModal, person, updatePerson, handleAdvanceStep }) => {
                   <Field
                     name="documentExpiryDate"
                     label="Document Expiration"
-                    minDate={new Date()}
+                    disablePast
                     component={DateInput}
                   />
                   <Field
