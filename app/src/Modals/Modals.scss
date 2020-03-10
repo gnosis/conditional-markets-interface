@@ -3,20 +3,17 @@
 .modal {
   height: auto;
   background-color: $white;
-  padding: 1.6rem;
   border-radius: .3rem;
   box-shadow: 0 1rem 1.5rem 0 rgba(0, 30, 59, 0.15);
   max-width: 76rem;
   width: 100%;
   position: relative;
-  margin: 1rem 0;
 
   &-close {
     position: absolute;
     appearance: none;
     -webkit-appearance: none;
     border: none;
-    //top: 2rem;
     right: 2rem;
     color: $shadeBlue;
     font-size: 2.8rem;
@@ -68,7 +65,7 @@
     color: $black;
     letter-spacing: 0;
     text-align: center;
-    margin: 5rem 0;
+    margin: 2.5rem 0;
     padding: 0;
     line-height: 1;
   }

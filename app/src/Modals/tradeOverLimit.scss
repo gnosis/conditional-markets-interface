@@ -2,10 +2,6 @@
 @import "../scss/_variables.scss";
 
 .over-limit-modal {
-  .modal-header {
-    margin: 2.5rem 0;
-  }
-
   .modal-body {
     display:flex;
     flex-flow: column;
@@ -13,7 +9,7 @@
   }
 
   .account-details {
-    width: 80%;
+    width: 90%;
     margin: auto;
     padding: 1rem 0;
     background-color: $lightBlue;

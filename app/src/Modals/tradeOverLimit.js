@@ -1,9 +1,12 @@
 import React from "react";
 import PropTypes from "prop-types";
-import Logo from "assets/icons/kyc-smiley.svg";
+import Logo from "assets/img/emote_trade_limit.svg";
 import Button from "@material-ui/core/Button";
 import Link from "@material-ui/core/Link";
 import Divider from "@material-ui/core/Divider";
+
+import UpperBar from "./components/upperBar";
+import Header from "./components/header";
 
 import cn from "classnames/bind";
 
@@ -22,11 +25,8 @@ const tradeOverLimit = ({
   const exceedValue = volume + tradeValue - maxVolume;
   return (
     <div className={cx(["modal", "over-limit-modal"])}>
-      <div className={cx("modal-header")}>
-        <span className={cx("modal-close")} onClick={closeModal}></span>{" "}
-        <img className={cx("modal-header-image")} src={Logo} alt="kyc-logo" />
-        <p>Tier 1 Trade Limit</p>
-      </div>
+      <UpperBar closeModal={closeModal} title="Trade limit"></UpperBar>
+      <Header title="Tier 1 Trade Limit" logo={Logo}></Header>
       <div className={cx("modal-body")}>
         <p>Your requested trade exceeds your current trade limit:</p>
         <div className={cx("account-details")}>

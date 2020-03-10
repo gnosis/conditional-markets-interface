@@ -35,7 +35,6 @@ const web3Connect = new Web3Connect.Core({
 
 const UserWallet = ({
   //address,
-  openModal,
   whitelistState,
   collateral,
   collateralBalance,
@@ -108,7 +107,6 @@ const UserWallet = ({
         <button onClick={() => openModal("KYC")} className={cx("kyc-button")}>
           Create Account
         </button>
-        <span title={address}>{formatAddress(address)}</span>
         <div className={cx("avatar")}>
           <Blockies
             seed={address.toLowerCase()}
@@ -116,6 +114,17 @@ const UserWallet = ({
             scale={16}
             className={cx("avatar-image")}
           />
+        </div>
+        <div className={cx("account-info")}>
+          <span className={cx("address")} title={address}>
+            {formatAddress(address)}
+          </span>
+          <span className={cx("balance")}>
+            <Balance
+              collateral={collateral}
+              collateralBalance={collateralBalance}
+            />
+          </span>
         </div>
         <button onClick={disconnect} className={cx("disconnect-wallet")}>
           Disconnect
@@ -134,7 +143,6 @@ const UserWallet = ({
         >
           Verification in Progress for your Account
         </button>
-        <span title={address}>{formatAddress(address)}</span>
         <div className={cx("avatar")}>
           <Blockies
             seed={address.toLowerCase()}
@@ -142,6 +150,17 @@ const UserWallet = ({
             scale={16}
             className={cx("avatar-image")}
           />
+        </div>
+        <div className={cx("account-info")}>
+          <span className={cx("address")} title={address}>
+            {formatAddress(address)}
+          </span>
+          <span className={cx("balance")}>
+            <Balance
+              collateral={collateral}
+              collateralBalance={collateralBalance}
+            />
+          </span>
         </div>
         <button onClick={disconnect} className={cx("disconnect-wallet")}>
           Disconnect
