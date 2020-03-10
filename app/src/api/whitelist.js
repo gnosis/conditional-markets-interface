@@ -1,13 +1,9 @@
 const conf = require("../conf");
-const { WHITELIST_ENABLED, WHITELIST_API_URL } = conf;
+const { WHITELIST_API_URL } = conf;
 
 export const getWhitelistState = async accountAddress => {
-  if (!WHITELIST_ENABLED) {
-    return true;
-  }
-
   const response = await fetch(
-    `${WHITELIST_API_URL}/v1/users/${accountAddress}/`
+    `${WHITELIST_API_URL}/v2/users/${accountAddress}/`
   );
   if (response.status === 404) {
     return "NOT_FOUND";
@@ -66,7 +62,7 @@ export const postPersonalDetails = async personalDetails => {
   return [response, json];
 };
 
-export const getWhitelistSddStatus = async account => {
+export const getWhitelistSddIsProcessing = async account => {
   const url = `${WHITELIST_API_URL}/v2/users/${account}`;
 
   const response = await fetch(url, {

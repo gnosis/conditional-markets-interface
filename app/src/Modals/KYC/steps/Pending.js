@@ -7,7 +7,7 @@ import useGlobalState from "hooks/useGlobalState";
 
 import useInterval from "@use-it/interval";
 
-import { getWhitelistSddStatus } from "api/whitelist";
+import { getWhitelistSddIsProcessing } from "api/whitelist";
 import { STEP_REJECTED, STEP_APPROVED } from "..";
 
 const cx = classnames.bind(style);
@@ -25,7 +25,7 @@ const Pending = ({ closeModal, handleAdvanceStep }) => {
     }
 
     return (async () => {
-      const status = await getWhitelistSddStatus(account);
+      const status = await getWhitelistSddIsProcessing(account);
 
       if (
         status["sanctionStatus"] === "ERROR" ||
