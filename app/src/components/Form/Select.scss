@@ -1,0 +1,17 @@
+$errorColor: #f02525;
+
+
+.select {
+  margin-bottom: .8rem;
+  &.has-error {
+    border-color: $errorColor;
+  }
+
+  .error {
+    color: $errorColor;
+    display: block;
+    padding: .6rem .4rem;
+    line-height: normal;
+    text-align: left;
+  }
+}

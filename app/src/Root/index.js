@@ -492,6 +492,7 @@ const RootComponent = ({ match, childComponents }) => {
       setLoading("ERROR");
     }
   }, []);
+  window.openModal = openModal;
 
   useInterval(updateToasts, 1000);
 
@@ -526,6 +527,7 @@ const RootComponent = ({ match, childComponents }) => {
                 setProvider={setProvider}
               />
             }
+            openModal={openModal}
             menu={<Menu />}
           />
           <div className={cx("sections")}>

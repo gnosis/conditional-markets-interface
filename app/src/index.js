@@ -28,6 +28,10 @@ import { ApolloProvider } from "@apollo/react-hooks";
 import { history, store } from "./store";
 import GlobalStore from "store/globalStore";
 
+// Material UI Datepicking
+import MomentUtils from "@date-io/moment";
+import { MuiPickersUtilsProvider } from "@material-ui/pickers";
+
 Decimal.config({
   precision: 80,
   toExpPos: 50,
@@ -40,7 +44,9 @@ const RouterWrappedApp = (
       <Provider store={store}>
         <ConnectedRouter history={history}>
           <GlobalStore>
-            <Routes />
+            <MuiPickersUtilsProvider utils={MomentUtils}>
+              <Routes />
+            </MuiPickersUtilsProvider>
           </GlobalStore>
         </ConnectedRouter>
       </Provider>
