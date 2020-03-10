@@ -14,6 +14,9 @@ import Balance from "./Balance";
 
 import style from "./userWallet.scss";
 
+const ONBOARDING_MODE = conf.ONBOARDING_MODE;
+const accountsEnabled = ONBOARDING_MODE === "TIERED";
+
 const cx = cn.bind(style);
 
 const formatAddress = address =>
@@ -84,70 +87,86 @@ const UserWallet = ({
     );
   }
 
-  if (whitelistState === "LOADING") {
-    return (
-      <div className={cx("user-wallet")}>
-        <Spinner />
-      </div>
-    );
-  }
+  if (ONBOARDING_MODE !== "disabled") {
+    // All whitelist modes should have atleast these states:
+    // - LOADING
+    // - ERROR
+    // - NOT FOUND (Neither approved nor denied, simply unknown user, must apply/register)
+    // - PENDING_KYC (Process is pending)
+    // - BLOCKED (No trading allowed)
+    // - WHITELISTED
 
-  if (whitelistState === "ERROR") {
-    return (
-      <div className={cx("user-wallet")}>
-        <span>An error occured. Please try again later.</span>
-      </div>
-    );
-  }
-
-  if (whitelistState === "NOT_FOUND") {
-    return (
-      <div className={cx("user-wallet")}>
-        <button onClick={() => openModal("KYC")} className={cx("kyc-button")}>
-          Create Account
-        </button>
-        <span title={address}>{formatAddress(address)}</span>
-        <div className={cx("avatar")}>
-          <Blockies
-            seed={address.toLowerCase()}
-            size={8}
-            scale={16}
-            className={cx("avatar-image")}
-          />
+    if (whitelistState === "LOADING") {
+      return (
+        <div className={cx("user-wallet")}>
+          <Spinner />
         </div>
-        <button onClick={disconnect} className={cx("disconnect-wallet")}>
-          Disconnect
-        </button>
-      </div>
-    );
-  }
+      );
+    }
 
-  if (whitelistState === "PENDING_KYC" || whitelistState === "BLOCKED") {
-    return (
-      <div className={cx("user-wallet")}>
-        <button
-          type="button"
-          className={cx("kyc-button", "whitelistStatus")}
-          onClick={() => openModal("KYC", { initialStep: "PENDING" })}
-        >
-          Verification in Progress for your Account
-        </button>
-        <span title={address}>{formatAddress(address)}</span>
-        <div className={cx("avatar")}>
-          <Blockies
-            seed={address.toLowerCase()}
-            size={8}
-            scale={16}
-            className={cx("avatar-image")}
-          />
+    if (whitelistState === "ERROR") {
+      return (
+        <div className={cx("user-wallet")}>
+          <span>An error occured. Please try again later.</span>
         </div>
-        <button onClick={disconnect} className={cx("disconnect-wallet")}>
-          Disconnect
-        </button>
-      </div>
-    );
-  }
+      );
+    }
 
+    if (whitelistState === "NOT_FOUND") {
+      return (
+        <div className={cx("user-wallet")}>
+          {accountsEnabled && (
+            <button
+              onClick={() => openModal("KYC")}
+              className={cx("kyc-button")}
+            >
+              Create Account
+            </button>
+          )}
+          <span title={address}>{formatAddress(address)}</span>
+          <div className={cx("avatar")}>
+            <Blockies
+              seed={address.toLowerCase()}
+              size={8}
+              scale={16}
+              className={cx("avatar-image")}
+            />
+          </div>
+          <button onClick={disconnect} className={cx("disconnect-wallet")}>
+            Disconnect
+          </button>
+        </div>
+      );
+    }
+
+    if (whitelistState === "PENDING_KYC" || whitelistState === "BLOCKED") {
+      return (
+        <div className={cx("user-wallet")}>
+          {accountsEnabled && (
+            <button
+              type="button"
+              className={cx("kyc-button", "whitelistStatus")}
+              onClick={() => openModal("KYC", { initialStep: "PENDING" })}
+            >
+              Verification in Progress for your Account
+            </button>
+          )}
+          <span title={address}>{formatAddress(address)}</span>
+          <div className={cx("avatar")}>
+            <Blockies
+              seed={address.toLowerCase()}
+              size={8}
+              scale={16}
+              className={cx("avatar-image")}
+            />
+          </div>
+          <button onClick={disconnect} className={cx("disconnect-wallet")}>
+            Disconnect
+          </button>
+        </div>
+      );
+    }
+  }
   return (
     <div className={cx("user-wallet")}>
       <strong>
@@ -183,8 +202,7 @@ UserWallet.propTypes = {
     "PENDING_KYC",
     "WHITELISTED",
     "BLOCKED",
-    "ERROR",
-    true
+    "ERROR"
   ]).isRequired,
   collateral: PropTypes.shape({
     fromUnitsMultiplier: PropTypes.object,
