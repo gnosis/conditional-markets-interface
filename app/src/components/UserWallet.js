@@ -171,7 +171,10 @@ const UserWallet = ({
 
   return (
     <div className={cx("user-wallet")}>
-      <TradingLimitIndicator openModal={openModal} />
+      <TradingLimitIndicator
+        openModal={openModal}
+        account={formatAddress(address)}
+      />
       <div className={cx("avatar")}>
         <Blockies
           seed={address.toLowerCase()}
