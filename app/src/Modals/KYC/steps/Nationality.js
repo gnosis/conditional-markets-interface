@@ -6,6 +6,8 @@ import style from "../kyc.scss";
 import Select from "components/Form/Select";
 import Spinner from "components/Spinner";
 
+import UpperBar from "../../components/upperBar";
+
 import { getResidenceCountries } from "api/whitelist";
 
 import { STEP_REJECTED, STEP_PERSONAL } from "../";
@@ -55,14 +57,7 @@ const Nationality = ({ closeModal, updatePerson, handleAdvanceStep }) => {
   if (loadingState === "PENDING") {
     return (
       <>
-        <div className={cx("modal-header")}>
-          Create account
-          <button
-            type="button"
-            onClick={closeModal}
-            className={cx("modal-close")}
-          />
-        </div>
+        <UpperBar closeModal={closeModal} title="Create Account"></UpperBar>
         <div className={cx("modal-body")}>
           <Spinner />;
         </div>
@@ -73,14 +68,7 @@ const Nationality = ({ closeModal, updatePerson, handleAdvanceStep }) => {
   if (loadingState === "FAILURE") {
     return (
       <>
-        <div className={cx("modal-header")}>
-          Create account
-          <button
-            type="button"
-            onClick={closeModal}
-            className={cx("modal-close")}
-          />
-        </div>
+        <UpperBar closeModal={closeModal} title="Create Account"></UpperBar>
         <div className={cx("modal-body")}>
           <p>Could not load country list. Please try again.</p>
           <button
@@ -97,14 +85,7 @@ const Nationality = ({ closeModal, updatePerson, handleAdvanceStep }) => {
 
   return (
     <>
-      <div className={cx("modal-header")}>
-        Create account
-        <button
-          type="button"
-          onClick={closeModal}
-          className={cx("modal-close")}
-        />
-      </div>
+      <UpperBar closeModal={closeModal} title="Create Account"></UpperBar>
       <div className={cx("modal-body")}>
         <Form
           onSubmit={onSubmit}

@@ -36,6 +36,7 @@
 
     &:focus, &:active, &:hover {
       text-decoration: none;
+      cursor: pointer;
       color: $black;
     }
 

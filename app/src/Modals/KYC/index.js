@@ -8,6 +8,8 @@ import style from "./kyc.scss";
 const cx = cn.bind(style);
 
 export const STEP_RESIDENCE = "RESIDENCE";
+export const STEP_TIER2_REQUEST = "TIER2_REQUEST";
+export const STEP_TIER2_REQUEST_SUCCESS = "TIER2_REQUEST_SUCCESS";
 export const STEP_NATIONALITY = "NATIONALITY";
 export const STEP_PERSONAL = "PERSONAL";
 export const STEP_REJECTED = "REJECTED";
@@ -17,6 +19,8 @@ export const STEP_PENDING = "PENDING";
 // Child components loaded lazily on KYC load
 const STEP_COMPONENTS = {
   [STEP_RESIDENCE]: () => import("./steps/EuropeResident"),
+  [STEP_TIER2_REQUEST]: () => import("./steps/Tier2Request"),
+  [STEP_TIER2_REQUEST_SUCCESS]: () => import("./steps/Tier2RequestSuccess"),
   [STEP_NATIONALITY]: () => import("./steps/Nationality"),
   [STEP_PERSONAL]: () => import("./steps/Personal"),
   [STEP_REJECTED]: () => import("./steps/Rejected"),
@@ -24,13 +28,13 @@ const STEP_COMPONENTS = {
   [STEP_PENDING]: () => import("./steps/Pending")
 };
 
-const KYC = ({ closeModal, initialStep }) => {
+const KYC = ({ closeModal, initialStep, ...props }) => {
   const [stepComponents, setStepComponents] = useState(null);
   const [loading, setLoading] = useState("LOADING");
 
   const [person, setPerson] = useState({});
   const [currentStepIndex, setCurrentStepIndex] = useState(STEP_RESIDENCE);
-  const [currentStepProps, setCurrentStepProps] = useState({});
+  const [currentStepProps, setCurrentStepProps] = useState(props);
 
   useEffect(() => {
     // on load, jump to prop step

@@ -3,21 +3,16 @@ import PropTypes from "prop-types";
 import classnames from "classnames/bind";
 import style from "../kyc.scss";
 
-import { STEP_REJECTED, STEP_NATIONALITY } from "../";
+import UpperBar from "../../components/upperBar";
+
+import { STEP_TIER2_REQUEST, STEP_NATIONALITY } from "../";
 
 const cx = classnames.bind(style);
 
 const Residence = ({ closeModal, handleAdvanceStep }) => {
   return (
     <>
-      <div className={cx("modal-header")}>
-        Create account
-        <button
-          type="button"
-          onClick={closeModal}
-          className={cx("modal-close")}
-        />
-      </div>
+      <UpperBar closeModal={closeModal} title="Create Account"></UpperBar>
       <div className={cx("modal-body")}>
         <label className={cx("field", "heading")}>
           To start trading on Sight you first need to create an account:
@@ -37,9 +32,12 @@ const Residence = ({ closeModal, handleAdvanceStep }) => {
             type="button"
             className={cx("field", "button", "secondary")}
             onClick={() =>
-              handleAdvanceStep(STEP_REJECTED, {
-                reason: "nationality-rejected"
-              })
+              handleAdvanceStep([
+                STEP_TIER2_REQUEST,
+                {
+                  nonEuResident: true
+                }
+              ])
             }
           >
             No

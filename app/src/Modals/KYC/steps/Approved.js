@@ -3,6 +3,8 @@ import PropTypes from "prop-types";
 import classnames from "classnames/bind";
 import style from "../kyc.scss";
 
+import UpperBar from "../../components/upperBar";
+
 import EmotePending from "assets/img/emote_approve.svg";
 
 const cx = classnames.bind(style);
@@ -12,14 +14,7 @@ const Approved = ({ closeModal }) => {
   const { account } = useGlobalState();
   return (
     <>
-      <div className={cx("modal-header")}>
-        Create account
-        <button
-          type="button"
-          onClick={closeModal}
-          className={cx("modal-close")}
-        />
-      </div>
+      <UpperBar closeModal={closeModal} title="Create Account"></UpperBar>
       <div className={cx("modal-body")}>
         <img
           className={cx("modal-jumbo")}

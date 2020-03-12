@@ -5,7 +5,9 @@
   .modal-body {
     display:flex;
     flex-flow: column;
-    padding: 1rem 15rem;
+    max-width: 600px;
+    margin: auto;
+    padding: 1rem 4rem;
   }
 
   .account-details {

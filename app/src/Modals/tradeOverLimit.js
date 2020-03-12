@@ -73,7 +73,7 @@ const tradeOverLimit = ({
           classes={{ label: cx("upgrade-button-label") }}
           variant="contained"
           size="large"
-          onClick={() => openModal("nonEuResident", {})}
+          onClick={() => openModal("KYC", { initialStep: "TIER2_REQUEST", tier2Upgrade: "true" })}
           // href="http://eepurl.com/gAjo0X"
           target="_BLANK"
           rel="noreferrer noopener"

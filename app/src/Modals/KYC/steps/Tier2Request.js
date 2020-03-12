@@ -9,13 +9,15 @@ import { Form, Field } from "react-final-form";
 import TextInput from "components/Form/TextInput";
 import CheckboxInput from "components/Form/Checkbox";
 import Captcha from "components/Form/Captcha";
-import UpperBar from "./components/upperBar";
-import Header from "./components/header";
+import UpperBar from "../../components/upperBar";
+import Header from "../../components/header";
 
 import cn from "classnames/bind";
 
-import style from "./tradeOverLimit.scss";
-import { isRequired, validator, isEmail } from "../utils/validations";
+import style from "./Tier2Request.scss";
+import { STEP_TIER2_REQUEST_SUCCESS } from "../";
+
+import { isRequired, validator, isEmail } from "../../../utils/validations";
 
 import TOS_DocumentURL from "assets/pdfs/TOS_SIGHT_JULY_2019.pdf";
 
@@ -28,16 +30,18 @@ const VALIDATIONS = {
   recaptchaToken: [isRequired]
 };
 
-const nonEuResident = ({
+const Tier2Request = ({
   closeModal,
-  account
+  handleAdvanceStep,
+  nonEuResident,
+  tier2Upgrade
 }) => {
+  const onSubmit = useCallback(async values => {
+    const personalDetails = {
+      ...values
+    };
 
-  const onSubmit = useCallback(
-    async values => {
-      const personalDetails = {
-        ...values
-      };
+    console.log("submitting:", values)
 
     //   updatePerson(personalDetails);
 
@@ -59,21 +63,27 @@ const nonEuResident = ({
     //     }
     //   }
 
-    //   handleAdvanceStep(STEP_PENDING);
-    },
-    []
-  );
+    handleAdvanceStep(STEP_TIER2_REQUEST_SUCCESS);
+  }, []);
 
   return (
     <div className={cx(["modal", "non-eu-resident-modal"])}>
       <UpperBar closeModal={closeModal} title="Create Account"></UpperBar>
       <Header logo={Logo}></Header>
       <div className={cx("modal-body")}>
-        <p>
-          As non-EU resident you'll need to apply for Tier 2 to trade. Provide
-          your email address to start the KYC process
-        </p>
-        <div className={cx("account-details")}>
+        {nonEuResident && (
+          <p>
+            As non-EU resident you'll need to apply for Tier 2 to trade. Provide
+            your email address to start the KYC process
+          </p>
+        )}
+        {tier2Upgrade && (
+          <p>
+            We are happy you are willing to upgrade to Tier 2. Provide your
+            email address to start the KYC process
+          </p>
+        )}
+        <div className={cx("form")}>
           <Form
             onSubmit={onSubmit}
             validate={validator(VALIDATIONS)}
@@ -127,9 +137,7 @@ const nonEuResident = ({
                   disabled={submitting}
                   variant="contained"
                   size="large"
-                  // href="http://eepurl.com/gAjo0X"
-                  target="_BLANK"
-                  rel="noreferrer noopener"
+                  type="submit"
                 >
                   {submitting ? "Please wait" : "Submit request"}
                 </Button>
@@ -150,9 +158,11 @@ const nonEuResident = ({
   );
 };
 
-nonEuResident.propTypes = {
+Tier2Request.propTypes = {
   closeModal: PropTypes.func.isRequired,
-  account: PropTypes.string
+  handleAdvanceStep: PropTypes.func.isRequired,
+  nonEuResident: PropTypes.bool,
+  tier2Upgrade: PropTypes.bool
 };
 
-export default nonEuResident;
+export default Tier2Request;

@@ -12,6 +12,8 @@ import Select from "components/Form/Select";
 import Captcha from "components/Form/Captcha";
 import Spinner from "components/Spinner";
 
+import UpperBar from "../../components/upperBar";
+
 import { getResidenceCountries, postPersonalDetails } from "api/whitelist";
 
 import cn from "classnames/bind";
@@ -105,14 +107,7 @@ const Personal = ({ closeModal, person, updatePerson, handleAdvanceStep }) => {
   if (loadingState === "PENDING") {
     return (
       <>
-        <div className={cx("modal-header")}>
-          Create account
-          <button
-            type="button"
-            onClick={closeModal}
-            className={cx("modal-close")}
-          />
-        </div>
+        <UpperBar closeModal={closeModal} title="Create Account"></UpperBar>
         <div className={cx("modal-body")}>
           <Spinner />;
         </div>
@@ -123,14 +118,7 @@ const Personal = ({ closeModal, person, updatePerson, handleAdvanceStep }) => {
   if (loadingState === "FAILURE") {
     return (
       <>
-        <div className={cx("modal-header")}>
-          Create account
-          <button
-            type="button"
-            onClick={closeModal}
-            className={cx("modal-close")}
-          />
-        </div>
+        <UpperBar closeModal={closeModal} title="Create Account"></UpperBar>
         <div className={cx("modal-body")}>
           <p>Could not load country list. Please try again.</p>
           <button
@@ -146,14 +134,7 @@ const Personal = ({ closeModal, person, updatePerson, handleAdvanceStep }) => {
   }
   return (
     <>
-      <div className={cx("modal-header")}>
-        Create account
-        <button
-          type="button"
-          onClick={closeModal}
-          className={cx("modal-close")}
-        />
-      </div>
+      <UpperBar closeModal={closeModal} title="Create Account"></UpperBar>
       <div className={cx("modal-body")}>
         <Form
           onSubmit={onSubmit}
@@ -296,7 +277,10 @@ const Personal = ({ closeModal, person, updatePerson, handleAdvanceStep }) => {
               <Field name="recaptchaToken" component={Captcha} />
 
               {submitError && <p className={cx("error")}>{submitError}</p>}
-              <button disabled={submitting} className={cx("field", "button")}>
+              <button
+                disabled={submitting}
+                className={cx("field", "button", "primary")}
+              >
                 {submitting ? "Please wait" : "Next"}
               </button>
             </form>
@@ -309,7 +293,7 @@ const Personal = ({ closeModal, person, updatePerson, handleAdvanceStep }) => {
 
 Personal.propTypes = {
   closeModal: PropTypes.func.isRequired,
-  person: PropTypes.func.isRequired,
+  person: PropTypes.shape({}).isRequired,
   updatePerson: PropTypes.func.isRequired,
   handleAdvanceStep: PropTypes.func.isRequired
 };
