@@ -2,6 +2,8 @@ import React, { useCallback, useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { Form, Field } from "react-final-form";
 import classnames from "classnames/bind";
+import Button from "@material-ui/core/Button";
+
 import style from "../kyc.scss";
 import Select from "components/Form/Select";
 import Spinner from "components/Spinner";
@@ -71,13 +73,15 @@ const Nationality = ({ closeModal, updatePerson, handleAdvanceStep }) => {
         <UpperBar closeModal={closeModal} title="Create Account"></UpperBar>
         <div className={cx("modal-body")}>
           <p>Could not load country list. Please try again.</p>
-          <button
-            type="button"
-            className={cx("field", "button")}
+          <Button
+            className={cx("material-button")}
+            classes={{ label: cx("material-button-label") }}
+            variant="contained"
+            size="large"
             onClick={fetchCountries}
           >
             Retry
-          </button>
+          </Button>
         </div>
       </>
     );
@@ -104,7 +108,16 @@ const Nationality = ({ closeModal, updatePerson, handleAdvanceStep }) => {
                   label: nationality.name
                 }))}
               />
-              <button className={cx("field", "button", "primary")}>Next</button>
+              <Button
+                className={cx("field", "material-button")}
+                classes={{ label: cx("material-button-label") }}
+                variant="contained"
+                color="primary"
+                size="large"
+                type="submit"
+              >
+                Next
+              </Button>
             </form>
           )}
         />

@@ -1,6 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import cn from "classnames/bind";
+import Button from "@material-ui/core/Button";
 
 import UpperBar from "../../components/upperBar";
 
@@ -85,12 +86,16 @@ const Rejected = props => {
           <TargetComponent {...props} />
         </div>
         <div>
-          <button
-            className={cx("field", "button", "primary")}
+          <Button
+            className={cx("material-button")}
+            classes={{ label: cx("material-button-label") }}
+            variant="contained"
+            color="primary"
+            size="large"
             onClick={closeModal}
           >
             Close
-          </button>
+          </Button>
         </div>
       </div>
     </>

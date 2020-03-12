@@ -14,7 +14,7 @@ import Header from "../../components/header";
 
 import cn from "classnames/bind";
 
-import style from "./Tier2Request.scss";
+import style from "../kyc.scss";
 import { STEP_TIER2_REQUEST_SUCCESS } from "../";
 
 import { isRequired, validator, isEmail } from "../../../utils/validations";
@@ -67,7 +67,7 @@ const Tier2Request = ({
   }, []);
 
   return (
-    <div className={cx(["modal", "non-eu-resident-modal"])}>
+    <>
       <UpperBar closeModal={closeModal} title="Create Account"></UpperBar>
       <Header logo={Logo}></Header>
       <div className={cx("modal-body")}>
@@ -90,11 +90,12 @@ const Tier2Request = ({
             render={({ handleSubmit, submitError, submitting }) => (
               <form onSubmit={handleSubmit}>
                 <Field
+                  className={cx("field")}
                   name="email"
                   label="E-mail Address*"
                   component={TextInput}
                 />
-                <div className={cx("field-row")}>
+                <div className={cx("field", "field-row")}>
                   <Field
                     name="acceptTos"
                     component={CheckboxInput}
@@ -130,12 +131,17 @@ const Tier2Request = ({
                     label="Newsletter & Updates"
                   />
                 </div>
-                <Field name="recaptchaToken" component={Captcha} />
+                <Field
+                  className={cx("field")}
+                  name="recaptchaToken"
+                  component={Captcha}
+                />
                 <Button
-                  className={cx("submit-button")}
-                  classes={{ label: cx("submit-button-label") }}
+                  className={cx("field", "material-button")}
+                  classes={{ label: cx("material-button-label") }}
                   disabled={submitting}
                   variant="contained"
+                  color="primary"
                   size="large"
                   type="submit"
                 >
@@ -154,7 +160,7 @@ const Tier2Request = ({
           Cancel
         </Link>
       </div>
-    </div>
+    </>
   );
 };
 

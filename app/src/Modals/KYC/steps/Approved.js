@@ -1,6 +1,8 @@
 import React from "react";
 import PropTypes from "prop-types";
 import classnames from "classnames/bind";
+import Button from "@material-ui/core/Button";
+
 import style from "../kyc.scss";
 
 import UpperBar from "../../components/upperBar";
@@ -57,14 +59,16 @@ const Approved = ({ closeModal }) => {
               to receive updates about new markets and news.
             </p>
           </div>
-
-          <button
-            className={cx("field", "button", "primary")}
-            type="button"
+          <Button
+            className={cx("material-button")}
+            classes={{ label: cx("material-button-label") }}
+            variant="contained"
+            color="primary"
+            size="large"
             onClick={closeModal}
           >
             Continue Trading
-          </button>
+          </Button>
         </div>
       </div>
     </>

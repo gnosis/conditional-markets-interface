@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { Form, Field } from "react-final-form";
 import { FORM_ERROR } from "final-form";
+import Button from "@material-ui/core/Button";
 import { getMoment } from "utils/timeFormat";
 
 import DateInput from "components/Form/DateInput";
@@ -141,10 +142,9 @@ const Personal = ({ closeModal, person, updatePerson, handleAdvanceStep }) => {
           validate={validator(VALIDATIONS)}
           render={({ handleSubmit, submitError, submitting }) => (
             <form onSubmit={handleSubmit}>
-              <label className={cx("field", "heading")}>
-                Please provider your information and agree to our policies:
-              </label>
-
+              <p className={cx("field", "heading")}>
+                Please provide your information and agree to our policies:
+              </p>
               <div className={cx("panes")}>
                 <div className={cx("pane", "left")}>
                   <label className={cx("field", "label")}>
@@ -277,12 +277,17 @@ const Personal = ({ closeModal, person, updatePerson, handleAdvanceStep }) => {
               <Field name="recaptchaToken" component={Captcha} />
 
               {submitError && <p className={cx("error")}>{submitError}</p>}
-              <button
+              <Button
+                className={cx("field", "material-button")}
+                classes={{ label: cx("material-button-label") }}
+                variant="contained"
+                color="primary"
+                size="large"
+                type="submit"
                 disabled={submitting}
-                className={cx("field", "button", "primary")}
               >
                 {submitting ? "Please wait" : "Next"}
-              </button>
+              </Button>
             </form>
           )}
         />

@@ -38,22 +38,18 @@
   
   // Material ui styles overrides
   .upgrade-button {
-    background: $blue;
     border-radius: .3rem;
     padding: 1.6rem 6rem;
     box-shadow: none;
-    font-family: $font;
     margin: 1.6rem auto;
 
     &-label {
         font-weight: $bold;
         font-size: 1.8rem;
-        color: $white;
         letter-spacing: 0;
         text-align: center;
         line-height: 1;
         text-transform: none;
-        font-family: inherit;;
     }
   }
   .cancel-button {

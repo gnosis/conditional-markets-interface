@@ -15,7 +15,7 @@ const cx = cn.bind(style);
 
 const Tier2RequestSuccess = ({ closeModal, account }) => {
   return (
-    <div className={cx(["modal", "tier2-request-success-modal"])}>
+    <>
       <UpperBar closeModal={closeModal} title="Request sent"></UpperBar>
       <Header logo={Logo}></Header>
       <div className={cx("modal-body")}>
@@ -35,16 +35,17 @@ const Tier2RequestSuccess = ({ closeModal, account }) => {
           </Link>
         </p>
         <Button
-          className={cx("upgrade-button")}
-          classes={{ label: cx("upgrade-button-label") }}
+          className={cx("material-button")}
+          classes={{ label: cx("material-button-label") }}
           variant="contained"
+          color="primary"
           size="large"
           onClick={closeModal}
         >
           Done
         </Button>
       </div>
-    </div>
+    </>
   );
 };
 

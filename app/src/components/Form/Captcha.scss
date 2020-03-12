@@ -1,7 +1,8 @@
 $errorColor: #f02525;
 
 .field {
-  width: fit-content;
+  display: flex;
+  justify-content: center;
   margin: auto;
   margin-bottom: 0.8rem;
   .error {
