@@ -2,13 +2,15 @@ import React, { useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
 import cn from "classnames/bind";
 import Web3Connect from "web3connect";
+import Blockies from "react-blockies";
+
 import WalletConnectProvider from "@walletconnect/web3-provider";
 
 import useGlobalState from "hooks/useGlobalState";
 
 import conf from "conf";
 
-import Blockies from "react-blockies";
+import { WHITELIST_STATES, WHITELIST_TIER_STATES } from "api/onboarding";
 import Spinner from "components/Spinner";
 import Balance from "./Balance";
 
@@ -96,7 +98,7 @@ const UserWallet = ({
     // - BLOCKED (No trading allowed)
     // - WHITELISTED
 
-    if (whitelistState === "LOADING") {
+    if (whitelistState === WHITELIST_STATES.LOADING) {
       return (
         <div className={cx("user-wallet")}>
           <Spinner />
@@ -104,7 +106,7 @@ const UserWallet = ({
       );
     }
 
-    if (whitelistState === "ERROR") {
+    if (whitelistState === WHITELIST_STATES.ERROR) {
       return (
         <div className={cx("user-wallet")}>
           <span>An error occured. Please try again later.</span>
@@ -112,7 +114,7 @@ const UserWallet = ({
       );
     }
 
-    if (whitelistState === "NOT_FOUND") {
+    if (whitelistState === WHITELIST_STATES.UNKNOWN) {
       return (
         <div className={cx("user-wallet")}>
           {accountsEnabled && (
@@ -139,7 +141,10 @@ const UserWallet = ({
       );
     }
 
-    if (whitelistState === "PENDING_KYC" || whitelistState === "BLOCKED") {
+    if (
+      whitelistState === WHITELIST_STATES.PENDING ||
+      whitelistState === WHITELIST_STATES.BLOCKED
+    ) {
       return (
         <div className={cx("user-wallet")}>
           {accountsEnabled && (
@@ -196,14 +201,7 @@ const UserWallet = ({
 
 UserWallet.propTypes = {
   // address: PropTypes.string,
-  whitelistState: PropTypes.oneOf([
-    "LOADING",
-    "NOT_FOUND",
-    "PENDING_KYC",
-    "WHITELISTED",
-    "BLOCKED",
-    "ERROR"
-  ]).isRequired,
+  whitelistState: PropTypes.oneOf(WHITELIST_STATES).isRequired,
   collateral: PropTypes.shape({
     fromUnitsMultiplier: PropTypes.object,
     symbol: PropTypes.string

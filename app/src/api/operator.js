@@ -1,15 +1,7 @@
 const conf = require("conf");
 const { OPERATOR_API_URL, network } = conf;
 
-const createQueryString = params => {
-  return Object.keys(params)
-    .map(key => {
-      if (params[key]) {
-        return key + "=" + params[key];
-      }
-    })
-    .join("&");
-};
+import { createQueryString } from "./util";
 
 const getQuestionsMock = () => {
   return { results: conf.markets };

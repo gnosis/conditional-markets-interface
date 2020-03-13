@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { setSourceOfFunds } from "api/whitelist";
+import { setSourceOfFunds } from "api/onboarding";
 
 import cn from "classnames/bind";
 

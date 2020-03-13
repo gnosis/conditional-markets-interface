@@ -16,7 +16,7 @@ import {
 } from "utils/getIdsUtil";
 import ToastifyError from "utils/ToastifyError";
 
-import { getWhitelistState } from "api/whitelist";
+import { getWhitelistState } from "api/onboarding";
 import { getQuestions } from "api/operator";
 import { GET_TRADES_BY_MARKET_MAKER } from "api/thegraph";
 
