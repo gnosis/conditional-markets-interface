@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import PropTypes from "prop-types";
 import Logo from "assets/img/emote_trade_limit.svg";
 import Button from "@material-ui/core/Button";
@@ -7,6 +7,8 @@ import Divider from "@material-ui/core/Divider";
 
 import UpperBar from "./components/upperBar";
 import Header from "./components/header";
+
+import { postTier2Upgrade } from "api/whitelist";
 
 import cn from "classnames/bind";
 
@@ -23,6 +25,36 @@ const tradeOverLimit = ({
   tradeValue,
   openModal
 }) => {
+  const handleTierUpgrade = useCallback(async values => {
+    const personalDetails = {
+      ...values
+    };
+
+    console.log("submitting:", values);
+
+    // const [response, json] = await postTier2Upgrade(personalDetails);
+
+    // if (!response.ok) {
+    //   if (response.code === 400) {
+    //     return json;
+    //   } else if (response.code === 403) {
+    //     return {
+    //       [FORM_ERROR]:
+    //         "Your address is already being processed. Please wait until your application has been approved."
+    //     };
+    //   } else {
+    //     return {
+    //       [FORM_ERROR]:
+    //         "Unfortunately, the whitelisting API returned a non-standard error. Please try again later."
+    //     };
+    //   }
+    // }
+    openModal("KYC", {
+      initialStep: "TIER2_REQUEST_SUCCESS",
+      tier2Upgrade: "true"
+    });
+  }, []);
+
   const exceedValue = volume + tradeValue - maxVolume;
   return (
     <div className={cx(["modal", "over-limit-modal"])}>
@@ -74,8 +106,7 @@ const tradeOverLimit = ({
           variant="contained"
           color="primary"
           size="large"
-          onClick={() => openModal("KYC", { initialStep: "TIER2_REQUEST", tier2Upgrade: "true" })}
-          // href="http://eepurl.com/gAjo0X"
+          onClick={handleTierUpgrade}
           target="_BLANK"
           rel="noreferrer noopener"
         >

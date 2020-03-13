@@ -5,12 +5,15 @@ import Button from "@material-ui/core/Button";
 import Link from "@material-ui/core/Link";
 
 import { Form, Field } from "react-final-form";
+import { FORM_ERROR } from "final-form";
 
 import TextInput from "components/Form/TextInput";
 import CheckboxInput from "components/Form/Checkbox";
 import Captcha from "components/Form/Captcha";
 import UpperBar from "../../components/upperBar";
 import Header from "../../components/header";
+
+import { postTier2Request } from "api/whitelist";
 
 import cn from "classnames/bind";
 
@@ -41,27 +44,27 @@ const Tier2Request = ({
       ...values
     };
 
-    console.log("submitting:", values)
+    console.log("submitting:", values);
 
     //   updatePerson(personalDetails);
 
-    //   const [response, json] = await postPersonalDetails(personalDetails);
+    // const [response, json] = await postTier2Request(personalDetails);
 
-    //   if (!response.ok) {
-    //     if (response.code === 400) {
-    //       return json;
-    //     } else if (response.code === 403) {
-    //       return {
-    //         [FORM_ERROR]:
-    //           "Your address is already being processed. Please wait until your application has been approved."
-    //       };
-    //     } else {
-    //       return {
-    //         [FORM_ERROR]:
-    //           "Unfortunately, the whitelisting API returned a non-standard error. Please try again later."
-    //       };
-    //     }
+    // if (!response.ok) {
+    //   if (response.code === 400) {
+    //     return json;
+    //   } else if (response.code === 403) {
+    //     return {
+    //       [FORM_ERROR]:
+    //         "Your address is already being processed. Please wait until your application has been approved."
+    //     };
+    //   } else {
+    //     return {
+    //       [FORM_ERROR]:
+    //         "Unfortunately, the whitelisting API returned a non-standard error. Please try again later."
+    //     };
     //   }
+    // }
 
     handleAdvanceStep(STEP_TIER2_REQUEST_SUCCESS);
   }, []);
@@ -136,6 +139,7 @@ const Tier2Request = ({
                   name="recaptchaToken"
                   component={Captcha}
                 />
+                {submitError && <p className={cx("error")}>{submitError}</p>}
                 <Button
                   className={cx("field", "material-button")}
                   classes={{ label: cx("material-button-label") }}

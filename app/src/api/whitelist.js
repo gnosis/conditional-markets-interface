@@ -25,12 +25,9 @@ export const getWhitelistState = async accountAddress => {
 export const getResidenceCountries = async () => {
   const url = `${WHITELIST_API_URL}/v1/countries`;
 
-  const response = await fetch(url, {
+  return fetch(url, {
     method: "GET"
-  });
-  const json = await response.json();
-
-  return json;
+  }).then(res => res.json());
 };
 
 export const setSourceOfFunds = async sowInformation => {
@@ -101,4 +98,58 @@ export const getWhitelistSddStatus = async account => {
   }
 
   return { sanctionStatus: "ERROR", whitelistStatus: "ERROR" };
+};
+
+/**
+ * Call to upgrade a Tier 1 user that wants to promote to Tier 2.
+ * @function
+ * @param {Object} userDetails - Information from the user that requests the upgrade.
+ * @param {string} userDetails.ethAddress - The user eth address.
+ * @param {string} userDetails.recaptchaToken - The user signed captcha.
+ */
+export const postTier2Upgrade = async userDetails => {
+  const url = `${WHITELIST_API_URL}/v1/tiers/2/upgrades`;
+  console.log(userDetails);
+  const response = await fetch(url, {
+    method: "POST",
+    body: JSON.stringify(userDetails),
+    headers: {
+      "Content-Type": "application/json"
+    }
+  });
+
+  if (response.ok) {
+    // ok response (204) has no body
+    return [response, null];
+  }
+
+  const json = await response.json();
+  return [response, json];
+};
+
+/**
+ * Call to request a Tier 2 account creation for an user that can't apply for Tier 1. (Non EU user).
+ * @function
+ * @param {Object} userDetails - Information from the user that requests the registration.
+ * @param {string} userDetails.email - The user email to start the proccess.
+ * @param {string} userDetails.recaptchaToken - The user signed captcha.
+ */
+export const postTier2Request = async userDetails => {
+  const url = `${WHITELIST_API_URL}/v1/tiers/2/requests`;
+
+  const response = await fetch(url, {
+    method: "POST",
+    body: JSON.stringify(userDetails),
+    headers: {
+      "Content-Type": "application/json"
+    }
+  });
+
+  if (response.ok) {
+    // ok response (204) has no body
+    return [response, null];
+  }
+
+  const json = await response.json();
+  return [response, json];
 };
