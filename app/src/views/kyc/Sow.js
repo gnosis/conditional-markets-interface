@@ -169,8 +169,8 @@ const Sow = props => {
         >
           <p>
             To be regulated under Gibraltar's Distributed Ledger Technology
-            (DTL) framework we are required to collect information on your source of
-            funds.
+            (DTL) framework we are required to collect information on your
+            source of funds.
           </p>
           <br />
           <p>
@@ -245,14 +245,14 @@ const Sow = props => {
             <span>
               <h3>Source of Funds Description</h3>
               <strong>
-              Add specifics to your source of funds. Like "Sale of property in
-              UK", "Family inheritance"{" "}
-              <small className={cx("text-red")}>*</small>
+                Add specifics to your source of funds. Like "Sale of property in
+                UK", "Family inheritance"{" "}
+                <small className={cx("text-red")}>*</small>
               </strong>
               <input
-              name="source_description"
-              required
-              {...bindSourceDescription}
+                name="source_description"
+                required
+                {...bindSourceDescription}
               />
             </span>
           ) : null}
