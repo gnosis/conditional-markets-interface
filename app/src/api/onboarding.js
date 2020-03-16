@@ -1,25 +1,40 @@
 const conf = require("../conf");
-const { WHITELIST_ENABLED, WHITELIST_API_URL } = conf;
+const { WHITELIST_API_URL } = conf;
 
-export const getWhitelistState = async accountAddress => {
-  if (!WHITELIST_ENABLED) {
-    return true;
-  }
+const WHITELIST_PENDING = "PENDING_KYC";
+const WHITELIST_BLOCKED = "BLOCKED";
+const WHITELIST_APPROVED = "WHITELISTED";
+const WHITELIST_UNKNOWN = "UNKNOWN";
+const WHITELIST_LOADING = "LOADING";
+const WHITELIST_ERROR = "ERROR";
 
-  const response = await fetch(
-    `${WHITELIST_API_URL}/v1/users/${accountAddress}/`
-  );
-  if (response.status === 404) {
-    return "NOT_FOUND";
-  }
+/**
+ * Whitelist State Values
+ *
+ * @enum {string}
+ */
+export const WHITELIST_STATES = {
+  PENDING: WHITELIST_PENDING,
+  BLOCKED: WHITELIST_BLOCKED,
+  APPROVED: WHITELIST_APPROVED,
+  UNKNOWN: WHITELIST_UNKNOWN,
+  LOADING: WHITELIST_LOADING,
+  ERROR: WHITELIST_ERROR
+};
 
-  if (!response.ok) {
-    return "ERROR";
-  }
+const WHITELIST_TIER_PENDING_SDD = "PENDING_SDD";
+const WHITELIST_TIER_PENDING = "PENDING";
+const WHITELIST_TIER_SANCTIONED = "SANCTIONED";
 
-  const json = await response.json();
-
-  return json.status; // 'PENDING_KYC', 'BLOCKED', 'WHITELISTED'
+/**
+ * Whitelist Tier Statuses
+ *
+ * @enum {string}
+ */
+export const WHITELIST_TIER_STATES = {
+  ["PENDING_SDD"]: WHITELIST_TIER_PENDING_SDD,
+  ["PENDING"]: WHITELIST_TIER_PENDING,
+  ["SANCTIONED"]: WHITELIST_TIER_SANCTIONED
 };
 
 export const getResidenceCountries = async () => {
@@ -67,7 +82,46 @@ export const postPersonalDetails = async personalDetails => {
   return [response, json];
 };
 
-export const getWhitelistSddStatus = async account => {
+/**
+ * Returns the current status of the requested accounts whitelist process
+ *
+ * @param {string} accountAddress - Ethereum Wallet Address
+ * @returns {WHITELIST_STATES} - state
+ */
+export const getWhitelistState = async accountAddress => {
+  const response = await fetch(
+    `${WHITELIST_API_URL}/v2/users/${accountAddress}/`
+  );
+  if (response.status === 404) {
+    return WHITELIST_STATES.UNKNOWN;
+  }
+
+  if (!response.ok) {
+    return "ERROR";
+  }
+
+  const json = await response.json();
+
+  return json.status; // 'PENDING_KYC', 'BLOCKED', 'WHITELISTED'
+};
+
+/**
+ * @typedef {object} WhitelistProcessingInformation
+ * @property {string} sanctionStatus - Address checked against sanction list
+ * @property {string} whitelistStatus - Address (if applicable) added to whitelist
+ * @property {bool} rejected - Applicant was rejected
+ */
+
+/**
+ * Determines if the passed accounts whitelist process is currently pending or completed.
+ * This function returns this information in two sections "sanctionStatus" and "whitelistStatus"
+ * "sanctionStatus" - Was this address checked against a sanction list
+ * "whitelistStatus" - Was this address (if applicable) added to the whitelist
+ *
+ * @param {string} account - Ethereum Wallet
+ * @returns {WhitelistProcessingInformation}
+ */
+export const isTieredWhitelistProcessing = async account => {
   const url = `${WHITELIST_API_URL}/v2/users/${account}`;
 
   const response = await fetch(url, {
@@ -78,17 +132,18 @@ export const getWhitelistSddStatus = async account => {
     const json = await response.json();
 
     // This just checks for PENDING, not if the status is successful or not
-    let sanctionStatus = "PENDING";
-    let whitelistStatus = "PENDING";
+    let sanctionStatus = WHITELIST_TIER_STATES.PENDING;
+    let whitelistStatus = WHITELIST_TIER_STATES.PENDING;
     let rejected = false;
     let t1;
     if (json["tiers"] && json["tiers"]["tier1"]) {
       t1 = json["tiers"]["tier1"];
 
-      sanctionStatus = t1["status"] !== "PENDING_SDD";
-      whitelistStatus = json["status"] != "BLOCKED" && sanctionStatus;
+      sanctionStatus = t1["status"] !== WHITELIST_TIER_STATES.PENDING_SDD;
+      whitelistStatus =
+        json["status"] != WHITELIST_TIER_STATES.BLOCKED && sanctionStatus;
 
-      if (t1["status"] === "SANCTIONED") {
+      if (t1["status"] === WHITELIST_TIER_STATES.SANCTIONED) {
         whitelistStatus = true;
         rejected = true;
       }

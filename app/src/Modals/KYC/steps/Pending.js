@@ -9,7 +9,7 @@ import useInterval from "@use-it/interval";
 
 import UpperBar from "../../components/upperBar";
 
-import { getWhitelistSddStatus } from "api/whitelist";
+import { isTieredWhitelistProcessing } from "api/onboarding";
 import { STEP_REJECTED, STEP_APPROVED } from "..";
 
 const cx = classnames.bind(style);
@@ -27,7 +27,7 @@ const Pending = ({ closeModal, handleAdvanceStep }) => {
     }
 
     return (async () => {
-      const status = await getWhitelistSddStatus(account);
+      const status = await isTieredWhitelistProcessing(account);
 
       if (
         status["sanctionStatus"] === "ERROR" ||

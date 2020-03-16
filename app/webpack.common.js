@@ -114,10 +114,15 @@ module.exports = {
     new webpack.EnvironmentPlugin({
       NODE_ENV: "development",
       NETWORK: false,
-      WHITELIST_ENABLED: isProduction,
       WHITELIST_API: "https://sight-whitelist.staging.gnosisdev.com/api",
       OPERATOR_API: "",
-      BASE_URL: "/"
+      BASE_URL: "/",
+      ONBOARDING_MODE: "WHITELIST"
+      /* Onboarding Mode Values:
+      // WHITELIST - Shows Banner with form for whitelist process
+      // DISABLED - For Testing, no whitelist/onboarding required
+      // TIERED - Hides Banner, starts verification/create account process via Wallet Button
+      */
     })
   ]
 };

@@ -10,7 +10,7 @@ import Spinner from "components/Spinner";
 
 import UpperBar from "../../components/upperBar";
 
-import { getResidenceCountries } from "api/whitelist";
+import { getResidenceCountries } from "api/onboarding";
 
 import { STEP_REJECTED, STEP_PERSONAL } from "../";
 import { isRequired, validator } from "utils/validations";

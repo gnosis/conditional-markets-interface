@@ -11,7 +11,7 @@ const networkConfig = network ? require(`./config.${network}.json`) : {};
 const operatorConfig = require("./config-operator");
 
 // Whitelist conf
-const whitelistConfig = require(`./config-whitelist`);
+const onboardingConfig = require(`./config-onboarding`);
 
 // Operator conf
 const theGraphConfig = require("./config-thegraph");
@@ -30,7 +30,7 @@ let customConfig = customConfigFile
 let config = {
   ...networkConfig,
   ...operatorConfig,
-  ...whitelistConfig,
+  ...onboardingConfig,
   ...theGraphConfig,
   ...customConfig
 };

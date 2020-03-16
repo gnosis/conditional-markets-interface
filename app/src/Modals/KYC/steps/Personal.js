@@ -15,7 +15,7 @@ import Spinner from "components/Spinner";
 
 import UpperBar from "../../components/upperBar";
 
-import { getResidenceCountries, postPersonalDetails } from "api/whitelist";
+import { getResidenceCountries, postPersonalDetails } from "api/onboarding";
 
 import cn from "classnames/bind";
 

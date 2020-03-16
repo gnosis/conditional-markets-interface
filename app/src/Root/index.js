@@ -16,7 +16,7 @@ import {
 } from "utils/getIdsUtil";
 import ToastifyError from "utils/ToastifyError";
 
-import { getWhitelistState } from "api/whitelist";
+import { getWhitelistState } from "api/onboarding";
 import { getQuestions } from "api/operator";
 import { GET_TRADES_BY_MARKET_MAKER } from "api/thegraph";
 
@@ -28,7 +28,10 @@ import conf from "../conf";
 import getMarketMakersRepo from "../repositories/MarketMakersRepo";
 import getConditionalTokensService from "../services/ConditionalTokensService";
 
-const whitelistEnabled = conf.WHITELIST_ENABLED;
+const ONBOARDING_MODE = conf.ONBOARDING_MODE;
+
+const SHOW_WHITELIST_HEADER = ONBOARDING_MODE === "WHITELIST";
+
 const SYNC_INTERVAL = 8000;
 const WHITELIST_CHECK_INTERVAL = 30000;
 
@@ -388,47 +391,65 @@ const RootComponent = ({ match, childComponents }) => {
           );
         }
 
-        if (whitelistEnabled && whitelistState !== "WHITELISTED") {
-          openModal("applyBeta", { whitelistState });
-        } else {
-          try {
-            addToast("Transaction processing...", "info");
-            setOngoingTransactionType(wrappedTransactionType);
-            await transactionFn();
-            addToast("Transaction confirmed.", "success");
-          } catch (e) {
-            if (e instanceof ToastifyError) {
-              addToast(
-                <>
-                  {e.message}
-                  <br />
-                </>,
-                "error"
-              );
+        if (ONBOARDING_MODE !== "DISABLED") {
+          // Whitelist is enabled, check for kind of onboaridng method and either show
+          // the modal to apply for the whitelist, or (temporarily) throw an error to indicate
+          // that the user has to "create an account" before being able to trade.
+
+          if (whitelistState !== "WHITELISTED") {
+            if (ONBOARDING_MODE === "WHITELIST") {
+              // Whitelist Mode meaans show Modal for whitelisting options
+              openModal("applyBeta", { whitelistState });
             } else {
+              // Future-proofing: default error handling shows an error indicating
+              // that the user needs to be registered/whitelist before being able to trade
               addToast(
                 <>
-                  Unfortunately, the transaction failed.
+                  Trading not allowed for your wallet.
                   <br />
+                  Please follow our onboarding process before participating in
+                  trades.
                 </>,
                 "error"
               );
             }
-            throw e;
-          } finally {
-            setOngoingTransactionType(null);
-            setStagedTransactionType(null);
-            triggerSync();
+
+            return;
           }
+        }
+
+        try {
+          addToast("Transaction processing...", "info");
+          setOngoingTransactionType(wrappedTransactionType);
+          await transactionFn();
+          addToast("Transaction confirmed.", "success");
+        } catch (e) {
+          if (e instanceof ToastifyError) {
+            addToast(
+              <>
+                {e.message}
+                <br />
+              </>,
+              "error"
+            );
+          } else {
+            addToast(
+              <>
+                Unfortunately, the transaction failed.
+                <br />
+              </>,
+              "error"
+            );
+          }
+          throw e;
+        } finally {
+          setOngoingTransactionType(null);
+          setStagedTransactionType(null);
+          triggerSync();
         }
       };
     },
-    [
-      whitelistEnabled,
-      whitelistState,
-      setOngoingTransactionType,
-      ongoingTransactionType
-    ]
+    [whitelistState, setOngoingTransactionType, ongoingTransactionType]
   );
 
   const addToast = useCallback(
@@ -512,10 +533,12 @@ const RootComponent = ({ match, childComponents }) => {
           {modal}
         </div>
         <div className={cx("app-space", { "modal-open": !!modal })}>
-          <ApplyBetaHeader
-            openModal={openModal}
-            whitelistState={whitelistState}
-          />
+          {SHOW_WHITELIST_HEADER && (
+            <ApplyBetaHeader
+              openModal={openModal}
+              whitelistState={whitelistState}
+            />
+          )}
           <Header
             avatar={
               <UserWallet
