@@ -1,11 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
-//import cn from "classnames/bind";
 
-//import style from "./TextInput.scss";
 import TextInput from "./TextInput";
-
-//const cx = cn.bind(style);
 
 const WalletInput = ({ className, input, meta, ...props }) => {
   return (

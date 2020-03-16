@@ -12,7 +12,7 @@ import Select from "components/Form/Select";
 import Captcha from "components/Form/Captcha";
 import Spinner from "components/Spinner";
 
-import { getResidenceCountries, postPersonalDetails } from "api/whitelist";
+import { getResidenceCountries, postPersonalDetails } from "api/onboarding";
 
 import cn from "classnames/bind";
 
