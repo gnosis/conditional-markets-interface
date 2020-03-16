@@ -13,7 +13,7 @@ import Captcha from "components/Form/Captcha";
 import UpperBar from "../../components/upperBar";
 import Header from "../../components/header";
 
-import { postTier2Request } from "api/whitelist";
+import { postTier2Request } from "api/onboarding";
 
 import cn from "classnames/bind";
 

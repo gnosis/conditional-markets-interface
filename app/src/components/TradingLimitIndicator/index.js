@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import PropTypes from "prop-types";
 import cn from "classnames/bind";
 
-import { getCurrentTradingVolume } from "api/whitelist";
+import { getCurrentTradingVolume } from "api/onboarding";
 
 import LinearProgress from "@material-ui/core/LinearProgress";
 import InputLabel from "@material-ui/core/InputLabel";

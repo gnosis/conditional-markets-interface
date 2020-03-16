@@ -8,7 +8,7 @@ import Divider from "@material-ui/core/Divider";
 import UpperBar from "./components/upperBar";
 import Header from "./components/header";
 
-import { postTier2Upgrade } from "api/whitelist";
+import { postTier2Upgrade } from "api/onboarding";
 
 import cn from "classnames/bind";
 
