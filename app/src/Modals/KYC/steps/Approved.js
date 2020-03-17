@@ -3,6 +3,8 @@ import PropTypes from "prop-types";
 import classnames from "classnames/bind";
 import Button from "@material-ui/core/Button";
 
+import { formatAddress } from "utils/formatting";
+
 import style from "../kyc.scss";
 
 import UpperBar from "../../components/upperBar";
@@ -31,7 +33,7 @@ const Approved = ({ closeModal }) => {
               <div className={cx("entry")}>
                 <div className={cx("label")}>Wallet Address</div>
                 <div className={cx("dots")} />
-                <div className={cx("value")}>{account}</div>
+                <div className={cx("value")}>{formatAddress(account)}</div>
               </div>
               <div className={cx("entry")}>
                 <div className={cx("label")}>Tier Level</div>

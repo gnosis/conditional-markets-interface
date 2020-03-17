@@ -5,53 +5,70 @@ import Button from "@material-ui/core/Button";
 import Link from "@material-ui/core/Link";
 import Divider from "@material-ui/core/Divider";
 
+import { Form, Field } from "react-final-form";
+import { FORM_ERROR } from "final-form";
+
+import { formatAddress } from "utils/formatting";
+
 import UpperBar from "./components/upperBar";
 import Header from "./components/header";
+import Captcha from "components/Form/Captcha";
 
 import { postTier2Upgrade } from "api/onboarding";
 
 import cn from "classnames/bind";
 
 import style from "./tradeOverLimit.scss";
+import { isRequired, validator } from "../utils/validations";
 
 const cx = cn.bind(style);
 
-const tradeOverLimit = ({
-  closeModal,
-  account,
-  tier,
-  volume,
-  maxVolume,
-  tradeValue,
-  openModal
-}) => {
-  const handleTierUpgrade = useCallback(async values => {
+const VALIDATIONS = {
+  recaptchaToken: [isRequired]
+};
+
+const tradeOverLimit = props => {
+  const {
+    closeModal,
+    address,
+    tier,
+    volume,
+    maxVolume,
+    tradeValue,
+    openModal
+  } = props;
+
+  const onSubmit = useCallback(async values => {
     const personalDetails = {
+      ethAddress: address,
       ...values
     };
 
-    console.log("submitting:", values);
+    console.log("submitting:", personalDetails);
 
-    // const [response, json] = await postTier2Upgrade(personalDetails);
+    const [response, json] = await postTier2Upgrade(personalDetails);
 
-    // if (!response.ok) {
-    //   if (response.code === 400) {
-    //     return json;
-    //   } else if (response.code === 403) {
-    //     return {
-    //       [FORM_ERROR]:
-    //         "Your address is already being processed. Please wait until your application has been approved."
-    //     };
-    //   } else {
-    //     return {
-    //       [FORM_ERROR]:
-    //         "Unfortunately, the whitelisting API returned a non-standard error. Please try again later."
-    //     };
-    //   }
-    // }
+    if (!response.ok) {
+      if (response.code === 400) {
+        return json;
+      } else if (response.code === 403) {
+        return {
+          [FORM_ERROR]:
+            "Your address is already being processed. Please wait until your application has been approved."
+        };
+      } else {
+        return {
+          [FORM_ERROR]:
+            "Unfortunately, the whitelisting API returned a non-standard error. Please try again later."
+        };
+      }
+    }
+
     openModal("KYC", {
       initialStep: "TIER2_REQUEST_SUCCESS",
-      tier2Upgrade: "true"
+      tier2Upgrade: "true",
+      stepProps: props,
+      address
     });
   }, []);
 
@@ -66,7 +83,7 @@ const tradeOverLimit = ({
           <div className={cx("account-details-element")}>
             <span>Wallet address:</span>
             <span className={cx("dotted-separator")}></span>
-            <span>{account}</span>
+            <span>{formatAddress(address)}</span>
           </div>
           <div className={cx("account-details-element")}>
             <span>Tier Level:</span>
@@ -100,18 +117,32 @@ const tradeOverLimit = ({
           Upgrade to Tier 2 and trade up to 15.000€ by completing our expanded
           KYC process.
         </p>
-        <Button
-          className={cx("upgrade-button")}
-          classes={{ label: cx("upgrade-button-label") }}
-          variant="contained"
-          color="primary"
-          size="large"
-          onClick={handleTierUpgrade}
-          target="_BLANK"
-          rel="noreferrer noopener"
-        >
-          Upgrade to Tier 2
-        </Button>
+
+        <Form
+          onSubmit={onSubmit}
+          validate={validator(VALIDATIONS)}
+          render={({ handleSubmit, submitError, submitting }) => (
+            <form onSubmit={handleSubmit}>
+              <Field
+                className={cx("field")}
+                name="recaptchaToken"
+                component={Captcha}
+              />
+              {submitError && <p className={cx("error")}>{submitError}</p>}
+              <Button
+                className={cx("field", "upgrade-button")}
+                classes={{ label: cx("upgrade-button-label") }}
+                disabled={submitting}
+                variant="contained"
+                color="primary"
+                size="large"
+                type="submit"
+              >
+                {submitting ? "Please wait" : "Upgrade to Tier 2"}
+              </Button>
+            </form>
+          )}
+        />
         <Link
           className={cx("cancel-button")}
           component="button"
@@ -127,7 +158,8 @@ const tradeOverLimit = ({
 
 tradeOverLimit.propTypes = {
   closeModal: PropTypes.func.isRequired,
-  account: PropTypes.string,
+  openModal: PropTypes.func.isRequired,
+  address: PropTypes.string,
   tier: PropTypes.number.isRequired,
   volume: PropTypes.number.isRequired,
   maxVolume: PropTypes.number.isRequired,

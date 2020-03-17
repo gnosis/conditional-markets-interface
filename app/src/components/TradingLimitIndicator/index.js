@@ -19,7 +19,7 @@ const MAX = 150;
 // Function to normalise the values (MIN / MAX could be integrated)
 const normalise = value => ((value - MIN) * 100) / (MAX - MIN);
 
-const TradingLimitIndicator = ({ openModal, account }) => {
+const TradingLimitIndicator = ({ openModal, address }) => {
   const [volume, setVolume] = React.useState(0);
 
   useEffect(() => {
@@ -31,7 +31,7 @@ const TradingLimitIndicator = ({ openModal, account }) => {
       className={cx("trading-indicator")}
       onClick={() =>
         openModal("tradeOverLimit", {
-          account,
+          address,
           tier: 1,
           volume,
           maxVolume: MAX,

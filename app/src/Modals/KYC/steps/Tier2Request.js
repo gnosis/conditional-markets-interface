@@ -33,12 +33,7 @@ const VALIDATIONS = {
   recaptchaToken: [isRequired]
 };
 
-const Tier2Request = ({
-  closeModal,
-  handleAdvanceStep,
-  nonEuResident,
-  tier2Upgrade
-}) => {
+const Tier2Request = ({ closeModal, handleAdvanceStep }) => {
   const onSubmit = useCallback(async values => {
     const personalDetails = {
       ...values
@@ -48,23 +43,23 @@ const Tier2Request = ({
 
     //   updatePerson(personalDetails);
 
-    // const [response, json] = await postTier2Request(personalDetails);
+    const [response, json] = await postTier2Request(personalDetails);
 
-    // if (!response.ok) {
-    //   if (response.code === 400) {
-    //     return json;
-    //   } else if (response.code === 403) {
-    //     return {
-    //       [FORM_ERROR]:
-    //         "Your address is already being processed. Please wait until your application has been approved."
-    //     };
-    //   } else {
-    //     return {
-    //       [FORM_ERROR]:
-    //         "Unfortunately, the whitelisting API returned a non-standard error. Please try again later."
-    //     };
-    //   }
-    // }
+    if (!response.ok) {
+      if (response.code === 400) {
+        return json;
+      } else if (response.code === 403) {
+        return {
+          [FORM_ERROR]:
+            "Your address is already being processed. Please wait until your application has been approved."
+        };
+      } else {
+        return {
+          [FORM_ERROR]:
+            "Unfortunately, the whitelisting API returned a non-standard error. Please try again later."
+        };
+      }
+    }
 
     handleAdvanceStep(STEP_TIER2_REQUEST_SUCCESS);
   }, []);
@@ -74,18 +69,10 @@ const Tier2Request = ({
       <UpperBar closeModal={closeModal} title="Create Account"></UpperBar>
       <Header logo={Logo}></Header>
       <div className={cx("modal-body")}>
-        {nonEuResident && (
-          <p>
-            As non-EU resident you'll need to apply for Tier 2 to trade. Provide
-            your email address to start the KYC process
-          </p>
-        )}
-        {tier2Upgrade && (
-          <p>
-            We are happy you are willing to upgrade to Tier 2. Provide your
-            email address to start the KYC process
-          </p>
-        )}
+        <p>
+          As non-EU resident you'll need to apply for Tier 2 to trade. Provide
+          your email address to start the KYC process
+        </p>
         <div className={cx("form")}>
           <Form
             onSubmit={onSubmit}
@@ -170,9 +157,7 @@ const Tier2Request = ({
 
 Tier2Request.propTypes = {
   closeModal: PropTypes.func.isRequired,
-  handleAdvanceStep: PropTypes.func.isRequired,
-  nonEuResident: PropTypes.bool,
-  tier2Upgrade: PropTypes.bool
+  handleAdvanceStep: PropTypes.func.isRequired
 };
 
 export default Tier2Request;

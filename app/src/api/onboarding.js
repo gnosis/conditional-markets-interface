@@ -163,8 +163,8 @@ export const isTieredWhitelistProcessing = async account => {
  * @param {string} userDetails.recaptchaToken - The user signed captcha.
  */
 export const postTier2Upgrade = async userDetails => {
-  const url = `${WHITELIST_API_URL}/v1/tiers/2/upgrades`;
-  console.log(userDetails);
+  const url = `${WHITELIST_API_URL}/v1/tiers/2/upgrades/`;
+
   const response = await fetch(url, {
     method: "POST",
     body: JSON.stringify(userDetails),
@@ -190,7 +190,7 @@ export const postTier2Upgrade = async userDetails => {
  * @param {string} userDetails.recaptchaToken - The user signed captcha.
  */
 export const postTier2Request = async userDetails => {
-  const url = `${WHITELIST_API_URL}/v1/tiers/2/requests`;
+  const url = `${WHITELIST_API_URL}/v1/tiers/2/requests/`;
 
   const response = await fetch(url, {
     method: "POST",

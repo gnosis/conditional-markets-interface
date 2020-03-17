@@ -7,6 +7,7 @@ import Blockies from "react-blockies";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 
 import useGlobalState from "hooks/useGlobalState";
+import { formatAddress } from "utils/formatting";
 
 import conf from "conf";
 
@@ -21,9 +22,6 @@ const ONBOARDING_MODE = conf.ONBOARDING_MODE;
 const accountsEnabled = ONBOARDING_MODE === "TIERED";
 
 const cx = cn.bind(style);
-
-const formatAddress = address =>
-  `${address.substr(0, 6)}...${address.substr(-4)}`;
 
 const web3Connect = new Web3Connect.Core({
   network: conf.network,
@@ -195,10 +193,9 @@ const UserWallet = ({
   }
   return (
     <div className={cx("user-wallet")}>
-      <TradingLimitIndicator
-        openModal={openModal}
-        account={formatAddress(address)}
-      />
+      {accountsEnabled && (
+        <TradingLimitIndicator openModal={openModal} address={address} />
+      )}
       <div className={cx("avatar")}>
         <Blockies
           seed={address.toLowerCase()}
