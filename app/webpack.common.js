@@ -1,6 +1,7 @@
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const FaviconsWebpackPlugin = require("favicons-webpack-plugin");
+const MomentLocalesPlugin = require("moment-locales-webpack-plugin");
 
 const webpack = require("webpack");
 
@@ -123,6 +124,8 @@ module.exports = {
       // DISABLED - For Testing, no whitelist/onboarding required
       // TIERED - Hides Banner, starts verification/create account process via Wallet Button
       */
-    })
+    }),
+    // Prevent loading all moment locales but EN
+    new MomentLocalesPlugin()
   ]
 };
