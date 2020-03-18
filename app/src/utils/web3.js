@@ -76,7 +76,7 @@ export async function loadWeb3(networkId, provider) {
 
   for (const [providerType, providerCandidate] of [
     //["injected web3", window["web3"] && window["web3"]["currentProvider"]],
-    ["web3connect provider", provider],
+    ["web3 provider", provider],
     [
       `read-only for id ${networkId}`,
       getReadOnlyProviderForNetworkId(networkId)
