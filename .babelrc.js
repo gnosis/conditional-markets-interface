@@ -1,7 +1,8 @@
 module.exports = {
   presets: [
     ["@babel/preset-env", {
-      targets: "last 1 version, > 0.25%, not dead"
+      targets: "last 1 version, > 0.25%, not dead",
+      modules: false
     }],
     "@babel/preset-react"
   ],

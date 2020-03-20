@@ -1,7 +1,7 @@
 import React, { useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
 import cn from "classnames/bind";
-import Web3Connect from "web3connect";
+import Web3Modal from "web3modal";
 import Blockies from "react-blockies";
 
 import WalletConnectProvider from "@walletconnect/web3-provider";
@@ -23,7 +23,7 @@ const accountsEnabled = ONBOARDING_MODE === "TIERED";
 
 const cx = cn.bind(style);
 
-const web3Connect = new Web3Connect.Core({
+const web3Modal = new Web3Modal({
   network: conf.network,
   // cacheProvider: true,
   providerOptions: {
@@ -54,24 +54,24 @@ const UserWallet = ({
   );
 
   const disconnect = () => {
-    // web3Connect.clearCachedProvider();
+    // web3Modal.clearCachedProvider();
     setProvider(null);
   };
 
   useEffect(() => {
-    web3Connect.on("connect", connect);
+    web3Modal.on("connect", connect);
 
-    web3Connect.on("disconnect", () => {
+    web3Modal.on("disconnect", () => {
       // disconnect();
     });
 
-    web3Connect.on("close", () => {});
+    web3Modal.on("close", () => {});
     // Cleanup on component destroy (contract reloading needs to recreate connect function)
     return function cleanupListener() {
       // Cleanup all litseners at once
-      web3Connect.off("connect");
-      web3Connect.off("disconnect");
-      web3Connect.off("close");
+      web3Modal.off("connect");
+      web3Modal.off("disconnect");
+      web3Modal.off("close");
     };
   }, []);
 
@@ -80,7 +80,7 @@ const UserWallet = ({
       <div className={cx("user-wallet")}>
         <button
           className={cx("connect-wallet")}
-          onClick={() => web3Connect.toggleModal()}
+          onClick={() => web3Modal.toggleModal()}
         >
           Connect
         </button>
