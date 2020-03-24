@@ -56,6 +56,12 @@
       font-size: 1.2rem;
       padding: 2rem 0;
 
+      .spinner {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
       h1 {
         font-weight: 600;
         font-size: 1.6rem;

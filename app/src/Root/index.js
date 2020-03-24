@@ -25,7 +25,6 @@ const cx = cn.bind(style);
 
 import conf from "../conf";
 
-import getMarketMakersRepo from "../repositories/MarketMakersRepo";
 import getConditionalTokensService from "../services/ConditionalTokensService";
 
 const ONBOARDING_MODE = conf.ONBOARDING_MODE;
@@ -38,11 +37,7 @@ const WHITELIST_CHECK_INTERVAL = 30000;
 async function loadBasicData({ lmsrAddress, web3, account }) {
   const { toBN } = web3.utils;
 
-  const [
-    markets,
-    marketMakersRepo,
-    conditionalTokensService
-  ] = await Promise.all([
+  const [markets, conditionalTokensService] = await Promise.all([
     // query operator for markets
     getQuestions(undefined, lmsrAddress).then(({ results }) => {
       return results.map(market => {
@@ -54,7 +49,6 @@ async function loadBasicData({ lmsrAddress, web3, account }) {
       });
     }),
     // Load smart contract data layer
-    getMarketMakersRepo({ lmsrAddress, web3, account }),
     getConditionalTokensService({
       lmsrAddress,
       web3,
@@ -62,12 +56,10 @@ async function loadBasicData({ lmsrAddress, web3, account }) {
     })
   ]);
 
-  const atomicOutcomeSlotCountPromise = marketMakersRepo
-    .atomicOutcomeSlotCount()
-    .then(result => result.toNumber());
+  const atomicOutcomeSlotCountPromise = conditionalTokensService.getAtomicOutcomeSlotCount();
 
-  // Get collateral contract
-  const collateral = marketMakersRepo.getCollateralToken();
+  // Get collateral info
+  const collateral = conditionalTokensService.getCollateralToken();
 
   let curAtomicOutcomeSlotCount = 1;
   for (let i = 0; i < markets.length; i++) {

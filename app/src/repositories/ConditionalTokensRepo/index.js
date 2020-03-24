@@ -1,4 +1,4 @@
-const ConditionalTokensRepo = require("./ConditionalTokensRepo");
+import ConditionalTokensRepo from "./ConditionalTokensRepo";
 import loadContracts from "../../loadContracts";
 
 let instance, instancePromise, lmsrAddressCache, providerAccountCache;

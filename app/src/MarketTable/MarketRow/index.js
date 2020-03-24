@@ -9,6 +9,7 @@ import style from "./marketRow.scss";
 
 import useGlobalState from "hooks/useGlobalState";
 
+import Spinner from "components/Spinner";
 import Tabs from "components/Tabs";
 import ResolutionTime from "../components/ResolutionTime";
 import Probabilities from "../components/Probabilities";
@@ -93,26 +94,34 @@ const Market = ({
         )}
         <div className={cx("property")}>
           <i className={cx("icon", "icon-volume")} />{" "}
-          {formatCollateral(lmsrState.funding, collateral)}
+          {lmsrState && formatCollateral(lmsrState.funding, collateral)}
         </div>
       </div>
       <Tabs tabTitles={["Chart", "Details"]}>
         <div className={cx("tab-content")}>
-          <ProbabilityChart
-            {...probabilityChartProps}
-            marketType={type}
-            created={created}
-            probabilities={probabilities}
-            resolutionDate={resolutionDate}
-            stagedProbabilities={stagedProbabilities}
-            tradeHistory={tradeHistory}
-          ></ProbabilityChart>
-          {type === "CATEGORICAL" && (
-            <Probabilities
-              outcomes={outcomes}
-              probabilities={probabilities}
-              stagedProbabilities={stagedProbabilities}
-            />
+          {!probabilities ? (
+            <div className={cx("spinner")}>
+              <Spinner centered inverted />
+            </div>
+          ) : (
+            <>
+              <ProbabilityChart
+                {...probabilityChartProps}
+                marketType={type}
+                created={created}
+                probabilities={probabilities}
+                resolutionDate={resolutionDate}
+                stagedProbabilities={stagedProbabilities}
+                tradeHistory={tradeHistory}
+              ></ProbabilityChart>
+              {type === "CATEGORICAL" && (
+                <Probabilities
+                  outcomes={outcomes}
+                  probabilities={probabilities}
+                  stagedProbabilities={stagedProbabilities}
+                />
+              )}
+            </>
           )}
         </div>
         <div className={cx("tab-content")}>

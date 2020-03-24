@@ -1,4 +1,4 @@
-const assert = require("assert");
+import assert from "assert";
 import { zeroDecimal, maxUint256BN } from "utils/constants";
 import { formatCollateral } from "utils/formatting";
 import ToastifyError from "utils/ToastifyError";
@@ -12,6 +12,16 @@ export default class ConditionalTokensService {
     this._web3 = web3;
     this._marketMakersRepo = marketMakersRepo;
     this._conditionalTokensRepo = conditionalTokensRepo;
+  }
+
+  getCollateralToken() {
+    return this._marketMakersRepo.getCollateralToken();
+  }
+
+  async getAtomicOutcomeSlotCount() {
+    return this._marketMakersRepo
+      .atomicOutcomeSlotCount()
+      .then(result => result.toNumber());
   }
 
   async getPositionBalances(positions, account) {
@@ -69,7 +79,7 @@ export default class ConditionalTokensService {
 
   async getCollateralBalance(account) {
     const collateralBalance = {};
-    const collateral = await this._marketMakersRepo.getCollateralToken();
+    const collateral = this._marketMakersRepo.getCollateralToken();
 
     collateralBalance.amount = await collateral.contract.balanceOf(account);
     if (collateral.isWETH) {

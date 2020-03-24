@@ -1,6 +1,6 @@
-const assert = require("assert");
+import assert from "assert";
 
-class MarketMakersRepo {
+export default class MarketMakersRepo {
   constructor({ contracts }) {
     assert(contracts, '"contracts" is required');
 
@@ -50,5 +50,3 @@ class MarketMakersRepo {
     return this._lmsrMarketMaker.trade(tradeAmounts, collateralLimit, { from });
   }
 }
-
-module.exports = MarketMakersRepo;

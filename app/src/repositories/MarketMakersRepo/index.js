@@ -1,4 +1,4 @@
-const MarketMakersRepo = require("./MarketMakersRepo");
+import MarketMakersRepo from "./MarketMakersRepo";
 import loadContracts from "../../loadContracts";
 
 let instance, instancePromise, lmsrAddressCache, providerAccountCache;

@@ -1,6 +1,6 @@
-const assert = require("assert");
+import assert from "assert";
 
-class ConditionalTokensRepo {
+export default class ConditionalTokensRepo {
   constructor({ contracts }) {
     assert(contracts, '"contracts" is required');
 
@@ -68,5 +68,3 @@ class ConditionalTokensRepo {
     );
   }
 }
-
-module.exports = ConditionalTokensRepo;
