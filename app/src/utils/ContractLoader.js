@@ -2,6 +2,18 @@ import TruffleContract from "@truffle/contract";
 import assert from "assert";
 import getCollateralInfo from "./collateral-info";
 
+import ERC20DetailedArtifact from "../../../build/contracts/ERC20Detailed.json";
+import IDSTokenArtifact from "../../../build/contracts/IDSToken.json";
+import WETH9Artifact from "../../../build/contracts/WETH9.json";
+import ConditionalTokensArtifact from "../../../build/contracts/ConditionalTokens.json";
+import LMSRMarketMakerArtifact from "../../../build/contracts/LMSRMarketMaker.json";
+
+const ERC20Detailed = TruffleContract(ERC20DetailedArtifact);
+const IDSToken = TruffleContract(IDSTokenArtifact);
+const WETH9 = TruffleContract(WETH9Artifact);
+const ConditionalTokens = TruffleContract(ConditionalTokensArtifact);
+const LMSRMarketMaker = TruffleContract(LMSRMarketMakerArtifact);
+
 export default class ContractLoader {
   constructor({ lmsrAddress, web3 }) {
     assert(lmsrAddress, '"lmsrAddress is required"');
@@ -12,26 +24,6 @@ export default class ContractLoader {
   }
 
   async loadContracts() {
-    const [
-      ERC20DetailedArtifact,
-      IDSTokenArtifact,
-      WETH9Artifact,
-      ConditionalTokensArtifact,
-      LMSRMarketMakerArtifact
-    ] = await Promise.all([
-      import("../../../build/contracts/ERC20Detailed.json"),
-      import("../../../build/contracts/IDSToken.json"),
-      import("../../../build/contracts/WETH9.json"),
-      import("../../../build/contracts/ConditionalTokens.json"),
-      import("../../../build/contracts/LMSRMarketMaker.json")
-    ]);
-
-    const ERC20Detailed = TruffleContract(ERC20DetailedArtifact);
-    const IDSToken = TruffleContract(IDSTokenArtifact);
-    const WETH9 = TruffleContract(WETH9Artifact);
-    const ConditionalTokens = TruffleContract(ConditionalTokensArtifact);
-    const LMSRMarketMaker = TruffleContract(LMSRMarketMakerArtifact);
-
     for (const Contract of [
       ERC20Detailed,
       IDSToken,
@@ -42,32 +34,34 @@ export default class ContractLoader {
       Contract.setProvider(this._web3.currentProvider);
     }
 
-    const lmsrMarketMaker = await LMSRMarketMaker.at(this._lmsrAddress);
-    const [pmSystemAddress, collateralTokenAddress] = await Promise.all([
-      lmsrMarketMaker.pmSystem(),
-      lmsrMarketMaker.collateralToken()
-    ]);
-
-    const [pmSystem, collateralToken] = await Promise.all([
-      ConditionalTokens.at(pmSystemAddress),
-      this.loadCollateralInfo(
-        { ERC20Detailed, IDSToken, WETH9 },
-        collateralTokenAddress
-      )
-    ]);
-
-    return {
-      collateralToken,
-      pmSystem,
-      lmsrMarketMaker
-    };
+    return LMSRMarketMaker.at(this._lmsrAddress)
+      .then(lmsrMarketMaker => {
+        return Promise.all([
+          lmsrMarketMaker,
+          lmsrMarketMaker.pmSystem(),
+          lmsrMarketMaker.collateralToken()
+        ]);
+      })
+      .then(([lmsrMarketMaker, pmSystemAddress, collateralTokenAddress]) => {
+        return Promise.all([
+          lmsrMarketMaker,
+          ConditionalTokens.at(pmSystemAddress),
+          this.loadCollateralInfo(
+            { ERC20Detailed, IDSToken, WETH9 },
+            collateralTokenAddress
+          )
+        ]);
+      })
+      .then(([lmsrMarketMaker, pmSystem, collateralToken]) => {
+        return {
+          lmsrMarketMaker,
+          pmSystem,
+          collateralToken
+        };
+      });
   }
 
   async loadCollateralInfo(contractsObject, collateralTokenAddress) {
-    return getCollateralInfo(
-      this._web3,
-      contractsObject,
-      collateralTokenAddress
-    );
+    return getCollateralInfo(contractsObject, collateralTokenAddress);
   }
 }

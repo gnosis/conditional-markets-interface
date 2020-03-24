@@ -62,22 +62,17 @@ async function loadBasicData({ lmsrAddress, web3, account }) {
     })
   ]);
 
-  const { product } = require("utils/itertools");
-
-  const atomicOutcomeSlotCount = (
-    await marketMakersRepo.atomicOutcomeSlotCount()
-  ).toNumber();
+  const atomicOutcomeSlotCountPromise = marketMakersRepo
+    .atomicOutcomeSlotCount()
+    .then(result => result.toNumber());
 
   // Get collateral contract
-  const collateral = await marketMakersRepo.getCollateralToken();
+  const collateral = marketMakersRepo.getCollateralToken();
 
   let curAtomicOutcomeSlotCount = 1;
   for (let i = 0; i < markets.length; i++) {
     const market = markets[i];
-    const conditionId = await marketMakersRepo.conditionIds(i);
-    const numSlots = (
-      await conditionalTokensService.getOutcomeSlotCount(conditionId)
-    ).toNumber();
+    const { conditionId, outcomeSlotCount: numSlots } = market;
 
     if (numSlots === 0) {
       throw new Error(`condition ${conditionId} not set up yet`);
@@ -97,7 +92,6 @@ async function loadBasicData({ lmsrAddress, web3, account }) {
     }
 
     market.marketIndex = i;
-    market.conditionId = conditionId;
     market.outcomes.forEach((outcome, i) => {
       outcome.collectionId = getCollectionId(conditionId, toBN(1).shln(i));
     });
@@ -105,11 +99,14 @@ async function loadBasicData({ lmsrAddress, web3, account }) {
     curAtomicOutcomeSlotCount *= numSlots;
   }
 
+  const atomicOutcomeSlotCount = await atomicOutcomeSlotCountPromise;
   if (curAtomicOutcomeSlotCount !== atomicOutcomeSlotCount) {
     throw new Error(
       `mismatch in counted atomic outcome slot ${curAtomicOutcomeSlotCount} and contract reported value ${atomicOutcomeSlotCount}`
     );
   }
+
+  const { product } = require("utils/itertools");
 
   const positions = [];
   for (const outcomes of product(
@@ -236,7 +233,6 @@ const RootComponent = ({ match, childComponents }) => {
         setPositions(positions);
 
         console.groupCollapsed("Global Debug Variables");
-        // console.log("LMSRMarketMaker (Instance) Contract:", marketMakersRepo);
         console.log("Collateral Settings:", collateral);
         console.log("Market Settings:", markets);
         console.log("Account Positions:", positions);

@@ -1,3 +1,7 @@
+import Web3 from "web3";
+
+export const { hexToUtf8 } = Web3.utils;
+
 export function getNetworkName(networkId) {
   // https://ethereum.stackexchange.com/a/17101
   return (
@@ -48,7 +52,7 @@ export async function getAccount(web3) {
 }
 
 export async function tryProvider(providerCandidate, networkId) {
-  const { default: Web3 } = await import("web3");
+  // const { default: Web3 } = await import("web3");
   if (providerCandidate == null) throw new Error("provider not available");
   if (providerCandidate.enable != null) await providerCandidate.enable();
 

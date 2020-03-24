@@ -14,7 +14,7 @@ class MarketMakersRepo {
     return this._lmsrMarketMaker.address;
   }
 
-  async getCollateralToken() {
+  getCollateralToken() {
     return this._collateralToken;
   }
 
