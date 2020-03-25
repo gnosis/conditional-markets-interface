@@ -7,7 +7,7 @@ const getQuestionsMock = () => {
   return { results: conf.markets };
 };
 
-export const getQuestions = async (status, marketMaker, limit, offset) => {
+export const getQuestions = async ({ status, lmsrAddress, limit, offset }) => {
   if (network === "local") {
     return getQuestionsMock();
   }
@@ -15,7 +15,7 @@ export const getQuestions = async (status, marketMaker, limit, offset) => {
   const apiUrl = `${OPERATOR_API_URL}/questions/`;
   const params = {
     status,
-    market_maker: marketMaker,
+    market_maker: lmsrAddress,
     limit,
     offset
   };

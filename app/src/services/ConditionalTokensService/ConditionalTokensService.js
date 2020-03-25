@@ -34,19 +34,16 @@ export default class ConditionalTokensService {
 
   async getLMSRState(positions) {
     const { fromWei } = this._web3.utils;
-    const [owner, funding, stage, fee, marketMakerAddress] = await Promise.all([
+    const marketMakerAddress = this._marketMakersRepo.getAddress();
+    const [owner, funding, stage, fee, positionBalances] = await Promise.all([
       this._marketMakersRepo.owner(),
       this._marketMakersRepo.funding(),
       this._marketMakersRepo
         .stage()
         .then(stage => ["Running", "Paused", "Closed"][stage.toNumber()]),
       this._marketMakersRepo.fee().then(fee => fromWei(fee)),
-      this._marketMakersRepo.getAddress()
+      this.getPositionBalances(positions, marketMakerAddress)
     ]);
-    const positionBalances = await this.getPositionBalances(
-      positions,
-      marketMakerAddress
-    );
 
     return { owner, funding, stage, fee, positionBalances, marketMakerAddress };
   }
@@ -120,7 +117,8 @@ export default class ConditionalTokensService {
     account,
     collateralBalance
   }) {
-    if (stagedTradeAmounts == null) throw new ToastifyError(`No buy set yet`);
+    if (stagedTradeAmounts == null)
+      throw new ToastifyError(`No buy amount set yet`);
 
     if (stagedTransactionType !== "buy outcome tokens")
       throw new ToastifyError(
@@ -182,7 +180,8 @@ export default class ConditionalTokensService {
     stagedTransactionType,
     account
   }) {
-    if (stagedTradeAmounts == null) throw new ToastifyError(`No sell amount selected`);
+    if (stagedTradeAmounts == null)
+      throw new ToastifyError(`No sell amount selected`);
 
     if (stagedTransactionType !== "sell outcome tokens")
       throw new ToastifyError(

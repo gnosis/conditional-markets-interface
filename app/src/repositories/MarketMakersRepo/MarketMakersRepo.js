@@ -1,17 +1,18 @@
 import assert from "assert";
 
 export default class MarketMakersRepo {
-  constructor({ contracts }) {
+  constructor({ lmsrAddress, contracts }) {
     assert(contracts, '"contracts" is required');
 
     const { lmsrMarketMaker, collateralToken } = contracts;
 
+    this._lmsrAddress = lmsrAddress;
     this._lmsrMarketMaker = lmsrMarketMaker;
     this._collateralToken = collateralToken;
   }
 
-  async getAddress() {
-    return this._lmsrMarketMaker.address;
+  getAddress() {
+    return this._lmsrAddress;
   }
 
   getCollateralToken() {

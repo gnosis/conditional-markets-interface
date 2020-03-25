@@ -39,7 +39,7 @@ async function loadBasicData({ lmsrAddress, web3, account }) {
 
   const [markets, conditionalTokensService] = await Promise.all([
     // query operator for markets
-    getQuestions(undefined, lmsrAddress).then(({ results }) => {
+    getQuestions({ lmsrAddress }).then(({ results }) => {
       return results.map(market => {
         market.outcomes = market.outcomeNames.map(outcome => {
           return { title: outcome, short: outcome };
@@ -208,29 +208,26 @@ const RootComponent = ({ match, childComponents }) => {
         setWeb3(web3);
         setAccount(account);
 
-        const {
-          collateral,
-          markets,
-          positions,
-          conditionalTokensService
-        } = await loadBasicData({
+        loadBasicData({
           lmsrAddress,
           web3,
           account
-        });
+        }).then(
+          ({ collateral, markets, positions, conditionalTokensService }) => {
+            setConditionalTokensService(conditionalTokensService);
+            setCollateral(collateral);
+            setMarkets(markets);
+            setPositions(positions);
 
-        setConditionalTokensService(conditionalTokensService);
-        setCollateral(collateral);
-        setMarkets(markets);
-        setPositions(positions);
+            console.groupCollapsed("Global Debug Variables");
+            console.log("Collateral Settings:", collateral);
+            console.log("Market Settings:", markets);
+            console.log("Account Positions:", positions);
+            console.groupEnd();
 
-        console.groupCollapsed("Global Debug Variables");
-        console.log("Collateral Settings:", collateral);
-        console.log("Market Settings:", markets);
-        console.log("Account Positions:", positions);
-        console.groupEnd();
-
-        setLoading("SUCCESS");
+            setLoading("SUCCESS");
+          }
+        );
       } catch (err) {
         setLoading("FAILURE");
         // eslint-disable-next-line

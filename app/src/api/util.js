@@ -1,9 +1,10 @@
 export const createQueryString = params => {
   return Object.keys(params)
-    .map(key => {
+    .reduce((acc, key) => {
       if (params[key]) {
-        return key + "=" + params[key];
+        acc.push(key + "=" + params[key]);
       }
-    })
+      return acc;
+    }, [])
     .join("&");
 };

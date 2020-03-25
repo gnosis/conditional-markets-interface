@@ -6,7 +6,7 @@ let instance, instancePromise, lmsrAddressCache, providerAccountCache;
 async function _getInstance({ lmsrAddress, web3, account }) {
   // Get contracts
   return loadContracts({ lmsrAddress, web3, account }).then(
-    contracts => new MarketMakersRepo({ contracts })
+    contracts => new MarketMakersRepo({ lmsrAddress, contracts })
   );
 }
 
