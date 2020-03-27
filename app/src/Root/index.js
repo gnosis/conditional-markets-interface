@@ -37,8 +37,6 @@ async function loadBlockchainService({
   account,
   collateralTokenAddress
 }) {
-  let startTime = new Date().getTime();
-
   const conditionalTokensService = await getConditionalTokensService({
     lmsrAddress,
     web3,
@@ -46,8 +44,6 @@ async function loadBlockchainService({
     collateralTokenAddress
   });
 
-  let endTime = new Date().getTime();
-  console.log("Blockchain system loading", endTime - startTime);
   let curAtomicOutcomeSlotCount = 1;
   for (let i = 0; i < markets.length; i++) {
     const market = markets[i];
@@ -145,7 +141,6 @@ const RootComponent = ({ match, childComponents }) => {
 
         setLoading("SUCCESS");
 
-        let startTime = new Date().getTime();
         const {
           collateral,
           conditionalTokensService
@@ -159,9 +154,6 @@ const RootComponent = ({ match, childComponents }) => {
 
         setConditionalTokensService(conditionalTokensService);
         setCollateral(collateral);
-
-        let endTime = new Date().getTime();
-        console.log("Load Blockchain Data", endTime - startTime);
 
         console.groupCollapsed("Global Debug Variables");
         console.log("Collateral Settings:", collateral);
