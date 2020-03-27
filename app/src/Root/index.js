@@ -8,7 +8,7 @@ import useGlobalState from "hooks/useGlobalState";
 import Spinner from "components/Spinner";
 import CrashPage from "components/Crash";
 import makeLoadable from "../utils/make-loadable";
-import { getAccount, loadWeb3 } from "utils/web3";
+import { getAccount, loadWeb3, toBN } from "utils/web3";
 import {
   getCollectionId,
   getPositionId,
@@ -34,20 +34,56 @@ const SHOW_WHITELIST_HEADER = ONBOARDING_MODE === "WHITELIST";
 const SYNC_INTERVAL = 8000;
 const WHITELIST_CHECK_INTERVAL = 30000;
 
+async function loadMarketsData({ lmsrAddress }) {
+  // query operator for markets
+  let startTime = new Date().getTime();
+
+  return getQuestions({ lmsrAddress }).then(({ results }) => {
+    return results.map((market, i) => {
+      const { conditionId, outcomeSlotCount: numSlots } = market;
+
+      market.marketIndex = i;
+      market.outcomes = market.outcomeNames.map((outcome, i) => {
+        const collectionId = getCollectionId(conditionId, toBN(1).shln(i));
+        return {
+          title: outcome,
+          short: outcome,
+          positions: [],
+          collectionId
+        };
+      });
+
+      if (numSlots === 0) {
+        throw new Error(`condition ${conditionId} not set up yet`);
+      } else if (market.type === "SCALAR") {
+        if (numSlots !== 2) {
+          throw new Error(
+            `condition ${conditionId} outcome slot not valid for scalar market - requires long and short outcomes`
+          );
+        }
+
+        // set outcomes to enable calculations on outcome count
+        market.outcomes = [{ title: "short" }, { title: "long" }];
+      } else if (numSlots !== market.outcomes.length) {
+        throw new Error(
+          `condition ${conditionId} outcome slot count ${numSlots} does not match market outcome descriptions array with length ${market.outcomes.length}`
+        );
+      }
+
+      // curAtomicOutcomeSlotCount *= numSlots;
+      let endTime = new Date().getTime();
+      console.log("Market data loading", endTime - startTime);
+      return market;
+    });
+  });
+}
+
 async function loadBasicData({ lmsrAddress, web3, account }) {
-  const { toBN } = web3.utils;
+  let startTime = new Date().getTime();
 
   const [markets, conditionalTokensService] = await Promise.all([
     // query operator for markets
-    getQuestions({ lmsrAddress }).then(({ results }) => {
-      return results.map(market => {
-        market.outcomes = market.outcomeNames.map(outcome => {
-          return { title: outcome, short: outcome };
-        });
-
-        return market;
-      });
-    }),
+    loadMarketsData({ lmsrAddress }),
     // Load smart contract data layer
     getConditionalTokensService({
       lmsrAddress,
@@ -55,43 +91,20 @@ async function loadBasicData({ lmsrAddress, web3, account }) {
       account
     })
   ]);
-
-  const atomicOutcomeSlotCountPromise = conditionalTokensService.getAtomicOutcomeSlotCount();
-
-  // Get collateral info
-  const collateral = conditionalTokensService.getCollateralToken();
-
+  let endTime = new Date().getTime();
+  console.log("Full basic data loading", endTime - startTime);
   let curAtomicOutcomeSlotCount = 1;
   for (let i = 0; i < markets.length; i++) {
     const market = markets[i];
-    const { conditionId, outcomeSlotCount: numSlots } = market;
-
-    if (numSlots === 0) {
-      throw new Error(`condition ${conditionId} not set up yet`);
-    } else if (market.type === "SCALAR") {
-      if (numSlots !== 2) {
-        throw new Error(
-          `condition ${conditionId} outcome slot not valid for scalar market - requires long and short outcomes`
-        );
-      }
-
-      // set outcomes to enable calculations on outcome count
-      market.outcomes = [{ title: "short" }, { title: "long" }];
-    } else if (numSlots !== market.outcomes.length) {
-      throw new Error(
-        `condition ${conditionId} outcome slot count ${numSlots} does not match market outcome descriptions array with length ${market.outcomes.length}`
-      );
-    }
-
-    market.marketIndex = i;
-    market.outcomes.forEach((outcome, i) => {
-      outcome.collectionId = getCollectionId(conditionId, toBN(1).shln(i));
-    });
+    const { outcomeSlotCount: numSlots } = market;
 
     curAtomicOutcomeSlotCount *= numSlots;
   }
 
-  const atomicOutcomeSlotCount = await atomicOutcomeSlotCountPromise;
+  // Get collateral info
+  const collateral = conditionalTokensService.getCollateralToken();
+
+  const atomicOutcomeSlotCount = await conditionalTokensService.getAtomicOutcomeSlotCount();
   if (curAtomicOutcomeSlotCount !== atomicOutcomeSlotCount) {
     throw new Error(
       `mismatch in counted atomic outcome slot ${curAtomicOutcomeSlotCount} and contract reported value ${atomicOutcomeSlotCount}`
@@ -121,19 +134,11 @@ async function loadBasicData({ lmsrAddress, web3, account }) {
     const positionId = getPositionId(collateral.address, combinedCollectionIds);
     positions.push({
       id: positionId,
-      outcomes
+      outcomes,
+      positionIndex: positions.length
     });
   }
 
-  positions.forEach((position, i) => {
-    position.positionIndex = i;
-  });
-
-  for (const market of markets) {
-    for (const outcome of market.outcomes) {
-      outcome.positions = [];
-    }
-  }
   for (const position of positions) {
     for (const outcome of position.outcomes) {
       markets[outcome.marketIndex].outcomes[
@@ -203,12 +208,17 @@ const RootComponent = ({ match, childComponents }) => {
         console.log(conf);
         console.groupEnd();
 
+        let startTime = new Date().getTime();
+
         const { web3, account } = await loadWeb3(conf.networkId, provider);
 
         setWeb3(web3);
         setAccount(account);
+        let endTime = new Date().getTime();
+        console.log("Web3 loading", endTime - startTime);
 
-        loadBasicData({
+        startTime = new Date().getTime();
+        await loadBasicData({
           lmsrAddress,
           web3,
           account
@@ -218,6 +228,9 @@ const RootComponent = ({ match, childComponents }) => {
             setCollateral(collateral);
             setMarkets(markets);
             setPositions(positions);
+
+            endTime = new Date().getTime();
+            console.log("Load Basic Data", endTime - startTime);
 
             console.groupCollapsed("Global Debug Variables");
             console.log("Collateral Settings:", collateral);
