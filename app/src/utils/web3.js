@@ -1,6 +1,6 @@
 import Web3 from "web3";
 
-export const { hexToUtf8, toBN } = Web3.utils;
+export const { BN, toBN, soliditySha3, hexToUtf8 } = Web3.utils;
 
 export function getNetworkName(networkId) {
   // https://ethereum.stackexchange.com/a/17101

@@ -7,17 +7,13 @@ import { useSubscription } from "@apollo/react-hooks";
 import useGlobalState from "hooks/useGlobalState";
 import Spinner from "components/Spinner";
 import CrashPage from "components/Crash";
-import makeLoadable from "../utils/make-loadable";
-import { getAccount, loadWeb3, toBN } from "utils/web3";
-import {
-  getCollectionId,
-  getPositionId,
-  combineCollectionIds
-} from "utils/getIdsUtil";
+
+import makeLoadable from "utils/make-loadable";
+import { getAccount, loadWeb3 } from "utils/web3";
+import { loadMarketsData } from "utils/getMarketsData";
 import ToastifyError from "utils/ToastifyError";
 
 import { getWhitelistState } from "api/onboarding";
-import { getQuestions } from "api/operator";
 import { GET_TRADES_BY_MARKET_MAKER } from "api/thegraph";
 
 import style from "./root.scss";
@@ -34,65 +30,24 @@ const SHOW_WHITELIST_HEADER = ONBOARDING_MODE === "WHITELIST";
 const SYNC_INTERVAL = 8000;
 const WHITELIST_CHECK_INTERVAL = 30000;
 
-async function loadMarketsData({ lmsrAddress }) {
-  // query operator for markets
+async function loadBlockchainService({
+  markets,
+  lmsrAddress,
+  web3,
+  account,
+  collateralTokenAddress
+}) {
   let startTime = new Date().getTime();
 
-  return getQuestions({ lmsrAddress }).then(({ results }) => {
-    return results.map((market, i) => {
-      const { conditionId, outcomeSlotCount: numSlots } = market;
-
-      market.marketIndex = i;
-      market.outcomes = market.outcomeNames.map((outcome, i) => {
-        const collectionId = getCollectionId(conditionId, toBN(1).shln(i));
-        return {
-          title: outcome,
-          short: outcome,
-          positions: [],
-          collectionId
-        };
-      });
-
-      if (numSlots === 0) {
-        throw new Error(`condition ${conditionId} not set up yet`);
-      } else if (market.type === "SCALAR") {
-        if (numSlots !== 2) {
-          throw new Error(
-            `condition ${conditionId} outcome slot not valid for scalar market - requires long and short outcomes`
-          );
-        }
-
-        // set outcomes to enable calculations on outcome count
-        market.outcomes = [{ title: "short" }, { title: "long" }];
-      } else if (numSlots !== market.outcomes.length) {
-        throw new Error(
-          `condition ${conditionId} outcome slot count ${numSlots} does not match market outcome descriptions array with length ${market.outcomes.length}`
-        );
-      }
-
-      // curAtomicOutcomeSlotCount *= numSlots;
-      let endTime = new Date().getTime();
-      console.log("Market data loading", endTime - startTime);
-      return market;
-    });
+  const conditionalTokensService = await getConditionalTokensService({
+    lmsrAddress,
+    web3,
+    account,
+    collateralTokenAddress
   });
-}
 
-async function loadBasicData({ lmsrAddress, web3, account }) {
-  let startTime = new Date().getTime();
-
-  const [markets, conditionalTokensService] = await Promise.all([
-    // query operator for markets
-    loadMarketsData({ lmsrAddress }),
-    // Load smart contract data layer
-    getConditionalTokensService({
-      lmsrAddress,
-      web3,
-      account
-    })
-  ]);
   let endTime = new Date().getTime();
-  console.log("Full basic data loading", endTime - startTime);
+  console.log("Blockchain system loading", endTime - startTime);
   let curAtomicOutcomeSlotCount = 1;
   for (let i = 0; i < markets.length; i++) {
     const market = markets[i];
@@ -111,46 +66,8 @@ async function loadBasicData({ lmsrAddress, web3, account }) {
     );
   }
 
-  const { product } = require("utils/itertools");
-
-  const positions = [];
-  for (const outcomes of product(
-    ...markets
-      .slice()
-      .reverse()
-      .map(({ conditionId, outcomes, marketIndex }) =>
-        outcomes.map((outcome, outcomeIndex) => ({
-          ...outcome,
-          conditionId,
-          marketIndex,
-          outcomeIndex
-        }))
-      )
-  )) {
-    const combinedCollectionIds = combineCollectionIds(
-      outcomes.map(({ collectionId }) => collectionId)
-    );
-
-    const positionId = getPositionId(collateral.address, combinedCollectionIds);
-    positions.push({
-      id: positionId,
-      outcomes,
-      positionIndex: positions.length
-    });
-  }
-
-  for (const position of positions) {
-    for (const outcome of position.outcomes) {
-      markets[outcome.marketIndex].outcomes[
-        outcome.outcomeIndex
-      ].positions.push(position);
-    }
-  }
-
   return {
     collateral,
-    markets,
-    positions,
     conditionalTokensService
   };
 }
@@ -208,39 +125,51 @@ const RootComponent = ({ match, childComponents }) => {
         console.log(conf);
         console.groupEnd();
 
-        let startTime = new Date().getTime();
-
-        const { web3, account } = await loadWeb3(conf.networkId, provider);
+        const [
+          { web3, account },
+          {
+            markets: operatorMarkets,
+            collateralToken: collateralTokenAddress,
+            positions
+          }
+        ] = await Promise.all([
+          loadWeb3(conf.networkId, provider),
+          loadMarketsData({ lmsrAddress })
+        ]);
 
         setWeb3(web3);
         setAccount(account);
-        let endTime = new Date().getTime();
-        console.log("Web3 loading", endTime - startTime);
 
-        startTime = new Date().getTime();
-        await loadBasicData({
+        setMarkets(operatorMarkets);
+        setPositions(positions);
+
+        setLoading("SUCCESS");
+
+        let startTime = new Date().getTime();
+        const {
+          collateral,
+          conditionalTokensService
+        } = await loadBlockchainService({
+          markets: operatorMarkets,
+          collateralTokenAddress,
           lmsrAddress,
           web3,
           account
-        }).then(
-          ({ collateral, markets, positions, conditionalTokensService }) => {
-            setConditionalTokensService(conditionalTokensService);
-            setCollateral(collateral);
-            setMarkets(markets);
-            setPositions(positions);
+        });
 
-            endTime = new Date().getTime();
-            console.log("Load Basic Data", endTime - startTime);
+        setConditionalTokensService(conditionalTokensService);
+        setCollateral(collateral);
 
-            console.groupCollapsed("Global Debug Variables");
-            console.log("Collateral Settings:", collateral);
-            console.log("Market Settings:", markets);
-            console.log("Account Positions:", positions);
-            console.groupEnd();
+        let endTime = new Date().getTime();
+        console.log("Load Blockchain Data", endTime - startTime);
 
-            setLoading("SUCCESS");
-          }
-        );
+        console.groupCollapsed("Global Debug Variables");
+        console.log("Collateral Settings:", collateral);
+        console.log("Market Settings:", markets);
+        console.log("Account Positions:", positions);
+        console.groupEnd();
+
+        setLoading("SUCCESS");
       } catch (err) {
         setLoading("FAILURE");
         // eslint-disable-next-line

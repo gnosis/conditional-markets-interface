@@ -3,11 +3,19 @@ import loadContracts from "../../loadContracts";
 
 let instance, instancePromise, lmsrAddressCache, providerAccountCache;
 
-async function _getInstance({ lmsrAddress, web3, account }) {
+async function _getInstance({
+  lmsrAddress,
+  web3,
+  account,
+  collateralTokenAddress
+}) {
   // Get contracts
-  return loadContracts({ lmsrAddress, web3, account }).then(
-    contracts => new MarketMakersRepo({ lmsrAddress, contracts })
-  );
+  return loadContracts({
+    lmsrAddress,
+    web3,
+    account,
+    collateralTokenAddress
+  }).then(contracts => new MarketMakersRepo({ lmsrAddress, contracts }));
 }
 
 // When changing the market maker or the web3 provider we have to reset the singleton
