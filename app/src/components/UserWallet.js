@@ -228,7 +228,7 @@ UserWallet.propTypes = {
   collateral: PropTypes.shape({
     fromUnitsMultiplier: PropTypes.object,
     symbol: PropTypes.string
-  }).isRequired,
+  }),
   collateralBalance: PropTypes.shape({
     totalAmount: PropTypes.object // DecimalJS
   }),

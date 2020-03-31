@@ -149,16 +149,6 @@ export function calcPositionGroups(markets, positions, positionAmounts) {
             const combinedCollectionIds = combineCollectionIds(collectionIds);
             positionGroups.push({
               collectionId: combinedCollectionIds,
-              // TODO delete when tests passed (should be correctly working now)
-              // padLeft(
-              //   toHex(
-              //     outcomeSet.reduce(
-              //       (acc, { collectionId }) => acc.add(toBN(collectionId)),
-              //       toBN(0)
-              //     )
-              //   ),
-              //   64
-              // ),
               outcomeSet,
               amount: groupAmount,
               runningAmount: groupRunningAmount,

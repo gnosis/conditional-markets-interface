@@ -8,7 +8,6 @@ const fs = require("fs");
 const path = require("path");
 const inquirer = require("inquirer");
 const { stripIndent } = require("common-tags");
-const Decimal = require("decimal.js-light");
 
 function* product(head = [], ...tail) {
   for (const h of head) {
@@ -26,9 +25,7 @@ module.exports = function(callback) {
 
     if (currentNetworkId !== config.networkId)
       throw new Error(
-        `expected configured network ID ${
-          config.networkId
-        } but connected to network ID ${currentNetworkId}`
+        `expected configured network ID ${config.networkId} but connected to network ID ${currentNetworkId}`
       );
 
     const lmsrMarketMaker = await LMSRMarketMaker.at(config.lmsrAddress);
@@ -40,7 +37,6 @@ module.exports = function(callback) {
     const defaultAccount = LMSRMarketMaker.defaults().from;
 
     const collateral = await require("../app/src/utils/collateral-info")(
-      web3,
       { ERC20Detailed, IDSToken, WETH9 },
       lmsrMarketMaker
     );
@@ -69,7 +65,9 @@ module.exports = function(callback) {
         defaultAccount
       );
 
-      const atomicOutcomeSlotCount = (await lmsrMarketMaker.atomicOutcomeSlotCount()).toNumber();
+      const atomicOutcomeSlotCount = (
+        await lmsrMarketMaker.atomicOutcomeSlotCount()
+      ).toNumber();
       const conditions = [];
 
       let curAtomicOutcomeSlotCount = 1;
@@ -133,9 +131,11 @@ module.exports = function(callback) {
           PM System:
       `);
       console.log(
-        (await Promise.all(
-          positionIds.map(id => pmSystem.balanceOf(defaultAccount, id))
-        )).map(formatCollateralAmount)
+        (
+          await Promise.all(
+            positionIds.map(id => pmSystem.balanceOf(defaultAccount, id))
+          )
+        ).map(formatCollateralAmount)
       );
       console.log("");
 
@@ -164,9 +164,7 @@ module.exports = function(callback) {
                 {
                   type: "string",
                   name: "fundingChangeStr",
-                  message: `How much ${
-                    collateral.symbol
-                  } would you like to change the funding by?`
+                  message: `How much ${collateral.symbol} would you like to change the funding by?`
                 }
               ]);
 
@@ -253,14 +251,16 @@ module.exports = function(callback) {
         }
       });
 
-      await (await inquirer.prompt([
-        {
-          type: "list",
-          name: "action",
-          message: "What would you like to do?",
-          choices: actions
-        }
-      ])).action();
+      await (
+        await inquirer.prompt([
+          {
+            type: "list",
+            name: "action",
+            message: "What would you like to do?",
+            choices: actions
+          }
+        ])
+      ).action();
     }
   })().then(() => callback(), callback);
 };

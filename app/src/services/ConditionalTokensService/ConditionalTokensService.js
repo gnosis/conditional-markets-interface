@@ -1,4 +1,4 @@
-const assert = require("assert");
+import assert from "assert";
 import { zeroDecimal, maxUint256BN } from "utils/constants";
 import { formatCollateral } from "utils/formatting";
 import ToastifyError from "utils/ToastifyError";
@@ -14,6 +14,16 @@ export default class ConditionalTokensService {
     this._conditionalTokensRepo = conditionalTokensRepo;
   }
 
+  getCollateralToken() {
+    return this._marketMakersRepo.getCollateralToken();
+  }
+
+  async getAtomicOutcomeSlotCount() {
+    return this._marketMakersRepo
+      .atomicOutcomeSlotCount()
+      .then(result => result.toNumber());
+  }
+
   async getPositionBalances(positions, account) {
     return Promise.all(
       positions.map(position =>
@@ -24,19 +34,16 @@ export default class ConditionalTokensService {
 
   async getLMSRState(positions) {
     const { fromWei } = this._web3.utils;
-    const [owner, funding, stage, fee, marketMakerAddress] = await Promise.all([
+    const marketMakerAddress = this._marketMakersRepo.getAddress();
+    const [owner, funding, stage, fee, positionBalances] = await Promise.all([
       this._marketMakersRepo.owner(),
       this._marketMakersRepo.funding(),
       this._marketMakersRepo
         .stage()
         .then(stage => ["Running", "Paused", "Closed"][stage.toNumber()]),
       this._marketMakersRepo.fee().then(fee => fromWei(fee)),
-      this._marketMakersRepo.getAddress()
+      this.getPositionBalances(positions, marketMakerAddress)
     ]);
-    const positionBalances = await this.getPositionBalances(
-      positions,
-      marketMakerAddress
-    );
 
     return { owner, funding, stage, fee, positionBalances, marketMakerAddress };
   }
@@ -69,7 +76,7 @@ export default class ConditionalTokensService {
 
   async getCollateralBalance(account) {
     const collateralBalance = {};
-    const collateral = await this._marketMakersRepo.getCollateralToken();
+    const collateral = this._marketMakersRepo.getCollateralToken();
 
     collateralBalance.amount = await collateral.contract.balanceOf(account);
     if (collateral.isWETH) {
@@ -110,7 +117,8 @@ export default class ConditionalTokensService {
     account,
     collateralBalance
   }) {
-    if (stagedTradeAmounts == null) throw new ToastifyError(`No buy set yet`);
+    if (stagedTradeAmounts == null)
+      throw new ToastifyError(`No buy amount set yet`);
 
     if (stagedTransactionType !== "buy outcome tokens")
       throw new ToastifyError(
@@ -172,7 +180,8 @@ export default class ConditionalTokensService {
     stagedTransactionType,
     account
   }) {
-    if (stagedTradeAmounts == null) throw new ToastifyError(`No sell amount selected`);
+    if (stagedTradeAmounts == null)
+      throw new ToastifyError(`No sell amount selected`);
 
     if (stagedTransactionType !== "sell outcome tokens")
       throw new ToastifyError(

@@ -12,7 +12,10 @@ install:
    - npm install -g sass@1.22.10
    - npm install -g truffle@5.0.33
 before_script:
-  - if [ "$TRAVIS_BRANCH" == "development" ]; then export NETWORK="rinkeby"; else export NETWORK="mainnet"; fi;
+    # ONBOARDING_MODE="TIERED" for temporarily to allow tiered onboarding testing/dev
+  - if [ "$TRAVIS_BRANCH" == "development" ]; then export NETWORK="rinkeby" ONBOARDING_MODE="TIERED";
+    else export NETWORK="mainnet";
+    fi;
   - npm run compile && npm run build
 matrix:
   include:
@@ -35,7 +38,6 @@ deploy:
     secret_access_key: $AWS_SECRET_ACCESS_KEY
     skip_cleanup: true
     local_dir: dist
-    env: ONBOARDING_MODE=TIERED # temporarily to allow tiered onboarding testing/dev
     on:
       branch: development
 
