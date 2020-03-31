@@ -29,18 +29,22 @@ export const getQuestions = async ({ status, lmsrAddress, limit, offset }) => {
   });
 };
 
-export const getMarketMakers = async (
+export const getMarketMakers = async ({
   status,
   factory,
-  address,
+  lmsrAddress,
   limit,
   offset
-) => {
+}) => {
+  if (network === "local") {
+    return getQuestionsMock();
+  }
+
   const apiUrl = `${OPERATOR_API_URL}/market-makers/`;
   const params = {
     status,
     factory,
-    address,
+    address: lmsrAddress,
     limit,
     offset
   };

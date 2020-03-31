@@ -4,10 +4,20 @@ import getConditionalTokensRepo from "../../repositories/ConditionalTokensRepo";
 
 let instance, instancePromise, lmsrAddressCache, providerAccountCache;
 
-async function _getInstance({ lmsrAddress, web3, account }) {
+async function _getInstance({
+  lmsrAddress,
+  web3,
+  account,
+  collateralTokenAddress
+}) {
   return Promise.all([
-    getMarketMakersRepo({ lmsrAddress, web3, account }),
-    getConditionalTokensRepo({ lmsrAddress, web3, account })
+    getMarketMakersRepo({ lmsrAddress, web3, account, collateralTokenAddress }),
+    getConditionalTokensRepo({
+      lmsrAddress,
+      web3,
+      account,
+      collateralTokenAddress
+    })
   ]).then(
     ([marketMakersRepo, conditionalTokensRepo]) =>
       new ConditionalTokensService({

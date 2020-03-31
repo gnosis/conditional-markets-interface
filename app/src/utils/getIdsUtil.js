@@ -1,6 +1,4 @@
-import web3 from "web3";
-
-const { BN, toBN, soliditySha3 } = web3.utils;
+import { BN, toBN, soliditySha3 } from "utils/web3";
 
 export function getConditionId(oracle, questionId, outcomeSlotCount) {
   return soliditySha3(
