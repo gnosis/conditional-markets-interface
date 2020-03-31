@@ -5,7 +5,11 @@ const useGlobalState = () => {
   const [state, dispatch] = useContext(Context);
 
   const setAccount = account => {
-    dispatch({ type: "SET_ACCOUNT", payload: account });
+    dispatch({ type: "SET_USER", payload: { ...state.user, account } });
+  };
+
+  const setUser = user => {
+    dispatch({ type: "SET_USER", payload: user });
   };
 
   const setMarkets = markets => {
@@ -28,9 +32,15 @@ const useGlobalState = () => {
     dispatch({ type: "SET_COLLATERAL", payload: collateral });
   };
 
+  const setTiers = tiers => {
+    dispatch({ type: "SET_TIERS", payload: tiers });
+  };
+
   return {
-    account: state.account,
+    account: state.user && state.user.account,
     setAccount,
+    user: state.user,
+    setUser,
     markets: state.markets,
     setMarkets,
     positions: state.positions,
@@ -40,7 +50,9 @@ const useGlobalState = () => {
     marketProbabilities: state.marketProbabilities,
     setMarketProbabilities,
     collateral: state.collateral,
-    setCollateral
+    setCollateral,
+    tiers: state.tiers,
+    setTiers
   };
 };
 

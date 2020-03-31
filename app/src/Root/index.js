@@ -13,7 +13,7 @@ import { getAccount, loadWeb3 } from "utils/web3";
 import { loadMarketsData } from "utils/getMarketsData";
 import ToastifyError from "utils/ToastifyError";
 
-import { getWhitelistState } from "api/onboarding";
+import { getUserState, getTiersLimit } from "api/onboarding";
 import { GET_TRADES_BY_MARKET_MAKER } from "api/thegraph";
 
 import style from "./root.scss";
@@ -85,6 +85,8 @@ const RootComponent = ({ match, childComponents }) => {
   const {
     account,
     setAccount,
+    user,
+    setUser,
     markets,
     setMarkets,
     positions,
@@ -92,7 +94,8 @@ const RootComponent = ({ match, childComponents }) => {
     lmsrState,
     setLMSRState,
     collateral,
-    setCollateral
+    setCollateral,
+    setTiers
   } = useGlobalState();
 
   // Init and set base state
@@ -166,7 +169,7 @@ const RootComponent = ({ match, childComponents }) => {
         throw err;
       }
     },
-    [lmsrAddress]
+    [lmsrAddress, user, setUser]
   );
 
   // First time init
@@ -176,7 +179,7 @@ const RootComponent = ({ match, childComponents }) => {
       setLoading("LOADING");
       // setCollateral(null);
       setMarkets(null);
-      // setPositions(null);
+      setUser(null);
       setConditionalTokensService(null);
       setLMSRState(null);
     }
@@ -277,8 +280,10 @@ const RootComponent = ({ match, childComponents }) => {
   const updateWhitelist = useCallback(() => {
     if (account) {
       (async () => {
-        const whitelistStatus = await getWhitelistState(account);
+        const userState = await getUserState(account);
+        const { state: whitelistStatus } = userState;
         setWhitelistState(whitelistStatus);
+        setUser({ ...user, ...userState });
 
         if (
           whitelistStatus === "WHITELISTED" ||
@@ -290,11 +295,24 @@ const RootComponent = ({ match, childComponents }) => {
     } else {
       setWhitelistState("NOT_FOUND");
     }
-  }, [account]);
+  }, [user, setUser, account]);
   useInterval(updateWhitelist, whitelistIntervalTime);
 
   useEffect(() => {
     updateWhitelist();
+  }, [account]);
+
+  const getTiersLimitValues = useCallback(() => {
+    if (account) {
+      (async () => {
+        const tiersLimit = await getTiersLimit();
+        setTiers(tiersLimit);
+      })();
+    }
+  }, [account]);
+
+  useEffect(() => {
+    getTiersLimitValues();
   }, [account]);
 
   const asWrappedTransaction = useCallback(

@@ -72,11 +72,15 @@ const tradeOverLimit = props => {
     });
   }, []);
 
-  const exceedValue = volume + tradeValue - maxVolume;
+  const exceedValue =
+    Number.parseFloat(volume) +
+    Number.parseFloat(tradeValue) -
+    Number.parseFloat(maxVolume);
+
   return (
     <div className={cx(["modal", "over-limit-modal"])}>
       <UpperBar closeModal={closeModal} title="Trade limit"></UpperBar>
-      <Header title="Tier 1 Trade Limit" logo={Logo}></Header>
+      <Header title={"Tier " + tier + " Trade Limit"} logo={Logo}></Header>
       <div className={cx("modal-body")}>
         <p>Your requested trade exceeds your current trade limit:</p>
         <div className={cx("account-details")}>
@@ -94,14 +98,14 @@ const tradeOverLimit = props => {
             <span>Available trade limit:</span>
             <span className={cx("dotted-separator")}></span>
             <span>
-              {volume}€ / <strong>{maxVolume}€</strong>
+              ${volume} / <strong>${maxVolume}</strong>
             </span>
           </div>
           <Divider className={cx("divider")} />
           <div className={cx("account-details-element")}>
             <span>Requested trade:</span>
             <span className={cx("dotted-separator")}></span>
-            <span>{tradeValue}€</span>
+            <span>${tradeValue}</span>
           </div>
           <div className={cx("account-details-element")}>
             <span>
@@ -109,40 +113,44 @@ const tradeOverLimit = props => {
             </span>
             <span className={cx("dotted-separator")}></span>
             <span>
-              <strong>{exceedValue}€</strong>
+              <strong>${exceedValue}</strong>
             </span>
           </div>
         </div>
-        <p>
-          Upgrade to Tier 2 and trade up to 15.000€ by completing our expanded
-          KYC process.
-        </p>
+        {tier < 2 && (
+          <>
+            <p>
+              Upgrade to Tier 2 and trade up to $15.000 by completing our
+              expanded KYC process.
+            </p>
 
-        <Form
-          onSubmit={onSubmit}
-          validate={validator(VALIDATIONS)}
-          render={({ handleSubmit, submitError, submitting }) => (
-            <form onSubmit={handleSubmit}>
-              <Field
-                className={cx("field")}
-                name="recaptchaToken"
-                component={Captcha}
-              />
-              {submitError && <p className={cx("error")}>{submitError}</p>}
-              <Button
-                className={cx("field", "upgrade-button")}
-                classes={{ label: cx("upgrade-button-label") }}
-                disabled={submitting}
-                variant="contained"
-                color="primary"
-                size="large"
-                type="submit"
-              >
-                {submitting ? "Please wait" : "Upgrade to Tier 2"}
-              </Button>
-            </form>
-          )}
-        />
+            <Form
+              onSubmit={onSubmit}
+              validate={validator(VALIDATIONS)}
+              render={({ handleSubmit, submitError, submitting }) => (
+                <form onSubmit={handleSubmit}>
+                  <Field
+                    className={cx("field")}
+                    name="recaptchaToken"
+                    component={Captcha}
+                  />
+                  {submitError && <p className={cx("error")}>{submitError}</p>}
+                  <Button
+                    className={cx("field", "upgrade-button")}
+                    classes={{ label: cx("upgrade-button-label") }}
+                    disabled={submitting}
+                    variant="contained"
+                    color="primary"
+                    size="large"
+                    type="submit"
+                  >
+                    {submitting ? "Please wait" : "Upgrade to Tier 2"}
+                  </Button>
+                </form>
+              )}
+            />
+          </>
+        )}
         <Link
           className={cx("cancel-button")}
           component="button"

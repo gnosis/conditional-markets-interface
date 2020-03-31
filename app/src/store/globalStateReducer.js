@@ -5,6 +5,11 @@ const globalStateReducer = (state, action) => {
         ...state,
         account: action.payload
       };
+    case "SET_USER":
+      return {
+        ...state,
+        user: action.payload
+      };
     case "SET_MARKETS":
       return {
         ...state,
@@ -29,6 +34,11 @@ const globalStateReducer = (state, action) => {
       return {
         ...state,
         collateral: action.payload
+      };
+    case "SET_TIERS":
+      return {
+        ...state,
+        tiers: action.payload
       };
   }
 };
