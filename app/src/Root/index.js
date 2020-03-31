@@ -123,11 +123,7 @@ const RootComponent = ({ match, childComponents }) => {
 
         const [
           { web3, account },
-          {
-            markets: operatorMarkets,
-            collateralToken: collateralTokenAddress,
-            positions
-          }
+          { markets, collateralToken: collateralTokenAddress, positions }
         ] = await Promise.all([
           loadWeb3(conf.networkId, provider),
           loadMarketsData({ lmsrAddress })
@@ -136,7 +132,7 @@ const RootComponent = ({ match, childComponents }) => {
         setWeb3(web3);
         setAccount(account);
 
-        setMarkets(operatorMarkets);
+        setMarkets(markets);
         setPositions(positions);
 
         setLoading("SUCCESS");
@@ -145,7 +141,7 @@ const RootComponent = ({ match, childComponents }) => {
           collateral,
           conditionalTokensService
         } = await loadBlockchainService({
-          markets: operatorMarkets,
+          markets,
           collateralTokenAddress,
           lmsrAddress,
           web3,
@@ -178,9 +174,9 @@ const RootComponent = ({ match, childComponents }) => {
     if (loading !== "LOADING") {
       // we already init app once. We have to clear data
       setLoading("LOADING");
-      setCollateral(null);
+      // setCollateral(null);
       setMarkets(null);
-      setPositions(null);
+      // setPositions(null);
       setConditionalTokensService(null);
       setLMSRState(null);
     }
