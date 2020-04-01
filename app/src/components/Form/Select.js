@@ -7,6 +7,10 @@ import style from "./Select.scss";
 
 const cx = cn.bind(style);
 const customStyles = {
+  container: styles => ({
+    ...styles,
+    marginBottom: "0.8rem"
+  }),
   control: styles => ({
     ...styles,
     borderColor: "inherit",
@@ -37,7 +41,7 @@ const Select = ({
   return (
     <div className={cx("field")}>
       <ReactSelect
-        className={cx("select", { "has-error": touched && error })}
+        className={cx({ "has-error": touched && error })}
         options={options}
         styles={customStyles}
         {...input}
