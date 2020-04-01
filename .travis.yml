@@ -22,10 +22,10 @@ matrix:
   - if: branch =~ /^master$/ OR tag IS present
     env:
       - ONBOARDING_MODE=WHITELIST
-      - WHITELIST_API=https://sight-whitelist.gnosis.io/api/v1
+      - WHITELIST_API=https://sight-whitelist.gnosis.io/api
       - OPERATOR_API=https://sight-operator.gnosis.io/api/v1
   - if: NOT (branch =~ /^master$/) AND NOT (tag IS present)
-    env: WHITELIST_API=https://sight-whitelist.staging.gnosisdev.com/api/v1
+    env: WHITELIST_API=https://sight-whitelist.staging.gnosisdev.com/api
 
 script:
   - echo "Skip tests" # no test cases for the project
