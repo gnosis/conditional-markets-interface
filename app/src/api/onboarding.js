@@ -112,11 +112,11 @@ export const getUserState = async accountAddress => {
     `${WHITELIST_API_URL}/v2/users/${accountAddress}/`
   );
   if (response.status === 404) {
-    return { state: WHITELIST_STATES.UNKNOWN };
+    return { status: WHITELIST_STATES.UNKNOWN };
   }
 
   if (!response.ok) {
-    return { state: "ERROR" };
+    return { status: "ERROR" };
   }
 
   return response.json();

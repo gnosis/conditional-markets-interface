@@ -19,13 +19,11 @@ const normalise = (value, min, max) => ((value - min) * 100) / (max - min);
 const TradingLimitIndicator = ({ openModal, address, userState, tiers }) => {
   const [volume, setVolume] = useState(0);
   const [maxVolume, setMaxVolume] = useState(0);
-  const [tier, setTier] = useState(0)
+  const [tier, setTier] = useState(0);
 
   const getTradingVolume = useCallback(() => {
     (async () => {
       const { buyVolume } = await getCurrentTradingVolume(address);
-
-      console.log(buyVolume);
 
       setVolume(buyVolume.dollars);
     })();
@@ -37,16 +35,8 @@ const TradingLimitIndicator = ({ openModal, address, userState, tiers }) => {
 
   useEffect(() => {
     if (tiers && userState.tiers) {
-      const tiersKeys = Object.keys(userState.tiers);
-      const userTier = tiersKeys.reduce((acc, key) => {
-        if (userState.tiers[key].status === "ENABLED") {
-          return key;
-        }
-        return acc;
-      }, {});
-
       tiers.forEach(tier => {
-        if ("tier" + tier.name === userTier) {
+        if (userState.tiers[tier.name].status === "ENABLED") {
           setMaxVolume(tier.limit);
           setTier(tier.name);
         }

@@ -281,7 +281,7 @@ const RootComponent = ({ match, childComponents }) => {
     if (account) {
       (async () => {
         const userState = await getUserState(account);
-        const { state: whitelistStatus } = userState;
+        const { status: whitelistStatus } = userState;
         setWhitelistState(whitelistStatus);
         setUser({ ...user, ...userState });
 
@@ -331,8 +331,11 @@ const RootComponent = ({ match, childComponents }) => {
 
           if (whitelistState !== "WHITELISTED") {
             if (ONBOARDING_MODE === "WHITELIST") {
-              // Whitelist Mode meaans show Modal for whitelisting options
+              // Whitelist Mode means show Modal for whitelisting options
               openModal("applyBeta", { whitelistState });
+            } else if (ONBOARDING_MODE === "TIERED") {
+              // If mode is Tiered we have to open SDD KYC Modal
+              openModal("KYC");
             } else {
               // Future-proofing: default error handling shows an error indicating
               // that the user needs to be registered/whitelist before being able to trade
