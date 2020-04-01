@@ -14,6 +14,7 @@ const TextInput = ({
   meta: { touched, error },
   label,
   variant,
+  readOnly,
   ...props
 }) => {
   return (
@@ -24,6 +25,9 @@ const TextInput = ({
       helperText={touched && error}
       label={label}
       variant={variant}
+      InputProps={{
+        readOnly
+      }}
       {...props}
     />
   );
@@ -39,12 +43,14 @@ TextInput.propTypes = {
   }).isRequired,
   label: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
   variant: PropTypes.string,
+  readOnly: PropTypes.bool,
   className: PropTypes.string
 };
 
 TextInput.defaultProps = {
   className: null,
-  variant: "outlined"
+  variant: "outlined",
+  readOnly: false
 };
 
 export default TextInput;
