@@ -1,17 +1,24 @@
 $errorColor: #f02525;
 
+.field {
+  text-align: left;
+}
 
 .select {
+  text-align: left;
   margin-bottom: .8rem;
   &.has-error {
     border-color: $errorColor;
   }
 
-  .error {
-    color: $errorColor;
-    display: block;
-    padding: .6rem .4rem;
-    line-height: normal;
-    text-align: left;
-  }
+}
+
+.error {
+  color: $errorColor !important;
+  display: block;
+  padding: 0rem .4rem;
+  line-height: normal;
+  text-align: left;
+  margin-bottom: 1rem;
+  font-size: 1.6rem;
 }

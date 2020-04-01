@@ -15,7 +15,7 @@ const upperBar = ({ title, closeModal }) => {
 };
 
 upperBar.propTypes = {
-  title: PropTypes.string,
+  title: PropTypes.node,
   closeModal: PropTypes.func.isRequired
 };
 

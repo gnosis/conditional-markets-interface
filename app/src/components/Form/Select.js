@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import ReactSelect from "react-select";
 import PropTypes from "prop-types";
 import cn from "classnames/bind";
@@ -11,26 +11,42 @@ const customStyles = {
     ...styles,
     borderColor: "inherit",
     padding: "5.44px 14px" // mimiking material-ui sizes
+  }),
+  menu: styles => ({
+    ...styles,
+    zIndex: 999
   })
 };
 
 const Select = ({
   options,
-  className,
   input,
+  label,
   meta: { touched, error },
   ...props
 }) => {
+  const conditionalProps = {};
+  const handleSelect = useCallback(selectedOption => {
+    input.onChange(selectedOption.value);
+  }, []);
+
+  if (label != null) {
+    conditionalProps.placeholder = label;
+  }
+
   return (
-    <div className={cn(cx("field"), className)}>
+    <div className={cx("field")}>
       <ReactSelect
         className={cx("select", { "has-error": touched && error })}
         options={options}
         styles={customStyles}
         {...input}
+        onChange={handleSelect}
+        value={options.filter(({ value }) => value === input.value)}
         {...props}
+        {...conditionalProps}
       />
-      {touched && error && <span className={cx("error")}>{error}</span>}
+      {touched && error && <p className={cx("error")}>{error}</p>}
     </div>
   );
 };
@@ -42,8 +58,10 @@ Select.propTypes = {
       value: PropTypes.any
     })
   ).isRequired,
+  label: PropTypes.node,
   input: PropTypes.shape({
-    onChange: PropTypes.func
+    onChange: PropTypes.func,
+    value: PropTypes.any
   }).isRequired,
   meta: PropTypes.shape({
     touched: PropTypes.bool,
@@ -53,7 +71,8 @@ Select.propTypes = {
 };
 
 Select.defaultProps = {
-  className: null
+  className: null,
+  label: null
 };
 
 export default Select;

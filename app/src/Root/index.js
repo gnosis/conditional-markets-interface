@@ -163,7 +163,12 @@ async function loadBasicData({ lmsrAddress, web3, account }) {
 
 const moduleLoadTime = Date.now();
 
-const RootComponent = ({ match, childComponents }) => {
+const RootComponent = ({
+  match,
+  childComponents,
+  initialModal,
+  initialStep
+}) => {
   const [
     MarketTable,
     Sidebar,
@@ -317,6 +322,19 @@ const RootComponent = ({ match, childComponents }) => {
     },
     [conditionalTokensService]
   );
+
+  // Open specified modal if initialModal is set
+  useEffect(() => {
+    if (initialModal) {
+      const options = {};
+
+      if (initialModal === "KYC" && initialStep != null) {
+        options.initialStep = initialStep;
+      }
+
+      openModal(initialModal, options);
+    }
+  }, []);
 
   // Add effect when 'syncTime' is updated this functions are triggered
   // As 'syncTime' is setted to 8 seconds all this getters are triggered and setted

@@ -42,11 +42,11 @@ const Nationality = ({ closeModal, updatePerson, handleAdvanceStep }) => {
   const onSubmit = useCallback(values => {
     updatePerson(prevValues => ({
       ...prevValues,
-      countryNationalityIso2: values.nationality.value.iso2
+      countryNationalityIso2: values.nationality.iso2
     }));
 
     handleAdvanceStep(
-      values.nationality.value.canSdd
+      values.nationality.canSdd
         ? STEP_PERSONAL
         : [STEP_REJECTED, { reason: "nationality" }]
     );

@@ -69,11 +69,10 @@ const Personal = ({ closeModal, person, updatePerson, handleAdvanceStep }) => {
       const personalDetails = {
         ...values,
         ...person,
-        idDocumentType: values.idDocumentType.value,
         documentExpiryDate: getMoment(values.documentExpiryDate).format(
           "Y-MM-DD"
         ),
-        countryResidenceIso2: values.countryResidence.value.iso2
+        countryResidenceIso2: values.countryResidence.iso2
       };
 
       updatePerson(personalDetails);
