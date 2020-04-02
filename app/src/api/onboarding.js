@@ -72,7 +72,29 @@ export const getCurrentTradingVolume = async accountAddress => {
   return fetch(url, {
     method: "GET"
   }).then(res => res.json());
-  // return Math.floor(Math.random() * 151);
+};
+
+/**
+ * Sends the intended buy volume to check against user buy limit
+ * Returns the current user buy volume after the current trade
+ *
+ * @param {string} accountAddress - Ethereum Wallet Address
+ * @param {array} buyVolumes - An array of items indicating collateralToken and amount
+ * @returns {Object} - buyVolume object containing the user spend volume after the current trade
+ */
+export const postTradingVolumeSimulation = async (
+  accountAddress,
+  buyVolumes
+) => {
+  const url = `${WHITELIST_API_URL}/v1/users/${accountAddress}/trading/volumes/simulation/`;
+
+  return fetch(url, {
+    method: "POST",
+    body: JSON.stringify(buyVolumes),
+    headers: {
+      "Content-Type": "application/json"
+    }
+  }).then(res => res.json());
 };
 
 export const postPersonalDetails = async personalDetails => {

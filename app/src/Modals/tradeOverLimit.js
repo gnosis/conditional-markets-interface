@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import Logo from "assets/img/emote_trade_limit.svg";
 import Button from "@material-ui/core/Button";
@@ -8,6 +8,7 @@ import Divider from "@material-ui/core/Divider";
 import { Form, Field } from "react-final-form";
 import { FORM_ERROR } from "final-form";
 
+import { getCurrentTradingVolume } from "api/onboarding";
 import { formatAddress } from "utils/formatting";
 
 import UpperBar from "./components/upperBar";
@@ -28,15 +29,23 @@ const VALIDATIONS = {
 };
 
 const tradeOverLimit = props => {
-  const {
-    closeModal,
-    address,
-    tier,
-    volume,
-    maxVolume,
-    tradeValue,
-    openModal
-  } = props;
+  const { address, tier, volume, maxVolume, closeModal, openModal } = props;
+
+  const simulatedVolume = Number.parseFloat(volume);
+
+  const [currentTradingVolume, setCurrentTradingVolume] = useState(0);
+
+  const getTradingVolume = useCallback(() => {
+    (async () => {
+      const { buyVolume } = await getCurrentTradingVolume(address);
+
+      setCurrentTradingVolume(buyVolume.dollars);
+    })();
+  }, [getCurrentTradingVolume, address]);
+
+  useEffect(() => {
+    getTradingVolume();
+  }, []);
 
   const onSubmit = useCallback(async values => {
     const personalDetails = {
@@ -72,10 +81,8 @@ const tradeOverLimit = props => {
     });
   }, []);
 
-  const exceedValue =
-    Number.parseFloat(volume) +
-    Number.parseFloat(tradeValue) -
-    Number.parseFloat(maxVolume);
+  const tradeValue = simulatedVolume - Number.parseFloat(currentTradingVolume);
+  const exceedValue = simulatedVolume - Number.parseFloat(maxVolume);
 
   return (
     <div className={cx(["modal", "over-limit-modal"])}>
@@ -98,14 +105,14 @@ const tradeOverLimit = props => {
             <span>Available trade limit:</span>
             <span className={cx("dotted-separator")}></span>
             <span>
-              ${volume} / <strong>${maxVolume}</strong>
+              ${simulatedVolume.toFixed(2)} / <strong>${maxVolume}</strong>
             </span>
           </div>
           <Divider className={cx("divider")} />
           <div className={cx("account-details-element")}>
             <span>Requested trade:</span>
             <span className={cx("dotted-separator")}></span>
-            <span>${tradeValue}</span>
+            <span>${tradeValue.toFixed(2)}</span>
           </div>
           <div className={cx("account-details-element")}>
             <span>
@@ -113,7 +120,7 @@ const tradeOverLimit = props => {
             </span>
             <span className={cx("dotted-separator")}></span>
             <span>
-              <strong>${exceedValue}</strong>
+              <strong>${exceedValue.toFixed(2)}</strong>
             </span>
           </div>
         </div>
@@ -169,9 +176,8 @@ tradeOverLimit.propTypes = {
   openModal: PropTypes.func.isRequired,
   address: PropTypes.string,
   tier: PropTypes.number.isRequired,
-  volume: PropTypes.number.isRequired,
-  maxVolume: PropTypes.number.isRequired,
-  tradeValue: PropTypes.number.isRequired
+  volume: PropTypes.string.isRequired,
+  maxVolume: PropTypes.number.isRequired
 };
 
 export default tradeOverLimit;

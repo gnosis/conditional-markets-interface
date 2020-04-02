@@ -11,7 +11,7 @@ import { formatAddress } from "utils/formatting";
 
 import conf from "conf";
 
-import { WHITELIST_STATES, WHITELIST_TIER_STATES } from "api/onboarding";
+import { WHITELIST_STATES } from "api/onboarding";
 import Spinner from "components/Spinner";
 import Balance from "./Balance";
 import TradingLimitIndicator from "./TradingLimitIndicator";
@@ -196,7 +196,6 @@ const UserWallet = ({
       {accountsEnabled && (
         <TradingLimitIndicator
           userState={user}
-          openModal={openModal}
           address={address}
           tiers={tiers}
         />

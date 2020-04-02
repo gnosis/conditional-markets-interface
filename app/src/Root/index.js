@@ -357,8 +357,12 @@ const RootComponent = ({ match, childComponents }) => {
         try {
           addToast("Transaction processing...", "info");
           setOngoingTransactionType(wrappedTransactionType);
-          await transactionFn();
-          addToast("Transaction confirmed.", "success");
+          const transactionResult = await transactionFn();
+          if (transactionResult && transactionResult.modal) {
+            openModal(transactionResult.modal, transactionResult.modalProps);
+          } else {
+            addToast("Transaction confirmed.", "success");
+          }
         } catch (e) {
           if (e instanceof ToastifyError) {
             addToast(
@@ -441,7 +445,12 @@ const RootComponent = ({ match, childComponents }) => {
     try {
       const { default: ComponentClass } = await import(`Modals/${modalName}`);
       setModal(
-        <ComponentClass closeModal={closeModal} reinit={init} {...options} />
+        <ComponentClass
+          closeModal={closeModal}
+          openModal={openModal}
+          reinit={init}
+          {...options}
+        />
       );
     } catch (err) {
       // eslint-disable-next-line

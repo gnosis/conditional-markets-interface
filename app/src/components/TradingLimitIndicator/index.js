@@ -16,7 +16,7 @@ const cx = cn.bind(style);
 // Function to normalise the values (MIN / MAX could be integrated)
 const normalise = (value, min, max) => ((value - min) * 100) / (max - min);
 
-const TradingLimitIndicator = ({ openModal, address, userState, tiers }) => {
+const TradingLimitIndicator = ({ address, userState, tiers }) => {
   const [volume, setVolume] = useState(0);
   const [maxVolume, setMaxVolume] = useState(0);
   const [tier, setTier] = useState(0);
@@ -47,19 +47,7 @@ const TradingLimitIndicator = ({ openModal, address, userState, tiers }) => {
   }, [tiers, userState]);
 
   return (
-    <div
-      className={cx("trading-indicator")}
-      onClick={() =>
-        openModal("tradeOverLimit", {
-          address,
-          tier,
-          volume,
-          maxVolume,
-          tradeValue: 12,
-          openModal
-        })
-      }
-    >
+    <div className={cx("trading-indicator")}>
       <LinearProgress
         variant="determinate"
         value={normalise(volume, 0, maxVolume)}
@@ -89,8 +77,7 @@ TradingLimitIndicator.propTypes = {
   tiers: PropTypes.array,
   userState: PropTypes.shape({
     tiers: PropTypes.shape({})
-  }),
-  openModal: PropTypes.func.isRequired
+  })
 };
 
 export default TradingLimitIndicator;
