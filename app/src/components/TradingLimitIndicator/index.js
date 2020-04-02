@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
 import cn from "classnames/bind";
 
+import { getCurrentUserTierData } from "utils/tiers";
 import { getCurrentTradingVolume } from "api/onboarding";
 
 import LinearProgress from "@material-ui/core/LinearProgress";
@@ -35,14 +36,10 @@ const TradingLimitIndicator = ({ address, userState, tiers }) => {
 
   useEffect(() => {
     if (tiers && userState.tiers) {
-      tiers.forEach(tier => {
-        if (userState.tiers[tier.name].status === "ENABLED") {
-          setMaxVolume(tier.limit);
-          setTier(tier.name);
-        }
-      });
+      const { limit, name } = getCurrentUserTierData(tiers, userState);
 
-      console.log(maxVolume);
+      setMaxVolume(limit);
+      setTier(name);
     }
   }, [tiers, userState]);
 
@@ -58,7 +55,8 @@ const TradingLimitIndicator = ({ address, userState, tiers }) => {
       />
       <div className={cx("progress-label")}>
         <span>
-          ${volume} / <strong>${maxVolume}</strong>
+          ${volume} /
+          <strong>{tier === "3" ? "Unlimited" : "$" + maxVolume}</strong>
         </span>
       </div>
       <InputLabel

@@ -133,8 +133,11 @@ export default class ConditionalTokensService {
     const currentUserTierData = getCurrentUserTierData(tiers, userState);
 
     if (
+      // Tier 3 unlimited is returned as 0 limit
+      Number.parseFloat(currentUserTierData.limit) !== 0 &&
+      // Otherwise we check if we are over limit
       Number.parseFloat(currentUserTierData.limit) <
-      Number.parseFloat(tradingVolumeSimulation)
+        Number.parseFloat(tradingVolumeSimulation)
     ) {
       return {
         overLimit: true,
