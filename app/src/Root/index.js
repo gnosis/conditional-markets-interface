@@ -7,17 +7,13 @@ import { useSubscription } from "@apollo/react-hooks";
 import useGlobalState from "hooks/useGlobalState";
 import Spinner from "components/Spinner";
 import CrashPage from "components/Crash";
-import makeLoadable from "../utils/make-loadable";
+
+import makeLoadable from "utils/make-loadable";
 import { getAccount, loadWeb3 } from "utils/web3";
-import {
-  getCollectionId,
-  getPositionId,
-  combineCollectionIds
-} from "utils/getIdsUtil";
+import { loadMarketsData } from "utils/getMarketsData";
 import ToastifyError from "utils/ToastifyError";
 
-import { getWhitelistState } from "api/onboarding";
-import { getQuestions } from "api/operator";
+import { getUserState, getTiersLimit } from "api/onboarding";
 import { GET_TRADES_BY_MARKET_MAKER } from "api/thegraph";
 
 import style from "./root.scss";
@@ -25,7 +21,6 @@ const cx = cn.bind(style);
 
 import conf from "../conf";
 
-import getMarketMakersRepo from "../repositories/MarketMakersRepo";
 import getConditionalTokensService from "../services/ConditionalTokensService";
 
 const ONBOARDING_MODE = conf.ONBOARDING_MODE;
@@ -35,128 +30,40 @@ const SHOW_WHITELIST_HEADER = ONBOARDING_MODE === "WHITELIST";
 const SYNC_INTERVAL = 8000;
 const WHITELIST_CHECK_INTERVAL = 30000;
 
-async function loadBasicData({ lmsrAddress, web3, account }) {
-  const { toBN } = web3.utils;
-
-  const [
-    markets,
-    marketMakersRepo,
-    conditionalTokensService
-  ] = await Promise.all([
-    // query operator for markets
-    getQuestions(undefined, lmsrAddress).then(({ results }) => {
-      return results.map(market => {
-        market.outcomes = market.outcomeNames.map(outcome => {
-          return { title: outcome, short: outcome };
-        });
-
-        return market;
-      });
-    }),
-    // Load smart contract data layer
-    getMarketMakersRepo({ lmsrAddress, web3, account }),
-    getConditionalTokensService({
-      lmsrAddress,
-      web3,
-      account
-    })
-  ]);
-
-  const { product } = require("utils/itertools");
-
-  const atomicOutcomeSlotCount = (
-    await marketMakersRepo.atomicOutcomeSlotCount()
-  ).toNumber();
-
-  // Get collateral contract
-  const collateral = await marketMakersRepo.getCollateralToken();
+async function loadBlockchainService({
+  markets,
+  lmsrAddress,
+  web3,
+  account,
+  collateralTokenAddress
+}) {
+  const conditionalTokensService = await getConditionalTokensService({
+    lmsrAddress,
+    web3,
+    account,
+    collateralTokenAddress
+  });
 
   let curAtomicOutcomeSlotCount = 1;
   for (let i = 0; i < markets.length; i++) {
     const market = markets[i];
-    const conditionId = await marketMakersRepo.conditionIds(i);
-    const numSlots = (
-      await conditionalTokensService.getOutcomeSlotCount(conditionId)
-    ).toNumber();
-
-    if (numSlots === 0) {
-      throw new Error(`condition ${conditionId} not set up yet`);
-    } else if (market.type === "SCALAR") {
-      if (numSlots !== 2) {
-        throw new Error(
-          `condition ${conditionId} outcome slot not valid for scalar market - requires long and short outcomes`
-        );
-      }
-
-      // set outcomes to enable calculations on outcome count
-      market.outcomes = [{ title: "short" }, { title: "long" }];
-    } else if (numSlots !== market.outcomes.length) {
-      throw new Error(
-        `condition ${conditionId} outcome slot count ${numSlots} does not match market outcome descriptions array with length ${market.outcomes.length}`
-      );
-    }
-
-    market.marketIndex = i;
-    market.conditionId = conditionId;
-    market.outcomes.forEach((outcome, i) => {
-      outcome.collectionId = getCollectionId(conditionId, toBN(1).shln(i));
-    });
+    const { outcomeSlotCount: numSlots } = market;
 
     curAtomicOutcomeSlotCount *= numSlots;
   }
 
+  // Get collateral info
+  const collateral = conditionalTokensService.getCollateralToken();
+
+  const atomicOutcomeSlotCount = await conditionalTokensService.getAtomicOutcomeSlotCount();
   if (curAtomicOutcomeSlotCount !== atomicOutcomeSlotCount) {
     throw new Error(
       `mismatch in counted atomic outcome slot ${curAtomicOutcomeSlotCount} and contract reported value ${atomicOutcomeSlotCount}`
     );
   }
 
-  const positions = [];
-  for (const outcomes of product(
-    ...markets
-      .slice()
-      .reverse()
-      .map(({ conditionId, outcomes, marketIndex }) =>
-        outcomes.map((outcome, outcomeIndex) => ({
-          ...outcome,
-          conditionId,
-          marketIndex,
-          outcomeIndex
-        }))
-      )
-  )) {
-    const combinedCollectionIds = combineCollectionIds(
-      outcomes.map(({ collectionId }) => collectionId)
-    );
-
-    const positionId = getPositionId(collateral.address, combinedCollectionIds);
-    positions.push({
-      id: positionId,
-      outcomes
-    });
-  }
-
-  positions.forEach((position, i) => {
-    position.positionIndex = i;
-  });
-
-  for (const market of markets) {
-    for (const outcome of market.outcomes) {
-      outcome.positions = [];
-    }
-  }
-  for (const position of positions) {
-    for (const outcome of position.outcomes) {
-      markets[outcome.marketIndex].outcomes[
-        outcome.outcomeIndex
-      ].positions.push(position);
-    }
-  }
-
   return {
     collateral,
-    markets,
-    positions,
     conditionalTokensService
   };
 }
@@ -183,6 +90,8 @@ const RootComponent = ({
   const {
     account,
     setAccount,
+    user,
+    setUser,
     markets,
     setMarkets,
     positions,
@@ -190,7 +99,8 @@ const RootComponent = ({
     lmsrState,
     setLMSRState,
     collateral,
-    setCollateral
+    setCollateral,
+    setTiers
   } = useGlobalState();
 
   // Init and set base state
@@ -219,17 +129,28 @@ const RootComponent = ({
         console.log(conf);
         console.groupEnd();
 
-        const { web3, account } = await loadWeb3(conf.networkId, provider);
+        const [
+          { web3, account },
+          { markets, collateralToken: collateralTokenAddress, positions }
+        ] = await Promise.all([
+          loadWeb3(conf.networkId, provider),
+          loadMarketsData({ lmsrAddress })
+        ]);
 
         setWeb3(web3);
         setAccount(account);
 
+        setMarkets(markets);
+        setPositions(positions);
+
+        setLoading("SUCCESS");
+
         const {
           collateral,
-          markets,
-          positions,
           conditionalTokensService
-        } = await loadBasicData({
+        } = await loadBlockchainService({
+          markets,
+          collateralTokenAddress,
           lmsrAddress,
           web3,
           account
@@ -237,11 +158,8 @@ const RootComponent = ({
 
         setConditionalTokensService(conditionalTokensService);
         setCollateral(collateral);
-        setMarkets(markets);
-        setPositions(positions);
 
         console.groupCollapsed("Global Debug Variables");
-        // console.log("LMSRMarketMaker (Instance) Contract:", marketMakersRepo);
         console.log("Collateral Settings:", collateral);
         console.log("Market Settings:", markets);
         console.log("Account Positions:", positions);
@@ -256,7 +174,7 @@ const RootComponent = ({
         throw err;
       }
     },
-    [lmsrAddress]
+    [lmsrAddress, user, setUser]
   );
 
   // First time init
@@ -264,9 +182,9 @@ const RootComponent = ({
     if (loading !== "LOADING") {
       // we already init app once. We have to clear data
       setLoading("LOADING");
-      setCollateral(null);
+      // setCollateral(null);
       setMarkets(null);
-      setPositions(null);
+      setUser(null);
       setConditionalTokensService(null);
       setLMSRState(null);
     }
@@ -380,8 +298,10 @@ const RootComponent = ({
   const updateWhitelist = useCallback(() => {
     if (account) {
       (async () => {
-        const whitelistStatus = await getWhitelistState(account);
+        const userState = await getUserState(account);
+        const { status: whitelistStatus } = userState;
         setWhitelistState(whitelistStatus);
+        setUser({ ...user, ...userState });
 
         if (
           whitelistStatus === "WHITELISTED" ||
@@ -393,11 +313,24 @@ const RootComponent = ({
     } else {
       setWhitelistState("NOT_FOUND");
     }
-  }, [account]);
+  }, [user, setUser, account]);
   useInterval(updateWhitelist, whitelistIntervalTime);
 
   useEffect(() => {
     updateWhitelist();
+  }, [account]);
+
+  const getTiersLimitValues = useCallback(() => {
+    if (account) {
+      (async () => {
+        const tiersLimit = await getTiersLimit();
+        setTiers(tiersLimit);
+      })();
+    }
+  }, [account]);
+
+  useEffect(() => {
+    getTiersLimitValues();
   }, [account]);
 
   const asWrappedTransaction = useCallback(
@@ -416,8 +349,11 @@ const RootComponent = ({
 
           if (whitelistState !== "WHITELISTED") {
             if (ONBOARDING_MODE === "WHITELIST") {
-              // Whitelist Mode meaans show Modal for whitelisting options
+              // Whitelist Mode means show Modal for whitelisting options
               openModal("applyBeta", { whitelistState });
+            } else if (ONBOARDING_MODE === "TIERED") {
+              // If mode is Tiered we have to open SDD KYC Modal
+              openModal("KYC");
             } else {
               // Future-proofing: default error handling shows an error indicating
               // that the user needs to be registered/whitelist before being able to trade

@@ -9,7 +9,6 @@ import style from "./marketTable.scss";
 import useGlobalState from "hooks/useGlobalState";
 
 import MarketRow from "./MarketRow";
-import Spinner from "components/Spinner";
 
 import {
   getMarketProbabilities,
@@ -116,10 +115,6 @@ const MarketTable = ({
       nonConditionalMarkets.push(market);
     }
   });
-
-  if (!lmsrState || !marketProbabilities) {
-    return <Spinner />;
-  }
 
   return (
     <div className={cx("market-table")}>

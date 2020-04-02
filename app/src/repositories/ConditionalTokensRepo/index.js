@@ -1,13 +1,21 @@
-const ConditionalTokensRepo = require("./ConditionalTokensRepo");
+import ConditionalTokensRepo from "./ConditionalTokensRepo";
 import loadContracts from "../../loadContracts";
 
 let instance, instancePromise, lmsrAddressCache, providerAccountCache;
 
-async function _getInstance({ lmsrAddress, web3, account }) {
+async function _getInstance({
+  lmsrAddress,
+  web3,
+  account,
+  collateralTokenAddress
+}) {
   // Get contracts
-  const contracts = await loadContracts({ lmsrAddress, web3, account });
-
-  return new ConditionalTokensRepo({ contracts });
+  return loadContracts({
+    lmsrAddress,
+    web3,
+    account,
+    collateralTokenAddress
+  }).then(contracts => new ConditionalTokensRepo({ contracts }));
 }
 
 // When changing the market maker or the web3 provider we have to reset the singleton

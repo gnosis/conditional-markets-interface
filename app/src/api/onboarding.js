@@ -58,8 +58,21 @@ export const setSourceOfFunds = async sowInformation => {
   });
 };
 
-export const getCurrentTradingVolume = accountAddress => {
-  return Math.floor(Math.random() * 151);
+export const getTiersLimit = async () => {
+  const url = `${WHITELIST_API_URL}/v1/tiers/`;
+
+  return fetch(url, {
+    method: "GET"
+  }).then(res => res.json());
+};
+
+export const getCurrentTradingVolume = async accountAddress => {
+  const url = `${WHITELIST_API_URL}/v1/users/${accountAddress}/trading/volumes/`;
+
+  return fetch(url, {
+    method: "GET"
+  }).then(res => res.json());
+  // return Math.floor(Math.random() * 151);
 };
 
 export const postPersonalDetails = async personalDetails => {
@@ -83,26 +96,30 @@ export const postPersonalDetails = async personalDetails => {
 };
 
 /**
+ * @typedef {Object} UserState
+ * @property {string} ethAddress - User account
+ * @property {WHITELIST_STATES} status - The current user state 'PENDING_KYC', 'BLOCKED', 'WHITELISTED'
+ * @property {Object} tiers - Current tiers state for user
+ */
+/**
  * Returns the current status of the requested accounts whitelist process
  *
  * @param {string} accountAddress - Ethereum Wallet Address
- * @returns {WHITELIST_STATES} - state
+ * @returns {UserState} - state
  */
-export const getWhitelistState = async accountAddress => {
+export const getUserState = async accountAddress => {
   const response = await fetch(
     `${WHITELIST_API_URL}/v2/users/${accountAddress}/`
   );
   if (response.status === 404) {
-    return WHITELIST_STATES.UNKNOWN;
+    return { status: WHITELIST_STATES.UNKNOWN };
   }
 
   if (!response.ok) {
-    return "ERROR";
+    return { status: "ERROR" };
   }
 
-  const json = await response.json();
-
-  return json.status; // 'PENDING_KYC', 'BLOCKED', 'WHITELISTED'
+  return response.json();
 };
 
 /**

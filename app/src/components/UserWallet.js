@@ -44,7 +44,7 @@ const UserWallet = ({
   setProvider,
   openModal
 }) => {
-  const { account: address } = useGlobalState();
+  const { account: address, user, tiers } = useGlobalState();
 
   const connect = useCallback(
     provider => {
@@ -194,7 +194,12 @@ const UserWallet = ({
   return (
     <div className={cx("user-wallet")}>
       {accountsEnabled && (
-        <TradingLimitIndicator openModal={openModal} address={address} />
+        <TradingLimitIndicator
+          userState={user}
+          openModal={openModal}
+          address={address}
+          tiers={tiers}
+        />
       )}
       <div className={cx("avatar")}>
         <Blockies
@@ -228,7 +233,7 @@ UserWallet.propTypes = {
   collateral: PropTypes.shape({
     fromUnitsMultiplier: PropTypes.object,
     symbol: PropTypes.string
-  }).isRequired,
+  }),
   collateralBalance: PropTypes.shape({
     totalAmount: PropTypes.object // DecimalJS
   }),

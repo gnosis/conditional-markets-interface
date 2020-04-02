@@ -1,3 +1,7 @@
+import Web3 from "web3";
+
+export const { BN, toBN, soliditySha3, hexToUtf8 } = Web3.utils;
+
 export function getNetworkName(networkId) {
   // https://ethereum.stackexchange.com/a/17101
   return (
@@ -42,13 +46,11 @@ export function getReadOnlyProviderForNetworkId(networkId) {
 export async function getAccount(web3) {
   if (!web3) return null;
   if (web3.defaultAccount == null) {
-    const accounts = await web3.eth.getAccounts();
-    return accounts[0] || null;
+    return web3.eth.getAccounts().then(accounts => accounts[0] || null);
   } else return web3.defaultAccount;
 }
 
 export async function tryProvider(providerCandidate, networkId) {
-  const { default: Web3 } = await import("web3");
   if (providerCandidate == null) throw new Error("provider not available");
   if (providerCandidate.enable != null) await providerCandidate.enable();
 
