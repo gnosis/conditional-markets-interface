@@ -15,6 +15,7 @@ export const STEP_PERSONAL = "PERSONAL";
 export const STEP_REJECTED = "REJECTED";
 export const STEP_APPROVED = "APPROVED";
 export const STEP_PENDING = "PENDING";
+export const STEP_SOW = "SOW";
 
 // Child components loaded lazily on KYC load
 const STEP_COMPONENTS = {
@@ -25,7 +26,8 @@ const STEP_COMPONENTS = {
   [STEP_PERSONAL]: () => import("./steps/Personal"),
   [STEP_REJECTED]: () => import("./steps/Rejected"),
   [STEP_APPROVED]: () => import("./steps/Approved"),
-  [STEP_PENDING]: () => import("./steps/Pending")
+  [STEP_PENDING]: () => import("./steps/Pending"),
+  [STEP_SOW]: () => import("./steps/SOW")
 };
 
 const KYC = ({ closeModal, initialStep, ...props }) => {

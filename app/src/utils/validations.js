@@ -41,3 +41,22 @@ export const validator = fields => values => {
 
   return errors;
 };
+
+export const fieldValidator = validationsOrValidatorFunc => value => {
+  let validations = validationsOrValidatorFunc;
+  if (typeof validationsOrVaalidatorFunc === "function") {
+    validations = [validationsOrValidatorFunc];
+  }
+
+  let error;
+  validations.some(validatorFunc => {
+    error = validatorFunc(value);
+
+    if (error != null) {
+      return true;
+    }
+    return false;
+  });
+
+  return error;
+};
