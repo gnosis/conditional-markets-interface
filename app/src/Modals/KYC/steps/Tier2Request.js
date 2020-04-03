@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useRef } from "react";
 import PropTypes from "prop-types";
 import Logo from "assets/img/emote_trade_limit.svg";
 import Button from "@material-ui/core/Button";
@@ -34,14 +34,12 @@ const VALIDATIONS = {
 };
 
 const Tier2Request = ({ closeModal, handleAdvanceStep }) => {
+  const captcha = useRef(null);
+
   const onSubmit = useCallback(async values => {
     const personalDetails = {
       ...values
     };
-
-    console.log("submitting:", values);
-
-    //   updatePerson(personalDetails);
 
     const [response, json] = await postTier2Request(personalDetails);
 
@@ -61,7 +59,12 @@ const Tier2Request = ({ closeModal, handleAdvanceStep }) => {
       }
     }
 
-    handleAdvanceStep(STEP_TIER2_REQUEST_SUCCESS);
+    handleAdvanceStep([
+      STEP_TIER2_REQUEST_SUCCESS,
+      {
+        email: values.email
+      }
+    ]);
   }, []);
 
   return (
@@ -123,6 +126,7 @@ const Tier2Request = ({ closeModal, handleAdvanceStep }) => {
                 </div>
                 <Field
                   className={cx("field")}
+                  ref={captcha}
                   name="recaptchaToken"
                   component={Captcha}
                 />

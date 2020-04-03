@@ -53,8 +53,6 @@ const tradeOverLimit = props => {
       ...values
     };
 
-    console.log("submitting:", personalDetails);
-
     const [response, json] = await postTier2Upgrade(personalDetails);
 
     if (!response.ok) {

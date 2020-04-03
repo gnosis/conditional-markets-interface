@@ -138,7 +138,7 @@ export const getUserState = async accountAddress => {
   }
 
   if (!response.ok) {
-    return { status: "ERROR" };
+    return { status: WHITELIST_STATES.ERROR };
   }
 
   return response.json();
@@ -175,8 +175,8 @@ export const isTieredWhitelistProcessing = async account => {
     let whitelistStatus = WHITELIST_TIER_STATES.PENDING;
     let rejected = false;
     let t1;
-    if (json["tiers"] && json["tiers"]["tier1"]) {
-      t1 = json["tiers"]["tier1"];
+    if (json["tiers"] && json["tiers"]["1"]) {
+      t1 = json["tiers"]["1"];
 
       sanctionStatus = t1["status"] !== WHITELIST_TIER_STATES.PENDING_SDD;
       whitelistStatus =

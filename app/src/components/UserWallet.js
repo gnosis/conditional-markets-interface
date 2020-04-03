@@ -36,6 +36,48 @@ const web3Modal = new Web3Modal({
   }
 });
 
+// Logged In common components
+const LoggedIn = ({ address, collateral, collateralBalance, disconnect }) => {
+  return (
+    <>
+      <div className={cx("avatar")}>
+        <Blockies
+          seed={address.toLowerCase()}
+          size={8}
+          scale={16}
+          className={cx("avatar-image")}
+        />
+      </div>
+      <div className={cx("account-info")}>
+        <span className={cx("address")} title={address}>
+          {formatAddress(address)}
+        </span>
+        <span className={cx("balance")}>
+          <Balance
+            collateral={collateral}
+            collateralBalance={collateralBalance}
+          />
+        </span>
+      </div>
+      <button onClick={disconnect} className={cx("disconnect-wallet")}>
+        Disconnect
+      </button>
+    </>
+  );
+};
+
+LoggedIn.propTypes = {
+  address: PropTypes.string,
+  collateral: PropTypes.shape({
+    fromUnitsMultiplier: PropTypes.object,
+    symbol: PropTypes.string
+  }),
+  collateralBalance: PropTypes.shape({
+    totalAmount: PropTypes.object // DecimalJS
+  }),
+  disconnect: PropTypes.func.isRequired
+};
+
 const UserWallet = ({
   //address,
   whitelistState,
@@ -53,10 +95,10 @@ const UserWallet = ({
     [setProvider]
   );
 
-  const disconnect = () => {
+  const disconnect = useCallback(() => {
     // web3Modal.clearCachedProvider();
     setProvider(null);
-  };
+  });
 
   useEffect(() => {
     web3Modal.on("connect", connect);
@@ -124,28 +166,12 @@ const UserWallet = ({
               Create Account
             </button>
           )}
-          <div className={cx("avatar")}>
-            <Blockies
-              seed={address.toLowerCase()}
-              size={8}
-              scale={16}
-              className={cx("avatar-image")}
-            />
-          </div>
-          <div className={cx("account-info")}>
-            <span className={cx("address")} title={address}>
-              {formatAddress(address)}
-            </span>
-            <span className={cx("balance")}>
-              <Balance
-                collateral={collateral}
-                collateralBalance={collateralBalance}
-              />
-            </span>
-          </div>
-          <button onClick={disconnect} className={cx("disconnect-wallet")}>
-            Disconnect
-          </button>
+          <LoggedIn
+            address={address}
+            collateral={collateral}
+            collateralBalance={collateralBalance}
+            disconnect={disconnect}
+          />
         </div>
       );
     }
@@ -162,31 +188,15 @@ const UserWallet = ({
               className={cx("kyc-button", "whitelistStatus")}
               onClick={() => openModal("KYC", { initialStep: "PENDING" })}
             >
-              Verification in Progress for your Account
+              Check verification state for your account
             </button>
           )}
-          <div className={cx("avatar")}>
-            <Blockies
-              seed={address.toLowerCase()}
-              size={8}
-              scale={16}
-              className={cx("avatar-image")}
-            />
-          </div>
-          <div className={cx("account-info")}>
-            <span className={cx("address")} title={address}>
-              {formatAddress(address)}
-            </span>
-            <span className={cx("balance")}>
-              <Balance
-                collateral={collateral}
-                collateralBalance={collateralBalance}
-              />
-            </span>
-          </div>
-          <button onClick={disconnect} className={cx("disconnect-wallet")}>
-            Disconnect
-          </button>
+          <LoggedIn
+            address={address}
+            collateral={collateral}
+            collateralBalance={collateralBalance}
+            disconnect={disconnect}
+          />
         </div>
       );
     }
@@ -200,28 +210,12 @@ const UserWallet = ({
           tiers={tiers}
         />
       )}
-      <div className={cx("avatar")}>
-        <Blockies
-          seed={address.toLowerCase()}
-          size={8}
-          scale={16}
-          className={cx("avatar-image")}
-        />
-      </div>
-      <div className={cx("account-info")}>
-        <span className={cx("address")} title={address}>
-          {formatAddress(address)}
-        </span>
-        <span className={cx("balance")}>
-          <Balance
-            collateral={collateral}
-            collateralBalance={collateralBalance}
-          />
-        </span>
-      </div>
-      <button onClick={disconnect} className={cx("disconnect-wallet")}>
-        Disconnect
-      </button>
+      <LoggedIn
+        address={address}
+        collateral={collateral}
+        collateralBalance={collateralBalance}
+        disconnect={disconnect}
+      />
     </div>
   );
 };
