@@ -7,6 +7,8 @@ import useGlobalState from "hooks/useGlobalState";
 
 import useInterval from "@use-it/interval";
 
+import UpperBar from "../../components/upperBar";
+
 import { isTieredWhitelistProcessing } from "api/onboarding";
 import { STEP_REJECTED, STEP_APPROVED } from "..";
 
@@ -68,14 +70,7 @@ const Pending = ({ closeModal, handleAdvanceStep }) => {
 
   return (
     <>
-      <div className={cx("modal-header")}>
-        Create account
-        <button
-          type="button"
-          onClick={closeModal}
-          className={cx("modal-close")}
-        />
-      </div>
+      <UpperBar closeModal={closeModal} title="Create Account"></UpperBar>
       <div className={cx("modal-body")}>
         {pageStatus !== "ERROR" ? (
           <>

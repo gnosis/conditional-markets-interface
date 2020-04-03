@@ -40,12 +40,9 @@ export const WHITELIST_TIER_STATES = {
 export const getResidenceCountries = async () => {
   const url = `${WHITELIST_API_URL}/v1/countries`;
 
-  const response = await fetch(url, {
+  return fetch(url, {
     method: "GET"
-  });
-  const json = await response.json();
-
-  return json;
+  }).then(res => res.json());
 };
 
 export const setSourceOfFunds = async sowInformation => {
@@ -59,6 +56,45 @@ export const setSourceOfFunds = async sowInformation => {
       "Content-Type": "application/json"
     }
   });
+};
+
+export const getTiersLimit = async () => {
+  const url = `${WHITELIST_API_URL}/v1/tiers/`;
+
+  return fetch(url, {
+    method: "GET"
+  }).then(res => res.json());
+};
+
+export const getCurrentTradingVolume = async accountAddress => {
+  const url = `${WHITELIST_API_URL}/v1/users/${accountAddress}/trading/volumes/`;
+
+  return fetch(url, {
+    method: "GET"
+  }).then(res => res.json());
+};
+
+/**
+ * Sends the intended buy volume to check against user buy limit
+ * Returns the current user buy volume after the current trade
+ *
+ * @param {string} accountAddress - Ethereum Wallet Address
+ * @param {array} buyVolumes - An array of items indicating collateralToken and amount
+ * @returns {Object} - buyVolume object containing the user spend volume after the current trade
+ */
+export const postTradingVolumeSimulation = async (
+  accountAddress,
+  buyVolumes
+) => {
+  const url = `${WHITELIST_API_URL}/v1/users/${accountAddress}/trading/volumes/simulation/`;
+
+  return fetch(url, {
+    method: "POST",
+    body: JSON.stringify(buyVolumes),
+    headers: {
+      "Content-Type": "application/json"
+    }
+  }).then(res => res.json());
 };
 
 export const postPersonalDetails = async personalDetails => {
@@ -82,26 +118,30 @@ export const postPersonalDetails = async personalDetails => {
 };
 
 /**
+ * @typedef {Object} UserState
+ * @property {string} ethAddress - User account
+ * @property {WHITELIST_STATES} status - The current user state 'PENDING_KYC', 'BLOCKED', 'WHITELISTED'
+ * @property {Object} tiers - Current tiers state for user
+ */
+/**
  * Returns the current status of the requested accounts whitelist process
  *
  * @param {string} accountAddress - Ethereum Wallet Address
- * @returns {WHITELIST_STATES} - state
+ * @returns {UserState} - state
  */
-export const getWhitelistState = async accountAddress => {
+export const getUserState = async accountAddress => {
   const response = await fetch(
     `${WHITELIST_API_URL}/v2/users/${accountAddress}/`
   );
   if (response.status === 404) {
-    return WHITELIST_STATES.UNKNOWN;
+    return { status: WHITELIST_STATES.UNKNOWN };
   }
 
   if (!response.ok) {
-    return "ERROR";
+    return { status: WHITELIST_STATES.ERROR };
   }
 
-  const json = await response.json();
-
-  return json.status; // 'PENDING_KYC', 'BLOCKED', 'WHITELISTED'
+  return response.json();
 };
 
 /**
@@ -135,8 +175,8 @@ export const isTieredWhitelistProcessing = async account => {
     let whitelistStatus = WHITELIST_TIER_STATES.PENDING;
     let rejected = false;
     let t1;
-    if (json["tiers"] && json["tiers"]["tier1"]) {
-      t1 = json["tiers"]["tier1"];
+    if (json["tiers"] && json["tiers"]["1"]) {
+      t1 = json["tiers"]["1"];
 
       sanctionStatus = t1["status"] !== WHITELIST_TIER_STATES.PENDING_SDD;
       whitelistStatus =
@@ -152,4 +192,58 @@ export const isTieredWhitelistProcessing = async account => {
   }
 
   return { sanctionStatus: "ERROR", whitelistStatus: "ERROR" };
+};
+
+/**
+ * Call to upgrade a Tier 1 user that wants to promote to Tier 2.
+ * @function
+ * @param {Object} userDetails - Information from the user that requests the upgrade.
+ * @param {string} userDetails.ethAddress - The user eth address.
+ * @param {string} userDetails.recaptchaToken - The user signed captcha.
+ */
+export const postTier2Upgrade = async userDetails => {
+  const url = `${WHITELIST_API_URL}/v1/tiers/2/upgrades/`;
+
+  const response = await fetch(url, {
+    method: "POST",
+    body: JSON.stringify(userDetails),
+    headers: {
+      "Content-Type": "application/json"
+    }
+  });
+
+  if (response.ok) {
+    // ok response (204) has no body
+    return [response, null];
+  }
+
+  const json = await response.json();
+  return [response, json];
+};
+
+/**
+ * Call to request a Tier 2 account creation for an user that can't apply for Tier 1. (Non EU user).
+ * @function
+ * @param {Object} userDetails - Information from the user that requests the registration.
+ * @param {string} userDetails.email - The user email to start the proccess.
+ * @param {string} userDetails.recaptchaToken - The user signed captcha.
+ */
+export const postTier2Request = async userDetails => {
+  const url = `${WHITELIST_API_URL}/v1/tiers/2/requests/`;
+
+  const response = await fetch(url, {
+    method: "POST",
+    body: JSON.stringify(userDetails),
+    headers: {
+      "Content-Type": "application/json"
+    }
+  });
+
+  if (response.ok) {
+    // ok response (204) has no body
+    return [response, null];
+  }
+
+  const json = await response.json();
+  return [response, json];
 };

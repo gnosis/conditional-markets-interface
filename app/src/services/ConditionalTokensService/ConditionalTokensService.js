@@ -2,6 +2,12 @@ import assert from "assert";
 import { zeroDecimal, maxUint256BN } from "utils/constants";
 import { formatCollateral } from "utils/formatting";
 import ToastifyError from "utils/ToastifyError";
+import { getCurrentUserTierData } from "utils/tiers";
+import {
+  getTiersLimit,
+  getUserState,
+  postTradingVolumeSimulation
+} from "api/onboarding";
 
 export default class ConditionalTokensService {
   constructor({ web3, marketMakersRepo, conditionalTokensRepo }) {
@@ -110,6 +116,41 @@ export default class ConditionalTokensService {
     return this._marketMakersRepo.calcNetCost(amounts);
   }
 
+  async isTierLimitExceeded({ account, collateral, investmentAmount }) {
+    const [tiers, userState, tradingVolumeSimulation] = await Promise.all([
+      getTiersLimit(),
+      getUserState(account),
+      postTradingVolumeSimulation(account, {
+        buyVolumes: [
+          {
+            collateralToken: collateral.address,
+            amount: investmentAmount
+          }
+        ]
+      }).then(({ buyVolume }) => buyVolume.dollars)
+    ]);
+
+    const currentUserTierData = getCurrentUserTierData(tiers, userState);
+
+    if (
+      // Tier 3 unlimited is returned as 0 limit
+      Number.parseFloat(currentUserTierData.limit) !== 0 &&
+      // Otherwise we check if we are over limit
+      Number.parseFloat(currentUserTierData.limit) <
+        Number.parseFloat(tradingVolumeSimulation)
+    ) {
+      return {
+        overLimit: true,
+        currentUserTierData,
+        volumeAfterTrade: tradingVolumeSimulation
+      };
+    } else {
+      return {
+        overLimit: false
+      };
+    }
+  }
+
   async buyOutcomeTokens({
     investmentAmount,
     stagedTradeAmounts,
@@ -143,6 +184,25 @@ export default class ConditionalTokensService {
           collateral
         )}`
       );
+
+    const tierLimitStatus = await this.isTierLimitExceeded({
+      account,
+      collateral,
+      investmentAmount
+    });
+
+    if (tierLimitStatus.overLimit) {
+      const { currentUserTierData, volumeAfterTrade } = tierLimitStatus;
+      return {
+        modal: "tradeOverLimit",
+        modalProps: {
+          address: account,
+          tier: currentUserTierData.name,
+          maxVolume: currentUserTierData.limit,
+          volume: volumeAfterTrade
+        }
+      };
+    }
 
     const tradeAmounts = stagedTradeAmounts.map(amount => amount.toString());
     const collateralLimit = await this._marketMakersRepo.calcNetCost(

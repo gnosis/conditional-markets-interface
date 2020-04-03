@@ -1,49 +1,53 @@
 import React from "react";
 import PropTypes from "prop-types";
 import classnames from "classnames/bind";
+import Button from "@material-ui/core/Button";
+
 import style from "../kyc.scss";
 
-import { STEP_REJECTED, STEP_NATIONALITY } from "../";
+import UpperBar from "../../components/upperBar";
+
+import { STEP_TIER2_REQUEST, STEP_NATIONALITY } from "../";
 
 const cx = classnames.bind(style);
 
 const Residence = ({ closeModal, handleAdvanceStep }) => {
   return (
     <>
-      <div className={cx("modal-header")}>
-        Create account
-        <button
-          type="button"
-          onClick={closeModal}
-          className={cx("modal-close")}
-        />
-      </div>
+      <UpperBar closeModal={closeModal} title="Create Account"></UpperBar>
       <div className={cx("modal-body")}>
-        <label className={cx("field", "heading")}>
+        <p className={cx("field", "heading")}>
           To start trading on Sight you first need to create an account:
-        </label>
-        <br />
-        <label className={cx("field", "label")}>Are you a EU resident?</label>
-        <br />
+        </p>
+        <p className={cx("field", "label")}>Are you an EU resident?</p>
         <div className={cx("modal-buttons")}>
-          <button
-            type="button"
-            className={cx("field", "button", "primary")}
+          <Button
+            className={cx("material-button")}
+            classes={{ label: cx("material-button-label") }}
+            variant="contained"
+            color="primary"
+            size="large"
             onClick={() => handleAdvanceStep(STEP_NATIONALITY)}
           >
             Yes
-          </button>
-          <button
-            type="button"
-            className={cx("field", "button", "secondary")}
+          </Button>
+          <Button
+            className={cx("material-button")}
+            classes={{ label: cx("material-button-label") }}
+            variant="outlined"
+            color="primary"
+            size="large"
             onClick={() =>
-              handleAdvanceStep(STEP_REJECTED, {
-                reason: "nationality-rejected"
-              })
+              handleAdvanceStep([
+                STEP_TIER2_REQUEST,
+                {
+                  nonEuResident: true
+                }
+              ])
             }
           >
             No
-          </button>
+          </Button>
         </div>
       </div>
     </>

@@ -1,6 +1,9 @@
 import React from "react";
 import PropTypes from "prop-types";
 import cn from "classnames/bind";
+import Button from "@material-ui/core/Button";
+
+import UpperBar from "../../components/upperBar";
 
 import EmoteSad from "assets/img/emote_sad.svg";
 
@@ -76,26 +79,23 @@ const Rejected = props => {
 
   return (
     <>
-      <div className={cx("modal-header")}>
-        Create account
-        <button
-          type="button"
-          onClick={closeModal}
-          className={cx("modal-close")}
-        />
-      </div>
+      <UpperBar closeModal={closeModal} title="Create Account"></UpperBar>
       <div className={cx("modal-body")}>
         <div className={cx("modal-textblock")}>
           <img className={cx("modal-jumbo")} src={EmoteSad} alt="Sorry! :(" />
           <TargetComponent {...props} />
         </div>
         <div>
-          <button
-            className={cx("field", "button", "primary")}
+          <Button
+            className={cx("material-button")}
+            classes={{ label: cx("material-button-label") }}
+            variant="contained"
+            color="primary"
+            size="large"
             onClick={closeModal}
           >
             Close
-          </button>
+          </Button>
         </div>
       </div>
     </>

@@ -152,17 +152,22 @@ const Buy = ({
   }, [setStagedTradeAmounts, setInvestmentAmount, setError]);
 
   const buyOutcomeTokens = useCallback(async () => {
-    await conditionalTokensService.buyOutcomeTokens({
-      investmentAmount,
-      stagedTradeAmounts,
-      stagedTransactionType,
-      account,
-      collateralBalance
-    });
-
-    clearAllPositions();
-    // Show positions component
-    selectTabCallback(1);
+    return conditionalTokensService
+      .buyOutcomeTokens({
+        investmentAmount,
+        stagedTradeAmounts,
+        stagedTransactionType,
+        account,
+        collateralBalance
+      })
+      .then(result => {
+        if (!result.modal) {
+          clearAllPositions();
+          // Show positions component
+          selectTabCallback(1);
+        }
+        return result;
+      });
   }, [
     investmentAmount,
     stagedTransactionType,

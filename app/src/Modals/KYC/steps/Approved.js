@@ -1,7 +1,13 @@
 import React from "react";
 import PropTypes from "prop-types";
 import classnames from "classnames/bind";
+import Button from "@material-ui/core/Button";
+
+import { formatAddress } from "utils/formatting";
+
 import style from "../kyc.scss";
+
+import UpperBar from "../../components/upperBar";
 
 import EmotePending from "assets/img/emote_approve.svg";
 
@@ -12,14 +18,7 @@ const Approved = ({ closeModal }) => {
   const { account } = useGlobalState();
   return (
     <>
-      <div className={cx("modal-header")}>
-        Create account
-        <button
-          type="button"
-          onClick={closeModal}
-          className={cx("modal-close")}
-        />
-      </div>
+      <UpperBar closeModal={closeModal} title="Create Account"></UpperBar>
       <div className={cx("modal-body")}>
         <img
           className={cx("modal-jumbo")}
@@ -34,7 +33,7 @@ const Approved = ({ closeModal }) => {
               <div className={cx("entry")}>
                 <div className={cx("label")}>Wallet Address</div>
                 <div className={cx("dots")} />
-                <div className={cx("value")}>{account}</div>
+                <div className={cx("value")}>{formatAddress(account)}</div>
               </div>
               <div className={cx("entry")}>
                 <div className={cx("label")}>Tier Level</div>
@@ -62,14 +61,16 @@ const Approved = ({ closeModal }) => {
               to receive updates about new markets and news.
             </p>
           </div>
-
-          <button
-            className={cx("field", "button", "primary")}
-            type="button"
+          <Button
+            className={cx("material-button")}
+            classes={{ label: cx("material-button-label") }}
+            variant="contained"
+            color="primary"
+            size="large"
             onClick={closeModal}
           >
             Continue Trading
-          </button>
+          </Button>
         </div>
       </div>
     </>

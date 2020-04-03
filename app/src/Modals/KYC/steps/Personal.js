@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { Form, Field } from "react-final-form";
 import { FORM_ERROR } from "final-form";
+import Button from "@material-ui/core/Button";
 import { getMoment } from "utils/timeFormat";
 
 import DateInput from "components/Form/DateInput";
@@ -11,6 +12,8 @@ import CheckboxInput from "components/Form/Checkbox";
 import Select from "components/Form/Select";
 import Captcha from "components/Form/Captcha";
 import Spinner from "components/Spinner";
+
+import UpperBar from "../../components/upperBar";
 
 import { getResidenceCountries, postPersonalDetails } from "api/onboarding";
 
@@ -105,14 +108,7 @@ const Personal = ({ closeModal, person, updatePerson, handleAdvanceStep }) => {
   if (loadingState === "PENDING") {
     return (
       <>
-        <div className={cx("modal-header")}>
-          Create account
-          <button
-            type="button"
-            onClick={closeModal}
-            className={cx("modal-close")}
-          />
-        </div>
+        <UpperBar closeModal={closeModal} title="Create Account"></UpperBar>
         <div className={cx("modal-body")}>
           <Spinner />;
         </div>
@@ -123,14 +119,7 @@ const Personal = ({ closeModal, person, updatePerson, handleAdvanceStep }) => {
   if (loadingState === "FAILURE") {
     return (
       <>
-        <div className={cx("modal-header")}>
-          Create account
-          <button
-            type="button"
-            onClick={closeModal}
-            className={cx("modal-close")}
-          />
-        </div>
+        <UpperBar closeModal={closeModal} title="Create Account"></UpperBar>
         <div className={cx("modal-body")}>
           <p>Could not load country list. Please try again.</p>
           <button
@@ -146,24 +135,16 @@ const Personal = ({ closeModal, person, updatePerson, handleAdvanceStep }) => {
   }
   return (
     <>
-      <div className={cx("modal-header")}>
-        Create account
-        <button
-          type="button"
-          onClick={closeModal}
-          className={cx("modal-close")}
-        />
-      </div>
+      <UpperBar closeModal={closeModal} title="Create Account"></UpperBar>
       <div className={cx("modal-body")}>
         <Form
           onSubmit={onSubmit}
           validate={validator(VALIDATIONS)}
           render={({ handleSubmit, submitError, submitting }) => (
             <form onSubmit={handleSubmit}>
-              <label className={cx("field", "heading")}>
-                Please provider your information and agree to our policies:
-              </label>
-
+              <p className={cx("field", "heading")}>
+                Please provide your information and agree to our policies:
+              </p>
               <div className={cx("panes")}>
                 <div className={cx("pane", "left")}>
                   <label className={cx("field", "label")}>
@@ -296,9 +277,17 @@ const Personal = ({ closeModal, person, updatePerson, handleAdvanceStep }) => {
               <Field name="recaptchaToken" component={Captcha} />
 
               {submitError && <p className={cx("error")}>{submitError}</p>}
-              <button disabled={submitting} className={cx("field", "button")}>
+              <Button
+                className={cx("field", "material-button")}
+                classes={{ label: cx("material-button-label") }}
+                variant="contained"
+                color="primary"
+                size="large"
+                type="submit"
+                disabled={submitting}
+              >
                 {submitting ? "Please wait" : "Next"}
-              </button>
+              </Button>
             </form>
           )}
         />
@@ -309,7 +298,7 @@ const Personal = ({ closeModal, person, updatePerson, handleAdvanceStep }) => {
 
 Personal.propTypes = {
   closeModal: PropTypes.func.isRequired,
-  person: PropTypes.func.isRequired,
+  person: PropTypes.shape({}).isRequired,
   updatePerson: PropTypes.func.isRequired,
   handleAdvanceStep: PropTypes.func.isRequired
 };

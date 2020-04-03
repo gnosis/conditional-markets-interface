@@ -2,9 +2,6 @@
 @import "~scss/_variables.scss";
 
 .modal {
-  margin: 0;
-  padding: 0;
-
   &.loading {
     width: 400px;
     height: 400px;
@@ -16,17 +13,6 @@
   &-jumbo {
     margin: 2rem auto 2rem auto;
     display: block;
-  }
-
-  &-header {
-    font-size: 2.4rem;
-    font-weight: bold;
-    text-align: center;
-    padding: 1.5rem 0;
-    margin: 0;
-    color: black;
-
-    border-bottom: 1px solid rgba(0, 30, 59, 0.15);
   }
 
   &-heading {
@@ -42,21 +28,11 @@
     padding: 1.5rem 4rem;
     max-width: 600px;
     margin: auto;
-    text-align: left;
     line-height: 1.5;
     color: #526877;
 
     strong {
       color: black;
-    }
-  }
-
-  &-buttons {
-    display: flex;
-    flex-direction: row;
-
-    button {
-      margin: 0.4rem;
     }
   }
 
@@ -73,6 +49,24 @@
   &-label {
     text-align: left;
     padding: 1rem 4rem;
+  }
+
+  // Material ui styles overrides
+  .material-button {
+    border-radius: .3rem;
+    padding: 1.4rem 6rem;
+    box-shadow: none;
+    margin: 0.4rem 1.4rem;
+
+    &-label {
+        font-weight: $bold;
+        font-size: 1.8rem;
+        line-height: 1;
+        text-transform: none;
+    }
+  }
+  .cancel-button {
+    font-size: 1.4rem;
   }
 }
 
@@ -112,38 +106,38 @@
     color: black;
   }
 
-  &.button {
-    display: block;
-    appearance: none;
-    -webkit-appearance: none;
+  // &.button {
+  //   display: block;
+  //   appearance: none;
+  //   -webkit-appearance: none;
 
-    &.secondary {
-      background-color: white;
-      color: #009CB4;
-      border: 1px solid #009CB4;
-    }
+  //   &.secondary {
+  //     background-color: white;
+  //     color: #009CB4;
+  //     border: 1px solid #009CB4;
+  //   }
 
-    &.primary {
-      background-color: #009CB4;
-      border: none;
-      color: white;
-    }
+  //   &.primary {
+  //     background-color: #009CB4;
+  //     border: none;
+  //     color: white;
+  //   }
 
-    border-radius: 1.5px;
+  //   border-radius: 1.5px;
 
-    font-size: 2.1rem;
-    font-weight: bold;
-    padding: .7rem 1.4rem;
-    text-align: center;
+  //   font-size: 2.1rem;
+  //   font-weight: bold;
+  //   padding: .7rem 1.4rem;
+  //   text-align: center;
 
-    &:hover {
-      opacity: 0.8;
-    }
+  //   &:hover {
+  //     opacity: 0.8;
+  //   }
 
-    &:disabled {
-      opacity: 0.5;
-    }
-  }
+  //   &:disabled {
+  //     opacity: 0.5;
+  //   }
+  // }
 
   &.subheading {
     font-size: 1.2rem;
@@ -151,8 +145,10 @@
   }
 
   &.heading {
-    font-size: 1.6rem;
+    text-align: center;
+    font-size: 1.4rem;
     line-height: normal;
+    margin: 3rem auto;
   }
 }
 

@@ -77,3 +77,6 @@ export const pseudoMarkdown = string => {
 
   return <span dangerouslySetInnerHTML={{ __html: parsedString }} />;
 };
+
+export const formatAddress = address =>
+  `${address.substr(0, 6)}...${address.substr(-4)}`;
