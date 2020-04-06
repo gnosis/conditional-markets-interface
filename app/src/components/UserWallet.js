@@ -1,13 +1,11 @@
 import React, { useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
 import cn from "classnames/bind";
-import Web3Modal from "web3modal";
 import Blockies from "react-blockies";
-
-import WalletConnectProvider from "@walletconnect/web3-provider";
 
 import useGlobalState from "hooks/useGlobalState";
 import { formatAddress } from "utils/formatting";
+import web3Modal from "utils/web3Modal";
 
 import conf from "conf";
 
@@ -22,19 +20,6 @@ const ONBOARDING_MODE = conf.ONBOARDING_MODE;
 const accountsEnabled = ONBOARDING_MODE === "TIERED";
 
 const cx = cn.bind(style);
-
-const web3Modal = new Web3Modal({
-  network: conf.network,
-  // cacheProvider: true,
-  providerOptions: {
-    walletconnect: {
-      package: WalletConnectProvider,
-      options: {
-        infuraId: "d743990732244555a1a0e82d5ab90c7f"
-      }
-    }
-  }
-});
 
 // Logged In common components
 const LoggedIn = ({ address, collateral, collateralBalance, disconnect }) => {
@@ -96,7 +81,7 @@ const UserWallet = ({
   );
 
   const disconnect = useCallback(() => {
-    // web3Modal.clearCachedProvider();
+    web3Modal.clearCachedProvider();
     setProvider(null);
   });
 
@@ -104,7 +89,7 @@ const UserWallet = ({
     web3Modal.on("connect", connect);
 
     web3Modal.on("disconnect", () => {
-      // disconnect();
+      disconnect();
     });
 
     web3Modal.on("close", () => {});

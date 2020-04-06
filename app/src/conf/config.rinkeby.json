@@ -1,5 +1,6 @@
 {
   "lmsrAddress": "0x909b8b4459832cd80a8afEc3C22506Fad74011Ca",
   "networkId": 4,
-  "network": "rinkeby"
+  "network": "rinkeby",
+  "infuraApiKey": "d743990732244555a1a0e82d5ab90c7f"
 }
