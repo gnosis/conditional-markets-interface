@@ -55,7 +55,7 @@ const TradingLimitIndicator = ({ address, userState, tiers }) => {
       />
       <div className={cx("progress-label")}>
         <span>
-          ${volume} /
+          ${Number.parseFloat(volume).toFixed(2)} /
           <strong>{tier === "3" ? "Unlimited" : "$" + maxVolume}</strong>
         </span>
       </div>
