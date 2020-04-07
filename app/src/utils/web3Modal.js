@@ -4,20 +4,26 @@ import WalletConnectProvider from "@walletconnect/web3-provider";
 import conf from "conf";
 
 let web3Modal;
+let lmsrAddressCache = null;
 
-if (!web3Modal) {
-  web3Modal = new Web3Modal({
-    network: conf.network,
-    cacheProvider: true,
-    providerOptions: {
-      walletconnect: {
-        package: WalletConnectProvider,
-        options: {
-          infuraId: conf.infuraApiKey
+const getWeb3Modal = lmsrAddress => {
+  if (lmsrAddressCache !== lmsrAddress || !web3Modal) {
+    lmsrAddressCache = lmsrAddress;
+    web3Modal = new Web3Modal({
+      network: conf.network,
+      cacheProvider: true,
+      providerOptions: {
+        walletconnect: {
+          package: WalletConnectProvider,
+          options: {
+            infuraId: conf.infuraApiKey
+          }
         }
       }
-    }
-  });
-}
+    });
+  }
 
-export default web3Modal;
+  return web3Modal;
+};
+
+export default getWeb3Modal;

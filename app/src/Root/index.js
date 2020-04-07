@@ -12,7 +12,7 @@ import makeLoadable from "utils/make-loadable";
 import { getAccount, loadWeb3 } from "utils/web3";
 import { loadMarketsData } from "utils/getMarketsData";
 import ToastifyError from "utils/ToastifyError";
-import web3Modal from "utils/web3Modal";
+import getWeb3Modal from "utils/web3Modal";
 
 import { getUserState, getTiersLimit } from "api/onboarding";
 import { GET_TRADES_BY_MARKET_MAKER } from "api/thegraph";
@@ -123,6 +123,8 @@ const RootComponent = ({
     ? match.params.lmsrAddress
     : conf.lmsrAddress;
 
+  const web3Modal = getWeb3Modal(lmsrAddress);
+
   const init = useCallback(
     async provider => {
       try {
@@ -188,7 +190,7 @@ const RootComponent = ({
     if (loading !== "LOADING") {
       // we already init app once. We have to clear data
       setLoading("LOADING");
-      // setCollateral(null);
+      setCollateral(null);
       setMarkets(null);
       setUser(null);
       setConditionalTokensService(null);
@@ -510,6 +512,7 @@ const RootComponent = ({
             avatar={
               <UserWallet
                 address={account}
+                lmsrAddress={lmsrAddress}
                 openModal={openModal}
                 whitelistState={whitelistState}
                 collateral={collateral}

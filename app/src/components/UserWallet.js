@@ -5,7 +5,7 @@ import Blockies from "react-blockies";
 
 import useGlobalState from "hooks/useGlobalState";
 import { formatAddress } from "utils/formatting";
-import web3Modal from "utils/web3Modal";
+import getWeb3Modal from "utils/web3Modal";
 
 import conf from "conf";
 
@@ -65,6 +65,7 @@ LoggedIn.propTypes = {
 
 const UserWallet = ({
   //address,
+  lmsrAddress,
   whitelistState,
   collateral,
   collateralBalance,
@@ -72,6 +73,8 @@ const UserWallet = ({
   openModal
 }) => {
   const { account: address, user, tiers } = useGlobalState();
+
+  const web3Modal = getWeb3Modal(lmsrAddress);
 
   const connect = useCallback(
     provider => {
@@ -207,6 +210,7 @@ const UserWallet = ({
 
 UserWallet.propTypes = {
   // address: PropTypes.string,
+  lmsrAddress: PropTypes.string.isRequired,
   whitelistState: PropTypes.oneOf(WHITELIST_STATES).isRequired,
   collateral: PropTypes.shape({
     fromUnitsMultiplier: PropTypes.object,
