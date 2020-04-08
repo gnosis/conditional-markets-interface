@@ -12,6 +12,7 @@ import makeLoadable from "utils/make-loadable";
 import { getAccount, loadWeb3 } from "utils/web3";
 import { loadMarketsData } from "utils/getMarketsData";
 import ToastifyError from "utils/ToastifyError";
+import getWeb3Modal from "utils/web3Modal";
 
 import { getUserState, getTiersLimit } from "api/onboarding";
 import { GET_TRADES_BY_MARKET_MAKER } from "api/thegraph";
@@ -122,6 +123,8 @@ const RootComponent = ({
     ? match.params.lmsrAddress
     : conf.lmsrAddress;
 
+  const web3Modal = getWeb3Modal(lmsrAddress);
+
   const init = useCallback(
     async provider => {
       try {
@@ -129,11 +132,16 @@ const RootComponent = ({
         console.log(conf);
         console.groupEnd();
 
+        let web3Provider = provider;
+        if (!provider && web3Modal.cachedProvider) {
+          web3Provider = await web3Modal.connect();
+        }
+
         const [
           { web3, account },
           { markets, collateralToken: collateralTokenAddress, positions }
         ] = await Promise.all([
-          loadWeb3(conf.networkId, provider),
+          loadWeb3(conf.networkId, web3Provider),
           loadMarketsData({ lmsrAddress })
         ]);
 
@@ -143,7 +151,7 @@ const RootComponent = ({
         setMarkets(markets);
         setPositions(positions);
 
-        setLoading("SUCCESS");
+        // setLoading("SUCCESS");
 
         const {
           collateral,
@@ -182,7 +190,7 @@ const RootComponent = ({
     if (loading !== "LOADING") {
       // we already init app once. We have to clear data
       setLoading("LOADING");
-      // setCollateral(null);
+      setCollateral(null);
       setMarkets(null);
       setUser(null);
       setConditionalTokensService(null);
@@ -321,17 +329,15 @@ const RootComponent = ({
   }, [account]);
 
   const getTiersLimitValues = useCallback(() => {
-    if (account) {
-      (async () => {
-        const tiersLimit = await getTiersLimit();
-        setTiers(tiersLimit);
-      })();
-    }
-  }, [account]);
+    (async () => {
+      const tiersLimit = await getTiersLimit();
+      setTiers(tiersLimit);
+    })();
+  }, []);
 
   useEffect(() => {
     getTiersLimitValues();
-  }, [account]);
+  }, []);
 
   const asWrappedTransaction = useCallback(
     (wrappedTransactionType, transactionFn) => {
@@ -506,6 +512,7 @@ const RootComponent = ({
             avatar={
               <UserWallet
                 address={account}
+                lmsrAddress={lmsrAddress}
                 openModal={openModal}
                 whitelistState={whitelistState}
                 collateral={collateral}
