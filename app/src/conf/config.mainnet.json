@@ -1,5 +1,6 @@
 {
   "lmsrAddress": "0x0D0128E6b88ae7FDCD9796b417c2DeAF71F0d8c4",
   "networkId": 1,
-  "network": "mainnet"
+  "network": "mainnet",
+  "infuraApiKey": "d743990732244555a1a0e82d5ab90c7f"
 }

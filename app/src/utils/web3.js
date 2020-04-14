@@ -1,5 +1,7 @@
 import Web3 from "web3";
 
+import conf from "conf";
+
 export const { BN, toBN, soliditySha3, hexToUtf8 } = Web3.utils;
 
 export function getNetworkName(networkId) {
@@ -40,7 +42,7 @@ export function getReadOnlyProviderForNetworkId(networkId) {
     ? networkId == 437894314313
       ? `http://localhost:8545`
       : null
-    : `wss://${providerName}.infura.io/ws/v3/d743990732244555a1a0e82d5ab90c7f`;
+    : `wss://${providerName}.infura.io/ws/v3/` + conf.infuraApiKey;
 }
 
 export async function getAccount(web3) {
