@@ -222,7 +222,7 @@ const UserWallet = ({
 
 UserWallet.propTypes = {
   // address: PropTypes.string,
-  whitelistState: PropTypes.oneOf(WHITELIST_STATES).isRequired,
+  whitelistState: PropTypes.oneOf(Object.keys(WHITELIST_STATES)).isRequired,
   collateral: PropTypes.shape({
     fromUnitsMultiplier: PropTypes.object,
     symbol: PropTypes.string

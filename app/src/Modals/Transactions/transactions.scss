@@ -1,0 +1,51 @@
+@import "../Modals.scss";
+
+.tx-modal {
+  @extend .modal;
+  font-size: 1.6rem;
+
+}
+
+.tx-subheader {
+  background: #f2fafb;
+  display: flex;
+
+  flex-direction: row;
+  padding: 1.2rem 4rem;
+  justify-content: space-between;
+}
+
+.tx-account {
+  margin: 0 8rem;
+
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+
+  .account-info {
+    margin-top: 1rem;
+    letter-spacing: 0.06rem;
+  }
+
+  .avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 100%;
+    position: relative;
+    overflow: hidden;
+
+    .avatar-image {
+      max-width: 100%;
+      max-height: 100%;
+    }
+  }
+}
+
+.tx-description {
+  display: flex;
+  align-items: center;
+  text-align: justify;
+  line-height: 2.4rem;
+}

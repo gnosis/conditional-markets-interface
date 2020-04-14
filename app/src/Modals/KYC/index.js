@@ -73,7 +73,7 @@ const KYC = ({ closeModal, initialStep, ...props }) => {
       setStepComponents(loadedStepComponents);
       setLoading("SUCCESS");
     })();
-  }, ["hot"]);
+  }, []);
 
   if (loading === "LOADING") {
     return (

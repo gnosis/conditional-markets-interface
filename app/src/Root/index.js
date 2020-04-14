@@ -342,6 +342,7 @@ const RootComponent = ({
           );
         }
 
+        // Can the transaction be run?
         if (ONBOARDING_MODE !== "DISABLED") {
           // Whitelist is enabled, check for kind of onboaridng method and either show
           // the modal to apply for the whitelist, or (temporarily) throw an error to indicate
@@ -372,6 +373,7 @@ const RootComponent = ({
           }
         }
 
+        // Decide if we need to show transaction modal
         try {
           addToast("Transaction processing...", "info");
           setOngoingTransactionType(wrappedTransactionType);

@@ -31,7 +31,7 @@ const makeLoadable = (Component, props, childComponents) => {
           setLoadingState("ERROR");
         }
       })();
-    }, ["hot"]);
+    }, []);
 
     if (loadingState === "LOADING") {
       return (
