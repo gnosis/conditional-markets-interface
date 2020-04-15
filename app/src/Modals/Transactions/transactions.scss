@@ -3,26 +3,56 @@
 .tx-modal {
   @extend .modal;
   font-size: 1.6rem;
+  max-width: 65rem;
+
+}
+
+.tx-content {
+  display: flex;
+  flex-direction: row;
+}
+
+.tx-entry {
+  width: 100%;
+  padding: 4rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  text-align: center;
+
+  h1 {
+    font-size: 1.8rem;
+    line-height: 3rem;
+  }
+
+  &.disabled {
+    opacity: 0.7;
+
+    h1, p {
+      opacity: 0.4;
+    }
+  }
 
 }
 
 .tx-subheader {
   background: #f2fafb;
-  display: flex;
 
+  // Wallet + Description Text
+  display: flex;
   flex-direction: row;
-  padding: 1.2rem 4rem;
-  justify-content: space-between;
+  padding: 1.2rem 6rem;
+  justify-content: space-around;
 }
 
 .tx-account {
-  margin: 0 8rem;
+  margin-right: 6rem;
 
-
+  // Avatar + Address
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: space-between;
+  justify-content: space-around;
 
   .account-info {
     margin-top: 1rem;
