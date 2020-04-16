@@ -17,3 +17,17 @@ export const getCurrentUserTierData = (tiers, userState) => {
     return selectedTier;
   }, {});
 };
+
+export const isCurrentUserUpgrading = (tiers, userState) => {
+  // If any tier is PENDING_VERIFICATION return that user is Upgrading
+  return tiers.some(
+    tier => userState.tiers[tier.name].status === "PENDING_VERIFICATION"
+  );
+};
+
+export const isCurrentUserActionRequired = (tiers, userState) => {
+  // If any tier is PENDING_UPLOAD_DOCUMENTS return that user is Upgrading
+  return tiers.some(
+    tier => userState.tiers[tier.name].status === "PENDING_UPLOAD_DOCUMENTS"
+  );
+};

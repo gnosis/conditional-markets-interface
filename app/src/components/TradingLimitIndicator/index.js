@@ -1,8 +1,13 @@
 import React, { useState, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
 import cn from "classnames/bind";
+import Link from "@material-ui/core/Link";
 
-import { getCurrentUserTierData } from "utils/tiers";
+import {
+  getCurrentUserTierData,
+  isCurrentUserUpgrading,
+  isCurrentUserActionRequired
+} from "utils/tiers";
 import { getCurrentTradingVolume } from "api/onboarding";
 
 import LinearProgress from "@material-ui/core/LinearProgress";
@@ -21,6 +26,7 @@ const TradingLimitIndicator = ({ address, userState, tiers }) => {
   const [volume, setVolume] = useState(0);
   const [maxVolume, setMaxVolume] = useState(0);
   const [tier, setTier] = useState(0);
+  const [warning, setWarning] = useState(false);
 
   const getTradingVolume = useCallback(() => {
     (async () => {
@@ -38,10 +44,50 @@ const TradingLimitIndicator = ({ address, userState, tiers }) => {
     if (tiers && userState.tiers) {
       const { limit, name } = getCurrentUserTierData(tiers, userState);
 
+      setWarning(false);
       setMaxVolume(limit);
       setTier(name);
+
+      if (
+        isCurrentUserUpgrading(tiers, userState) ||
+        isCurrentUserActionRequired(tiers, userState)
+      ) {
+        setWarning(true);
+        setMaxVolume(0);
+      }
     }
   }, [tiers, userState]);
+
+  const getProgressLabel = useCallback(() => {
+    if (isCurrentUserUpgrading(tiers, userState)) {
+      return (
+        <span>
+          <strong>Pending tier upgrade</strong>
+        </span>
+      );
+    } else if (isCurrentUserActionRequired(tiers, userState)) {
+      return (
+        <span>
+          <strong>Action required.</strong>{" "}
+          <Link
+            className={cx("cancel-button")}
+            component="button"
+            onClick={null}
+            underline="always"
+          >
+            View details
+          </Link>
+        </span>
+      );
+    }
+
+    return (
+      <span>
+        ${Number.parseFloat(volume).toFixed(2)} /
+        <strong>{tier === "3" ? "Unlimited" : "$" + maxVolume}</strong>
+      </span>
+    );
+  });
 
   return (
     <div className={cx("trading-indicator")}>
@@ -50,15 +96,12 @@ const TradingLimitIndicator = ({ address, userState, tiers }) => {
         value={normalise(volume, 0, maxVolume)}
         classes={{
           root: cx("linear-progress"),
-          barColorPrimary: cx("linear-progress-bar")
+          barColorPrimary: warning
+            ? cx("linear-progress-bar-warning")
+            : cx("linear-progress-bar")
         }}
       />
-      <div className={cx("progress-label")}>
-        <span>
-          ${Number.parseFloat(volume).toFixed(2)} /
-          <strong>{tier === "3" ? "Unlimited" : "$" + maxVolume}</strong>
-        </span>
-      </div>
+      <div className={cx("progress-label")}>{getProgressLabel()}</div>
       <InputLabel
         classes={{
           root: cx("indicator-label")
