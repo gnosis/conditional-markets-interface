@@ -17,6 +17,11 @@ export default class Routes extends Component {
           exact
           path="/kyc/sow"
         />
+        <Route
+          render={props => <Root {...props} initialModal="SumSubForm" />}
+          exact
+          path="/kyc/information"
+        />
         <Route component={Root} exact path="/:lmsrAddress" />
         <Route component={Root} exact path="/" />
       </Switch>

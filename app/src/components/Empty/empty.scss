@@ -1,0 +1,48 @@
+.empty-page {
+  height: 100vh;
+  font-size: 125%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+
+  // :first-child {
+    // margin-top: auto;
+  // }
+}
+
+.icon {
+  display: inline-block;
+  width: 3.2rem;
+  height: 3.2rem;
+  background-size: contain;
+  background-repeat: no-repeat;
+
+  &.gitter {
+    background-image: url("~assets/icons/gitter-brands.svg");
+  }
+
+  &.telegram {
+    background-image: url("~assets/icons/telegram-brands.svg");
+  }
+
+  &.email {
+    background-image: url("~assets/icons/email.svg");
+  }
+}
+
+.contact-channels {
+  width: auto;
+  display: flex;
+  justify-content: center;
+
+  a {
+    margin: 1rem 2rem;
+  }
+}
+
+.error-message {
+  margin-top: auto;
+  padding: 2rem 0;
+  opacity: 0.6;
+}
