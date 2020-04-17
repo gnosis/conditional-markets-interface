@@ -148,13 +148,13 @@ const Buy = ({
   }, [setStagedTradeAmounts, setInvestmentAmount, setError]);
 
   const buyOutcomeTokens = useCallback(async () => {
-    stageTransactions([
+    const transactions = [
       {
         name: "Set Allowance",
         description:
           "This permission allows Sight to interact with your DAI. This has to be done only once for each collateral type.",
         precheck: async () => {
-          return conditionalTokensService.allowanceIncreaseNeccesary({
+          return conditionalTokensService.needsMoreAllowance({
             investmentAmount,
             stagedTradeAmounts,
             account,
@@ -192,7 +192,13 @@ const Buy = ({
           return result;
         }
       }
-    ]);
+    ];
+
+    try {
+      await stageTransactions(transactions);
+    } catch (err) {
+      setError(err);
+    }
   }, [
     investmentAmount,
     stagedTransactionType,

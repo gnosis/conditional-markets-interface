@@ -160,7 +160,7 @@ export default class ConditionalTokensService {
     }
   }
 
-  async allowanceIncreaseNeccesary({
+  async needsMoreAllowance({
     investmentAmount,
     account,
     collateralBalance
@@ -208,8 +208,8 @@ export default class ConditionalTokensService {
       lmsrAllowance.toString()
     );
 
-    console.log(investmentAmountInUnits.toString(), lmsrAllowance.toString())
-    console.log(hasEnoughAllowance)
+    //console.log(investmentAmountInUnits.toString(), lmsrAllowance.toString())
+    //console.log(hasEnoughAllowance)
 
     return !hasEnoughAllowance;
   }

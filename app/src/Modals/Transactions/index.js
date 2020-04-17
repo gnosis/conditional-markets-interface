@@ -57,7 +57,7 @@ const Transactions = ({ closeModal, title, transactions }) => {
 };
 
 Transactions.defaultProps = {
-  title: "Setup Account",
+  title: "Setup Account"
 };
 
 Transactions.propTypes = {
@@ -69,6 +69,6 @@ Transactions.propTypes = {
       execute: PropTypes.func
     })
   ).isRequired
-}
+};
 
 export default Transactions;

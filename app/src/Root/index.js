@@ -13,6 +13,7 @@ import { getAccount, loadWeb3 } from "utils/web3";
 import { loadMarketsData } from "utils/getMarketsData";
 import ToastifyError from "utils/ToastifyError";
 import getWeb3Modal from "utils/web3Modal";
+import { Notifications as NotificationIcon } from "@material-ui/icons";
 
 import { getUserState, getTiersLimit } from "api/onboarding";
 import { GET_TRADES_BY_MARKET_MAKER } from "api/thegraph";
@@ -456,10 +457,10 @@ const RootComponent = ({
       }
 
       if (!applicableTransactions.length) {
-        console.log(transactionPrecheckResults);
         // No applicable transactions? Kinda weird, shouldn't happen.
         // Means all transactions were deemed unnecessary (error case is handled before)
         console.warn("Warning: All Transactions were deemed unneccesary?");
+        console.log(transactionPrecheckResults);
         return;
       }
 
@@ -485,11 +486,19 @@ const RootComponent = ({
 
       // Wrap Transactions
       const wrappedApplicableTransactions = applicableTransactions.map(
-        ({ commit, ...rest }, index) => {
+        ({ commit, cleanup, name, ...rest }, index) => {
           return {
             ...rest,
+            name,
             execute: async () => {
-              addToast("Transaction processing...", "info");
+              addToast(
+                <>
+                  Transaction waiting to be signed:
+                  <br />
+                  <strong>{name}</strong>
+                </>,
+                "warning"
+              );
               try {
                 const txResult = await commit();
                 deferredPromises[index].resolve(txResult);
@@ -498,6 +507,8 @@ const RootComponent = ({
                   openModal(txResult.modal, txResult.modalProps || {});
                 }
                 addToast("Transaction confirmed.", "success");
+
+                await cleanup();
               } catch (err) {
                 if (err instanceof ToastifyError) {
                   addToast(
@@ -518,19 +529,21 @@ const RootComponent = ({
         }
       );
 
-      // If we only have on transaction, do not open the modal. Simply execute it.
+      // If we only have one transaction, do not open the modal. Simply execute it.
       if (wrappedApplicableTransactions.length === 1) {
         return wrappedApplicableTransactions[0].execute();
       } else {
         // Open Transactions modals, passing all applicable transactions
-        openModal("Transactions", { transactions: wrappedApplicableTransactions });
+        openModal("Transactions", {
+          transactions: wrappedApplicableTransactions
+        });
 
         return Promise.all(applicableTxPromises);
       }
     })();
   }, []);
 
-  const asWrappedTransaction = useCallback(
+  const old_asWrappedTransaction = useCallback(
     (wrappedTransactionType, transactionFn) => {
       return async function wrappedAction() {
         if (ongoingTransactionType !== null) {
@@ -667,6 +680,13 @@ const RootComponent = ({
   if (loading === "SUCCESS") {
     return (
       <div className={cx("page")}>
+        <div>
+          <Toasts
+            deleteToast={deleteToast}
+            addToast={addToast}
+            toasts={toasts}
+          />
+        </div>
         <div className={cx("modal-space", { "modal-open": !!modal })}>
           {modal}
         </div>
@@ -726,7 +746,7 @@ const RootComponent = ({
                     stagedTransactionType,
                     setStagedTransactionType,
                     ongoingTransactionType,
-                    asWrappedTransaction,
+                    asWrappedTransaction: old_asWrappedTransaction,
                     stageTransactions,
                     setMarketSelections,
                     resetMarketSelections,
@@ -737,11 +757,6 @@ const RootComponent = ({
                 />
               </section>
             )}
-            <Toasts
-              deleteToast={deleteToast}
-              addToast={addToast}
-              toasts={toasts}
-            />
             <Footer />
           </div>
         </div>

@@ -37,7 +37,7 @@ const Buy = ({
   setStagedTransactionType,
   ongoingTransactionType,
   resetMarketSelections,
-  asWrappedTransaction,
+  stageTransactions,
   selectTabCallback
 }) => {
   // Memoize fetching data files
@@ -152,6 +152,68 @@ const Buy = ({
   }, [setStagedTradeAmounts, setInvestmentAmount, setError]);
 
   const buyOutcomeTokens = useCallback(async () => {
+    const transactions = [
+      {
+        name: "Set Allowance",
+        description:
+          "This permission allows Sight to interact with your DAI. This has to be done only once for each collateral type.",
+        precheck: async () => {
+          return conditionalTokensService.needsMoreAllowance({
+            investmentAmount,
+            stagedTradeAmounts,
+            account,
+            collateralBalance
+          });
+        },
+        commit: async () => {
+          return conditionalTokensService.setAllowance({
+            investmentAmount,
+            stagedTradeAmounts,
+            account,
+            collateralBalance
+          });
+        }
+      },
+      {
+        name: "Buy Outcome Tokens",
+        description:
+          "Allowance is now set. You can now submit your selected buy position.",
+        commit: async () => {
+          return conditionalTokensService.buyOutcomeTokens({
+            investmentAmount,
+            stagedTradeAmounts,
+            stagedTransactionType,
+            account,
+            collateralBalance
+          });
+        },
+        cleanup: result => {
+          if (result && !result.modal) {
+            clearAllPositions();
+            // Show positions component
+            selectTabCallback(1);
+          }
+          return result;
+        }
+      }
+    ];
+
+    try {
+      await stageTransactions(transactions);
+    } catch (err) {
+      setError(err);
+    }
+  }, [
+    investmentAmount,
+    stagedTransactionType,
+    stagedTradeAmounts,
+    conditionalTokensService,
+    collateral,
+    account
+  ]);
+
+  /*
+  const buyOutcomeTokens = useCallback(async () => {
     return conditionalTokensService
       .buyOutcomeTokens({
         investmentAmount,
@@ -176,6 +238,7 @@ const Buy = ({
     collateral,
     account
   ]);
+  */
 
   const [probabilities, setProbabilities] = useState(null);
 
@@ -272,11 +335,7 @@ const Buy = ({
               className={cx("buy-button")}
               type="button"
               disabled={ongoingTransactionType != null}
-              onClick={asWrappedTransaction(
-                "buy outcome tokens",
-                buyOutcomeTokens,
-                setError
-              )}
+              onClick={buyOutcomeTokens}
             >
               {ongoingTransactionType === "buy outcome tokens" ? (
                 <Spinner inverted width={12} height={12} />
