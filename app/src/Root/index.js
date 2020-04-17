@@ -339,6 +339,197 @@ const RootComponent = ({
     getTiersLimitValues();
   }, []);
 
+  const doOnboardingCheck = useCallback(() => {
+    if (ONBOARDING_MODE === "DISABLED") {
+      return true;
+    }
+
+    if (whitelistState !== "WHITELISTED") {
+      if (ONBOARDING_MODE === "WHITELIST") {
+        // Whitelist Mode means show Modal for whitelisting options
+        openModal("applyBeta", { whitelistState });
+      } else if (ONBOARDING_MODE === "TIERED") {
+        // If mode is Tiered we have to open SDD KYC Modal
+        openModal("KYC");
+      } else {
+        // Future-proofing: default error handling shows an error indicating
+        // that the user needs to be registered/whitelist before being able to trade
+        addToast(
+          <>
+            Trading not allowed for your wallet.
+            <br />
+            Please follow our onboarding process before participating in trades.
+          </>,
+          "error"
+        );
+      }
+
+      return true;
+    }
+  }, []);
+
+  /**
+   * @typedef {Object} TransactionDescriptor
+   * @property {function|Promise} precheck - Precheck function if transaction can be run
+   * @property {function|Promise} commit - This function will run the actual transaction
+   * @property {function|Promise} cleanup - Function to call after commit (not called if precheck failed)
+   * @property {string} name - Name of the Transaction
+   */
+  const stageTransactions = useCallback(transactionDescriptors => {
+    return (async () => {
+      const transactionAllowed = doOnboardingCheck();
+
+      if (!transactionAllowed) {
+        // Transactions not allowed yet. Return false.
+        // TODO: Create list of transaction names that require onboarding check
+        //       for example a message signature during On-Boaridng would not work
+        //       with this method, as it would get denied because the user isnt onboarded.
+        return;
+      }
+
+      // Run "Precheck" for all transaction to determine if they're not necessary or if they can't be executed.
+      const transactionPrecheckResults = await Promise.all(
+        transactionDescriptors.map(async ({ precheck, name }) => {
+          if (precheck == null) {
+            // no precheck means allowed
+            return true;
+          }
+
+          try {
+            const result = await precheck();
+            // Result can be:
+            // false-y:    Transaction is allowed
+            // object:     Containing `modal` and `modalProps` to open a modal
+
+            return result;
+          } catch (err) {
+            if (!(err instanceof ToastifyError)) {
+              // Anything other than a toastify error is an application error
+              console.warn(
+                `Error during Transaction Precheck for "${name}":`,
+                err.message
+              );
+            }
+            return err;
+          }
+        })
+      );
+
+      let cancel = false;
+      const applicableTransactions = [];
+      transactionPrecheckResults.forEach((result, index) => {
+        if (result === false) {
+          // falsey return indicates this transaction is not neccesary to be executed
+        } else if (result instanceof ToastifyError) {
+          addToast(
+            // User Error (hopefully)
+            <>
+              {result.message}
+              <br />
+            </>,
+            "error"
+          );
+          cancel = true;
+        } else if (result instanceof Error) {
+          // Error during precheck, throw error for implementation to handle
+          throw result; // Actual Error
+        } else if (result instanceof Object) {
+          // Precheck result can also be object describing a modal to open
+          if (result.modal) {
+            openModal(result.modal, result.modalProps || {});
+          } else {
+            console.warn(
+              `Warning: Precheck result of type object but no modal description?`,
+              result
+            );
+          }
+          cancel = true;
+        } else {
+          // If undefined or truthy result, append to applicable transactions
+          applicableTransactions.push(transactionDescriptors[index]);
+        }
+      });
+
+      if (cancel) {
+        // Above logic might cancel transaction, if a modal was opened
+        return;
+      }
+
+      if (!applicableTransactions.length) {
+        console.log(transactionPrecheckResults);
+        // No applicable transactions? Kinda weird, shouldn't happen.
+        // Means all transactions were deemed unnecessary (error case is handled before)
+        console.warn("Warning: All Transactions were deemed unneccesary?");
+        return;
+      }
+
+      // A bit hacky:
+      // We need an array of promises, which will be resolved by the
+      // transaction modal over time, so that this function can be
+      // awaited until all modals have been completed, before returning
+      // back to the function that called `stageTransactions`
+
+      const deferredPromises = [];
+      const applicableTxPromises = [];
+
+      applicableTransactions.forEach(() => {
+        applicableTxPromises.push(
+          new Promise((resolve, reject) => {
+            deferredPromises.push({
+              resolve,
+              reject
+            });
+          })
+        );
+      });
+
+      // Wrap Transactions
+      const wrappedApplicableTransactions = applicableTransactions.map(
+        ({ commit, ...rest }, index) => {
+          return {
+            ...rest,
+            execute: async () => {
+              addToast("Transaction processing...", "info");
+              try {
+                const txResult = await commit();
+                deferredPromises[index].resolve(txResult);
+
+                if (txResult && txResult.modal) {
+                  openModal(txResult.modal, txResult.modalProps || {});
+                }
+                addToast("Transaction confirmed.", "success");
+              } catch (err) {
+                if (err instanceof ToastifyError) {
+                  addToast(
+                    // User Error (hopefully)
+                    <>
+                      {err.message}
+                      <br />
+                    </>,
+                    "error"
+                  );
+                } else {
+                  addToast("Transaction failed.", "error");
+                }
+                deferredPromises[index].reject(err);
+              }
+            }
+          };
+        }
+      );
+
+      // If we only have on transaction, do not open the modal. Simply execute it.
+      if (wrappedApplicableTransactions.length === 1) {
+        return wrappedApplicableTransactions[0].execute();
+      } else {
+        // Open Transactions modals, passing all applicable transactions
+        openModal("Transactions", { transactions: wrappedApplicableTransactions });
+
+        return Promise.all(applicableTxPromises);
+      }
+    })();
+  }, []);
+
   const asWrappedTransaction = useCallback(
     (wrappedTransactionType, transactionFn) => {
       return async function wrappedAction() {
@@ -349,34 +540,10 @@ const RootComponent = ({
         }
 
         // Can the transaction be run?
-        if (ONBOARDING_MODE !== "DISABLED") {
-          // Whitelist is enabled, check for kind of onboaridng method and either show
-          // the modal to apply for the whitelist, or (temporarily) throw an error to indicate
-          // that the user has to "create an account" before being able to trade.
+        const transactionAllowed = doOnboardingCheck();
 
-          if (whitelistState !== "WHITELISTED") {
-            if (ONBOARDING_MODE === "WHITELIST") {
-              // Whitelist Mode means show Modal for whitelisting options
-              openModal("applyBeta", { whitelistState });
-            } else if (ONBOARDING_MODE === "TIERED") {
-              // If mode is Tiered we have to open SDD KYC Modal
-              openModal("KYC");
-            } else {
-              // Future-proofing: default error handling shows an error indicating
-              // that the user needs to be registered/whitelist before being able to trade
-              addToast(
-                <>
-                  Trading not allowed for your wallet.
-                  <br />
-                  Please follow our onboarding process before participating in
-                  trades.
-                </>,
-                "error"
-              );
-            }
-
-            return;
-          }
+        if (!transactionAllowed) {
+          return;
         }
 
         // Decide if we need to show transaction modal
@@ -560,6 +727,7 @@ const RootComponent = ({
                     setStagedTransactionType,
                     ongoingTransactionType,
                     asWrappedTransaction,
+                    stageTransactions,
                     setMarketSelections,
                     resetMarketSelections,
                     addToast,

@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState, useCallback } from "react";
+import PropTypes from "prop-types";
 import cn from "classnames/bind";
 
 import style from "./transactions.scss";
@@ -8,19 +9,24 @@ import Transaction from "./Transaction";
 
 const cx = cn.bind(style);
 
-const Transactions = ({ closeModal, title }) => {
-  const TXs = [
-    {
-      name: "Set Allowance",
-      description:
-        "This permission allows Sight to interact with your DAI. This has to be done only once for each collateral type."
+const Transactions = ({ closeModal, title, transactions }) => {
+  const [currentTxIndex, setCurrentTxIndex] = useState(0);
+
+  const executeTx = useCallback(
+    index => {
+      return (async () => {
+        {
+          await transactions[index].execute();
+          setCurrentTxIndex(currentTxIndex + 1);
+
+          if (currentTxIndex === transactions.length - 1) {
+            closeModal();
+          }
+        }
+      })();
     },
-    {
-      name: "Buy Position",
-      description:
-        "Allowance is now set. You can now submit your selected buy position."
-    }
-  ];
+    [currentTxIndex, transactions]
+  );
 
   return (
     <div className={cx("tx-modal")}>
@@ -34,12 +40,15 @@ const Transactions = ({ closeModal, title }) => {
         </div>
       </div>
       <div className={cx("tx-content")}>
-        {TXs.map(({ name, description }, index) => (
+        {transactions.map(({ name, description }, index) => (
           <Transaction
             key={`${index}-${name.substr(0, 20)}`}
+            index={index}
             name={name}
+            enabled={currentTxIndex >= index}
             number={index + 1}
             description={description}
+            submitTx={executeTx}
           />
         ))}
       </div>
@@ -48,7 +57,18 @@ const Transactions = ({ closeModal, title }) => {
 };
 
 Transactions.defaultProps = {
-  title: "Setup Account"
+  title: "Setup Account",
 };
+
+Transactions.propTypes = {
+  title: PropTypes.node,
+  transactions: PropTypes.arrayOf(
+    PropTypes.shape({
+      name: PropTypes.string,
+      description: PropTypes.string,
+      execute: PropTypes.func
+    })
+  ).isRequired
+}
 
 export default Transactions;

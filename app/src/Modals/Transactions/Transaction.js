@@ -1,21 +1,27 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
+import PropTypes from "prop-types";
 import cn from "classnames/bind";
 
 import style from "./transactions.scss";
 import Button from "@material-ui/core/Button";
-import Spinner from "components/Spinner"
+import Spinner from "components/Spinner";
 
 const cx = cn.bind(style);
 
-const Transaction = ({ number, name, description, approved, enabled, submitTx }) => {
+const Transaction = ({ index, name, description, enabled, submitTx }) => {
+  const [pending, setPending] = useState(false);
   const handleSubmit = useCallback(() => {
-    submitTx(index);
-  }, []);
+    (async () => {
+      setPending(true);
+      await submitTx(index);
+      setPending(false);
+    })();
+  }, [index, setPending]);
 
   return (
-    <div className={cx("tx-entry", { approved }, { disabled: !enabled })}>
+    <div className={cx("tx-entry", { disabled: !enabled })}>
       <h1>
-        {number}. {name}
+        {index + 1}. {name}
       </h1>
       <p>{description}</p>
       <Button
@@ -25,13 +31,26 @@ const Transaction = ({ number, name, description, approved, enabled, submitTx })
         variant="contained"
         color="primary"
         size="large"
-        disabled={!enabled || approved}
+        disabled={!enabled || pending}
         onClick={handleSubmit}
       >
-        {approved ? <Spinner width={12} height={12} /> : "Submit"}
+        {pending ? <Spinner width={12} height={12} /> : "Submit"}
       </Button>
     </div>
   );
+};
+
+Transaction.propTypes = {
+  index: PropTypes.number.isRequired,
+  name: PropTypes.string.isRequired,
+  description: PropTypes.string,
+  submitTx: PropTypes.func.isRequired,
+  enabled: PropTypes.bool.isRequired,
+};
+
+Transaction.defaultProps = {
+  description:
+    "You have to approve this transaction before you can complete your trade."
 };
 
 export default Transaction;
