@@ -160,11 +160,7 @@ export default class ConditionalTokensService {
     }
   }
 
-  async needsMoreAllowance({
-    investmentAmount,
-    account,
-    collateralBalance
-  }) {
+  async needsMoreAllowance({ investmentAmount, account, collateralBalance }) {
     const collateral = await this._marketMakersRepo.getCollateralToken();
 
     const tierLimitStatus = await this.isTierLimitExceeded({

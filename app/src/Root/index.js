@@ -521,7 +521,7 @@ const RootComponent = ({
                   }
                   addToast("Transaction confirmed.", "success");
 
-                  await cleanup();
+                  await cleanup(txResult);
                 } catch (err) {
                   if (err instanceof ToastifyError) {
                     addToast(
