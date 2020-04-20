@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
 import Decimal from "decimal.js-light";
-import ToastifyError from "utils/ToastifyError";
 
 import Web3 from "web3";
 

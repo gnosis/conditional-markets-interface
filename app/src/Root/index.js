@@ -213,7 +213,7 @@ const RootComponent = ({
       setLoading("LOADING");
       init(provider);
     },
-    [lmsrAddress, web3, init]
+    [web3, init]
   );
 
   const [marketResolutionStates, setMarketResolutionStates] = useState(null);
@@ -370,7 +370,7 @@ const RootComponent = ({
     } else {
       return true;
     }
-  }, []);
+  }, [whitelistState, addToast, openModal]);
 
   /**
    * @typedef {Object} TransactionDescriptor
@@ -556,7 +556,7 @@ const RootComponent = ({
         setStagedTransactionType(null);
       })();
     },
-    []
+    [ongoingTransactionType, doOnboardingCheck, addToast, openModal]
   );
 
   const old_asWrappedTransaction = useCallback(

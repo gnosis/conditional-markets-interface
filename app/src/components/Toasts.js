@@ -26,7 +26,7 @@ Toasts.propTypes = {
     PropTypes.shape({
       id: PropTypes.string.isRequired,
       message: PropTypes.node.isRequired,
-      type: PropTypes.oneOf(["error", "success", "info", "default"])
+      type: PropTypes.oneOf(["error", "success", "info", "default", "warning"])
     })
   ).isRequired,
   deleteToast: PropTypes.func.isRequired
