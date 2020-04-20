@@ -349,9 +349,11 @@ const RootComponent = ({
       if (ONBOARDING_MODE === "WHITELIST") {
         // Whitelist Mode means show Modal for whitelisting options
         openModal("applyBeta", { whitelistState });
+        return false;
       } else if (ONBOARDING_MODE === "TIERED") {
         // If mode is Tiered we have to open SDD KYC Modal
         openModal("KYC");
+        return false;
       } else {
         // Future-proofing: default error handling shows an error indicating
         // that the user needs to be registered/whitelist before being able to trade
@@ -363,8 +365,9 @@ const RootComponent = ({
           </>,
           "error"
         );
+        return false;
       }
-
+    } else {
       return true;
     }
   }, []);
@@ -376,172 +379,185 @@ const RootComponent = ({
    * @property {function|Promise} cleanup - Function to call after commit (not called if precheck failed)
    * @property {string} name - Name of the Transaction
    */
-  const stageTransactions = useCallback(transactionDescriptors => {
-    return (async () => {
-      const transactionAllowed = doOnboardingCheck();
+  const stageTransactions = useCallback(
+    (stagedTransactionType, transactionDescriptors) => {
+      return (async () => {
+        const transactionAllowed = doOnboardingCheck();
 
-      if (!transactionAllowed) {
-        // Transactions not allowed yet. Return false.
-        // TODO: Create list of transaction names that require onboarding check
-        //       for example a message signature during On-Boaridng would not work
-        //       with this method, as it would get denied because the user isnt onboarded.
-        return;
-      }
-
-      // Run "Precheck" for all transaction to determine if they're not necessary or if they can't be executed.
-      const transactionPrecheckResults = await Promise.all(
-        transactionDescriptors.map(async ({ precheck, name }) => {
-          if (precheck == null) {
-            // no precheck means allowed
-            return true;
-          }
-
-          try {
-            const result = await precheck();
-            // Result can be:
-            // false-y:    Transaction is allowed
-            // object:     Containing `modal` and `modalProps` to open a modal
-
-            return result;
-          } catch (err) {
-            if (!(err instanceof ToastifyError)) {
-              // Anything other than a toastify error is an application error
-              console.warn(
-                `Error during Transaction Precheck for "${name}":`,
-                err.message
-              );
-            }
-            return err;
-          }
-        })
-      );
-
-      let cancel = false;
-      const applicableTransactions = [];
-      transactionPrecheckResults.forEach((result, index) => {
-        if (result === false) {
-          // falsey return indicates this transaction is not neccesary to be executed
-        } else if (result instanceof ToastifyError) {
-          addToast(
-            // User Error (hopefully)
-            <>
-              {result.message}
-              <br />
-            </>,
-            "error"
-          );
-          cancel = true;
-        } else if (result instanceof Error) {
-          // Error during precheck, throw error for implementation to handle
-          throw result; // Actual Error
-        } else if (result instanceof Object) {
-          // Precheck result can also be object describing a modal to open
-          if (result.modal) {
-            openModal(result.modal, result.modalProps || {});
-          } else {
-            console.warn(
-              `Warning: Precheck result of type object but no modal description?`,
-              result
-            );
-          }
-          cancel = true;
-        } else {
-          // If undefined or truthy result, append to applicable transactions
-          applicableTransactions.push(transactionDescriptors[index]);
+        if (!transactionAllowed) {
+          // Transactions not allowed yet. Return false.
+          // TODO: Create list of transaction names that require onboarding check
+          //       for example a message signature during On-Boaridng would not work
+          //       with this method, as it would get denied because the user isnt onboarded.
+          return;
         }
-      });
 
-      if (cancel) {
-        // Above logic might cancel transaction, if a modal was opened
-        return;
-      }
+        if (ongoingTransactionType !== null) {
+          throw new Error(
+            `Attempted to ${stagedTransactionType} while transaction to ${ongoingTransactionType} is ongoing`
+          );
+        }
+        setStagedTransactionType(stagedTransactionType);
 
-      if (!applicableTransactions.length) {
-        // No applicable transactions? Kinda weird, shouldn't happen.
-        // Means all transactions were deemed unnecessary (error case is handled before)
-        console.warn("Warning: All Transactions were deemed unneccesary?");
-        console.log(transactionPrecheckResults);
-        return;
-      }
+        // Run "Precheck" for all transaction to determine if they're not necessary or if they can't be executed.
+        const transactionPrecheckResults = await Promise.all(
+          transactionDescriptors.map(async ({ precheck, name }) => {
+            if (precheck == null) {
+              // no precheck means allowed
+              return true;
+            }
 
-      // A bit hacky:
-      // We need an array of promises, which will be resolved by the
-      // transaction modal over time, so that this function can be
-      // awaited until all modals have been completed, before returning
-      // back to the function that called `stageTransactions`
+            try {
+              const result = await precheck();
+              // Result can be:
+              // false-y:    Transaction is allowed
+              // object:     Containing `modal` and `modalProps` to open a modal
 
-      const deferredPromises = [];
-      const applicableTxPromises = [];
-
-      applicableTransactions.forEach(() => {
-        applicableTxPromises.push(
-          new Promise((resolve, reject) => {
-            deferredPromises.push({
-              resolve,
-              reject
-            });
+              return result;
+            } catch (err) {
+              if (!(err instanceof ToastifyError)) {
+                // Anything other than a toastify error is an application error
+                console.warn(
+                  `Error during Transaction Precheck for "${name}":`,
+                  err.message
+                );
+              }
+              return err;
+            }
           })
         );
-      });
 
-      // Wrap Transactions
-      const wrappedApplicableTransactions = applicableTransactions.map(
-        ({ commit, cleanup, name, ...rest }, index) => {
-          return {
-            ...rest,
-            name,
-            execute: async () => {
-              addToast(
-                <>
-                  Transaction waiting to be signed:
-                  <br />
-                  <strong>{name}</strong>
-                </>,
-                "warning"
+        let cancel = false;
+        const applicableTransactions = [];
+        transactionPrecheckResults.forEach((result, index) => {
+          if (result === false) {
+            // falsey return indicates this transaction is not neccesary to be executed
+          } else if (result instanceof ToastifyError) {
+            addToast(
+              // User Error (hopefully)
+              <>
+                {result.message}
+                <br />
+              </>,
+              "error"
+            );
+            cancel = true;
+          } else if (result instanceof Error) {
+            // Error during precheck, throw error for implementation to handle
+            throw result; // Actual Error
+          } else if (result instanceof Object) {
+            // Precheck result can also be object describing a modal to open
+            if (result.modal) {
+              openModal(result.modal, result.modalProps || {});
+            } else {
+              console.warn(
+                `Warning: Precheck result of type object but no modal description?`,
+                result
               );
-              try {
-                const txResult = await commit();
-                deferredPromises[index].resolve(txResult);
-
-                if (txResult && txResult.modal) {
-                  openModal(txResult.modal, txResult.modalProps || {});
-                }
-                addToast("Transaction confirmed.", "success");
-
-                await cleanup();
-              } catch (err) {
-                if (err instanceof ToastifyError) {
-                  addToast(
-                    // User Error (hopefully)
-                    <>
-                      {err.message}
-                      <br />
-                    </>,
-                    "error"
-                  );
-                } else {
-                  addToast("Transaction failed.", "error");
-                }
-                deferredPromises[index].reject(err);
-              }
             }
-          };
-        }
-      );
-
-      // If we only have one transaction, do not open the modal. Simply execute it.
-      if (wrappedApplicableTransactions.length === 1) {
-        return wrappedApplicableTransactions[0].execute();
-      } else {
-        // Open Transactions modals, passing all applicable transactions
-        openModal("Transactions", {
-          transactions: wrappedApplicableTransactions
+            cancel = true;
+          } else {
+            // If undefined or truthy result, append to applicable transactions
+            applicableTransactions.push(transactionDescriptors[index]);
+          }
         });
 
-        return Promise.all(applicableTxPromises);
-      }
-    })();
-  }, []);
+        if (cancel) {
+          // Above logic might cancel transaction, if a modal was opened
+          setStagedTransactionType(null);
+          return;
+        }
+
+        if (!applicableTransactions.length) {
+          // No applicable transactions? Kinda weird, shouldn't happen.
+          // Means all transactions were deemed unnecessary (error case is handled before)
+          console.warn("Warning: All Transactions were deemed unneccesary?");
+          console.log(transactionPrecheckResults);
+          setStagedTransactionType(null);
+          return;
+        }
+
+        // A bit hacky:
+        // We need an array of promises, which will be resolved by the
+        // transaction modal over time, so that this function can be
+        // awaited until all modals have been completed, before returning
+        // back to the function that called `stageTransactions`
+
+        const deferredPromises = [];
+        const applicableTxPromises = [];
+
+        applicableTransactions.forEach(() => {
+          applicableTxPromises.push(
+            new Promise((resolve, reject) => {
+              deferredPromises.push({
+                resolve,
+                reject
+              });
+            })
+          );
+        });
+
+        // Wrap Transactions
+        const wrappedApplicableTransactions = applicableTransactions.map(
+          ({ commit, cleanup, name, ...rest }, index) => {
+            return {
+              ...rest,
+              name,
+              execute: async () => {
+                addToast(
+                  <>
+                    Transaction waiting to be signed:
+                    <br />
+                    <strong>{name}</strong>
+                  </>,
+                  "warning"
+                );
+                try {
+                  const txResult = await commit();
+                  deferredPromises[index].resolve(txResult);
+
+                  if (txResult && txResult.modal) {
+                    openModal(txResult.modal, txResult.modalProps || {});
+                  }
+                  addToast("Transaction confirmed.", "success");
+
+                  await cleanup();
+                } catch (err) {
+                  if (err instanceof ToastifyError) {
+                    addToast(
+                      // User Error (hopefully)
+                      <>
+                        {err.message}
+                        <br />
+                      </>,
+                      "error"
+                    );
+                  } else {
+                    addToast("Transaction failed.", "error");
+                  }
+                  deferredPromises[index].reject(err);
+                }
+              }
+            };
+          }
+        );
+
+        // If we only have one transaction, do not open the modal. Simply execute it.
+        if (wrappedApplicableTransactions.length === 1) {
+          await wrappedApplicableTransactions[0].execute();
+        } else {
+          // Open Transactions modals, passing all applicable transactions
+          openModal("Transactions", {
+            transactions: wrappedApplicableTransactions
+          });
+
+          await Promise.all(applicableTxPromises);
+        }
+        setStagedTransactionType(null);
+      })();
+    },
+    []
+  );
 
   const old_asWrappedTransaction = useCallback(
     (wrappedTransactionType, transactionFn) => {

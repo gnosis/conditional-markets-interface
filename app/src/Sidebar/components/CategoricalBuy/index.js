@@ -195,7 +195,7 @@ const Buy = ({
     ];
 
     try {
-      await stageTransactions(transactions);
+      await stageTransactions("buy outcome tokens", transactions);
     } catch (err) {
       setError(err);
     }
