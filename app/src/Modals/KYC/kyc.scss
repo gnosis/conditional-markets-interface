@@ -51,20 +51,6 @@
     padding: 1rem 4rem;
   }
 
-  // Material ui styles overrides
-  .material-button {
-    border-radius: .3rem;
-    padding: 1.4rem 6rem;
-    box-shadow: none;
-    margin: 0.4rem 1.4rem;
-
-    &-label {
-        font-weight: $bold;
-        font-size: 1.8rem;
-        line-height: 1;
-        text-transform: none;
-    }
-  }
   .cancel-button {
     font-size: 1.4rem;
   }

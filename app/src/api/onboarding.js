@@ -99,7 +99,6 @@ export const postTradingVolumeSimulation = async (
 
 export const postPersonalDetails = async personalDetails => {
   const url = `${WHITELIST_API_URL}/v1/sdd/users/`;
-  console.log(personalDetails);
   const response = await fetch(url, {
     method: "POST",
     body: JSON.stringify(personalDetails),

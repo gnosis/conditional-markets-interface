@@ -1,0 +1,81 @@
+@import "../Modals.scss";
+
+.tx-modal {
+  @extend .modal;
+  font-size: 1.6rem;
+  max-width: 65rem;
+
+}
+
+.tx-content {
+  display: flex;
+  flex-direction: row;
+}
+
+.tx-entry {
+  width: 100%;
+  padding: 4rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  text-align: center;
+
+  h1 {
+    font-size: 1.8rem;
+    line-height: 3rem;
+  }
+
+  &.disabled {
+    opacity: 0.7;
+
+    h1, p {
+      opacity: 0.4;
+    }
+  }
+
+}
+
+.tx-subheader {
+  background: #f2fafb;
+
+  // Wallet + Description Text
+  display: flex;
+  flex-direction: row;
+  padding: 1.2rem 6rem;
+  justify-content: space-around;
+}
+
+.tx-account {
+  margin-right: 6rem;
+
+  // Avatar + Address
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+
+  .account-info {
+    margin-top: 1rem;
+    letter-spacing: 0.06rem;
+  }
+
+  .avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 100%;
+    position: relative;
+    overflow: hidden;
+
+    .avatar-image {
+      max-width: 100%;
+      max-height: 100%;
+    }
+  }
+}
+
+.tx-description {
+  display: flex;
+  align-items: center;
+  text-align: justify;
+  line-height: 2.4rem;
+}

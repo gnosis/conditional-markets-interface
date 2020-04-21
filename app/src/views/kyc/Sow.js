@@ -142,7 +142,7 @@ const Sow = props => {
         }
       })
       .catch(e => {
-        console.log(e);
+        console.error(e);
         setError("Error: Internal error, please try later");
       });
   };

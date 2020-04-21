@@ -38,6 +38,7 @@ const Buy = ({
   ongoingTransactionType,
   resetMarketSelections,
   asWrappedTransaction,
+  stageTransactions,
   selectTabCallback
 }) => {
   // Memoize fetching data files
@@ -146,6 +147,68 @@ const Buy = ({
   }, [setStagedTradeAmounts, setInvestmentAmount, setError]);
 
   const buyOutcomeTokens = useCallback(async () => {
+    const transactions = [
+      {
+        name: "Set Allowance",
+        description:
+          "This permission allows Sight to interact with your DAI. This has to be done only once for each collateral type.",
+        precheck: async () => {
+          return conditionalTokensService.needsMoreAllowance({
+            investmentAmount,
+            stagedTradeAmounts,
+            account,
+            collateralBalance
+          });
+        },
+        commit: async () => {
+          return conditionalTokensService.setAllowance({
+            investmentAmount,
+            stagedTradeAmounts,
+            account,
+            collateralBalance
+          });
+        }
+      },
+      {
+        name: "Buy Outcome Tokens",
+        description:
+          "Allowance is now set. You can now submit your selected buy position.",
+        commit: async () => {
+          return conditionalTokensService.buyOutcomeTokens({
+            investmentAmount,
+            stagedTradeAmounts,
+            stagedTransactionType,
+            account,
+            collateralBalance
+          });
+        },
+        cleanup: result => {
+          if (result && !result.modal) {
+            clearAllPositions();
+            // Show positions component
+            selectTabCallback(1);
+          }
+          return result;
+        }
+      }
+    ];
+
+    try {
+      await stageTransactions("buy outcome tokens", transactions);
+    } catch (err) {
+      setError(err);
+    }
+  }, [
+    investmentAmount,
+    stagedTransactionType,
+    stagedTradeAmounts,
+    conditionalTokensService,
+    collateral,
+    account
+  ]);
+
+  /*
+  const buyOutcomeTokens = useCallback(async () => {
     return conditionalTokensService
       .buyOutcomeTokens({
         investmentAmount,
@@ -170,6 +233,7 @@ const Buy = ({
     collateral,
     account
   ]);
+  */
 
   let problemText;
 
@@ -258,11 +322,7 @@ const Buy = ({
             marketStage !== "Running" ||
             error != null
           }
-          onClick={asWrappedTransaction(
-            "buy outcome tokens",
-            buyOutcomeTokens,
-            setError
-          )}
+          onClick={buyOutcomeTokens}
         >
           Buy Position
         </button>
@@ -325,6 +385,7 @@ Buy.propTypes = {
   stagedTradeAmounts: PropTypes.arrayOf(
     PropTypes.instanceOf(Decimal).isRequired
   ),
+  stageTransactions: PropTypes.func.isRequired,
   setStagedTradeAmounts: PropTypes.func.isRequired,
   stagedTransactionType: PropTypes.string,
   setStagedTransactionType: PropTypes.func.isRequired,
