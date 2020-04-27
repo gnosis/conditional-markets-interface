@@ -1,7 +1,6 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useCallback } from "react";
 import { Form, Field } from "react-final-form";
 import { FORM_ERROR } from "final-form";
-import { useLocation } from "react-router-dom";
 
 import Button from "@material-ui/core/Button";
 import { setSourceOfFunds } from "api/onboarding";
@@ -56,20 +55,15 @@ const VALIDATIONS = {
   expectedAnnualTradingVolume: isRequired
 };
 
-const SourceOfWealth = ({ handleAdvanceStep }) => {
-  const routerLocation = useLocation();
-  const [email, setEmail] = useState(null);
-  const [isLoading, setLoading] = useState(true);
-  useEffect(() => {
-    const searchParams = new URLSearchParams(routerLocation.search);
-    const email = searchParams.get("email");
-    setEmail(email);
-    setLoading(false);
-  });
-
+const SourceOfWealth = ({
+  email,
+  sowState,
+  setSowState,
+  handleAdvanceStep
+}) => {
   const submitSOW = useCallback(async values => {
     // const response = await setSourceOfFunds(values);
-  
+    setSowState(values);
     // if (response.ok) {
     //   const json = await response.json();
     //   window.location.href = json.url;
@@ -91,24 +85,6 @@ const SourceOfWealth = ({ handleAdvanceStep }) => {
   
     handleAdvanceStep(STEP_SUMSUB_FORM);
   }, []);
-
-  if (isLoading) {
-    return (
-      <>
-        {/* <UpperBar
-          closeModal={closeModal}
-          title={
-            <span>
-              Sight Self Declared
-              <br />
-              Source of Funds
-            </span>
-          }
-        /> */}
-        <Spinner inverted />
-      </>
-    );
-  }
 
   if (!email) {
     return (
@@ -201,6 +177,7 @@ const SourceOfWealth = ({ handleAdvanceStep }) => {
                   name="mainSource"
                   options={SOURCE_OF_WEALTH_OPTIONS}
                   label="What is your main source of funds?"
+                  initialValue={sowState && sowState.mainSource}
                 />
                 {showCompanyNameField && (
                   <Field
@@ -208,6 +185,7 @@ const SourceOfWealth = ({ handleAdvanceStep }) => {
                     validate={fieldValidator([isRequired])}
                     name="saleCompanyName"
                     label="Please insert the name of the company"
+                    initialValue={sowState && sowState.saleCompanyName}
                   />
                 )}
                 {showPensionTypeField && (
@@ -219,6 +197,7 @@ const SourceOfWealth = ({ handleAdvanceStep }) => {
                       { label: "Private", value: "private" },
                       { label: "Government Pension", value: "government" }
                     ]}
+                    initialValue={sowState && sowState.pension}
                   />
                 )}
                 {showSpecificsField && (
@@ -227,6 +206,7 @@ const SourceOfWealth = ({ handleAdvanceStep }) => {
                     validate={fieldValidator([isRequired])}
                     name="description"
                     label='Add specifics to your source of funds, like "Sale of property in UK", "Family inheritance"'
+                    initialValue={sowState && sowState.description}
                   />
                 )}
                 {showEmployerJobField && (
@@ -235,6 +215,7 @@ const SourceOfWealth = ({ handleAdvanceStep }) => {
                     validate={fieldValidator([isRequired])}
                     name="currentJob"
                     label="Please insert the name of your employer and your current job title"
+                    initialValue={sowState && sowState.currentJob}
                   />
                 )}
                 {showSelfEmployedJobField && (
@@ -243,6 +224,7 @@ const SourceOfWealth = ({ handleAdvanceStep }) => {
                     validate={fieldValidator([isRequired])}
                     name="selfEmployedActivity"
                     label="Please describe your main economic activity"
+                    initialValue={sowState && sowState.selfEmployedActivity}
                   />
                 )}
                 <Field
@@ -255,11 +237,14 @@ const SourceOfWealth = ({ handleAdvanceStep }) => {
                     { label: "15.001 to 50.000 EUR", value: "2_15001_50000" },
                     { label: "More than 50.000 EUR", value: "3_50001" }
                   ]}
+                  initialValue={
+                    sowState && sowState.expectedAnnualTradingVolume
+                  }
                 />
 
                 {submitError && <p>{submitError}</p>}
                 <Button
-                  className={cx("field", "material-button")}
+                  className={cx("field", "material-button", "big")}
                   classes={{ label: cx("material-button-label") }}
                   variant="contained"
                   color="primary"
@@ -278,6 +263,9 @@ const SourceOfWealth = ({ handleAdvanceStep }) => {
 };
 
 SourceOfWealth.propTypes = {
+  email: PropTypes.string.isRequired,
+  sowState: PropTypes.object,
+  setSowState: PropTypes.func.isRequired,
   handleAdvanceStep: PropTypes.func.isRequired
 };
 

@@ -1,6 +1,5 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useCallback } from "react";
 import cn from "classnames/bind";
-import PropTypes from "prop-types";
 
 import Button from "@material-ui/core/Button";
 

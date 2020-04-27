@@ -48,6 +48,7 @@ const Tier2 = props => {
   const [account, setAccount] = useState(null);
   const [userState, setUserState] = useState(null);
   const [tier2Status, setTier2Status] = useState(null);
+  const [sowState, setSowState] = useState(null);
 
   const routerLocation = useLocation();
   const [email, setEmail] = useState(null);
@@ -118,6 +119,7 @@ const Tier2 = props => {
   const disconnect = useCallback(() => {
     web3Modal.clearCachedProvider();
     setProvider(null);
+    setCurrentStepIndex(STEP_TERMS_AND_CONDITIONS);
   });
 
   useEffect(() => {
@@ -209,6 +211,8 @@ const Tier2 = props => {
           <TargetComponent
             account={account}
             email={email}
+            sowState={sowState}
+            setSowState={setSowState}
             handleAdvanceStep={handleAdvanceStep}
             {...currentStepProps}
           />
