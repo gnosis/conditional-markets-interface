@@ -26,7 +26,8 @@ const TextInput = ({
       label={label}
       variant={variant}
       InputProps={{
-        readOnly
+        readOnly,
+        classes: readOnly ? { root: cx("read-only")} : {}
       }}
       {...props}
     />
