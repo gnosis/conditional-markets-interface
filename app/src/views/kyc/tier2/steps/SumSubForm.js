@@ -1,10 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 // import PropTypes from "prop-types";
-// import Button from "@material-ui/core/Button";
-// import Link from "@material-ui/core/Link";
-
-// import Header from "./components/header";
 
 import cn from "classnames/bind";
 
@@ -59,7 +55,7 @@ const SumSubForm = props => {
   }, []);
 
   return (
-    <div className={cx("modal")}>
+    <div className={cx("sum-sub-form")}>
       <div id="sumsub-container"></div>
     </div>
   );

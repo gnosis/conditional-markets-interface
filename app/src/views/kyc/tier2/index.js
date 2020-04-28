@@ -67,14 +67,14 @@ const Tier2 = props => {
     (async () => {
       setLoading("LOADING");
       const loadedStepComponents = {};
-      const loadedAllComponents = await Promise.all(
+      const allComponentsPromises = Promise.all(
         Object.keys(STEP_COMPONENTS).map(async stepName => {
           loadedStepComponents[stepName] = (
             await STEP_COMPONENTS[stepName]()
           ).default;
         })
       );
-      await loadedAllComponents;
+      await allComponentsPromises;
 
       setStepComponents(loadedStepComponents);
       setLoading("SUCCESS");
@@ -168,15 +168,20 @@ const Tier2 = props => {
   if (loading === "LOADING") {
     return (
       <div className={cx("page", "loading")}>
-        <Spinner centered width={100} height={100} />
+        <div className={cx("header")}>
+          <img src={Logo} alt="Gnosis Conditional Tokens" />
+          {account && <LoggedIn address={account} disconnect={disconnect} />}
+        </div>
+        <div className={cx("app-space")}>
+          <div className={cx("step")}>
+            <Spinner inverted centered width={100} height={100} />
+          </div>
+        </div>
       </div>
     );
   }
 
   const TargetComponent = stepComponents[currentStepIndex];
-  console.log(currentStepIndex)
-  console.log(stepComponents)
-  console.log(TargetComponent)
   return (
     <div className={cx("page")}>
       <div className={cx("header")}>
@@ -191,7 +196,7 @@ const Tier2 = props => {
             <div className={cx("step-header")}>
               <p>KYC Tier Level 2 - Verification</p>
             </div>
-            <p className={cx( "step-description")}>
+            <p className={cx("step-description")}>
               Connect your wallet to start your KYC application
             </p>
             <Button
