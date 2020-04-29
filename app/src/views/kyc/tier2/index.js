@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 import cn from "classnames/bind";
+import useInterval from "@use-it/interval";
 
 import Button from "@material-ui/core/Button";
 
@@ -32,6 +33,8 @@ const STEP_COMPONENTS = {
   [STEP_SUMSUB_FORM]: () => import("./steps/SumSubForm"),
   [STEP_ALREADY_VERIFIED]: () => import("./steps/AlreadyVerified")
 };
+
+const SYNC_INTERVAL = 5000;
 
 const web3Modal = getWeb3Modal();
 
@@ -164,6 +167,18 @@ const Tier2 = props => {
       setCurrentStepIndex(STEP_ALREADY_VERIFIED);
     }
   }, [tier2Status]);
+
+  const checkAccount = useCallback(async () => {
+    if (web3) {
+      const currentAccount = await getAccount(web3);
+      if (currentAccount !== account) {
+        setAccount(currentAccount);
+        setCurrentStepIndex(STEP_TERMS_AND_CONDITIONS);
+      }
+    }
+  });
+
+  useInterval(checkAccount, SYNC_INTERVAL);
 
   if (loading === "LOADING") {
     return (
