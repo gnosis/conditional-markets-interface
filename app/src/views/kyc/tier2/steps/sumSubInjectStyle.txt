@@ -1,0 +1,203 @@
+:root {
+  --white-color: #fff;
+  --primary-color: #00193C;
+  --red-color: #ff4d4d;
+  --dark-red-color: #e04f5f;
+  --orange-color: #ff9525;
+  --grey-color: #DFE6EF;
+  --light-grey-color: #EDF2F7;
+  --success-color: #009CB4;
+  --section-shadow-color: rgba(0, 0, 0, 0.08);
+  --bullet-shadow-color: #dedede;
+  --step-mobile: #d9deeb;
+  --facebook-color: #3b5998;
+  --google-color: #dd4b39;
+  --blue-color: #009CB4;
+}
+
+body,
+body.loaded {
+  background-color: var(--light-grey-color);
+  text-rendering: geometricPrecision;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+section {
+  box-shadow: 0 2px 12px 0 rgba(0, 156, 180, 0.05), 0 0 26px 0 rgba(0, 25, 60, 0.12);
+  border-radius: 6px;
+}
+
+input::placeholder {
+  color: var(--grey-color2);
+}
+
+button {
+  text-transform: capitalize!important;
+  font-size: 16px!important;
+  height: 52px!important;
+}
+
+button.submit,
+button[type=submit],
+button.submit:active:not(:disabled),
+button.submit:hover:not(:disabled):not(.disabled):not(:active),
+button[type=submit]:active:not(:disabled),
+button[type=submit]:hover:not(:disabled):not(.disabled):not(:active),
+#zoom-sdk-body-element button,
+#zoom-sdk-redirect-dev-site-button {
+  border-radius: 3px!important;
+  background-image: none!important;
+  background-color: var(--blue-color)!important;
+}
+
+button.back {
+  border-radius: 6px!important;
+  background-color: var(--light-grey-color)!important;
+}
+
+p {
+  font-size: 14px;
+  color: #526877!important;
+  letter-spacing: 0;
+  text-align: center;
+  line-height: 1.5;
+}
+
+h4 {
+  font-size: 21px;
+  line-height: 1.3;
+  font-weight: 500;
+}
+
+.markdown-instructions p {
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+h2,
+h2 > p {
+  font-size: 18px;
+  color: var(--primary-color)!important;
+  letter-spacing: 0;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.round-icon {
+  background-image: none;
+  background-color: var(--blue-color);
+}
+
+.step.active .bullet {
+  border: solid 2px var(--blue-color);
+}
+
+.step.pending .bullet {
+  background-color: var(--orange-color);
+  background-image: -webkit-gradient(linear, left top, right top, color-stop(50%, transparent), color-stop(50%, #fff)), -webkit-gradient(linear, right top, left top, color-stop(50%, #fff), color-stop(50%, transparent));
+  background-image: linear-gradient(90deg, transparent 50%, #fff 0), linear-gradient(270deg, #fff 50%, transparent 0);
+  border-color: var(--orange-color);
+}
+
+.upload-item {
+  height: auto;
+}
+
+.upload-item:hover {
+  border: 2px dotted var(--blue-color)!important;
+}
+
+.upload-item h4 {
+  margin: 10px 0 24px;
+}
+
+.upload-item p {
+  font-size: 13px;
+  margin: 0 0 .3rem;
+  line-height: 1.2;
+}
+
+.upload-payment-item {
+  margin: 0 auto 1rem;
+  width: auto;
+  flex: 0 1 48%;
+}
+
+@media (max-width: 480px) {
+
+  .upload-item,
+  .upload-payment-item {
+    -webkit-box-flex: 1;
+    -ms-flex: 1 1 100%;
+    flex: 1 1 100%;
+    margin-bottom: 15px;
+  }
+}
+
+.upload-payment-item .upload-item {
+  background: rgba(0, 156, 180, 0.05);
+  border: 2px dotted #DEDFDE;
+  border-radius: 6px;
+  padding: 24px;
+  height: auto;
+}
+
+.upload-item .drag-drop {
+  background: transparent;
+  height: auto;
+  max-height: initial;
+}
+
+.country-selector > .show-hide {
+  color: var(--blue-color);
+}
+
+.error-message {
+  justify-content: center;
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
+  padding: 15px;
+}
+
+.error-message .message-icon {
+  left: initial!important;
+  top: initial!important;
+  position: relative;
+  margin: 0 .5rem 0 0;
+}
+
+.error-message .message-title {
+  margin: 0;
+}
+
+.message-content {
+  width: 100%;
+}
+
+.error-message.warn .message-content {
+  margin: 10px 0;
+}
+
+.markdown-instructions ul {
+  margin: 15px 0 30px;
+}
+
+.upload-item i.upload-icon {
+  color: var(--blue-color);
+  opacity: .5;
+  font-size: 52px;
+  pointer-events: none;
+}
+
+.mobile-button h4 {
+  margin: 4px 0 10px;
+  font-weight: 400;
+  font-size: 15px;
+}
+
+.steps.mobile .step.active {
+  background-color: var(--blue-color);
+  border-color: rgba(42, 52, 143, .5);
+}

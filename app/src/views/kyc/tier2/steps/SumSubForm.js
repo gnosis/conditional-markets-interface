@@ -4,7 +4,7 @@ import { useLocation } from "react-router-dom";
 
 import cn from "classnames/bind";
 
-// import style from "./Modals.scss";
+import style from "./sumSubInjectStyle.txt";
 
 const cx = cn.bind();
 
@@ -23,7 +23,10 @@ const SumSubForm = props => {
         // access token for specific externalUserId
         accessToken,
         // may be some additional parameters, see the Demo to see which ones, e.g.
-        externalUserId
+        externalUserId,
+        uiConf: {
+          customCssStr: style
+        }
       },
       // function for the WebSDK callbacks
       function(messageType, payload) {
@@ -55,7 +58,7 @@ const SumSubForm = props => {
   }, []);
 
   return (
-    <div className={cx("sum-sub-form")}>
+    <div className={cx("sumsub-form")}>
       <div id="sumsub-container"></div>
     </div>
   );
