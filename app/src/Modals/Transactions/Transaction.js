@@ -8,6 +8,8 @@ import Spinner from "components/Spinner";
 
 const cx = cn.bind(style);
 
+const NOOP = () => {}
+
 const Transaction = ({ index, name, description, enabled, submitTx }) => {
   const [pending, setPending] = useState(false);
   const handleSubmit = useCallback(() => {
@@ -31,10 +33,16 @@ const Transaction = ({ index, name, description, enabled, submitTx }) => {
         variant="contained"
         color="primary"
         size="large"
-        disabled={!enabled || pending}
-        onClick={handleSubmit}
+        disabled={!enabled}
+        disableRipple={(!enabled || pending)}
+        onClick={(!enabled || pending) ? NOOP : handleSubmit}
       >
-        {pending ? <Spinner width={12} height={12} /> : "Submit"}
+        {pending ? (
+          <>
+            {/* Avoids button collapse, sorry */}
+            &nbsp;<Spinner width={38} height={38} absolute />
+          </>
+        ) : "Submit"}
       </Button>
     </div>
   );
