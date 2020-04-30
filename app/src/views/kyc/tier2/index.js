@@ -35,6 +35,7 @@ const STEP_COMPONENTS = {
 };
 
 const SYNC_INTERVAL = 5000;
+const REST_SYNC_INTERVAL = 15000;
 
 const web3Modal = getWeb3Modal();
 
@@ -51,7 +52,6 @@ const Tier2 = props => {
   const [account, setAccount] = useState(null);
   const [userState, setUserState] = useState(null);
   const [tier2Status, setTier2Status] = useState(null);
-  const [sowState, setSowState] = useState(null);
 
   const routerLocation = useLocation();
   const [email, setEmail] = useState(null);
@@ -162,9 +162,13 @@ const Tier2 = props => {
     }
   }, [account]);
 
+  useInterval(getAccountInfo, REST_SYNC_INTERVAL);
+
   useEffect(() => {
     if (tier2Status === "ENABLED") {
       setCurrentStepIndex(STEP_ALREADY_VERIFIED);
+    } else if (tier2Status === "PENDING_VERIFICATION") {
+      setCurrentStepIndex(STEP_SUMSUB_FORM);
     }
   }, [tier2Status]);
 
@@ -204,7 +208,9 @@ const Tier2 = props => {
         {account && <LoggedIn address={account} disconnect={disconnect} />}
       </div>
       <div
-        className={cx(currentStepIndex !== STEP_SUMSUB_FORM ? "app-space" : "")}
+        className={cx(
+          currentStepIndex !== STEP_SUMSUB_FORM ? "app-space" : "sumsub-form"
+        )}
       >
         {!account && (
           <div className={cx("step", "connect")}>
@@ -231,8 +237,6 @@ const Tier2 = props => {
           <TargetComponent
             account={account}
             email={email}
-            sowState={sowState}
-            setSowState={setSowState}
             handleAdvanceStep={handleAdvanceStep}
             {...currentStepProps}
           />

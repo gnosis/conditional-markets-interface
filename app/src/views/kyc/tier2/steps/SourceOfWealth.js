@@ -1,16 +1,14 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect } from "react";
 import { Form, Field } from "react-final-form";
 import { FORM_ERROR } from "final-form";
 
 import Button from "@material-ui/core/Button";
-import { setSourceOfFunds } from "api/onboarding";
+import { getSourceOfWealthState, setSourceOfFunds } from "api/onboarding";
 import PropTypes from "prop-types";
 import cn from "classnames/bind";
 import styles from "../tier2.scss";
 
 import EmoteSad from "assets/img/emote_sad.svg";
-
-// import UpperBar from "../../components/upperBar";
 
 import Spinner from "components/Spinner";
 import Select from "components/Form/Select";
@@ -55,14 +53,25 @@ const VALIDATIONS = {
   expectedAnnualTradingVolume: isRequired
 };
 
-const SourceOfWealth = ({
-  email,
-  sowState,
-  setSowState,
-  handleAdvanceStep
-}) => {
+const SourceOfWealth = ({ email, account, handleAdvanceStep }) => {
+  const checkSowState = useCallback(async () => {
+    // Check if user already completed SOW form and go to next step
+    const response = await getSourceOfWealthState(account);
+
+    if (response.ok) {
+      const json = await response.json();
+      console.log("Json", json);
+      if (json.available) {
+        handleAdvanceStep(STEP_SUMSUB_FORM);
+      }
+    }
+  });
+
+  useEffect(() => {
+    checkSowState();
+  }, []);
+
   const submitSOW = useCallback(async values => {
-    setSowState(values);
     const response = await setSourceOfFunds(values);
 
     if (response.ok) {
@@ -87,16 +96,6 @@ const SourceOfWealth = ({
   if (!email) {
     return (
       <>
-        {/* <UpperBar
-          closeModal={closeModal}
-          title={
-            <span>
-              Sight Self Declared
-              <br />
-              Source of Funds
-            </span>
-          }
-        /> */}
         <div className={cx("modal-body")}>
           <div className={cx("modal-textblock")}>
             <img className={cx("modal-jumbo")} src={EmoteSad} alt="Sorry! :(" />
@@ -124,16 +123,6 @@ const SourceOfWealth = ({
 
   return (
     <>
-      {/* <UpperBar
-        closeModal={closeModal}
-        title={
-          <span>
-            Sight Self Declared
-            <br />
-            Source of Funds
-          </span>
-        }
-      /> */}
       <div className={cx("step", "source-of-wealth")}>
         <div className={cx("step-header")}>
           <p>KYC Tier Level 2 - Verification</p>
@@ -175,7 +164,6 @@ const SourceOfWealth = ({
                   name="mainSource"
                   options={SOURCE_OF_WEALTH_OPTIONS}
                   label="What is your main source of funds?"
-                  initialValue={sowState && sowState.mainSource}
                 />
                 {showCompanyNameField && (
                   <Field
@@ -183,7 +171,6 @@ const SourceOfWealth = ({
                     validate={fieldValidator([isRequired])}
                     name="saleCompanyName"
                     label="Please insert the name of the company"
-                    initialValue={sowState && sowState.saleCompanyName}
                   />
                 )}
                 {showPensionTypeField && (
@@ -195,7 +182,6 @@ const SourceOfWealth = ({
                       { label: "Private", value: "private" },
                       { label: "Government Pension", value: "government" }
                     ]}
-                    initialValue={sowState && sowState.pension}
                   />
                 )}
                 {showSpecificsField && (
@@ -204,7 +190,6 @@ const SourceOfWealth = ({
                     validate={fieldValidator([isRequired])}
                     name="description"
                     label='Add specifics to your source of funds, like "Sale of property in UK", "Family inheritance"'
-                    initialValue={sowState && sowState.description}
                   />
                 )}
                 {showEmployerJobField && (
@@ -213,7 +198,6 @@ const SourceOfWealth = ({
                     validate={fieldValidator([isRequired])}
                     name="currentJob"
                     label="Please insert the name of your employer and your current job title"
-                    initialValue={sowState && sowState.currentJob}
                   />
                 )}
                 {showSelfEmployedJobField && (
@@ -222,7 +206,6 @@ const SourceOfWealth = ({
                     validate={fieldValidator([isRequired])}
                     name="selfEmployedActivity"
                     label="Please describe your main economic activity"
-                    initialValue={sowState && sowState.selfEmployedActivity}
                   />
                 )}
                 <Field
@@ -235,9 +218,6 @@ const SourceOfWealth = ({
                     { label: "15.001 to 50.000 EUR", value: "2_15001_50000" },
                     { label: "More than 50.000 EUR", value: "3_50001" }
                   ]}
-                  initialValue={
-                    sowState && sowState.expectedAnnualTradingVolume
-                  }
                 />
 
                 {submitError && <p>{submitError}</p>}
@@ -262,8 +242,7 @@ const SourceOfWealth = ({
 
 SourceOfWealth.propTypes = {
   email: PropTypes.string.isRequired,
-  sowState: PropTypes.object,
-  setSowState: PropTypes.func.isRequired,
+  account: PropTypes.string.isRequired,
   handleAdvanceStep: PropTypes.func.isRequired
 };
 

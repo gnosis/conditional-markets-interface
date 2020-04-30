@@ -1,16 +1,16 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
-// import PropTypes from "prop-types";
+import PropTypes from "prop-types";
 
-import cn from "classnames/bind";
+// import cn from "classnames/bind";
 
 import style from "./sumSubInjectStyle.txt";
 
-const cx = cn.bind();
+// const cx = cn.bind();
 
-const SumSubForm = props => {
+const SumSubForm = ({ email }) => {
   const routerLocation = useLocation();
-  const [isLoading, setLoading] = useState(true);
+  // const [isLoading, setLoading] = useState(true);
 
   const initSumsub = useCallback((clientId, accessToken, externalUserId) => {
     var id = idensic.init(
@@ -40,15 +40,15 @@ const SumSubForm = props => {
     const searchParams = new URLSearchParams(routerLocation.search);
     const clientId = searchParams.get("sdk_client");
     const accessToken = searchParams.get("sdk_token");
-    const externalUserId = searchParams.get("email");
-    setLoading(false);
+    // const externalUserId = searchParams.get("email");
+    // setLoading(false);
 
     // Add SumSub SDK Script
     const script = document.createElement("script");
 
     script.src = "https://test-api.sumsub.com/idensic/static/sumsub-kyc.js";
     script.async = true;
-    script.onload = () => initSumsub(clientId, accessToken, externalUserId);
+    script.onload = () => initSumsub(clientId, accessToken, email);
 
     document.body.appendChild(script);
 
@@ -57,13 +57,11 @@ const SumSubForm = props => {
     };
   }, []);
 
-  return (
-    <div className={cx("sumsub-form")}>
-      <div id="sumsub-container"></div>
-    </div>
-  );
+  return <div id="sumsub-container"></div>;
 };
 
-SumSubForm.propTypes = {};
+SumSubForm.propTypes = {
+  email: PropTypes.string.isRequired
+};
 
 export default SumSubForm;

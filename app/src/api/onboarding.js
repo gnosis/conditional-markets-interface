@@ -45,6 +45,14 @@ export const getResidenceCountries = async () => {
   }).then(res => res.json());
 };
 
+export const getSourceOfWealthState = async account => {
+  const url = `${WHITELIST_API_URL}/v1/users/${account}/sow/`;
+
+  return fetch(url, {
+    method: "GET"
+  });
+};
+
 export const setSourceOfFunds = async sowInformation => {
   const { email, ...data } = sowInformation;
   const url = `${WHITELIST_API_URL}/v1/users/${email}/sow`;
