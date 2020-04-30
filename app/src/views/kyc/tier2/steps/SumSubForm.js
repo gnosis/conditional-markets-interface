@@ -38,8 +38,8 @@ const SumSubForm = props => {
 
   useEffect(() => {
     const searchParams = new URLSearchParams(routerLocation.search);
-    const clientId = searchParams.get("clientId");
-    const accessToken = searchParams.get("accessToken");
+    const clientId = searchParams.get("sdk_client");
+    const accessToken = searchParams.get("sdk_token");
     const externalUserId = searchParams.get("email");
     setLoading(false);
 

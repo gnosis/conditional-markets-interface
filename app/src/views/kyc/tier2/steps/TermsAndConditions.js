@@ -6,6 +6,8 @@ import { FORM_ERROR } from "final-form";
 
 import Button from "@material-ui/core/Button";
 
+import { setEthAccountEmail } from "api/onboarding";
+
 import { STEP_SOURCE_OF_WEALTH } from "../";
 import CheckboxInput from "components/Form/Checkbox";
 import { isRequired, validator } from "utils/validations";
@@ -25,34 +27,30 @@ const TermsAndConditions = ({ account, email, handleAdvanceStep }) => {
   const onSubmit = useCallback(async values => {
     console.log("Submitting...");
     console.log("values:", values);
-    // const personalDetails = {
-    //   ...values,
-    //   ...person,
-    //   documentExpiryDate: getMoment(values.documentExpiryDate).format(
-    //     "Y-MM-DD"
-    //   ),
-    //   countryResidenceIso2: values.countryResidence.iso2
-    // };
+    const response = await setEthAccountEmail(values);
 
-    // updatePerson(personalDetails);
-
-    // const [response, json] = await postPersonalDetails(personalDetails);
-
-    // if (!response.ok) {
-    //   if (response.code === 400) {
-    //     return json;
-    //   } else if (response.code === 403) {
-    //     return {
-    //       [FORM_ERROR]:
-    //         "Your address is already being processed. Please wait until your application has been approved."
-    //     };
-    //   } else {
-    //     return {
-    //       [FORM_ERROR]:
-    //         "Unfortunately, the whitelisting API returned a non-standard error. Please try again later."
-    //     };
-    //   }
-    // }
+    if (response.ok) {
+      handleAdvanceStep(STEP_SOURCE_OF_WEALTH);
+    } else {
+      console.log(response);
+      if (response.status === 422) {
+        if (response.reason === "ETH_ADDRESS_CANNOT_BE_MODIFIED") {
+          return {
+            [FORM_ERROR]:
+              "The email has already been registered with another ethereum account. Please, make sure you are using the same email and account combination"
+          };
+        } else {
+          return {
+            [FORM_ERROR]:
+              "The email is not correct or the account is already registered with another email. Please, make sure you are using desired email and account"
+          };
+        }
+      } else {
+        return {
+          [FORM_ERROR]: "An unknown error occurred. Please try again later"
+        };
+      }
+    }
 
     handleAdvanceStep(STEP_SOURCE_OF_WEALTH);
   }, []);
@@ -87,6 +85,18 @@ const TermsAndConditions = ({ account, email, handleAdvanceStep }) => {
         validate={validator(VALIDATIONS)}
         render={({ handleSubmit, submitError, submitting }) => (
           <form onSubmit={handleSubmit}>
+            <Field
+              component="input"
+              type="hidden"
+              name="ethAddress"
+              initialValue={account}
+            />
+            <Field
+              component="input"
+              type="hidden"
+              name="email"
+              initialValue={email}
+            />
             <div className={cx("field-row")}>
               <Field
                 name="acceptTos"
@@ -131,7 +141,7 @@ const TermsAndConditions = ({ account, email, handleAdvanceStep }) => {
               color="primary"
               size="large"
               type="submit"
-              // disabled={submitting}
+              disabled={submitting}
             >
               Proceed
             </Button>

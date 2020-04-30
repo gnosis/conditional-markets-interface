@@ -62,28 +62,26 @@ const SourceOfWealth = ({
   handleAdvanceStep
 }) => {
   const submitSOW = useCallback(async values => {
-    // const response = await setSourceOfFunds(values);
     setSowState(values);
-    // if (response.ok) {
-    //   const json = await response.json();
-    //   window.location.href = json.url;
-    // } else {
-    //   if (response.status === 400) {
-    //     return { [FORM_ERROR]: "Missing Data in Source of Funds request" };
-    //   } else if (response.status === 401) {
-    //     return { [FORM_ERROR]: "Error: KYC was already sent for this email" };
-    //   } else if (response.status === 404) {
-    //     return {
-    //       [FORM_ERROR]: "Error: Your E-Mail was not found for our KYC process"
-    //     };
-    //   } else {
-    //     return {
-    //       [FORM_ERROR]: "An unknown error occurred. Please try again later"
-    //     };
-    //   }
-    // }
-  
-    handleAdvanceStep(STEP_SUMSUB_FORM);
+    const response = await setSourceOfFunds(values);
+
+    if (response.ok) {
+      handleAdvanceStep(STEP_SUMSUB_FORM);
+    } else {
+      if (response.status === 400) {
+        return { [FORM_ERROR]: "Missing Data in Source of Funds request" };
+      } else if (response.status === 401) {
+        return { [FORM_ERROR]: "Error: KYC was already sent for this email" };
+      } else if (response.status === 404) {
+        return {
+          [FORM_ERROR]: "Error: Your E-Mail was not found for our KYC process"
+        };
+      } else {
+        return {
+          [FORM_ERROR]: "An unknown error occurred. Please try again later"
+        };
+      }
+    }
   }, []);
 
   if (!email) {
