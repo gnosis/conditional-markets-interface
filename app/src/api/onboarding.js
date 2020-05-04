@@ -45,6 +45,14 @@ export const getResidenceCountries = async () => {
   }).then(res => res.json());
 };
 
+export const getSourceOfWealthState = async account => {
+  const url = `${WHITELIST_API_URL}/v1/users/${account}/sow/`;
+
+  return fetch(url, {
+    method: "GET"
+  });
+};
+
 export const setSourceOfFunds = async sowInformation => {
   const { email, ...data } = sowInformation;
   const url = `${WHITELIST_API_URL}/v1/users/${email}/sow`;
@@ -97,9 +105,20 @@ export const postTradingVolumeSimulation = async (
   }).then(res => res.json());
 };
 
+export const setEthAccountEmail = async userInformation => {
+  const url = `${WHITELIST_API_URL}/v1/users/`;
+
+  return fetch(url, {
+    method: "POST",
+    body: JSON.stringify(userInformation), // data can be `string` or {object}!
+    headers: {
+      "Content-Type": "application/json"
+    }
+  });
+};
+
 export const postPersonalDetails = async personalDetails => {
   const url = `${WHITELIST_API_URL}/v1/sdd/users/`;
-  console.log(personalDetails);
   const response = await fetch(url, {
     method: "POST",
     body: JSON.stringify(personalDetails),

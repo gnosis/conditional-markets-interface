@@ -3,6 +3,7 @@ import { Switch, Route } from "react-router-dom";
 
 // Views
 import Root from "./Root";
+import Tier2 from "./views/kyc/tier2";
 // import Sow from "./views/kyc/Sow";
 // import NotFound from "./views/Pages/Page404/Page404";
 
@@ -17,6 +18,7 @@ export default class Routes extends Component {
           exact
           path="/kyc/sow"
         />
+        <Route component={Tier2} exact path="/kyc/tier2" />
         <Route component={Root} exact path="/:lmsrAddress" />
         <Route component={Root} exact path="/" />
       </Switch>

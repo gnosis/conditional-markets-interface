@@ -7,12 +7,14 @@ import { useSubscription } from "@apollo/react-hooks";
 import useGlobalState from "hooks/useGlobalState";
 import Spinner from "components/Spinner";
 import CrashPage from "components/Crash";
+import EmptyPage from "components/Empty";
 
 import makeLoadable from "utils/make-loadable";
 import { getAccount, loadWeb3 } from "utils/web3";
 import { loadMarketsData } from "utils/getMarketsData";
 import ToastifyError from "utils/ToastifyError";
 import getWeb3Modal from "utils/web3Modal";
+import { Notifications as NotificationIcon } from "@material-ui/icons";
 
 import { getUserState, getTiersLimit } from "api/onboarding";
 import { GET_TRADES_BY_MARKET_MAKER } from "api/thegraph";
@@ -119,9 +121,7 @@ const RootComponent = ({
     null
   );
 
-  const lmsrAddress = match.params.lmsrAddress
-    ? match.params.lmsrAddress
-    : conf.lmsrAddress;
+  const lmsrAddress = match.params.lmsrAddress;
 
   const web3Modal = getWeb3Modal(lmsrAddress);
 
@@ -196,7 +196,9 @@ const RootComponent = ({
       setConditionalTokensService(null);
       setLMSRState(null);
     }
-    init();
+    if (lmsrAddress) {
+      init();
+    }
   }, [lmsrAddress]);
 
   const setProvider = useCallback(
@@ -212,7 +214,7 @@ const RootComponent = ({
       setLoading("LOADING");
       init(provider);
     },
-    [lmsrAddress, web3, init]
+    [web3, init]
   );
 
   const [marketResolutionStates, setMarketResolutionStates] = useState(null);
@@ -339,7 +341,226 @@ const RootComponent = ({
     getTiersLimitValues();
   }, []);
 
-  const asWrappedTransaction = useCallback(
+  const doOnboardingCheck = useCallback(() => {
+    if (ONBOARDING_MODE === "DISABLED") {
+      return true;
+    }
+
+    if (whitelistState !== "WHITELISTED") {
+      if (ONBOARDING_MODE === "WHITELIST") {
+        // Whitelist Mode means show Modal for whitelisting options
+        openModal("applyBeta", { whitelistState });
+        return false;
+      } else if (ONBOARDING_MODE === "TIERED") {
+        // If mode is Tiered we have to open SDD KYC Modal
+        openModal("KYC");
+        return false;
+      } else {
+        // Future-proofing: default error handling shows an error indicating
+        // that the user needs to be registered/whitelist before being able to trade
+        addToast(
+          <>
+            Trading not allowed for your wallet.
+            <br />
+            Please follow our onboarding process before participating in trades.
+          </>,
+          "error"
+        );
+        return false;
+      }
+    } else {
+      return true;
+    }
+  }, [whitelistState, addToast, openModal]);
+
+  /**
+   * @typedef {Object} TransactionDescriptor
+   * @property {function|Promise} precheck - Precheck function if transaction can be run
+   * @property {function|Promise} commit - This function will run the actual transaction
+   * @property {function|Promise} cleanup - Function to call after commit (not called if precheck failed)
+   * @property {string} name - Name of the Transaction
+   */
+  const stageTransactions = useCallback(
+    (stagedTransactionType, transactionDescriptors) => {
+      return (async () => {
+        const transactionAllowed = doOnboardingCheck();
+
+        if (!transactionAllowed) {
+          // Transactions not allowed yet. Return false.
+          // TODO: Create list of transaction names that require onboarding check
+          //       for example a message signature during On-Boaridng would not work
+          //       with this method, as it would get denied because the user isnt onboarded.
+          return;
+        }
+
+        if (ongoingTransactionType !== null) {
+          throw new Error(
+            `Attempted to ${stagedTransactionType} while transaction to ${ongoingTransactionType} is ongoing`
+          );
+        }
+        setStagedTransactionType(stagedTransactionType);
+
+        // Run "Precheck" for all transaction to determine if they're not necessary or if they can't be executed.
+        const transactionPrecheckResults = await Promise.all(
+          transactionDescriptors.map(async ({ precheck, name }) => {
+            if (precheck == null) {
+              // no precheck means allowed
+              return true;
+            }
+
+            try {
+              const result = await precheck();
+              // Result can be:
+              // false-y:    Transaction is allowed
+              // object:     Containing `modal` and `modalProps` to open a modal
+
+              return result;
+            } catch (err) {
+              if (!(err instanceof ToastifyError)) {
+                // Anything other than a toastify error is an application error
+                console.warn(
+                  `Error during Transaction Precheck for "${name}":`,
+                  err.message
+                );
+              }
+              return err;
+            }
+          })
+        );
+
+        let cancel = false;
+        const applicableTransactions = [];
+        transactionPrecheckResults.forEach((result, index) => {
+          if (result === false) {
+            // falsey return indicates this transaction is not neccesary to be executed
+          } else if (result instanceof ToastifyError) {
+            addToast(
+              // User Error (hopefully)
+              <>
+                {result.message}
+                <br />
+              </>,
+              "error"
+            );
+            cancel = true;
+          } else if (result instanceof Error) {
+            // Error during precheck, throw error for implementation to handle
+            throw result; // Actual Error
+          } else if (result instanceof Object) {
+            // Precheck result can also be object describing a modal to open
+            if (result.modal) {
+              openModal(result.modal, result.modalProps || {});
+            } else {
+              console.warn(
+                `Warning: Precheck result of type object but no modal description?`,
+                result
+              );
+            }
+            cancel = true;
+          } else {
+            // If undefined or truthy result, append to applicable transactions
+            applicableTransactions.push(transactionDescriptors[index]);
+          }
+        });
+
+        if (cancel) {
+          // Above logic might cancel transaction, if a modal was opened
+          setStagedTransactionType(null);
+          return;
+        }
+
+        if (!applicableTransactions.length) {
+          // No applicable transactions? Kinda weird, shouldn't happen.
+          // Means all transactions were deemed unnecessary (error case is handled before)
+          console.warn("Warning: All Transactions were deemed unneccesary?");
+          console.log(transactionPrecheckResults);
+          setStagedTransactionType(null);
+          return;
+        }
+
+        // A bit hacky:
+        // We need an array of promises, which will be resolved by the
+        // transaction modal over time, so that this function can be
+        // awaited until all modals have been completed, before returning
+        // back to the function that called `stageTransactions`
+
+        const deferredPromises = [];
+        const applicableTxPromises = [];
+
+        applicableTransactions.forEach(() => {
+          applicableTxPromises.push(
+            new Promise((resolve, reject) => {
+              deferredPromises.push({
+                resolve,
+                reject
+              });
+            })
+          );
+        });
+
+        // Wrap Transactions
+        const wrappedApplicableTransactions = applicableTransactions.map(
+          ({ commit, cleanup, name, ...rest }, index) => {
+            return {
+              ...rest,
+              name,
+              execute: async () => {
+                addToast(
+                  <>
+                    Transaction waiting to be signed:
+                    <br />
+                    <strong>{name}</strong>
+                  </>,
+                  "warning"
+                );
+                try {
+                  const txResult = await commit();
+                  deferredPromises[index].resolve(txResult);
+
+                  if (txResult && txResult.modal) {
+                    openModal(txResult.modal, txResult.modalProps || {});
+                  }
+                  addToast("Transaction confirmed.", "success");
+
+                  await cleanup(txResult);
+                } catch (err) {
+                  if (err instanceof ToastifyError) {
+                    addToast(
+                      // User Error (hopefully)
+                      <>
+                        {err.message}
+                        <br />
+                      </>,
+                      "error"
+                    );
+                  } else {
+                    addToast("Transaction failed.", "error");
+                  }
+                  deferredPromises[index].reject(err);
+                }
+              }
+            };
+          }
+        );
+
+        // If we only have one transaction, do not open the modal. Simply execute it.
+        if (wrappedApplicableTransactions.length === 1) {
+          await wrappedApplicableTransactions[0].execute();
+        } else {
+          // Open Transactions modals, passing all applicable transactions
+          openModal("Transactions", {
+            transactions: wrappedApplicableTransactions
+          });
+
+          await Promise.all(applicableTxPromises);
+        }
+        setStagedTransactionType(null);
+      })();
+    },
+    [ongoingTransactionType, doOnboardingCheck, addToast, openModal]
+  );
+
+  const old_asWrappedTransaction = useCallback(
     (wrappedTransactionType, transactionFn) => {
       return async function wrappedAction() {
         if (ongoingTransactionType !== null) {
@@ -348,36 +569,14 @@ const RootComponent = ({
           );
         }
 
-        if (ONBOARDING_MODE !== "DISABLED") {
-          // Whitelist is enabled, check for kind of onboaridng method and either show
-          // the modal to apply for the whitelist, or (temporarily) throw an error to indicate
-          // that the user has to "create an account" before being able to trade.
+        // Can the transaction be run?
+        const transactionAllowed = doOnboardingCheck();
 
-          if (whitelistState !== "WHITELISTED") {
-            if (ONBOARDING_MODE === "WHITELIST") {
-              // Whitelist Mode means show Modal for whitelisting options
-              openModal("applyBeta", { whitelistState });
-            } else if (ONBOARDING_MODE === "TIERED") {
-              // If mode is Tiered we have to open SDD KYC Modal
-              openModal("KYC");
-            } else {
-              // Future-proofing: default error handling shows an error indicating
-              // that the user needs to be registered/whitelist before being able to trade
-              addToast(
-                <>
-                  Trading not allowed for your wallet.
-                  <br />
-                  Please follow our onboarding process before participating in
-                  trades.
-                </>,
-                "error"
-              );
-            }
-
-            return;
-          }
+        if (!transactionAllowed) {
+          return;
         }
 
+        // Decide if we need to show transaction modal
         try {
           addToast("Transaction processing...", "info");
           setOngoingTransactionType(wrappedTransactionType);
@@ -495,9 +694,27 @@ const RootComponent = ({
   const isInResolvedMode =
     markets && markets.every(({ status }) => status === "RESOLVED");
 
+  if (!lmsrAddress) {
+    return (
+      <div className={cx("page")}>
+        <div className={cx("modal-space", { "modal-open": !!modal })}>
+          {modal}
+        </div>
+        <EmptyPage />
+      </div>
+    );
+  }
+
   if (loading === "SUCCESS") {
     return (
       <div className={cx("page")}>
+        <div>
+          <Toasts
+            deleteToast={deleteToast}
+            addToast={addToast}
+            toasts={toasts}
+          />
+        </div>
         <div className={cx("modal-space", { "modal-open": !!modal })}>
           {modal}
         </div>
@@ -557,7 +774,8 @@ const RootComponent = ({
                     stagedTransactionType,
                     setStagedTransactionType,
                     ongoingTransactionType,
-                    asWrappedTransaction,
+                    asWrappedTransaction: old_asWrappedTransaction,
+                    stageTransactions,
                     setMarketSelections,
                     resetMarketSelections,
                     addToast,
@@ -567,11 +785,6 @@ const RootComponent = ({
                 />
               </section>
             )}
-            <Toasts
-              deleteToast={deleteToast}
-              addToast={addToast}
-              toasts={toasts}
-            />
             <Footer />
           </div>
         </div>

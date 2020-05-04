@@ -3,7 +3,7 @@
 .toasts {
   position: fixed;
   right: 5rem;
-  bottom: 5rem;
+  top: 5rem;
   z-index: 9999;
 
     @media #{$tablet-small-max} {
@@ -76,6 +76,16 @@
         background-color: $red;
         -webkit-mask: url("~assets/icons/cross-circle.svg") no-repeat center;
         mask: url("~assets/icons/cross-circle.svg") no-repeat center;
+      }
+    }
+
+    &-type-warning {
+      border-left-color: $orange;
+
+      .icon.warning {
+        background-color: $orange;
+        -webkit-mask: url("~assets/icons/notifications-24px.svg") no-repeat center;
+        mask: url("~assets/icons/notifications-24px.svg") no-repeat center;
       }
     }
   }
