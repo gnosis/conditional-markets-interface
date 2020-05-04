@@ -39,7 +39,7 @@ const SumSubForm = props => {
         console.log("[SUMSUB DEMO] Sumsub message:", messageType, payload);
       }
     );
-  });
+  }, []);
 
   useEffect(() => {
     const searchParams = new URLSearchParams(routerLocation.search);
