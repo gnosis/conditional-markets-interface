@@ -53,13 +53,24 @@ export const getSourceOfWealthState = async account => {
   });
 };
 
-export const setSourceOfFunds = async sowInformation => {
-  const { email, ...data } = sowInformation;
-  const url = `${WHITELIST_API_URL}/v1/users/${email}/sow`;
+export const setEthAccountEmail = async userInformation => {
+  const url = `${WHITELIST_API_URL}/v1/users/`;
 
   return fetch(url, {
     method: "POST",
-    body: JSON.stringify(data), // data can be `string` or {object}!
+    body: JSON.stringify(userInformation), // data can be `string` or {object}!
+    headers: {
+      "Content-Type": "application/json"
+    }
+  });
+};
+
+export const setSourceOfFunds = async sowInformation => {
+  const url = `${WHITELIST_API_URL}/v1/users/`;
+
+  return fetch(url, {
+    method: "POST",
+    body: JSON.stringify(sowInformation), // data can be `string` or {object}!
     headers: {
       "Content-Type": "application/json"
     }
@@ -103,18 +114,6 @@ export const postTradingVolumeSimulation = async (
       "Content-Type": "application/json"
     }
   }).then(res => res.json());
-};
-
-export const setEthAccountEmail = async userInformation => {
-  const url = `${WHITELIST_API_URL}/v1/users/`;
-
-  return fetch(url, {
-    method: "POST",
-    body: JSON.stringify(userInformation), // data can be `string` or {object}!
-    headers: {
-      "Content-Type": "application/json"
-    }
-  });
 };
 
 export const postPersonalDetails = async personalDetails => {
