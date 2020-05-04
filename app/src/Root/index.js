@@ -504,7 +504,7 @@ const RootComponent = ({
               ...rest,
               name,
               execute: async () => {
-                addToast(
+                const cancelThisToast = addToast(
                   <>
                     Transaction waiting to be signed:
                     <br />
@@ -536,6 +536,9 @@ const RootComponent = ({
                     addToast("Transaction failed.", "error");
                   }
                   deferredPromises[index].reject(err);
+                } finally {
+                  // close toast if resolved before toast fades
+                  cancelThisToast()
                 }
               }
             };
@@ -614,25 +617,6 @@ const RootComponent = ({
     [whitelistState, setOngoingTransactionType, ongoingTransactionType]
   );
 
-  const addToast = useCallback(
-    (toastMessage, toastType = "default") => {
-      const toastId = Math.round(Math.random() * 1e9 + 1e10).toString();
-      const creationTime = new Date().getTime() / 1000;
-
-      setToasts(prevToasts => [
-        ...prevToasts,
-        {
-          id: toastId,
-          message: toastMessage,
-          type: toastType,
-          created: creationTime,
-          duration: 30 //s
-        }
-      ]);
-    },
-    [toasts]
-  );
-
   const updateToasts = useCallback(() => {
     const now = new Date().getTime() / 1000;
 
@@ -648,15 +632,36 @@ const RootComponent = ({
   }, [toasts]);
 
   const deleteToast = useCallback(
-    targetId => {
-      setToasts(prevToasts => {
-        const targetIndex = prevToasts.findIndex(({ id }) => id === targetId);
-        prevToasts.splice(targetIndex, 1);
-        return prevToasts;
-      });
+    toastId => {
+      setToasts(prevToasts => [
+        ...prevToasts.filter(({ id }) => toastId !== id)
+      ])
+
       updateToasts();
     },
     [setToasts, toasts]
+  );
+
+  const addToast = useCallback(
+    (toastMessage, toastType = "default") => {
+      const toastId = Math.round(Math.random() * 1e9 + 1e10).toString();
+      const creationTime = new Date().getTime() / 1000;
+
+      setToasts(prevToasts => [
+        ...prevToasts,
+        {
+          id: toastId,
+          message: toastMessage,
+          type: toastType,
+          created: creationTime,
+          duration: 30 //s
+        }
+      ]);
+
+      // return cancel function
+      return () => deleteToast(toastId)
+    },
+    [toasts]
   );
 
   const closeModal = useCallback(() => {
