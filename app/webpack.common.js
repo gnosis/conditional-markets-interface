@@ -71,10 +71,6 @@ module.exports = {
         include: [path.resolve(__dirname, "assets", "fonts")]
       },
       {
-        test: /\.txt$/i,
-        use: "raw-loader"
-      },
-      {
         test: /\.(png|svg|jpg|gif)$/,
         use: ["file-loader"],
         exclude: [path.resolve(__dirname, "assets", "icons")]

@@ -1,16 +1,15 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import PropTypes from "prop-types";
 
-// import cn from "classnames/bind";
-
-import style from "./sumSubInjectStyle.txt";
-
-// const cx = cn.bind();
+// We want to explicitly import this styles sheet as raw css so
+// we can use it as parameter for SumSub SDK init object
+// First ! blocks normal css loaders. Then we cast `raw-loader`
+// Second ! is to separate from file name
+import style from "!raw-loader!./sumSubInjectStyle.css";
 
 const SumSubForm = ({ email }) => {
   const routerLocation = useLocation();
-  // const [isLoading, setLoading] = useState(true);
 
   const initSumsub = useCallback((clientId, accessToken, externalUserId) => {
     var id = idensic.init(
@@ -34,14 +33,12 @@ const SumSubForm = ({ email }) => {
         console.log("[SUMSUB DEMO] Sumsub message:", messageType, payload);
       }
     );
-  });
+  }, []);
 
   useEffect(() => {
     const searchParams = new URLSearchParams(routerLocation.search);
     const clientId = searchParams.get("sdk_client");
     const accessToken = searchParams.get("sdk_token");
-    // const externalUserId = searchParams.get("email");
-    // setLoading(false);
 
     // Add SumSub SDK Script
     const script = document.createElement("script");

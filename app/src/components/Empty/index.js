@@ -19,7 +19,7 @@ const Empty = ({ errorMessage }) => {
           </a>
           and select a market to continue.
         </p>
-        <p>If you have any doubts you can contact us on the channels below:</p>
+        <p>If you have any questions you can contact us on the channels below:</p>
         <br />
         <div className={cx("contact-channels")}>
           <a
