@@ -21,6 +21,14 @@
     transition: color .3s ease-in-out;
     text-decoration: none;
 
+    &.disabled {
+      opacity: 0.8;
+      &:focus, &:active, &:hover {
+        cursor: not-allowed;
+        cursor: $shadeBlue;
+      }
+    }
+
     &::after {
       content: $x;
       color: inherit;

@@ -10,8 +10,8 @@ const cx = cn.bind(style);
 
 const NOOP = () => {}
 
-const Transaction = ({ index, name, description, enabled, submitTx }) => {
-  const [pending, setPending] = useState(false);
+const Transaction = ({ index, name, description, enabled, submitTx, setPending, pending }) => {
+  //const [pending, setPending] = useState(false);
   const handleSubmit = useCallback(() => {
     (async () => {
       setPending(true);
