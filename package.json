@@ -102,6 +102,7 @@
     "moment-locales-webpack-plugin": "^1.2.0",
     "node-sass": "^4.14.0",
     "prettier": "^1.19.1",
+    "raw-loader": "^4.0.1",
     "rlp": "^2.2.4",
     "run-with-testrpc": "^0.3.1",
     "sass-loader": "^8.0.2",

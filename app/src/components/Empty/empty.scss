@@ -1,4 +1,4 @@
-.crash-page {
+.empty-page {
   height: 100vh;
   font-size: 1.2rem;
   display: flex;
@@ -6,9 +6,9 @@
   align-items: center;
   flex-direction: column;
 
-  :first-child {
-    margin-top: auto;
-  }
+  // :first-child {
+    // margin-top: auto;
+  // }
 }
 
 .icon {

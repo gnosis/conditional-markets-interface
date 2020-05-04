@@ -7,6 +7,7 @@ import { useSubscription } from "@apollo/react-hooks";
 import useGlobalState from "hooks/useGlobalState";
 import Spinner from "components/Spinner";
 import CrashPage from "components/Crash";
+import EmptyPage from "components/Empty";
 
 import makeLoadable from "utils/make-loadable";
 import { getAccount, loadWeb3 } from "utils/web3";
@@ -120,9 +121,7 @@ const RootComponent = ({
     null
   );
 
-  const lmsrAddress = match.params.lmsrAddress
-    ? match.params.lmsrAddress
-    : conf.lmsrAddress;
+  const lmsrAddress = match.params.lmsrAddress;
 
   const web3Modal = getWeb3Modal(lmsrAddress);
 
@@ -197,7 +196,9 @@ const RootComponent = ({
       setConditionalTokensService(null);
       setLMSRState(null);
     }
-    init();
+    if (lmsrAddress) {
+      init();
+    }
   }, [lmsrAddress]);
 
   const setProvider = useCallback(
@@ -692,6 +693,17 @@ const RootComponent = ({
 
   const isInResolvedMode =
     markets && markets.every(({ status }) => status === "RESOLVED");
+
+  if (!lmsrAddress) {
+    return (
+      <div className={cx("page")}>
+        <div className={cx("modal-space", { "modal-open": !!modal })}>
+          {modal}
+        </div>
+        <EmptyPage />
+      </div>
+    );
+  }
 
   if (loading === "SUCCESS") {
     return (
