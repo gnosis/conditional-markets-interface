@@ -5,11 +5,11 @@ import style from "./upperBar.scss";
 
 const cx = cn.bind(style);
 
-const upperBar = ({ title, closeModal }) => {
+const upperBar = ({ title, closeModal, disableClose }) => {
   return (
     <div className={cx("modal-upper", title && "titled")}>
       {title && <span className={cx("title")}>{title}</span>}
-      <span className={cx("modal-close")} onClick={closeModal}></span>{" "}
+      <span className={cx("modal-close", { disabled: disableClose })} onClick={!disableClose && closeModal}></span>{" "}
     </div>
   );
 };

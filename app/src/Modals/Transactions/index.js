@@ -28,9 +28,11 @@ const Transactions = ({ closeModal, title, transactions }) => {
     [currentTxIndex, transactions]
   );
 
+  const [pendingTxIndex, setPendingTxIndex] = useState(null)
+
   return (
     <div className={cx("tx-modal")}>
-      <TitleBar title={title} closeModal={closeModal} />
+      <TitleBar title={title} closeModal={closeModal} disableClose={pendingTxIndex != null} />
       <div className={cx("tx-subheader")}>
         <Account />
         <div className={cx("tx-description")}>
@@ -48,6 +50,8 @@ const Transactions = ({ closeModal, title, transactions }) => {
             enabled={currentTxIndex >= index}
             number={index + 1}
             description={description}
+            setPending={(active) => setPendingTxIndex(active ? index : null)}
+            pending={pendingTxIndex == index}
             submitTx={executeTx}
           />
         ))}
