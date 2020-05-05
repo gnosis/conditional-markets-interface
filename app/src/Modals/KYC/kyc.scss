@@ -32,7 +32,12 @@
     color: #526877;
 
     strong {
-      color: black;
+      color: $black;
+    }
+
+    &-attention {
+      font-size: 1.8rem;
+      color: $black;
     }
   }
 

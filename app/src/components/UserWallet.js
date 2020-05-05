@@ -6,6 +6,10 @@ import Blockies from "react-blockies";
 import useGlobalState from "hooks/useGlobalState";
 import { formatAddress } from "utils/formatting";
 import getWeb3Modal from "utils/web3Modal";
+import {
+  isCurrentUserUpgrading,
+  isCurrentUserActionRequired
+} from "utils/tiers";
 
 import conf from "conf";
 
@@ -165,8 +169,10 @@ const UserWallet = ({
     }
 
     if (
-      whitelistState === WHITELIST_STATES.PENDING ||
-      whitelistState === WHITELIST_STATES.BLOCKED
+      !isCurrentUserUpgrading(tiers, user) &&
+      !isCurrentUserActionRequired(tiers, user) &&
+      (whitelistState === WHITELIST_STATES.PENDING ||
+        whitelistState === WHITELIST_STATES.BLOCKED)
     ) {
       return (
         <div className={cx("user-wallet")}>
@@ -196,6 +202,7 @@ const UserWallet = ({
           userState={user}
           address={address}
           tiers={tiers}
+          openModal={openModal}
         />
       )}
       <LoggedIn

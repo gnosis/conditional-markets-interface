@@ -6,7 +6,7 @@
 
   .linear-progress {
     height: 2.5rem;
-    width: 16rem;
+    width: 17rem;
     border: 0.1px solid $greyBorder2;
     border-right: 0;
     border-radius: 2px 0 0 2px;
@@ -24,8 +24,14 @@
     position: absolute;
     z-index: 1;
     text-align: center;
-    width: 16rem;
+    width: 17rem;
     font-size: 1.2rem;
+
+    &-icon {
+      width: 1.3rem;
+      vertical-align: middle;
+      margin-right: 0.5rem;
+    }
   }
 
   .indicator-label {

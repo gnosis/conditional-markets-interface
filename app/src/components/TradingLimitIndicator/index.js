@@ -2,6 +2,10 @@ import React, { useState, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
 import cn from "classnames/bind";
 import Link from "@material-ui/core/Link";
+import LinearProgress from "@material-ui/core/LinearProgress";
+import InputLabel from "@material-ui/core/InputLabel";
+
+import LoadingIcon from "assets/icons/loading-static.svg";
 
 import {
   getCurrentUserTierData,
@@ -10,8 +14,6 @@ import {
 } from "utils/tiers";
 import { getCurrentTradingVolume } from "api/onboarding";
 
-import LinearProgress from "@material-ui/core/LinearProgress";
-import InputLabel from "@material-ui/core/InputLabel";
 
 import style from "./tradingLimitIndicator.scss";
 
@@ -22,7 +24,7 @@ const cx = cn.bind(style);
 // Function to normalise the values (MIN / MAX could be integrated)
 const normalise = (value, min, max) => ((value - min) * 100) / (max - min);
 
-const TradingLimitIndicator = ({ address, userState, tiers }) => {
+const TradingLimitIndicator = ({ address, userState, tiers, openModal }) => {
   const [volume, setVolume] = useState(0);
   const [maxVolume, setMaxVolume] = useState(0);
   const [tier, setTier] = useState(0);
@@ -34,11 +36,11 @@ const TradingLimitIndicator = ({ address, userState, tiers }) => {
 
       setVolume(buyVolume.dollars);
     })();
-  }, [getCurrentTradingVolume, address]);
+  }, [address]);
 
   useEffect(() => {
     getTradingVolume();
-  }, [address]);
+  }, [address, getTradingVolume]);
 
   useEffect(() => {
     if (tiers && userState.tiers) {
@@ -62,6 +64,11 @@ const TradingLimitIndicator = ({ address, userState, tiers }) => {
     if (isCurrentUserUpgrading(tiers, userState)) {
       return (
         <span>
+          <img
+            className={cx("progress-label-icon")}
+            src={LoadingIcon}
+            alt="Loading"
+          />
           <strong>Pending tier upgrade</strong>
         </span>
       );
@@ -72,7 +79,9 @@ const TradingLimitIndicator = ({ address, userState, tiers }) => {
           <Link
             className={cx("cancel-button")}
             component="button"
-            onClick={null}
+            onClick={() => {
+              openModal("KYC", { initialStep: "TIER2_PENDING" });
+            }}
             underline="always"
           >
             View details
@@ -87,7 +96,7 @@ const TradingLimitIndicator = ({ address, userState, tiers }) => {
         <strong>{tier === "3" ? "Unlimited" : "$" + maxVolume}</strong>
       </span>
     );
-  });
+  }, [tier, tiers, userState, volume, maxVolume]);
 
   return (
     <div className={cx("trading-indicator")}>
@@ -118,7 +127,8 @@ TradingLimitIndicator.propTypes = {
   tiers: PropTypes.array,
   userState: PropTypes.shape({
     tiers: PropTypes.shape({})
-  })
+  }),
+  openModal: PropTypes.func.isRequired
 };
 
 export default TradingLimitIndicator;

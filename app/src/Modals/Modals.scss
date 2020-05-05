@@ -66,6 +66,12 @@
         //text-align: center;
         line-height: 1.2;
       }
+
+    &.warning {
+      border-radius: .3rem;
+      background-color: $beige;
+      margin: 2rem auto;
+    }
   }
 
   &-header {
