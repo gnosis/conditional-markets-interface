@@ -7,7 +7,7 @@ import style from "./spinner.scss";
 
 const cx = cn.bind(style);
 
-const Spinner = ({ centered, inverted, width, height }) => (
+const Spinner = ({ centered, inverted, width, height, absolute }) => (
   <svg
     version="1.1"
     id="loader-1"
@@ -19,7 +19,8 @@ const Spinner = ({ centered, inverted, width, height }) => (
     enableBackground="new 0 0 40 40"
     className={cx("spinner", {
       centered,
-      inverted
+      inverted,
+      absolute
     })}
   >
     <path

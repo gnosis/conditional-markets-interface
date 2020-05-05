@@ -21,6 +21,14 @@
     transition: color .3s ease-in-out;
     text-decoration: none;
 
+    &.disabled {
+      opacity: 0.8;
+      &:focus, &:active, &:hover {
+        cursor: not-allowed;
+        cursor: $shadeBlue;
+      }
+    }
+
     &::after {
       content: $x;
       color: inherit;
@@ -80,9 +88,9 @@
   margin: 0.4rem 1.4rem;
 
   &-label {
-      font-weight: $bold;
-      font-size: 1.8rem;
-      line-height: 1;
-      text-transform: none;
+    font-weight: $bold;
+    font-size: 1.8rem;
+    line-height: 1;
+    text-transform: none;
   }
 }
