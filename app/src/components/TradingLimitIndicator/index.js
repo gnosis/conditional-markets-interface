@@ -55,7 +55,7 @@ const TradingLimitIndicator = ({ address, userState, tiers, openModal }) => {
         isCurrentUserActionRequired(tiers, userState)
       ) {
         setWarning(true);
-        setMaxVolume(0);
+        // setMaxVolume(0);
       }
     }
   }, [tiers, userState]);
@@ -80,7 +80,13 @@ const TradingLimitIndicator = ({ address, userState, tiers, openModal }) => {
             className={cx("cancel-button")}
             component="button"
             onClick={() => {
-              openModal("KYC", { initialStep: "TIER2_PENDING" });
+              openModal("MyAccount", {
+                address,
+                tier,
+                maxVolume,
+                userState,
+                tiers
+              });
             }}
             underline="always"
           >
@@ -102,7 +108,7 @@ const TradingLimitIndicator = ({ address, userState, tiers, openModal }) => {
     <div className={cx("trading-indicator")}>
       <LinearProgress
         variant="determinate"
-        value={normalise(volume, 0, maxVolume)}
+        value={warning ? 100 : normalise(volume, 0, maxVolume)}
         classes={{
           root: cx("linear-progress"),
           barColorPrimary: warning
@@ -114,6 +120,15 @@ const TradingLimitIndicator = ({ address, userState, tiers, openModal }) => {
       <InputLabel
         classes={{
           root: cx("indicator-label")
+        }}
+        onClick={() => {
+          openModal("MyAccount", {
+            address,
+            tier,
+            maxVolume,
+            userState,
+            tiers
+          });
         }}
       >
         Tier {tier}

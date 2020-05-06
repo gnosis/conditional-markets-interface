@@ -58,19 +58,20 @@
     padding: 1rem;
     text-align: center;
 
-      p {
-        font-weight: $normal;
-        font-size: 1.6rem;
-        color: $shadeBlue;
-        letter-spacing: 0;
-        //text-align: center;
-        line-height: 1.2;
-      }
+    p {
+      font-weight: $normal;
+      font-size: 1.6rem;
+      color: $shadeBlue;
+      letter-spacing: 0;
+      //text-align: center;
+      line-height: 1.2;
+    }
 
-    &.warning {
+    .warning-block {
       border-radius: .3rem;
       background-color: $beige;
       margin: 2rem auto;
+      padding: 2.4rem;
     }
   }
 
