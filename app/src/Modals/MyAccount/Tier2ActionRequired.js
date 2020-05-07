@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React from "react";
 import PropTypes from "prop-types";
 import Link from "@material-ui/core/Link";
 
@@ -9,7 +9,7 @@ import style from "./myAccount.scss";
 
 const cx = cn.bind(style);
 
-const Tier2ActionRequired = ({ handleRetry, tier2Upgrade }) => {
+const Tier2ActionRequired = ({ handleRetry }) => {
   return (
     <div className={cx("warning-block")}>
       <img src={WarningLogo} alt="Warning!" />
@@ -22,7 +22,7 @@ const Tier2ActionRequired = ({ handleRetry, tier2Upgrade }) => {
         again the link as extra documents may be required. If the link is
         missing or expired{" "}
         <Link
-          className={cx("cancel-button")}
+          className={cx("resend-button")}
           component="button"
           onClick={handleRetry}
           underline="always"
@@ -35,8 +35,7 @@ const Tier2ActionRequired = ({ handleRetry, tier2Upgrade }) => {
 };
 
 Tier2ActionRequired.propTypes = {
-  handleRetry: PropTypes.func.isRequired,
-  tier2Upgrade: PropTypes.bool
+  handleRetry: PropTypes.func.isRequired
 };
 
 export default Tier2ActionRequired;

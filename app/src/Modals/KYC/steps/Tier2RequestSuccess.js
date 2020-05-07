@@ -15,22 +15,31 @@ import { STEP_TIER2_REQUEST } from "../";
 const cx = cn.bind(style);
 
 const Tier2RequestSuccess = ({
+  openModal,
   closeModal,
   handleAdvanceStep,
   stepProps,
   email,
-  tier2Upgrade
+  fromTradeOverLimit,
+  fromAccountDetails
 }) => {
   const handleRetry = useCallback(() => {
-    if (tier2Upgrade) {
-      const { openModal } = stepProps;
+    if (fromTradeOverLimit) {
       openModal("tradeOverLimit", {
         ...stepProps
       });
+    } else if (fromAccountDetails) {
+      openModal("MyAccount", { ...stepProps });
     } else {
       handleAdvanceStep(STEP_TIER2_REQUEST);
     }
-  });
+  }, [
+    fromAccountDetails,
+    fromTradeOverLimit,
+    handleAdvanceStep,
+    openModal,
+    stepProps
+  ]);
 
   return (
     <>
@@ -76,10 +85,12 @@ const Tier2RequestSuccess = ({
 };
 
 Tier2RequestSuccess.propTypes = {
+  openModal: PropTypes.func.isRequired,
   closeModal: PropTypes.func.isRequired,
   handleAdvanceStep: PropTypes.func.isRequired,
   email: PropTypes.string,
-  tier2Upgrade: PropTypes.bool
+  fromTradeOverLimit: PropTypes.bool,
+  fromAccountDetails: PropTypes.bool
 };
 
 export default Tier2RequestSuccess;

@@ -41,43 +41,46 @@ const tradeOverLimit = props => {
 
       setCurrentTradingVolume(buyVolume.dollars);
     })();
-  }, [getCurrentTradingVolume, address]);
+  }, [address]);
 
   useEffect(() => {
     getTradingVolume();
   }, []);
 
-  const onSubmit = useCallback(async values => {
-    const personalDetails = {
-      ethAddress: address,
-      ...values
-    };
+  const onSubmit = useCallback(
+    async values => {
+      const personalDetails = {
+        ethAddress: address,
+        ...values
+      };
 
-    const [response, json] = await postTier2Upgrade(personalDetails);
+      const [response, json] = await postTier2Upgrade(personalDetails);
 
-    if (!response.ok) {
-      if (response.code === 400) {
-        return json;
-      } else if (response.code === 403) {
-        return {
-          [FORM_ERROR]:
-            "Your address is already being processed. Please wait until your application has been approved."
-        };
-      } else {
-        return {
-          [FORM_ERROR]:
-            "Unfortunately, the whitelisting API returned a non-standard error. Please try again later."
-        };
+      if (!response.ok) {
+        if (response.code === 400) {
+          return json;
+        } else if (response.code === 403) {
+          return {
+            [FORM_ERROR]:
+              "Your address is already being processed. Please wait until your application has been approved."
+          };
+        } else {
+          return {
+            [FORM_ERROR]:
+              "Unfortunately, the whitelisting API returned a non-standard error. Please try again later."
+          };
+        }
       }
-    }
 
-    openModal("KYC", {
-      initialStep: "TIER2_REQUEST_SUCCESS",
-      tier2Upgrade: "true",
-      stepProps: props,
-      address
-    });
-  }, []);
+      openModal("KYC", {
+        initialStep: "TIER2_REQUEST_SUCCESS",
+        fromTradeOverLimit: "true",
+        stepProps: props,
+        address
+      });
+    },
+    [address, openModal, props]
+  );
 
   const tradeValue = simulatedVolume - Number.parseFloat(currentTradingVolume);
   const exceedValue = simulatedVolume - Number.parseFloat(maxVolume);
