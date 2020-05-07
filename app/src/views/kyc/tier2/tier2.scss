@@ -75,19 +75,22 @@
 
       &-description {
         color: $shadeBlue;
+
+        &.success {
+          color: $green;
+          font-weight: bold;
+        }
+
+        &.error {
+          color: $red;
+          font-weight: bold;
+        }
       }
     }
 
     .connect {
       .material-button{
         background-color: $green;
-      }
-    }
-
-    .already-verified {
-      .step-description {
-        color: $green;
-        font-weight: bold;
       }
     }
 
