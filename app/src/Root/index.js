@@ -539,7 +539,7 @@ const RootComponent = ({
                   deferredPromises[index].reject(err);
                 } finally {
                   // close toast if resolved before toast fades
-                  cancelThisToast()
+                  cancelThisToast();
                 }
               }
             };

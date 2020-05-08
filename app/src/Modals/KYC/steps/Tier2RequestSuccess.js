@@ -25,11 +25,12 @@ const Tier2RequestSuccess = ({
 }) => {
   const handleRetry = useCallback(() => {
     if (fromTradeOverLimit) {
-      openModal("tradeOverLimit", {
-        ...stepProps
+      openModal("TradeOverLimit", {
+        ...stepProps,
+        showRequest: true
       });
     } else if (fromAccountDetails) {
-      openModal("MyAccount", { ...stepProps });
+      openModal("MyAccount", { ...stepProps, showRequest: true });
     } else {
       handleAdvanceStep(STEP_TIER2_REQUEST);
     }
@@ -61,7 +62,7 @@ const Tier2RequestSuccess = ({
         <p>
           Make sure to check your spam folder.{" "}
           <Link
-            className={cx("cancel-button")}
+            className={cx("resend-button")}
             component="button"
             onClick={handleRetry}
             underline="always"

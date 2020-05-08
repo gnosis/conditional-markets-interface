@@ -24,15 +24,17 @@ import style from "./MyAccount/myAccount.scss";
 
 const cx = cn.bind(style);
 
-const tradeOverLimit = props => {
+const TradeOverLimit = props => {
   const { user: userState, tiers } = useGlobalState();
 
-  const { address, tier, volume, maxVolume, closeModal } = props;
+  const { address, tier, volume, maxVolume, closeModal, showRequest } = props;
 
   const simulatedVolume = Number.parseFloat(volume);
 
   const [currentTradingVolume, setCurrentTradingVolume] = useState(0);
-  const [showTier2Request, setShowTier2Request] = useState(false);
+  const [showTier2Request, setShowTier2Request] = useState(
+    showRequest || false
+  );
 
   const getTradingVolume = useCallback(() => {
     (async () => {
@@ -97,8 +99,11 @@ const tradeOverLimit = props => {
           <Tier2ActionRequired handleRetry={handleRetry}></Tier2ActionRequired>
         )}
         {tier < 2 &&
-          (!isCurrentUserActionRequired(tiers, userState) ||
-            showTier2Request) && <Tier2Request {...props}></Tier2Request>}
+          ((!isCurrentUserActionRequired(tiers, userState) &&
+            !isCurrentUserUpgrading(tiers, userState)) ||
+            showTier2Request) && (
+            <Tier2Request {...props} fromTradeOverLimit={true}></Tier2Request>
+          )}
         {isCurrentUserUpgrading(tiers, userState) && (
           <Tier2Pending></Tier2Pending>
         )}
@@ -115,13 +120,14 @@ const tradeOverLimit = props => {
   );
 };
 
-tradeOverLimit.propTypes = {
+TradeOverLimit.propTypes = {
   closeModal: PropTypes.func.isRequired,
   openModal: PropTypes.func.isRequired,
   address: PropTypes.string,
   tier: PropTypes.number.isRequired,
   volume: PropTypes.string.isRequired,
-  maxVolume: PropTypes.number.isRequired
+  maxVolume: PropTypes.number.isRequired,
+  showRequest: PropTypes.bool
 };
 
-export default tradeOverLimit;
+export default TradeOverLimit;

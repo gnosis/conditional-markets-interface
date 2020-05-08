@@ -29,12 +29,14 @@ const MyAccount = props => {
     closeModal,
     openModal,
     tiers,
-    userState
+    userState,
+    showRequest
   } = props;
 
   const [currentTradingVolume, setCurrentTradingVolume] = useState(0);
-  const [showTier2Request, setShowTier2Request] = useState(false);
-
+  const [showTier2Request, setShowTier2Request] = useState(
+    showRequest || false
+  );
   const getTradingVolume = useCallback(() => {
     (async () => {
       const { buyVolume } = await getCurrentTradingVolume(address);
@@ -84,8 +86,11 @@ const MyAccount = props => {
           <Tier2ActionRequired handleRetry={handleRetry}></Tier2ActionRequired>
         )}
         {tier < 2 &&
-          (!isCurrentUserActionRequired(tiers, userState) ||
-            showTier2Request) && <Tier2Request {...props}></Tier2Request>}
+          ((!isCurrentUserActionRequired(tiers, userState) &&
+            !isCurrentUserUpgrading(tiers, userState)) ||
+            showTier2Request) && (
+            <Tier2Request {...props} fromAccountDetails={true}></Tier2Request>
+          )}
         {isCurrentUserUpgrading(tiers, userState) && (
           <Tier2Pending></Tier2Pending>
         )}
@@ -109,7 +114,8 @@ MyAccount.propTypes = {
   tier: PropTypes.number.isRequired,
   maxVolume: PropTypes.number.isRequired,
   userState: PropTypes.object.isRequired,
-  tiers: PropTypes.array.isRequired
+  tiers: PropTypes.array.isRequired,
+  showRequest: PropTypes.bool
 };
 
 export default MyAccount;

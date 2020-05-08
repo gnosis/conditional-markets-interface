@@ -12,7 +12,7 @@ import Captcha from "components/Form/Captcha";
 import { isRequired, validator } from "../../utils/validations";
 
 import cn from "classnames/bind";
-import style from "./myAccount.scss";
+import style from "../Modals.scss";
 
 const cx = cn.bind(style);
 
@@ -48,10 +48,13 @@ const Tier2Request = props => {
         }
       }
 
+      const { fromAccountDetails, fromTradeOverLimit, ...stepProps } = props;
+
       openModal("KYC", {
         initialStep: "TIER2_REQUEST_SUCCESS",
-        fromAccountDetails: "true",
-        stepProps: props,
+        fromAccountDetails,
+        fromTradeOverLimit,
+        stepProps,
         address
       });
     },
@@ -96,7 +99,9 @@ const Tier2Request = props => {
 
 Tier2Request.propTypes = {
   openModal: PropTypes.func.isRequired,
-  address: PropTypes.string
+  address: PropTypes.string,
+  fromAccountDetails: PropTypes.bool,
+  fromTradeOverLimit: PropTypes.bool
 };
 
 export default Tier2Request;
