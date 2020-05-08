@@ -29,7 +29,7 @@
     max-width: 600px;
     margin: auto;
     line-height: 1.5;
-    color: #526877;
+    color: $shadeBlue;
 
     strong {
       color: $black;
@@ -91,39 +91,6 @@
     font-weight: bold;
     color: black;
   }
-
-  // &.button {
-  //   display: block;
-  //   appearance: none;
-  //   -webkit-appearance: none;
-
-  //   &.secondary {
-  //     background-color: white;
-  //     color: #009CB4;
-  //     border: 1px solid #009CB4;
-  //   }
-
-  //   &.primary {
-  //     background-color: #009CB4;
-  //     border: none;
-  //     color: white;
-  //   }
-
-  //   border-radius: 1.5px;
-
-  //   font-size: 2.1rem;
-  //   font-weight: bold;
-  //   padding: .7rem 1.4rem;
-  //   text-align: center;
-
-  //   &:hover {
-  //     opacity: 0.8;
-  //   }
-
-  //   &:disabled {
-  //     opacity: 0.5;
-  //   }
-  // }
 
   &.subheading {
     font-size: 1.2rem;

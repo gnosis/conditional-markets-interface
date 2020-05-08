@@ -63,15 +63,7 @@
       font-size: 1.6rem;
       color: $shadeBlue;
       letter-spacing: 0;
-      //text-align: center;
       line-height: 1.2;
-    }
-
-    .warning-block {
-      border-radius: .3rem;
-      background-color: $beige;
-      margin: 2rem auto;
-      padding: 2.4rem;
     }
   }
 
@@ -90,9 +82,9 @@
 // Material ui styles overrides
 .material-button {
   border-radius: .3rem;
-  padding: 1.4rem 6rem;
+  padding: 1.6rem 6rem;
   box-shadow: none;
-  margin: 0.4rem 1.4rem;
+  margin: 1.6rem auto;
 
   &-label {
     font-weight: $bold;
@@ -100,4 +92,9 @@
     line-height: 1;
     text-transform: none;
   }
+}
+
+.cancel-button {
+  font-size: 1.4rem;
+  margin: 1rem;
 }

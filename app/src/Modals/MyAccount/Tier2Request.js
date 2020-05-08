@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback } from "react";
 import PropTypes from "prop-types";
 import Button from "@material-ui/core/Button";
 
@@ -77,8 +77,8 @@ const Tier2Request = props => {
             />
             {submitError && <p className={cx("error")}>{submitError}</p>}
             <Button
-              className={cx("field", "upgrade-button")}
-              classes={{ label: cx("upgrade-button-label") }}
+              className={cx("field", "material-button")}
+              classes={{ label: cx("material-button-label") }}
               disabled={submitting}
               variant="contained"
               color="primary"

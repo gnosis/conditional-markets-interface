@@ -1,39 +1,38 @@
 import React, { useCallback, useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import Logo from "assets/img/emote_trade_limit.svg";
-import Button from "@material-ui/core/Button";
 import Link from "@material-ui/core/Link";
 import Divider from "@material-ui/core/Divider";
 
-import { Form, Field } from "react-final-form";
-import { FORM_ERROR } from "final-form";
-
+import useGlobalState from "hooks/useGlobalState";
 import { getCurrentTradingVolume } from "api/onboarding";
 import { formatAddress } from "utils/formatting";
+import {
+  isCurrentUserUpgrading,
+  isCurrentUserActionRequired
+} from "utils/tiers";
 
 import UpperBar from "./components/upperBar";
 import Header from "./components/header";
-import Captcha from "components/Form/Captcha";
-
-import { postTier2Upgrade } from "api/onboarding";
+import Tier2Request from "./MyAccount/Tier2Request";
+import Tier2ActionRequired from "./MyAccount/Tier2ActionRequired";
+import Tier2Pending from "./MyAccount/Tier2Pending";
 
 import cn from "classnames/bind";
 
-import style from "./tradeOverLimit.scss";
-import { isRequired, validator } from "../utils/validations";
+import style from "./MyAccount/myAccount.scss";
 
 const cx = cn.bind(style);
 
-const VALIDATIONS = {
-  recaptchaToken: [isRequired]
-};
-
 const tradeOverLimit = props => {
-  const { address, tier, volume, maxVolume, closeModal, openModal } = props;
+  const { user: userState, tiers } = useGlobalState();
+
+  const { address, tier, volume, maxVolume, closeModal } = props;
 
   const simulatedVolume = Number.parseFloat(volume);
 
   const [currentTradingVolume, setCurrentTradingVolume] = useState(0);
+  const [showTier2Request, setShowTier2Request] = useState(false);
 
   const getTradingVolume = useCallback(() => {
     (async () => {
@@ -47,46 +46,15 @@ const tradeOverLimit = props => {
     getTradingVolume();
   }, []);
 
-  const onSubmit = useCallback(
-    async values => {
-      const personalDetails = {
-        ethAddress: address,
-        ...values
-      };
-
-      const [response, json] = await postTier2Upgrade(personalDetails);
-
-      if (!response.ok) {
-        if (response.code === 400) {
-          return json;
-        } else if (response.code === 403) {
-          return {
-            [FORM_ERROR]:
-              "Your address is already being processed. Please wait until your application has been approved."
-          };
-        } else {
-          return {
-            [FORM_ERROR]:
-              "Unfortunately, the whitelisting API returned a non-standard error. Please try again later."
-          };
-        }
-      }
-
-      openModal("KYC", {
-        initialStep: "TIER2_REQUEST_SUCCESS",
-        fromTradeOverLimit: "true",
-        stepProps: props,
-        address
-      });
-    },
-    [address, openModal, props]
-  );
+  const handleRetry = useCallback(() => {
+    setShowTier2Request(true);
+  }, []);
 
   const tradeValue = simulatedVolume - Number.parseFloat(currentTradingVolume);
   const exceedValue = simulatedVolume - Number.parseFloat(maxVolume);
 
   return (
-    <div className={cx(["modal", "over-limit-modal"])}>
+    <div className={cx("modal")}>
       <UpperBar closeModal={closeModal} title="Trade limit"></UpperBar>
       <Header title={"Tier " + tier + " Trade Limit"} logo={Logo}></Header>
       <div className={cx("modal-body")}>
@@ -125,39 +93,14 @@ const tradeOverLimit = props => {
             </span>
           </div>
         </div>
-        {tier < 2 && (
-          <>
-            <p>
-              Upgrade to Tier 2 and trade up to $15.000 by completing our
-              expanded KYC process.
-            </p>
-
-            <Form
-              onSubmit={onSubmit}
-              validate={validator(VALIDATIONS)}
-              render={({ handleSubmit, submitError, submitting }) => (
-                <form onSubmit={handleSubmit}>
-                  <Field
-                    className={cx("field")}
-                    name="recaptchaToken"
-                    component={Captcha}
-                  />
-                  {submitError && <p className={cx("error")}>{submitError}</p>}
-                  <Button
-                    className={cx("field", "upgrade-button")}
-                    classes={{ label: cx("upgrade-button-label") }}
-                    disabled={submitting}
-                    variant="contained"
-                    color="primary"
-                    size="large"
-                    type="submit"
-                  >
-                    {submitting ? "Please wait" : "Upgrade to Tier 2"}
-                  </Button>
-                </form>
-              )}
-            />
-          </>
+        {isCurrentUserActionRequired(tiers, userState) && !showTier2Request && (
+          <Tier2ActionRequired handleRetry={handleRetry}></Tier2ActionRequired>
+        )}
+        {tier < 2 &&
+          (!isCurrentUserActionRequired(tiers, userState) ||
+            showTier2Request) && <Tier2Request {...props}></Tier2Request>}
+        {isCurrentUserUpgrading(tiers, userState) && (
+          <Tier2Pending></Tier2Pending>
         )}
         <Link
           className={cx("cancel-button")}

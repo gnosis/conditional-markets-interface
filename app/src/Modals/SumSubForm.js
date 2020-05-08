@@ -63,7 +63,7 @@ const SumSubForm = props => {
   }, []);
 
   return (
-    <div className={cx(["modal", "over-limit-modal"])}>
+    <div className={cx(["modal"])}>
       <UpperBar closeModal={closeModal} title="Create Account"></UpperBar>
       <Header title={"KYC Information"} logo={Logo}></Header>
       <div className={cx("modal-body")}>

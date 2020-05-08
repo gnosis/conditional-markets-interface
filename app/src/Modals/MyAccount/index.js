@@ -56,7 +56,7 @@ const MyAccount = props => {
   }, [openModal, tier]);
 
   return (
-    <div className={cx(["modal", "my-account-modal"])}>
+    <div className={cx("modal")}>
       <UpperBar closeModal={closeModal} title="My account"></UpperBar>
       <Header logo={Logo}></Header>
       <div className={cx("modal-body")}>
