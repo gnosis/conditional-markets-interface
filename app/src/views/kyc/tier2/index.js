@@ -24,6 +24,7 @@ export const STEP_TERMS_AND_CONDITIONS = "TERMS_AND_CONDITIONS";
 export const STEP_SOURCE_OF_WEALTH = "SOURCE_OF_WEALTH";
 export const STEP_SUMSUB_FORM = "SUMSUB_FORM";
 export const STEP_ALREADY_VERIFIED = "ALREADY_VERIFIED";
+export const STEP_TOKEN_EXPIRED = "TOKEN_EXPIRED";
 
 // Child components loaded lazily on Tier2 load
 const STEP_COMPONENTS = {
@@ -31,7 +32,8 @@ const STEP_COMPONENTS = {
   [STEP_TERMS_AND_CONDITIONS]: () => import("./steps/TermsAndConditions"),
   [STEP_SOURCE_OF_WEALTH]: () => import("./steps/SourceOfWealth"),
   [STEP_SUMSUB_FORM]: () => import("./steps/SumSubForm"),
-  [STEP_ALREADY_VERIFIED]: () => import("./steps/AlreadyVerified")
+  [STEP_ALREADY_VERIFIED]: () => import("./steps/AlreadyVerified"),
+  [STEP_TOKEN_EXPIRED]: () => import("./steps/TokenExpired")
 };
 
 const SYNC_INTERVAL = 5000;

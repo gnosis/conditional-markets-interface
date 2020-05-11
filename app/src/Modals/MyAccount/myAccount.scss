@@ -1,22 +1,36 @@
-@import "./Modals.scss";
-@import "../scss/_variables.scss";
+@import "../Modals.scss";
+@import "../../scss/_variables.scss";
 
-.over-limit-modal {
-  .modal-body {
+.modal {
+  &-body {
     display:flex;
     flex-flow: column;
     max-width: 600px;
     margin: auto;
     padding: 1rem 4rem;
-  }
 
+    &-attention {
+      font-size: 1.8rem;
+      color: $black;
+      padding-top: 1rem;
+    }
+
+    .warning-block {
+      width: 100%;
+      border-radius: .3rem;
+      background-color: $beige;
+      margin: 2rem auto;
+      padding: 2.4rem;
+    }
+  }
+  
   .account-details {
-    width: 90%;
+    width: 100%;
     margin: auto;
     padding: 1rem 0;
     background-color: $lightBlue;
     color: $shadeBlue;
-
+  
     .divider{
       margin: 1rem 0;
     }
@@ -34,26 +48,5 @@
         margin: 0 0.3rem;
       }
     }
-  }
-  
-  // Material ui styles overrides
-  .upgrade-button {
-    border-radius: .3rem;
-    padding: 1.6rem 6rem;
-    box-shadow: none;
-    margin: 1.6rem auto;
-
-    &-label {
-        font-weight: $bold;
-        font-size: 1.8rem;
-        letter-spacing: 0;
-        text-align: center;
-        line-height: 1;
-        text-transform: none;
-    }
-  }
-  .cancel-button {
-    font-size: 1.4rem;
-    margin: 1rem;
   }
 }

@@ -15,22 +15,32 @@ import { STEP_TIER2_REQUEST } from "../";
 const cx = cn.bind(style);
 
 const Tier2RequestSuccess = ({
+  openModal,
   closeModal,
   handleAdvanceStep,
   stepProps,
   email,
-  tier2Upgrade
+  fromTradeOverLimit,
+  fromAccountDetails
 }) => {
   const handleRetry = useCallback(() => {
-    if (tier2Upgrade) {
-      const { openModal } = stepProps;
-      openModal("tradeOverLimit", {
-        ...stepProps
+    if (fromTradeOverLimit) {
+      openModal("TradeOverLimit", {
+        ...stepProps,
+        showRequest: true
       });
+    } else if (fromAccountDetails) {
+      openModal("MyAccount", { ...stepProps, showRequest: true });
     } else {
       handleAdvanceStep(STEP_TIER2_REQUEST);
     }
-  });
+  }, [
+    fromAccountDetails,
+    fromTradeOverLimit,
+    handleAdvanceStep,
+    openModal,
+    stepProps
+  ]);
 
   return (
     <>
@@ -52,7 +62,7 @@ const Tier2RequestSuccess = ({
         <p>
           Make sure to check your spam folder.{" "}
           <Link
-            className={cx("cancel-button")}
+            className={cx("resend-button")}
             component="button"
             onClick={handleRetry}
             underline="always"
@@ -76,10 +86,12 @@ const Tier2RequestSuccess = ({
 };
 
 Tier2RequestSuccess.propTypes = {
+  openModal: PropTypes.func.isRequired,
   closeModal: PropTypes.func.isRequired,
   handleAdvanceStep: PropTypes.func.isRequired,
   email: PropTypes.string,
-  tier2Upgrade: PropTypes.bool
+  fromTradeOverLimit: PropTypes.bool,
+  fromAccountDetails: PropTypes.bool
 };
 
 export default Tier2RequestSuccess;

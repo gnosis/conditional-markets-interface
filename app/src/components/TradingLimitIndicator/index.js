@@ -1,12 +1,19 @@
 import React, { useState, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
 import cn from "classnames/bind";
-
-import { getCurrentUserTierData } from "utils/tiers";
-import { getCurrentTradingVolume } from "api/onboarding";
-
+import Link from "@material-ui/core/Link";
 import LinearProgress from "@material-ui/core/LinearProgress";
 import InputLabel from "@material-ui/core/InputLabel";
+
+import LoadingIcon from "assets/icons/loading-static.svg";
+
+import {
+  getCurrentUserTierData,
+  isCurrentUserUpgrading,
+  isCurrentUserActionRequired
+} from "utils/tiers";
+import { getCurrentTradingVolume } from "api/onboarding";
+
 
 import style from "./tradingLimitIndicator.scss";
 
@@ -17,10 +24,11 @@ const cx = cn.bind(style);
 // Function to normalise the values (MIN / MAX could be integrated)
 const normalise = (value, min, max) => ((value - min) * 100) / (max - min);
 
-const TradingLimitIndicator = ({ address, userState, tiers }) => {
+const TradingLimitIndicator = ({ address, userState, tiers, openModal }) => {
   const [volume, setVolume] = useState(0);
   const [maxVolume, setMaxVolume] = useState(0);
   const [tier, setTier] = useState(0);
+  const [warning, setWarning] = useState(false);
 
   const getTradingVolume = useCallback(() => {
     (async () => {
@@ -28,40 +36,99 @@ const TradingLimitIndicator = ({ address, userState, tiers }) => {
 
       setVolume(buyVolume.dollars);
     })();
-  }, [getCurrentTradingVolume, address]);
+  }, [address]);
 
   useEffect(() => {
     getTradingVolume();
-  }, [address]);
+  }, [address, getTradingVolume]);
 
   useEffect(() => {
     if (tiers && userState.tiers) {
       const { limit, name } = getCurrentUserTierData(tiers, userState);
 
+      setWarning(false);
       setMaxVolume(limit);
       setTier(name);
+
+      if (
+        isCurrentUserUpgrading(tiers, userState) ||
+        isCurrentUserActionRequired(tiers, userState)
+      ) {
+        setWarning(true);
+        // setMaxVolume(0);
+      }
     }
   }, [tiers, userState]);
+
+  const getProgressLabel = useCallback(() => {
+    if (isCurrentUserUpgrading(tiers, userState)) {
+      return (
+        <span>
+          <img
+            className={cx("progress-label-icon")}
+            src={LoadingIcon}
+            alt="Loading"
+          />
+          <strong>Pending tier upgrade</strong>
+        </span>
+      );
+    } else if (isCurrentUserActionRequired(tiers, userState)) {
+      return (
+        <span>
+          <strong>Action required.</strong>{" "}
+          <Link
+            className={cx("cancel-button")}
+            component="button"
+            onClick={() => {
+              openModal("MyAccount", {
+                address,
+                tier,
+                maxVolume,
+                userState,
+                tiers
+              });
+            }}
+            underline="always"
+          >
+            View details
+          </Link>
+        </span>
+      );
+    }
+
+    return (
+      <span>
+        ${Number.parseFloat(volume).toFixed(2)} /
+        <strong>{tier === "3" ? "Unlimited" : "$" + maxVolume}</strong>
+      </span>
+    );
+  }, [tier, tiers, userState, volume, maxVolume]);
 
   return (
     <div className={cx("trading-indicator")}>
       <LinearProgress
         variant="determinate"
-        value={normalise(volume, 0, maxVolume)}
+        value={warning ? 100 : normalise(volume, 0, maxVolume)}
         classes={{
           root: cx("linear-progress"),
-          barColorPrimary: cx("linear-progress-bar")
+          barColorPrimary: warning
+            ? cx("linear-progress-bar-warning")
+            : cx("linear-progress-bar")
         }}
       />
-      <div className={cx("progress-label")}>
-        <span>
-          ${Number.parseFloat(volume).toFixed(2)} /
-          <strong>{tier === "3" ? "Unlimited" : "$" + maxVolume}</strong>
-        </span>
-      </div>
+      <div className={cx("progress-label")}>{getProgressLabel()}</div>
       <InputLabel
         classes={{
           root: cx("indicator-label")
+        }}
+        onClick={() => {
+          openModal("MyAccount", {
+            address,
+            tier,
+            maxVolume,
+            userState,
+            tiers
+          });
         }}
       >
         Tier {tier}
@@ -75,7 +142,8 @@ TradingLimitIndicator.propTypes = {
   tiers: PropTypes.array,
   userState: PropTypes.shape({
     tiers: PropTypes.shape({})
-  })
+  }),
+  openModal: PropTypes.func.isRequired
 };
 
 export default TradingLimitIndicator;

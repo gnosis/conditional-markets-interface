@@ -66,11 +66,12 @@ export const setEthAccountEmail = async userInformation => {
 };
 
 export const setSourceOfFunds = async sowInformation => {
+  const { email, ...data } = sowInformation;
   const url = `${WHITELIST_API_URL}/v1/users/`;
 
   return fetch(url, {
     method: "POST",
-    body: JSON.stringify(sowInformation), // data can be `string` or {object}!
+    body: JSON.stringify({ email, sow: data }), // data can be `string` or {object}!
     headers: {
       "Content-Type": "application/json"
     }

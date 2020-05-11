@@ -172,7 +172,7 @@ export default class ConditionalTokensService {
     if (tierLimitStatus.overLimit) {
       const { currentUserTierData, volumeAfterTrade } = tierLimitStatus;
       return {
-        modal: "tradeOverLimit",
+        modal: "TradeOverLimit",
         modalProps: {
           address: account,
           tier: currentUserTierData.name,
@@ -298,7 +298,7 @@ export default class ConditionalTokensService {
     if (tierLimitStatus.overLimit) {
       const { currentUserTierData, volumeAfterTrade } = tierLimitStatus;
       return {
-        modal: "tradeOverLimit",
+        modal: "TradeOverLimit",
         modalProps: {
           address: account,
           tier: currentUserTierData.name,

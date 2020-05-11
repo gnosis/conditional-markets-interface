@@ -9,14 +9,14 @@ const cx = cn.bind(style);
 const AlreadyVerified = () => {
   const goToMarkets = useCallback(() => {
     window.location.href = "https://sight.pm/#markets";
-  });
+  }, []);
 
   return (
     <div className={cx("step", "already-verified")}>
       <div className={cx("step-header")}>
         <p>KYC Tier Level 2 - Verification</p>
       </div>
-      <p className={cx("step-description")}>
+      <p className={cx("step-description", "success")}>
         Connected wallet is already KYC Tier Level 2 verified!
       </p>
       <Button
