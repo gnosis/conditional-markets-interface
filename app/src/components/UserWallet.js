@@ -90,7 +90,7 @@ const UserWallet = ({
   const disconnect = useCallback(() => {
     web3Modal.clearCachedProvider();
     setProvider(null);
-  });
+  }, [setProvider, web3Modal]);
 
   useEffect(() => {
     web3Modal.on("connect", connect);

@@ -134,7 +134,14 @@ const RootComponent = ({
 
         let web3Provider = provider;
         if (!provider && web3Modal.cachedProvider) {
-          web3Provider = await web3Modal.connect();
+          // If metamask session is cached but metamask is disabled app may crash
+          try {
+            web3Provider = await web3Modal.connect();
+          } catch (e) {
+            // We catch that we were not able to reconnect and force user to connect manually
+            console.log("There was an error connecting with cached session");
+            web3Modal.clearCachedProvider();
+          }
         }
 
         const [
