@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import Logo from "assets/img/emote_trade_limit.svg";
 import Link from "@material-ui/core/Link";
 
-import { getCurrentTradingVolume } from "api/onboarding";
+import useGlobalState from "hooks/useGlobalState";
 import { formatAddress } from "utils/formatting";
 import {
   isCurrentUserUpgrading,
@@ -22,32 +22,20 @@ import style from "./myAccount.scss";
 const cx = cn.bind(style);
 
 const MyAccount = props => {
-  const {
-    address,
-    tier,
-    maxVolume,
-    closeModal,
-    openModal,
-    tiers,
-    userState,
-    showRequest
-  } = props;
+  const { account: address, user: userState, tiers } = useGlobalState();
+
+  const { tier, maxVolume, closeModal, openModal, showRequest } = props;
 
   const [currentTradingVolume, setCurrentTradingVolume] = useState(0);
   const [showTier2Request, setShowTier2Request] = useState(
     showRequest || false
   );
-  const getTradingVolume = useCallback(() => {
-    (async () => {
-      const { buyVolume } = await getCurrentTradingVolume(address);
-
-      setCurrentTradingVolume(buyVolume.dollars);
-    })();
-  }, [address]);
 
   useEffect(() => {
-    getTradingVolume();
-  }, []);
+    if (userState && userState.tradingVolume) {
+      setCurrentTradingVolume(userState.tradingVolume.dollars);
+    }
+  }, [address, userState]);
 
   const handleRetry = useCallback(() => {
     if (tier === 1) {
@@ -110,11 +98,8 @@ const MyAccount = props => {
 MyAccount.propTypes = {
   closeModal: PropTypes.func.isRequired,
   openModal: PropTypes.func.isRequired,
-  address: PropTypes.string,
   tier: PropTypes.number.isRequired,
   maxVolume: PropTypes.number.isRequired,
-  userState: PropTypes.object.isRequired,
-  tiers: PropTypes.array.isRequired,
   showRequest: PropTypes.bool
 };
 

@@ -5,7 +5,6 @@ import Link from "@material-ui/core/Link";
 import Divider from "@material-ui/core/Divider";
 
 import useGlobalState from "hooks/useGlobalState";
-import { getCurrentTradingVolume } from "api/onboarding";
 import { formatAddress } from "utils/formatting";
 import {
   isCurrentUserUpgrading,
@@ -25,9 +24,9 @@ import style from "./MyAccount/myAccount.scss";
 const cx = cn.bind(style);
 
 const TradeOverLimit = props => {
-  const { user: userState, tiers } = useGlobalState();
+  const { account: address, user: userState, tiers } = useGlobalState();
 
-  const { address, tier, volume, maxVolume, closeModal, showRequest } = props;
+  const { tier, volume, maxVolume, closeModal, showRequest } = props;
 
   const simulatedVolume = Number.parseFloat(volume);
 
@@ -36,17 +35,11 @@ const TradeOverLimit = props => {
     showRequest || false
   );
 
-  const getTradingVolume = useCallback(() => {
-    (async () => {
-      const { buyVolume } = await getCurrentTradingVolume(address);
-
-      setCurrentTradingVolume(buyVolume.dollars);
-    })();
-  }, [address]);
-
   useEffect(() => {
-    getTradingVolume();
-  }, []);
+    if (userState && userState.tradingVolume) {
+      setCurrentTradingVolume(userState.tradingVolume.dollars);
+    }
+  }, [address, userState]);
 
   const handleRetry = useCallback(() => {
     setShowTier2Request(true);

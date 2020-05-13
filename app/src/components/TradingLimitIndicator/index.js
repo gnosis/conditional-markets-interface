@@ -12,8 +12,6 @@ import {
   isCurrentUserUpgrading,
   isCurrentUserActionRequired
 } from "utils/tiers";
-import { getCurrentTradingVolume } from "api/onboarding";
-
 
 import style from "./tradingLimitIndicator.scss";
 
@@ -30,17 +28,11 @@ const TradingLimitIndicator = ({ address, userState, tiers, openModal }) => {
   const [tier, setTier] = useState(0);
   const [warning, setWarning] = useState(false);
 
-  const getTradingVolume = useCallback(() => {
-    (async () => {
-      const { buyVolume } = await getCurrentTradingVolume(address);
-
-      setVolume(buyVolume.dollars);
-    })();
-  }, [address]);
-
   useEffect(() => {
-    getTradingVolume();
-  }, [address, getTradingVolume]);
+    if (userState && userState.tradingVolume) {
+      setVolume(userState.tradingVolume.dollars);
+    }
+  }, [address, userState]);
 
   useEffect(() => {
     if (tiers && userState.tiers) {
@@ -81,11 +73,8 @@ const TradingLimitIndicator = ({ address, userState, tiers, openModal }) => {
             component="button"
             onClick={() => {
               openModal("MyAccount", {
-                address,
                 tier,
-                maxVolume,
-                userState,
-                tiers
+                maxVolume
               });
             }}
             underline="always"
@@ -123,11 +112,8 @@ const TradingLimitIndicator = ({ address, userState, tiers, openModal }) => {
         }}
         onClick={() => {
           openModal("MyAccount", {
-            address,
             tier,
-            maxVolume,
-            userState,
-            tiers
+            maxVolume
           });
         }}
       >

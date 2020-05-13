@@ -5,11 +5,15 @@ const useGlobalState = () => {
   const [state, dispatch] = useContext(Context);
 
   const setAccount = account => {
-    dispatch({ type: "SET_USER", payload: { ...state.user, account } });
+    dispatch({ type: "SET_USER", payload: { account } });
   };
 
   const setUser = user => {
     dispatch({ type: "SET_USER", payload: user });
+  };
+
+  const setTradingVolume = tradingVolume => {
+    dispatch({ type: "SET_USER", payload: { tradingVolume } });
   };
 
   const setMarkets = markets => {
@@ -41,6 +45,7 @@ const useGlobalState = () => {
     setAccount,
     user: state.user,
     setUser,
+    setTradingVolume,
     markets: state.markets,
     setMarkets,
     positions: state.positions,

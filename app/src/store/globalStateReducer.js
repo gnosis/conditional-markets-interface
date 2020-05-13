@@ -1,4 +1,5 @@
 const globalStateReducer = (state, action) => {
+  let userUpdate;
   switch (action.type) {
     case "SET_ACCOUNT":
       return {
@@ -6,9 +7,14 @@ const globalStateReducer = (state, action) => {
         account: action.payload
       };
     case "SET_USER":
+      if (action.payload) {
+        userUpdate = { ...state.user, ...action.payload };
+      } else {
+        userUpdate = action.payload;
+      }
       return {
         ...state,
-        user: action.payload
+        user: userUpdate
       };
     case "SET_MARKETS":
       return {

@@ -16,7 +16,11 @@ import ToastifyError from "utils/ToastifyError";
 import getWeb3Modal from "utils/web3Modal";
 import { Notifications as NotificationIcon } from "@material-ui/icons";
 
-import { getUserState, getTiersLimit } from "api/onboarding";
+import {
+  getUserState,
+  getCurrentTradingVolume,
+  getTiersLimit
+} from "api/onboarding";
 import { GET_TRADES_BY_MARKET_MAKER } from "api/thegraph";
 
 import style from "./root.scss";
@@ -95,6 +99,7 @@ const RootComponent = ({
     setAccount,
     user,
     setUser,
+    setTradingVolume,
     markets,
     setMarkets,
     positions,
@@ -318,7 +323,7 @@ const RootComponent = ({
         const userState = await getUserState(account);
         const { status: whitelistStatus } = userState;
         setWhitelistState(whitelistStatus);
-        setUser({ ...user, ...userState });
+        setUser(userState);
 
         if (
           whitelistStatus === "WHITELISTED" ||
@@ -336,6 +341,17 @@ const RootComponent = ({
   useEffect(() => {
     updateWhitelist();
   }, [account]);
+
+  const getTradingVolume = useCallback(() => {
+    (async () => {
+      const { buyVolume } = await getCurrentTradingVolume(account);
+      setTradingVolume(buyVolume);
+    })();
+  }, [setTradingVolume, account]);
+
+  useEffect(() => {
+    getTradingVolume();
+  }, [account, syncTime]);
 
   const getTiersLimitValues = useCallback(() => {
     (async () => {
