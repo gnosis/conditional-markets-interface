@@ -309,9 +309,13 @@ export default class ConditionalTokensService {
     }
 
     const tradeAmounts = stagedTradeAmounts.map(amount => amount.toString());
-    const collateralLimit = await this._marketMakersRepo.calcNetCost(
+    const outcomeTokenNetCost = await this._marketMakersRepo.calcNetCost(
       tradeAmounts
     );
+
+    const fee = await this._marketMakersRepo.calcMarketFee(outcomeTokenNetCost);
+
+    const collateralLimit = outcomeTokenNetCost.add(fee);
 
     if (collateral.isWETH && collateralLimit.gt(collateralBalance.amount)) {
       await collateral.contract.deposit({
@@ -350,9 +354,14 @@ export default class ConditionalTokensService {
     }
 
     const tradeAmounts = stagedTradeAmounts.map(amount => amount.toString());
-    const collateralLimit = await this._marketMakersRepo.calcNetCost(
+    const outcomeTokenNetCost = await this._marketMakersRepo.calcNetCost(
       tradeAmounts
     );
+
+    const fee = await this._marketMakersRepo.calcMarketFee(
+      outcomeTokenNetCost.abs()
+    );
+    const collateralLimit = outcomeTokenNetCost.add(fee);
 
     return this._marketMakersRepo.trade(tradeAmounts, collateralLimit, account);
   }

@@ -47,6 +47,10 @@ export default class MarketMakersRepo {
     return this._lmsrMarketMaker.calcNetCost(outcomeTokenAmounts);
   }
 
+  async calcMarketFee(outcomeTokenNetCost) {
+    return this._lmsrMarketMaker.calcMarketFee(outcomeTokenNetCost);
+  }
+
   async trade(tradeAmounts, collateralLimit, from) {
     return this._lmsrMarketMaker.trade(tradeAmounts, collateralLimit, { from });
   }
