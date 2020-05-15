@@ -8,17 +8,47 @@ import Spinner from "components/Spinner";
 
 const cx = cn.bind(style);
 
-const NOOP = () => {}
+const NOOP = () => {};
 
-const Transaction = ({ index, name, description, enabled, submitTx, setPending, pending }) => {
+const Transaction = ({
+  index,
+  name,
+  description,
+  enabled,
+  submitTx,
+  setPending,
+  pending
+}) => {
   //const [pending, setPending] = useState(false);
+  const [wasCompleted, setWasCompleted] = useState(false);
   const handleSubmit = useCallback(() => {
     (async () => {
       setPending(true);
-      await submitTx(index);
-      setPending(false);
+      try {
+        await submitTx(index);
+        setWasCompleted(true);
+      } finally {
+        // don't catch, but always unset pending
+        setPending(false);
+      }
     })();
-  }, [index, setPending]);
+  }, [index, setPending, submitTx]);
+
+  let buttonInner = "Submit";
+
+  if (pending) {
+    buttonInner = (
+      <>
+        {/* Avoids button collapse, sorry */}
+        &nbsp;
+        <Spinner width={38} height={38} absolute />
+      </>
+    );
+  }
+
+  if (wasCompleted) {
+    buttonInner = "Approved";
+  }
 
   return (
     <div className={cx("tx-entry", { disabled: !enabled })}>
@@ -27,22 +57,17 @@ const Transaction = ({ index, name, description, enabled, submitTx, setPending, 
       </h1>
       <p>{description}</p>
       <Button
-        className={cx("material-button")}
+        className={cx("material-button", { completed: wasCompleted })}
         classes={{ label: cx("material-button-label") }}
         type="button"
         variant="contained"
-        color="primary"
+        color={wasCompleted ? "" : "primary"}
         size="large"
-        disabled={!enabled}
-        disableRipple={(!enabled || pending)}
-        onClick={(!enabled || pending) ? NOOP : handleSubmit}
+        disabled={!enabled || wasCompleted}
+        disableRipple={!enabled || pending}
+        onClick={!enabled || pending ? NOOP : handleSubmit}
       >
-        {pending ? (
-          <>
-            {/* Avoids button collapse, sorry */}
-            &nbsp;<Spinner width={38} height={38} absolute />
-          </>
-        ) : "Submit"}
+        {buttonInner}
       </Button>
     </div>
   );
@@ -54,6 +79,8 @@ Transaction.propTypes = {
   description: PropTypes.string,
   submitTx: PropTypes.func.isRequired,
   enabled: PropTypes.bool.isRequired,
+  pending: PropTypes.bool.isRequired,
+  setPending: PropTypes.func.isRequired,
 };
 
 Transaction.defaultProps = {
