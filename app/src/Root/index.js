@@ -14,7 +14,7 @@ import { getAccount, loadWeb3 } from "utils/web3";
 import { loadMarketsData } from "utils/getMarketsData";
 import ToastifyError from "utils/ToastifyError";
 import getWeb3Modal from "utils/web3Modal";
-import { Notifications as NotificationIcon } from "@material-ui/icons";
+//import { Notifications as NotificationIcon } from "@material-ui/icons";
 
 import {
   getUserState,
@@ -545,8 +545,12 @@ const RootComponent = ({
                   }
                   addToast("Transaction confirmed.", "success");
 
-                  await cleanup(txResult);
+                  if (typeof cleanup === "function") {
+                    await cleanup(txResult);
+                  }
                 } catch (err) {
+                  console.warn(`Execution failed for ${name}:`);
+                  console.warn(err);
                   if (err instanceof ToastifyError) {
                     addToast(
                       // User Error (hopefully)
@@ -659,7 +663,7 @@ const RootComponent = ({
     toastId => {
       setToasts(prevToasts => [
         ...prevToasts.filter(({ id }) => toastId !== id)
-      ])
+      ]);
 
       updateToasts();
     },
@@ -683,9 +687,9 @@ const RootComponent = ({
       ]);
 
       // return cancel function
-      return () => deleteToast(toastId)
+      return () => deleteToast(toastId);
     },
-    [toasts]
+    [toasts, deleteToast]
   );
 
   const closeModal = useCallback(() => {
