@@ -41,7 +41,7 @@ const SOURCE_OF_WEALTH_OPTIONS = [
   { value: "other", label: "Other" }
 ];
 
-const REQUIRE_SPECIFICS = [
+const DOES_NOT_REQUIRE_SPECIFICS = [
   "salaried",
   "self-employed",
   "company-earnings",
@@ -145,7 +145,7 @@ const SourceOfWealth = ({ email, account, handleAdvanceStep }) => {
             const showEmployerJobField = values.mainSource === "salaried";
             const showSelfEmployedJobField =
               values.mainSource === "self-employed";
-            const showSpecificsField = REQUIRE_SPECIFICS.includes(
+            const showSpecificsField = !DOES_NOT_REQUIRE_SPECIFICS.includes(
               values.mainSource
             );
 
