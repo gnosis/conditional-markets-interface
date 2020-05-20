@@ -42,7 +42,7 @@ const SOURCE_OF_WEALTH_OPTIONS = [
   { value: "other", label: "Other" }
 ];
 
-const REQUIRE_SPECIFICS = [
+const DO_NOT_REQUIRE_SPECIFICS = [
   "salaried",
   "self-employed",
   "company-earnings",
@@ -168,7 +168,7 @@ const SourceOfWealth = ({ closeModal }) => {
             const showEmployerJobField = values.mainSource === "salaried";
             const showSelfEmployedJobField =
               values.mainSource === "self-employed";
-            const showSpecificsField = REQUIRE_SPECIFICS.includes(
+            const showSpecificsField = !DO_NOT_REQUIRE_SPECIFICS.includes(
               values.mainSource
             );
 
