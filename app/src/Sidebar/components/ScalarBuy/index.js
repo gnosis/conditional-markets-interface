@@ -85,7 +85,12 @@ const Buy = ({
         hasEnteredInvestment ? investmentAmount : zeroDecimal
       );
 
-      if (!investmentAmountInUnits.isInteger())
+      // We have to substract the fee
+      const investmentAmountInUnitsAfterFee = investmentAmountInUnits.mul(
+        1 - lmsrState.fee
+      );
+
+      if (!investmentAmountInUnitsAfterFee.isInteger())
         throw new Error(
           `Got more than ${collateral.decimals} decimals in value ${investmentAmount}`
         );
@@ -94,7 +99,7 @@ const Buy = ({
         calcOutcomeTokenCounts(
           positions,
           lmsrState,
-          investmentAmountInUnits,
+          investmentAmountInUnitsAfterFee,
           marketSelections
         )
       );
