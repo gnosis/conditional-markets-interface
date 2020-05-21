@@ -266,3 +266,30 @@ export const postTier2Request = async userDetails => {
   const json = await response.json();
   return [response, json];
 };
+
+/**
+ * Call to upgrade a Tier 2 user that wants to promote to Tier 3.
+ * @function
+ * @param {Object} userDetails - Information from the user that requests the upgrade.
+ * @param {string} userDetails.ethAddress - The user eth address.
+ * @param {string} userDetails.recaptchaToken - The user signed captcha.
+ */
+export const postTier3Upgrade = async userDetails => {
+  const url = `${WHITELIST_API_URL}/v1/tiers/3/upgrades/`;
+
+  const response = await fetch(url, {
+    method: "POST",
+    body: JSON.stringify(userDetails),
+    headers: {
+      "Content-Type": "application/json"
+    }
+  });
+
+  if (response.ok) {
+    // ok response (204) has no body
+    return [response, null];
+  }
+
+  const json = await response.json();
+  return [response, json];
+};
