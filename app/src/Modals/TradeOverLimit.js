@@ -14,9 +14,9 @@ import {
 import UpperBar from "./components/upperBar";
 import Header from "./components/header";
 import Tier2Request from "./MyAccount/Tier2Request";
-import Tier2ActionRequired from "./MyAccount/Tier2ActionRequired";
-import Tier2Pending from "./MyAccount/Tier2Pending";
 import Tier3Request from "./MyAccount/Tier3Request";
+import TierUpgradeActionRequired from "./MyAccount/TierUpgradeActionRequired";
+import TierUpgradePending from "./MyAccount/TierUpgradePending";
 
 import cn from "classnames/bind";
 
@@ -88,10 +88,10 @@ const TradeOverLimit = props => {
           </div>
         </div>
         {isCurrentUserActionRequired(tiers, userState) && !showTierRequest && (
-          <Tier2ActionRequired
+          <TierUpgradeActionRequired
             handleRetry={handleRetry}
             tier={tier}
-          ></Tier2ActionRequired>
+          ></TierUpgradeActionRequired>
         )}
         {tier < 2 &&
           ((!isCurrentUserActionRequired(tiers, userState) &&
@@ -100,10 +100,11 @@ const TradeOverLimit = props => {
             <Tier2Request {...props} fromTradeOverLimit={true}></Tier2Request>
           )}
         {isCurrentUserUpgrading(tiers, userState) && (
-          <Tier2Pending></Tier2Pending>
+          <TierUpgradePending tier={tier}></TierUpgradePending>
         )}
         {tier === 2 &&
-          (!isCurrentUserActionRequired(tiers, userState) ||
+          ((!isCurrentUserActionRequired(tiers, userState) &&
+            !isCurrentUserUpgrading(tiers, userState)) ||
             showTierRequest) && (
             <Tier3Request {...props} fromTradeOverLimit={true}></Tier3Request>
           )}

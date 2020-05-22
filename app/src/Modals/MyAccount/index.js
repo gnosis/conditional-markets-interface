@@ -11,9 +11,9 @@ import {
 } from "utils/tiers";
 
 import Tier2Request from "./Tier2Request";
-import Tier2ActionRequired from "./Tier2ActionRequired";
-import Tier2Pending from "./Tier2Pending";
 import Tier3Request from "./Tier3Request";
+import TierUpgradeActionRequired from "./TierUpgradeActionRequired";
+import TierUpgradePending from "./TierUpgradePending";
 import UpperBar from "../components/upperBar";
 import Header from "../components/header";
 
@@ -70,10 +70,10 @@ const MyAccount = props => {
           </div>
         </div>
         {isCurrentUserActionRequired(tiers, userState) && !showTierRequest && (
-          <Tier2ActionRequired
+          <TierUpgradeActionRequired
             handleRetry={handleRetry}
             tier={tier}
-          ></Tier2ActionRequired>
+          ></TierUpgradeActionRequired>
         )}
         {tier < 2 &&
           ((!isCurrentUserActionRequired(tiers, userState) &&
@@ -86,10 +86,11 @@ const MyAccount = props => {
             ></Tier2Request>
           )}
         {isCurrentUserUpgrading(tiers, userState) && (
-          <Tier2Pending></Tier2Pending>
+          <TierUpgradePending tier={tier}></TierUpgradePending>
         )}
         {tier === 2 &&
-          (!isCurrentUserActionRequired(tiers, userState) ||
+          ((!isCurrentUserActionRequired(tiers, userState) &&
+            !isCurrentUserUpgrading(tiers, userState)) ||
             showTierRequest) && (
             <Tier3Request
               {...props}

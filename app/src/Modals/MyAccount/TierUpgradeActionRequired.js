@@ -46,7 +46,7 @@ const Tier3Message = ({ handleRetry }) => {
   );
 };
 
-const Tier2ActionRequired = ({ handleRetry, tier }) => {
+const TierUpgradeActionRequired = ({ handleRetry, tier }) => {
   return (
     <div className={cx("warning-block")}>
       <img src={WarningLogo} alt="Warning!" />
@@ -60,9 +60,9 @@ const Tier2ActionRequired = ({ handleRetry, tier }) => {
   );
 };
 
-Tier2ActionRequired.propTypes = {
+TierUpgradeActionRequired.propTypes = {
   handleRetry: PropTypes.func.isRequired,
   tier: PropTypes.number.isRequired
 };
 
-export default Tier2ActionRequired;
+export default TierUpgradeActionRequired;
