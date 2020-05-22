@@ -9,33 +9,60 @@ import style from "./myAccount.scss";
 
 const cx = cn.bind(style);
 
-const Tier2ActionRequired = ({ handleRetry }) => {
+const Tier2Message = ({ handleRetry }) => {
+  return (
+    <p>
+      Please check your email and follow KYC link to complete the proccess.
+      Please make sure that you fulfilled all required information and check
+      again the link as extra documents may be required. If the link is missing
+      or expired{" "}
+      <Link
+        className={cx("resend-button")}
+        component="button"
+        onClick={handleRetry}
+        underline="always"
+      >
+        click here to resend.
+      </Link>
+    </p>
+  );
+};
+
+const Tier3Message = ({ handleRetry }) => {
+  return (
+    <p>
+      Please check your email and follow the instructions to complete the
+      proccess. Please make sure to send all required information. If the link
+      is missing or expired{" "}
+      <Link
+        className={cx("resend-button")}
+        component="button"
+        onClick={handleRetry}
+        underline="always"
+      >
+        click here to resend.
+      </Link>
+    </p>
+  );
+};
+
+const Tier2ActionRequired = ({ handleRetry, tier }) => {
   return (
     <div className={cx("warning-block")}>
       <img src={WarningLogo} alt="Warning!" />
       <div className={cx("modal-body-attention")}>
-        Tier 2 Upgrade Pending: <strong>Documents upload required.</strong>
+        Tier {tier + 1} Upgrade Pending:
+        <strong> Documents upload required.</strong>
       </div>
-      <p>
-        Please check your email and follow KYC link to complete the proccess.
-        Please make sure that you fulfilled all required information and check
-        again the link as extra documents may be required. If the link is
-        missing or expired{" "}
-        <Link
-          className={cx("resend-button")}
-          component="button"
-          onClick={handleRetry}
-          underline="always"
-        >
-          click here to resend.
-        </Link>
-      </p>
+      {tier < 2 && Tier2Message({ handleRetry })}
+      {tier === 2 && Tier3Message({ handleRetry })}
     </div>
   );
 };
 
 Tier2ActionRequired.propTypes = {
-  handleRetry: PropTypes.func.isRequired
+  handleRetry: PropTypes.func.isRequired,
+  tier: PropTypes.number.isRequired
 };
 
 export default Tier2ActionRequired;

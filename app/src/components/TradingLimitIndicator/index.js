@@ -88,27 +88,31 @@ const TradingLimitIndicator = ({ address, userState, tiers, openModal }) => {
     return (
       <span>
         ${Number.parseFloat(volume).toFixed(2)} /
-        <strong>{tier === "3" ? "Unlimited" : "$" + maxVolume}</strong>
+        <strong>{tier === 3 ? "Unlimited" : "$" + maxVolume}</strong>
       </span>
     );
   }, [tier, tiers, userState, volume, maxVolume]);
 
   return (
     <div className={cx("trading-indicator")}>
-      <LinearProgress
-        variant="determinate"
-        value={warning ? 100 : normalise(volume, 0, maxVolume)}
-        classes={{
-          root: cx("linear-progress"),
-          barColorPrimary: warning
-            ? cx("linear-progress-bar-warning")
-            : cx("linear-progress-bar")
-        }}
-      />
-      <div className={cx("progress-label")}>{getProgressLabel()}</div>
+      {tier < 3 && (
+        <>
+          <LinearProgress
+            variant="determinate"
+            value={warning ? 100 : normalise(volume, 0, maxVolume)}
+            classes={{
+              root: cx("linear-progress"),
+              barColorPrimary: warning
+                ? cx("linear-progress-bar-warning")
+                : cx("linear-progress-bar")
+            }}
+          />
+          <div className={cx("progress-label")}>{getProgressLabel()}</div>
+        </>
+      )}
       <InputLabel
         classes={{
-          root: cx("indicator-label")
+          root: cx("indicator-label", tier === 3 ? "unlimited" : "")
         }}
         onClick={() => {
           openModal("MyAccount", {

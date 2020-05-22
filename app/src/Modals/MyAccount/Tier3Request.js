@@ -51,7 +51,7 @@ const Tier3Request = props => {
       const { fromAccountDetails, fromTradeOverLimit, ...stepProps } = props;
 
       openModal("KYC", {
-        initialStep: "TIER2_REQUEST_SUCCESS",
+        initialStep: "TIER3_REQUEST_SUCCESS",
         fromAccountDetails,
         fromTradeOverLimit,
         stepProps,

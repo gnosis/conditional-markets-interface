@@ -13,6 +13,7 @@ import {
 import Tier2Request from "./Tier2Request";
 import Tier2ActionRequired from "./Tier2ActionRequired";
 import Tier2Pending from "./Tier2Pending";
+import Tier3Request from "./Tier3Request";
 import UpperBar from "../components/upperBar";
 import Header from "../components/header";
 
@@ -27,9 +28,7 @@ const MyAccount = props => {
   const { tier, maxVolume, closeModal, openModal, showRequest } = props;
 
   const [currentTradingVolume, setCurrentTradingVolume] = useState(0);
-  const [showTier2Request, setShowTier2Request] = useState(
-    showRequest || false
-  );
+  const [showTierRequest, setShowTierRequest] = useState(showRequest || false);
 
   useEffect(() => {
     if (userState && userState.tradingVolume) {
@@ -38,8 +37,8 @@ const MyAccount = props => {
   }, [address, userState]);
 
   const handleRetry = useCallback(() => {
-    if (tier === 1) {
-      setShowTier2Request(true);
+    if (tier >= 1) {
+      setShowTierRequest(true);
     } else {
       openModal("KYC", { initialStep: "TIER2_REQUEST" });
     }
@@ -66,22 +65,38 @@ const MyAccount = props => {
             <span className={cx("dotted-separator")}></span>
             <span>
               ${Number.parseFloat(currentTradingVolume).toFixed(2)} /{" "}
-              <strong>${maxVolume}</strong>
+              <strong>{tier === 3 ? "Unlimited" : "$" + maxVolume}</strong>
             </span>
           </div>
         </div>
-        {isCurrentUserActionRequired(tiers, userState) && !showTier2Request && (
-          <Tier2ActionRequired handleRetry={handleRetry}></Tier2ActionRequired>
+        {isCurrentUserActionRequired(tiers, userState) && !showTierRequest && (
+          <Tier2ActionRequired
+            handleRetry={handleRetry}
+            tier={tier}
+          ></Tier2ActionRequired>
         )}
         {tier < 2 &&
           ((!isCurrentUserActionRequired(tiers, userState) &&
             !isCurrentUserUpgrading(tiers, userState)) ||
-            showTier2Request) && (
-            <Tier2Request {...props} fromAccountDetails={true}></Tier2Request>
+            showTierRequest) && (
+            <Tier2Request
+              {...props}
+              address={address}
+              fromAccountDetails={true}
+            ></Tier2Request>
           )}
         {isCurrentUserUpgrading(tiers, userState) && (
           <Tier2Pending></Tier2Pending>
         )}
+        {tier === 2 &&
+          (!isCurrentUserActionRequired(tiers, userState) ||
+            showTierRequest) && (
+            <Tier3Request
+              {...props}
+              address={address}
+              fromAccountDetails={true}
+            ></Tier3Request>
+          )}
         <Link
           className={cx("cancel-button")}
           component="button"

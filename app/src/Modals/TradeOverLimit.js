@@ -16,6 +16,7 @@ import Header from "./components/header";
 import Tier2Request from "./MyAccount/Tier2Request";
 import Tier2ActionRequired from "./MyAccount/Tier2ActionRequired";
 import Tier2Pending from "./MyAccount/Tier2Pending";
+import Tier3Request from "./MyAccount/Tier3Request";
 
 import cn from "classnames/bind";
 
@@ -31,9 +32,7 @@ const TradeOverLimit = props => {
   const simulatedVolume = Number.parseFloat(volume);
 
   const [currentTradingVolume, setCurrentTradingVolume] = useState(0);
-  const [showTier2Request, setShowTier2Request] = useState(
-    showRequest || false
-  );
+  const [showTierRequest, setShowTierRequest] = useState(showRequest || false);
 
   useEffect(() => {
     if (userState && userState.tradingVolume) {
@@ -42,7 +41,7 @@ const TradeOverLimit = props => {
   }, [address, userState]);
 
   const handleRetry = useCallback(() => {
-    setShowTier2Request(true);
+    setShowTierRequest(true);
   }, []);
 
   const tradeValue = simulatedVolume - Number.parseFloat(currentTradingVolume);
@@ -88,18 +87,26 @@ const TradeOverLimit = props => {
             </span>
           </div>
         </div>
-        {isCurrentUserActionRequired(tiers, userState) && !showTier2Request && (
-          <Tier2ActionRequired handleRetry={handleRetry}></Tier2ActionRequired>
+        {isCurrentUserActionRequired(tiers, userState) && !showTierRequest && (
+          <Tier2ActionRequired
+            handleRetry={handleRetry}
+            tier={tier}
+          ></Tier2ActionRequired>
         )}
         {tier < 2 &&
           ((!isCurrentUserActionRequired(tiers, userState) &&
             !isCurrentUserUpgrading(tiers, userState)) ||
-            showTier2Request) && (
+            showTierRequest) && (
             <Tier2Request {...props} fromTradeOverLimit={true}></Tier2Request>
           )}
         {isCurrentUserUpgrading(tiers, userState) && (
           <Tier2Pending></Tier2Pending>
         )}
+        {tier === 2 &&
+          (!isCurrentUserActionRequired(tiers, userState) ||
+            showTierRequest) && (
+            <Tier3Request {...props} fromTradeOverLimit={true}></Tier3Request>
+          )}
         <Link
           className={cx("cancel-button")}
           component="button"
