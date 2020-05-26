@@ -86,9 +86,9 @@ const Buy = ({
       );
 
       // We have to substract the fee
-      const investmentAmountInUnitsAfterFee = investmentAmountInUnits.mul(
-        1 - lmsrState.fee
-      );
+      const investmentAmountInUnitsAfterFee = investmentAmountInUnits
+        .div(Decimal(1).add(lmsrState.fee))
+        .toDecimalPlaces(0);
 
       if (!investmentAmountInUnitsAfterFee.isInteger())
         throw new Error(
@@ -332,6 +332,7 @@ const Buy = ({
               investmentAmount,
               collateral
             }}
+            fee={lmsrState.fee}
           ></ProfitSimulator>
         )}
         <div className={cx("invest-ctrls")}>
@@ -398,7 +399,8 @@ Buy.propTypes = {
     funding: PropTypes.instanceOf(BN).isRequired,
     positionBalances: PropTypes.arrayOf(PropTypes.instanceOf(BN).isRequired)
       .isRequired,
-    stage: PropTypes.string.isRequired
+    stage: PropTypes.string.isRequired,
+    fee: PropTypes.string.isRequired
   }),
   marketSelections: PropTypes.arrayOf(
     PropTypes.shape({

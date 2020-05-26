@@ -88,9 +88,9 @@ const Buy = ({
       );
 
       // We have to substract the fee
-      const investmentAmountInUnitsAfterFee = investmentAmountInUnits.div(
-        Decimal(1).add(lmsrState.fee)
-      ).toDecimalPlaces(0);
+      const investmentAmountInUnitsAfterFee = investmentAmountInUnits
+        .div(Decimal(1).add(lmsrState.fee))
+        .toDecimalPlaces(0);
 
       if (!investmentAmountInUnitsAfterFee.isInteger())
         throw new Error(
