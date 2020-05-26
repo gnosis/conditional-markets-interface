@@ -318,11 +318,7 @@ export default class ConditionalTokensService {
     );
 
     const fee = await this._marketMakersRepo.calcMarketFee(outcomeTokenNetCost);
-    console.log("Service Fee: ", fee.toString());
-
     const collateralLimit = outcomeTokenNetCost.add(fee);
-    console.log("Collateral limit with fee: ", collateralLimit.toString());
-    console.log("OutcomeTokenNetCost: ", outcomeTokenNetCost.toString());
 
     if (collateral.isWETH && collateralLimit.gt(collateralBalance.amount)) {
       await collateral.contract.deposit({
