@@ -14,6 +14,10 @@ import { getAccount, loadWeb3 } from "utils/web3";
 import { loadMarketsData } from "utils/getMarketsData";
 import ToastifyError from "utils/ToastifyError";
 import getWeb3Modal from "utils/web3Modal";
+import {
+  isCurrentUserUpgrading,
+  isCurrentUserActionRequired
+} from "utils/tiers";
 //import { Notifications as NotificationIcon } from "@material-ui/icons";
 
 import {
@@ -108,6 +112,7 @@ const RootComponent = ({
     setLMSRState,
     collateral,
     setCollateral,
+    tiers,
     setTiers
   } = useGlobalState();
 
@@ -295,6 +300,17 @@ const RootComponent = ({
           });
     }, [...dependentParams, conditionalTokensService, syncTime]);
 
+  const getTiersLimitValues = useCallback(() => {
+    (async () => {
+      const tiersLimit = await getTiersLimit();
+      setTiers(tiersLimit);
+    })();
+  }, []);
+
+  useEffect(() => {
+    getTiersLimitValues();
+  }, []);
+
   const [marketSelections, setMarketSelections] = useState(null);
   const [stagedTradeAmounts, setStagedTradeAmounts] = useState(null);
   const [stagedTransactionType, setStagedTransactionType] = useState(null);
@@ -326,8 +342,9 @@ const RootComponent = ({
         setUser(userState);
 
         if (
-          whitelistStatus === "WHITELISTED" ||
-          whitelistStatus === "BLOCKED"
+          !isCurrentUserUpgrading(tiers, userState) &&
+          !isCurrentUserActionRequired(tiers, userState) &&
+          (whitelistStatus === "WHITELISTED" || whitelistStatus === "BLOCKED")
         ) {
           setWhitelistCheckIntervalTime(null); // stops the refresh
         }
@@ -352,17 +369,6 @@ const RootComponent = ({
   useEffect(() => {
     getTradingVolume();
   }, [account, syncTime]);
-
-  const getTiersLimitValues = useCallback(() => {
-    (async () => {
-      const tiersLimit = await getTiersLimit();
-      setTiers(tiersLimit);
-    })();
-  }, []);
-
-  useEffect(() => {
-    getTiersLimitValues();
-  }, []);
 
   const doOnboardingCheck = useCallback(() => {
     if (ONBOARDING_MODE === "DISABLED") {
@@ -767,6 +773,7 @@ const RootComponent = ({
                 collateral={collateral}
                 collateralBalance={collateralBalance}
                 setProvider={setProvider}
+                updateWhitelist={updateWhitelist}
               />
             }
             openModal={openModal}

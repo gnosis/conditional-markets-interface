@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import PropTypes from "prop-types";
 import classnames from "classnames/bind";
 import Button from "@material-ui/core/Button";
 
 import { formatAddress } from "utils/formatting";
+import { getCurrentUserTierData } from "utils/tiers";
 
 import style from "../kyc.scss";
 
@@ -15,7 +16,28 @@ const cx = classnames.bind(style);
 import useGlobalState from "hooks/useGlobalState";
 
 const Approved = ({ closeModal }) => {
-  const { account } = useGlobalState();
+  const { account, user, tiers } = useGlobalState();
+
+  const [volume, setVolume] = useState(0);
+  const [tierName, setTierName] = useState(0);
+  const [tierLimit, setTierLimit] = useState(0);
+
+  const updateCurrentUserTierData = useCallback(() => {
+    const { name, limit } = getCurrentUserTierData(tiers, user);
+    setTierName(name);
+    setTierLimit(limit);
+  }, [tiers, user]);
+
+  useEffect(() => {
+    updateCurrentUserTierData();
+  }, []);
+
+  useEffect(() => {
+    if (user && user.tradingVolume) {
+      setVolume(user.tradingVolume.dollars);
+    }
+  }, [account, user]);
+
   return (
     <>
       <UpperBar closeModal={closeModal} title="Create Account"></UpperBar>
@@ -38,13 +60,14 @@ const Approved = ({ closeModal }) => {
               <div className={cx("entry")}>
                 <div className={cx("label")}>Tier Level</div>
                 <div className={cx("dots")} />
-                <div className={cx("value")}>1</div>
+                <div className={cx("value")}>{tierName}</div>
               </div>
               <div className={cx("entry")}>
                 <div className={cx("label")}>Available trade limit</div>
                 <div className={cx("dots")} />
                 <div className={cx("value")}>
-                  €0 / <strong>€150</strong>
+                  ${Number.parseFloat(volume).toFixed(2)} /{" "}
+                  <strong>${tierLimit}</strong>
                 </div>
               </div>
             </div>
@@ -53,8 +76,8 @@ const Approved = ({ closeModal }) => {
           <div className={cx("modal-textblock")}>
             <p>
               Your application has been approved and you&apos;ve been upgraded
-              to <strong>Tier 1</strong>. You may now buy outcome tokens with a
-              value up to 150€
+              to <strong>Tier {tierName}</strong>. You may now buy outcome
+              tokens with a value up to ${tierLimit}.
             </p>
             <p>
               We&apos;ve sent you an e-mail to subscribe to Sight notifications

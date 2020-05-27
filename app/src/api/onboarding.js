@@ -180,7 +180,7 @@ export const getUserState = async accountAddress => {
  * @returns {WhitelistProcessingInformation}
  */
 export const isTieredWhitelistProcessing = async account => {
-  const url = `${WHITELIST_API_URL}/v2/users/${account}`;
+  const url = `${WHITELIST_API_URL}/v2/users/${account}/`;
 
   const response = await fetch(url, {
     method: "GET"

@@ -74,7 +74,8 @@ const UserWallet = ({
   collateral,
   collateralBalance,
   setProvider,
-  openModal
+  openModal,
+  updateWhitelist
 }) => {
   const { account: address, user, tiers } = useGlobalState();
 
@@ -180,7 +181,9 @@ const UserWallet = ({
             <button
               type="button"
               className={cx("kyc-button", "whitelistStatus")}
-              onClick={() => openModal("KYC", { initialStep: "PENDING" })}
+              onClick={() =>
+                openModal("KYC", { initialStep: "PENDING", updateWhitelist })
+              }
             >
               Check verification state for your account
             </button>

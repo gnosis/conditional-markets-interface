@@ -14,8 +14,8 @@ import { STEP_REJECTED, STEP_APPROVED } from "..";
 
 const cx = classnames.bind(style);
 
-const Pending = ({ closeModal, handleAdvanceStep }) => {
-  const [checkedIndices, setCheckedIndicies] = useState([false, false]);
+const Pending = ({ closeModal, handleAdvanceStep, updateWhitelist }) => {
+  const [checkedIndices, setCheckedIndices] = useState([false, false]);
   const [pageStatus, setPageStatus] = useState("PENDING");
   const { account } = useGlobalState();
 
@@ -46,7 +46,12 @@ const Pending = ({ closeModal, handleAdvanceStep }) => {
         checkedIndices[1] = true;
       }
 
-      setCheckedIndicies(checkedIndices);
+      setCheckedIndices(checkedIndices);
+
+      if (updateWhitelist) {
+        // Update whitelist global state if user was blocked and whitelisted after approving
+        updateWhitelist();
+      }
 
       if (status["sanctionStatus"] && status["whitelistStatus"]) {
         handleAdvanceStep(
@@ -57,8 +62,6 @@ const Pending = ({ closeModal, handleAdvanceStep }) => {
         setIntervalDelay(0);
         return;
       }
-
-      //console.log(status);
     })();
   }, [account]);
 
@@ -136,7 +139,8 @@ const Pending = ({ closeModal, handleAdvanceStep }) => {
 
 Pending.propTypes = {
   closeModal: PropTypes.func.isRequired,
-  handleAdvanceStep: PropTypes.func.isRequired
+  handleAdvanceStep: PropTypes.func.isRequired,
+  updateWhitelist: PropTypes.func
 };
 
 export default Pending;
