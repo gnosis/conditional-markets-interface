@@ -52,18 +52,18 @@ const BuySummary = ({
     (stagedTradePositionGroups || []).forEach(
       ({ outcomeSet, runningAmount }) => {
         let hasEnteredInvestment;
-        let investMentFee;
+        let investmentFee;
 
         try {
           const decimalInvest = Decimal(investmentAmount);
           hasEnteredInvestment = decimalInvest.gt(0);
-          investMentFee = decimalInvest.mul(lmsrState.fee);
+          investmentFee = decimalInvest.mul(lmsrState.fee);
         } catch (err) {
           //
         }
 
         humanReadablePositions.payOutWhen.fee = investmentAmount
-          ? investMentFee
+          ? investmentFee
           : 0;
 
         // all payouts
