@@ -161,6 +161,8 @@ export default class ConditionalTokensService {
   }
 
   async needsMoreAllowance({ investmentAmount, account, collateralBalance }) {
+    // This function doesn't depend on fees. We check allowance for the full amount
+    // Fee is included in invesmentAmount
     const collateral = await this._marketMakersRepo.getCollateralToken();
 
     const tierLimitStatus = await this.isTierLimitExceeded({
@@ -216,6 +218,8 @@ export default class ConditionalTokensService {
     account,
     collateralBalance
   }) {
+    // This function doesn't depend on fees. We check allowance for the full amount
+    // Fee is included in invesmentAmount
     if (stagedTradeAmounts == null)
       throw new ToastifyError(`No buy amount set yet`);
 
@@ -314,7 +318,6 @@ export default class ConditionalTokensService {
     );
 
     const fee = await this._marketMakersRepo.calcMarketFee(outcomeTokenNetCost);
-
     const collateralLimit = outcomeTokenNetCost.add(fee);
 
     if (collateral.isWETH && collateralLimit.gt(collateralBalance.amount)) {

@@ -19,7 +19,8 @@ const profitSimulator = ({
   stagedTradeAmounts,
   marketSelection,
   investmentAmount,
-  collateral
+  collateral,
+  fee
 }) => {
   const [profitSim, setProfitSim] = useState({
     value: 0,
@@ -65,6 +66,11 @@ const profitSimulator = ({
         hasEnteredInvestment ? investmentAmount : zeroDecimal
       );
 
+      // We have to substract the fee
+      const investmentAmountInUnitsAfterFee = investmentAmountInUnits
+        .div(Decimal(1).add(fee))
+        .toDecimalPlaces(0);
+
       const normalizedSlider = new Decimal(sliderValue)
         .sub(decimalLower)
         .div(decimalUpper.sub(decimalLower));
@@ -80,7 +86,7 @@ const profitSimulator = ({
       setProfitSim({
         maxPayout: maxPayout.toString(),
         minPayout: "0",
-        fee: investmentAmountInUnits.mul(0.05).toString(),
+        fee: investmentAmountInUnits.mul(fee).toString(),
         cost: investmentAmountInUnits.toString(),
         value: profitAmount.toString(),
         percent: investmentAmountInUnits.gt(0)
@@ -160,13 +166,13 @@ const profitSimulator = ({
               {formatCollateral(profitSim.cost, collateral)}
             </span>
           </div>
-          {/*<div className={cx("row")}>
-            <span className={cx("label")}>Fees (0.5%)</span>
+          <div className={cx("row")}>
+            <span className={cx("label")}>Fees ({fee * 100}%)</span>
             <span className={cx("spacer")} />
             <span className={cx("value")}>
               {formatCollateral(profitSim.fee, collateral)}
             </span>
-          </div>*/}
+          </div>
         </div>
       </div>
     </>
@@ -199,7 +205,8 @@ profitSimulator.propTypes = {
   }).isRequired,
   stagedTradeAmounts: PropTypes.arrayOf(
     PropTypes.instanceOf(Decimal).isRequired
-  )
+  ),
+  fee: PropTypes.string.isRequired
 };
 
 export default profitSimulator;

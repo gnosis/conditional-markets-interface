@@ -15,25 +15,32 @@ const BuySummary = ({
   markets,
   positions,
   collateral,
+  lmsrState,
   stagedTradeAmounts,
-  marketSelections,
   investmentAmount
 }) => {
   const [humanReadablePositions, setHumanReadablePositions] = useState(null);
   const [stagedTradePositionGroups, setStagedTradePositionGroups] = useState(
     []
   );
+  const [fee, setFee] = useState(0);
+
   useEffect(() => {
     setStagedTradePositionGroups(
       stagedTradeAmounts &&
         calcPositionGroups(markets, positions, stagedTradeAmounts)
     );
-  }, [markets, positions, stagedTradeAmounts]);
+
+    if (lmsrState) {
+      setFee(lmsrState.fee * 100);
+    }
+  }, [markets, positions, stagedTradeAmounts, lmsrState]);
 
   useEffect(() => {
     let humanReadablePositions = {
       payOutWhen: {
         title: "ROI if markets resolves to selected outcome:",
+        feeTitle: "Of which fees (" + fee + "%):",
         positions: []
       },
       loseInvestmentWhen: {
@@ -45,13 +52,19 @@ const BuySummary = ({
     (stagedTradePositionGroups || []).forEach(
       ({ outcomeSet, runningAmount }) => {
         let hasEnteredInvestment;
+        let investmentFee;
 
         try {
           const decimalInvest = Decimal(investmentAmount);
           hasEnteredInvestment = decimalInvest.gt(0);
+          investmentFee = decimalInvest.mul(lmsrState.fee);
         } catch (err) {
           //
         }
+
+        humanReadablePositions.payOutWhen.fee = investmentAmount
+          ? investmentFee
+          : 0;
 
         // all payouts
         humanReadablePositions.payOutWhen.positions = outcomeSet;
@@ -113,6 +126,20 @@ const BuySummary = ({
           .filter(category => category && category.positions.length)
           .map(category => (
             <Fragment key={category.title}>
+              {category.fee !== undefined && (
+                <>
+                  <div className={cx("summary-heading")}>
+                    {category.feeTitle}
+                  </div>
+                  <div className={cx("summary-category")}>
+                    <div className={cx("category-values")}>
+                      <p className={cx("category-value", "value")}>
+                        {category.fee.toString()}
+                      </p>
+                    </div>
+                  </div>
+                </>
+              )}
               <div className={cx("summary-heading")}>{category.title}</div>
               <div className={cx("summary-category")}>
                 <div className={cx("category-values")}>
@@ -170,12 +197,15 @@ BuySummary.propTypes = {
     decimals: PropTypes.number.isRequired,
     isWETH: PropTypes.bool.isRequired
   }).isRequired,
-  marketSelections: PropTypes.arrayOf(
-    PropTypes.shape({
-      isAssumed: PropTypes.bool.isRequired,
-      selectedOutcomeIndex: PropTypes.number
-    }).isRequired
-  ),
+  lmsrState: PropTypes.shape({
+    fee: PropTypes.string
+  }).isRequired,
+  // marketSelections: PropTypes.arrayOf(
+  //   PropTypes.shape({
+  //     isAssumed: PropTypes.bool.isRequired,
+  //     selectedOutcomeIndex: PropTypes.number
+  //   }).isRequired
+  // ),
   stagedTradeAmounts: PropTypes.arrayOf(
     PropTypes.instanceOf(Decimal).isRequired
   ),

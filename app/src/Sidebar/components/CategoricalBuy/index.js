@@ -87,7 +87,12 @@ const Buy = ({
         hasEnteredInvestment ? investmentAmount : zeroDecimal
       );
 
-      if (!investmentAmountInUnits.isInteger())
+      // We have to substract the fee
+      const investmentAmountInUnitsAfterFee = investmentAmountInUnits
+        .div(Decimal(1).add(lmsrState.fee))
+        .toDecimalPlaces(0);
+
+      if (!investmentAmountInUnitsAfterFee.isInteger())
         throw new Error(
           `Got more than ${collateral.decimals} decimals in value ${investmentAmount}`
         );
@@ -96,7 +101,7 @@ const Buy = ({
         calcOutcomeTokenCounts(
           positions,
           lmsrState,
-          investmentAmountInUnits,
+          investmentAmountInUnitsAfterFee,
           marketSelections
         )
       );
@@ -155,7 +160,6 @@ const Buy = ({
         precheck: async () => {
           return conditionalTokensService.needsMoreAllowance({
             investmentAmount,
-            stagedTradeAmounts,
             account,
             collateralBalance
           });
@@ -305,8 +309,8 @@ const Buy = ({
             markets,
             positions,
             collateral,
+            lmsrState,
             stagedTradeAmounts,
-            marketSelections,
             investmentAmount
           }}
         />

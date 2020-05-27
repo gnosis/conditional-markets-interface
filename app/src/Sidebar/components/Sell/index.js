@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
+import Decimal from "decimal.js-light";
+
 import Web3 from "web3";
 import { calcPositionGroups } from "utils/position-groups";
 import { getMarketProbabilities } from "utils/probabilities";
@@ -168,7 +170,6 @@ const SellOrPositions = ({
 
   return isSelling ? (
     <Sell
-      markets={markets}
       currentSellingPosition={currentSellingPosition}
       onCancelSell={clearAllPositions}
       positions={positions}
@@ -182,6 +183,7 @@ const SellOrPositions = ({
       asWrappedTransaction={asWrappedTransaction}
       ongoingTransactionType={ongoingTransactionType}
       positionGroups={positionGroups}
+      fee={lmsrState.fee}
     />
   ) : (
     <Positions
@@ -219,8 +221,23 @@ SellOrPositions.propTypes = {
     marketMakerAddress: PropTypes.string.isRequired,
     funding: PropTypes.instanceOf(BN).isRequired,
     positionBalances: PropTypes.arrayOf(PropTypes.instanceOf(BN).isRequired)
-      .isRequired
-  })
+      .isRequired,
+    fee: PropTypes.string.isRequired
+  }),
+  marketSelections: PropTypes.arrayOf(
+    PropTypes.shape({
+      isAssumed: PropTypes.bool.isRequired,
+      selectedOutcomeIndex: PropTypes.number
+    }).isRequired
+  ),
+  stagedTradeAmounts: PropTypes.arrayOf(
+    PropTypes.instanceOf(Decimal).isRequired
+  ),
+  setStagedTradeAmounts: PropTypes.func.isRequired,
+  stagedTransactionType: PropTypes.string,
+  setStagedTransactionType: PropTypes.func.isRequired,
+  ongoingTransactionType: PropTypes.string,
+  asWrappedTransaction: PropTypes.func.isRequired
 };
 
 export default SellOrPositions;
