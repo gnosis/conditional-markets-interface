@@ -7,15 +7,18 @@ import style from "./myAccount.scss";
 
 const cx = cn.bind(style);
 
-const Tier2Pending = () => {
+const TierUpgradePending = ({ tier }) => {
   return (
     <div className={cx("warning-block")}>
       <img src={LoadingLogo} alt="Warning!" />
       <div className={cx("modal-body-attention")}>
-        <strong>Tier 2 upgrade currently pending.</strong>
+        {tier < 1 && <strong>Tier 2 upgrade currently pending.</strong>}
+        {tier >= 1 && (
+          <strong>Tier {tier + 1} upgrade currently pending.</strong>
+        )}
       </div>
     </div>
   );
 };
 
-export default Tier2Pending;
+export default TierUpgradePending;

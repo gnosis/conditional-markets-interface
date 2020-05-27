@@ -37,12 +37,15 @@
   .indicator-label {
     font-size: 1.2rem;
     height: 2.5rem;
-    line-height: 2.5rem;
+    line-height: 2.7rem;
     background-color: $blue;
     color: $white;
     text-transform: uppercase;
     font-weight: bold;
     padding: 0 0.8rem;
     border-radius: 0 2px 2px 0;
+  }
+  .indicator-label.unlimited {
+    border-radius: 2px;
   }
 }
