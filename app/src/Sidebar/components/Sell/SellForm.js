@@ -52,6 +52,7 @@ const SellForm = ({
   const [selectOutcomeValue, setSelectOutcomeValue] = useState(null);
   const [sellAmountFullUnit, setSellAmountFullUnit] = useState("0");
   const [estimatedSaleEarning, setEstimatedSaleEarning] = useState(null);
+  const [estimatedFee, setEstimatedFee] = useState(null);
   const [error, setError] = useState(null);
   const {
     outcomeIndex: selectedOutcomeIndex
@@ -93,6 +94,7 @@ const SellForm = ({
     sellAmount => {
       setError(null);
       setEstimatedSaleEarning(null);
+      setEstimatedFee(null);
       let balanceForThisPosition = getBaseArray(positionBalances.length);
       // Include in this call only the balance for this position
       // Note the negative value, it's because of being a sell price
@@ -124,10 +126,26 @@ const SellForm = ({
       conditionalTokensService
         .calcNetCost(balanceForThisPosition)
         .then(tradeEarning => {
-          setEstimatedSaleEarning(tradeEarning.abs().toString());
+          const tradeEarningToDecimal = new Decimal(
+            tradeEarning.abs().toString()
+          )
+            .div(Math.pow(10, collateral.decimals))
+            .toSignificantDigits(collateralSignificantDigits);
+          const tradeFee = tradeEarningToDecimal.mul(fee);
+
+          setEstimatedSaleEarning(tradeEarningToDecimal);
+          setEstimatedFee(tradeFee);
         });
     },
-    [sellAmountFullUnit, positionBalances, positions, selectedOutcomeIndex]
+    [
+      conditionalTokensService,
+      maxSellAmounts,
+      sellAmountFullUnit,
+      positionBalances,
+      positions,
+      selectedOutcomeIndex,
+      fee
+    ]
   );
 
   // Update estimated earnings on first render
@@ -244,12 +262,7 @@ const SellForm = ({
                 type="text"
                 readOnly
                 value={
-                  estimatedSaleEarning
-                    ? new Decimal(estimatedSaleEarning)
-                        .div(Math.pow(10, collateral.decimals))
-                        .toSignificantDigits(collateralSignificantDigits)
-                        .toString()
-                    : "..."
+                  estimatedSaleEarning ? estimatedSaleEarning.toString() : "..."
                 }
                 className={cx("input")}
               />
@@ -266,13 +279,25 @@ const SellForm = ({
               <input
                 type="text"
                 readOnly
+                value={estimatedFee ? estimatedFee.toString() : "..."}
+                className={cx("input")}
+              />
+              <span className={cx("input-append", "collateral-name")}>
+                <abbr title={collateral.name}>{collateral.symbol}</abbr>
+              </span>
+            </div>
+          </div>
+        </div>
+        <div className={cx("sell-form-row")}>
+          <label>Total Sell Value</label>
+          <div className={cx("entry")}>
+            <div className={cx("input-group")}>
+              <input
+                type="text"
+                readOnly
                 value={
-                  estimatedSaleEarning
-                    ? new Decimal(estimatedSaleEarning)
-                        .div(Math.pow(10, collateral.decimals))
-                        .toSignificantDigits(collateralSignificantDigits)
-                        .mul(fee)
-                        .toString()
+                  estimatedSaleEarning && estimatedFee
+                    ? estimatedSaleEarning.sub(estimatedFee).toString()
                     : "..."
                 }
                 className={cx("input")}
