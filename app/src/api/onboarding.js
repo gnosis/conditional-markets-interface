@@ -55,10 +55,12 @@ export const getSourceOfWealthState = async account => {
 
 export const setEthAccountEmail = async userInformation => {
   const url = `${WHITELIST_API_URL}/v1/users/`;
+  // acceptNewsletter is required to be defined for backend but is not mandatory param
+  const data = { acceptNewsletter: false, ...userInformation };
 
   return fetch(url, {
     method: "POST",
-    body: JSON.stringify(userInformation), // data can be `string` or {object}!
+    body: JSON.stringify(data), // data can be `string` or {object}!
     headers: {
       "Content-Type": "application/json"
     }
@@ -119,9 +121,12 @@ export const postTradingVolumeSimulation = async (
 
 export const postPersonalDetails = async personalDetails => {
   const url = `${WHITELIST_API_URL}/v1/sdd/users/`;
+  // acceptNewsletter is required to be defined for backend but is not mandatory param
+  const data = { acceptNewsletter: false, ...personalDetails };
+
   const response = await fetch(url, {
     method: "POST",
-    body: JSON.stringify(personalDetails),
+    body: JSON.stringify(data),
     headers: {
       "Content-Type": "application/json"
     }
@@ -249,10 +254,12 @@ export const postTier2Upgrade = async userDetails => {
  */
 export const postTier2Request = async userDetails => {
   const url = `${WHITELIST_API_URL}/v1/tiers/2/requests/`;
+  // acceptNewsletter is required to be defined for backend but is not mandatory param
+  const data = { acceptNewsletter: false, ...userDetails };
 
   const response = await fetch(url, {
     method: "POST",
-    body: JSON.stringify(userDetails),
+    body: JSON.stringify(data),
     headers: {
       "Content-Type": "application/json"
     }
