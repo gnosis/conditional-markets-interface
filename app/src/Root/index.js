@@ -337,9 +337,9 @@ const RootComponent = ({
     if (account) {
       (async () => {
         const userState = await getUserState(account);
+        setUser(userState);
         const { status: whitelistStatus } = userState;
         setWhitelistState(whitelistStatus);
-        setUser(userState);
 
         if (
           !isCurrentUserUpgrading(tiers, userState) &&

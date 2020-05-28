@@ -10,7 +10,8 @@ import LoadingIcon from "assets/icons/loading-static.svg";
 import {
   getCurrentUserTierData,
   isCurrentUserUpgrading,
-  isCurrentUserActionRequired
+  isCurrentUserActionRequired,
+  isCurrentUserSuspended
 } from "utils/tiers";
 
 import style from "./tradingLimitIndicator.scss";
@@ -27,6 +28,7 @@ const TradingLimitIndicator = ({ address, userState, tiers, openModal }) => {
   const [maxVolume, setMaxVolume] = useState(0);
   const [tier, setTier] = useState(0);
   const [warning, setWarning] = useState(false);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     if (userState && userState.tradingVolume) {
@@ -39,6 +41,7 @@ const TradingLimitIndicator = ({ address, userState, tiers, openModal }) => {
       const { limit, name } = getCurrentUserTierData(tiers, userState);
 
       setWarning(false);
+      setError(false);
       setMaxVolume(limit);
       setTier(name);
 
@@ -47,7 +50,8 @@ const TradingLimitIndicator = ({ address, userState, tiers, openModal }) => {
         isCurrentUserActionRequired(tiers, userState)
       ) {
         setWarning(true);
-        // setMaxVolume(0);
+      } else if (isCurrentUserSuspended(tiers, userState)) {
+        setError(true);
       }
     }
   }, [tiers, userState]);
@@ -83,6 +87,22 @@ const TradingLimitIndicator = ({ address, userState, tiers, openModal }) => {
           </Link>
         </span>
       );
+    } else if (isCurrentUserSuspended(tiers, userState)) {
+      return (
+        <span>
+          <strong>Account suspended.</strong>{" "}
+          <Link
+            className={cx("cancel-button")}
+            component="button"
+            onClick={() => {
+              openModal("KYC", { initialStep: "PENDING" });
+            }}
+            underline="always"
+          >
+            View details
+          </Link>
+        </span>
+      );
     }
 
     return (
@@ -94,17 +114,20 @@ const TradingLimitIndicator = ({ address, userState, tiers, openModal }) => {
   }, [tier, tiers, userState, volume, maxVolume]);
 
   return (
-    <div className={cx("trading-indicator")}>
+    <div
+      className={cx("trading-indicator", error && "trading-indicator-error")}
+    >
       {tier < 3 && (
         <>
           <LinearProgress
             variant="determinate"
-            value={warning ? 100 : normalise(volume, 0, maxVolume)}
+            value={error || warning ? 100 : normalise(volume, 0, maxVolume)}
             classes={{
               root: cx("linear-progress"),
-              barColorPrimary: warning
-                ? cx("linear-progress-bar-warning")
-                : cx("linear-progress-bar")
+              barColorPrimary: cx(
+                "linear-progress-bar",
+                warning && "linear-progress-bar-warning"
+              )
             }}
           />
           <div className={cx("progress-label")}>{getProgressLabel()}</div>

@@ -8,7 +8,8 @@ import { formatAddress } from "utils/formatting";
 import getWeb3Modal from "utils/web3Modal";
 import {
   isCurrentUserUpgrading,
-  isCurrentUserActionRequired
+  isCurrentUserActionRequired,
+  isCurrentUserSuspended
 } from "utils/tiers";
 
 import conf from "conf";
@@ -153,7 +154,7 @@ const UserWallet = ({
         <div className={cx("user-wallet")}>
           {accountsEnabled && (
             <button
-              onClick={() => openModal("KYC")}
+              onClick={() => openModal("KYC", { updateWhitelist })}
               className={cx("kyc-button")}
             >
               Create Account
@@ -173,7 +174,8 @@ const UserWallet = ({
       !isCurrentUserUpgrading(tiers, user) &&
       !isCurrentUserActionRequired(tiers, user) &&
       (whitelistState === WHITELIST_STATES.PENDING ||
-        whitelistState === WHITELIST_STATES.BLOCKED)
+        (whitelistState === WHITELIST_STATES.BLOCKED &&
+          !isCurrentUserSuspended(tiers, user)))
     ) {
       return (
         <div className={cx("user-wallet")}>

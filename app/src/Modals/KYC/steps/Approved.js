@@ -30,13 +30,11 @@ const Approved = ({ closeModal }) => {
 
   useEffect(() => {
     updateCurrentUserTierData();
-  }, []);
 
-  useEffect(() => {
     if (user && user.tradingVolume) {
       setVolume(user.tradingVolume.dollars);
     }
-  }, [account, user]);
+  }, [account, user, updateCurrentUserTierData]);
 
   return (
     <>

@@ -37,3 +37,8 @@ export const isCurrentUserActionRequired = (tiers, userState) => {
     tier => userState.tiers[tier.name].status === "PENDING_UPLOAD_DOCUMENTS"
   );
 };
+
+export const isCurrentUserSuspended = (tiers, userState) => {
+  // If any tier is SANCTIONED return that user is Upgrading
+  return tiers.some(tier => userState.tiers[tier.name].status === "SANCTIONED");
+};

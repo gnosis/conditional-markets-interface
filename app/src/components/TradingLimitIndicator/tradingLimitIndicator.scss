@@ -48,4 +48,25 @@
   .indicator-label.unlimited {
     border-radius: 2px;
   }
+
+  &-error {
+    .linear-progress-bar {
+      background-color: $red;
+      opacity: 0.16;
+    }
+    
+    .linear-progress {
+      width: 20rem;
+      border: 1px solid $greyBorder2;
+    }
+
+    .progress-label {
+      width: 20rem;
+      color: $red;
+    }
+
+    .indicator-label {
+      display: none;
+    }
+  }
 }
