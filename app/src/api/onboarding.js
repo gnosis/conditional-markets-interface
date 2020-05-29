@@ -16,7 +16,7 @@ const WHITELIST_ERROR = "ERROR";
 export const WHITELIST_STATES = {
   PENDING: WHITELIST_PENDING,
   BLOCKED: WHITELIST_BLOCKED,
-  APPROVED: WHITELIST_APPROVED,
+  WHITELISTED: WHITELIST_APPROVED,
   UNKNOWN: WHITELIST_UNKNOWN,
   LOADING: WHITELIST_LOADING,
   ERROR: WHITELIST_ERROR
@@ -55,12 +55,10 @@ export const getSourceOfWealthState = async account => {
 
 export const setEthAccountEmail = async userInformation => {
   const url = `${WHITELIST_API_URL}/v1/users/`;
-  // acceptNewsletter is required to be defined for backend but is not mandatory param
-  const data = { acceptNewsletter: false, ...userInformation };
 
   return fetch(url, {
     method: "POST",
-    body: JSON.stringify(data), // data can be `string` or {object}!
+    body: JSON.stringify(userInformation), // data can be `string` or {object}!
     headers: {
       "Content-Type": "application/json"
     }

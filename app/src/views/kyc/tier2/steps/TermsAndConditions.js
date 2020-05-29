@@ -25,8 +25,6 @@ const VALIDATIONS = {
 
 const TermsAndConditions = ({ account, email, handleAdvanceStep }) => {
   const onSubmit = useCallback(async values => {
-    console.log("Submitting...");
-    console.log("values:", values);
     const response = await setEthAccountEmail(values);
 
     if (response.ok) {
@@ -125,12 +123,6 @@ const TermsAndConditions = ({ account, email, handleAdvanceStep }) => {
                     Privacy Policy*
                   </a>
                 }
-              />
-              <Field
-                name="acceptNewsletter"
-                component={CheckboxInput}
-                type="checkbox"
-                label="Newsletter & Updates"
               />
             </div>
             {submitError && <p className={cx("error")}>{submitError}</p>}
