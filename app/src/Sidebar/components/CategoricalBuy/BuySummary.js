@@ -198,8 +198,8 @@ BuySummary.propTypes = {
     isWETH: PropTypes.bool.isRequired
   }).isRequired,
   lmsrState: PropTypes.shape({
-    fee: PropTypes.string
-  }).isRequired,
+    fee: PropTypes.string.isRequired
+  }),
   // marketSelections: PropTypes.arrayOf(
   //   PropTypes.shape({
   //     isAssumed: PropTypes.bool.isRequired,

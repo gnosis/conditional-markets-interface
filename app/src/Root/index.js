@@ -361,8 +361,10 @@ const RootComponent = ({
 
   const getTradingVolume = useCallback(() => {
     (async () => {
-      const { buyVolume } = await getCurrentTradingVolume(account);
-      setTradingVolume(buyVolume);
+      if (account) {
+        const { buyVolume } = await getCurrentTradingVolume(account);
+        setTradingVolume(buyVolume);
+      }
     })();
   }, [setTradingVolume, account]);
 
