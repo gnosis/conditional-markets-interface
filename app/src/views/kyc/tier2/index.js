@@ -19,7 +19,6 @@ import conf from "../../../conf";
 import Logo from "img/conditional-logo-color.svg";
 import LoggedIn from "./LoggedIn";
 
-export const STEP_CONNECT = "CONNECT";
 export const STEP_TERMS_AND_CONDITIONS = "TERMS_AND_CONDITIONS";
 export const STEP_SOURCE_OF_WEALTH = "SOURCE_OF_WEALTH";
 export const STEP_SUMSUB_FORM = "SUMSUB_FORM";
@@ -28,7 +27,6 @@ export const STEP_TOKEN_EXPIRED = "TOKEN_EXPIRED";
 
 // Child components loaded lazily on Tier2 load
 const STEP_COMPONENTS = {
-  [STEP_CONNECT]: () => import("./ConnectAccount"),
   [STEP_TERMS_AND_CONDITIONS]: () => import("./steps/TermsAndConditions"),
   [STEP_SOURCE_OF_WEALTH]: () => import("./steps/SourceOfWealth"),
   [STEP_SUMSUB_FORM]: () => import("./steps/SumSubForm"),
@@ -52,7 +50,6 @@ const Tier2 = props => {
 
   const [web3, setWeb3] = useState(null);
   const [account, setAccount] = useState(null);
-  const [userState, setUserState] = useState(null);
   const [tier2Status, setTier2Status] = useState(null);
 
   const routerLocation = useLocation();
@@ -150,7 +147,6 @@ const Tier2 = props => {
   const getAccountInfo = useCallback(async () => {
     const currentUserState = await getUserState(account);
 
-    setUserState(currentUserState);
     if (currentUserState && currentUserState.tiers) {
       setTier2Status(currentUserState.tiers[2].status);
     }
@@ -159,8 +155,6 @@ const Tier2 = props => {
   useEffect(() => {
     if (account) {
       getAccountInfo();
-    } else {
-      setUserState(null);
     }
   }, [account]);
 
@@ -182,7 +176,7 @@ const Tier2 = props => {
         setCurrentStepIndex(STEP_TERMS_AND_CONDITIONS);
       }
     }
-  });
+  }, [account, web3]);
 
   useInterval(checkAccount, SYNC_INTERVAL);
 
