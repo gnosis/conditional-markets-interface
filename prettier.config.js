@@ -1,3 +1,5 @@
 module.exports = {
-  sourceType: "module"
+  sourceType: "module",
+  trailingComma: "none",
+  arrowParens: "avoid"
 };
