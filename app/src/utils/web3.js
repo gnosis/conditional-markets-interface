@@ -34,7 +34,7 @@ export function getReadOnlyProviderForNetworkId(networkId) {
 
   return providerName == null
     ? null
-    : `wss://${providerName}.infura.io/ws/v3/d743990732244555a1a0e82d5ab90c7f`;
+    : `wss://${providerName}.infura.io/ws/v3/bd80e0d6a7254439a294b8ca04e2b66d`;
 }
 
 export async function getAccount(web3) {
