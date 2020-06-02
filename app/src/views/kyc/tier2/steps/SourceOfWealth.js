@@ -145,9 +145,9 @@ const SourceOfWealth = ({ email, account, handleAdvanceStep }) => {
             const showEmployerJobField = values.mainSource === "salaried";
             const showSelfEmployedJobField =
               values.mainSource === "self-employed";
-            const showSpecificsField = !DOES_NOT_REQUIRE_SPECIFICS.includes(
-              values.mainSource
-            );
+            const showSpecificsField =
+              values.mainSource !== undefined &&
+              !DOES_NOT_REQUIRE_SPECIFICS.includes(values.mainSource);
 
             if (submitting) {
               return <Spinner inverted />;
@@ -166,7 +166,7 @@ const SourceOfWealth = ({ email, account, handleAdvanceStep }) => {
                   component={Select}
                   name="mainSource"
                   options={SOURCE_OF_WEALTH_OPTIONS}
-                  label="What is your main source of funds?"
+                  label="Please select source of funds"
                 />
                 {showCompanyNameField && (
                   <Field

@@ -179,7 +179,7 @@ const Sow = props => {
 
           <span>
             <strong>
-              What is your main source of funds?{" "}
+              Please select source of funds{" "}
               <small className={cx("text-red")}>*</small>
             </strong>
             <select
