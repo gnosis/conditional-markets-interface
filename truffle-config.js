@@ -25,7 +25,7 @@ const createInfuraEntry = (networkName, networkId, gasPrice) => ({
     provider: () =>
       new HDWalletProvider(
         seed,
-        `https://${networkName}.infura.io/v3/d743990732244555a1a0e82d5ab90c7f`
+        `https://${networkName}.infura.io/v3/bd80e0d6a7254439a294b8ca04e2b66d`
       ),
     network_id: networkId,
     gasPrice,
