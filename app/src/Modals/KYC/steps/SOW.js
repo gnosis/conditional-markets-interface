@@ -168,9 +168,10 @@ const SourceOfWealth = ({ closeModal }) => {
             const showEmployerJobField = values.mainSource === "salaried";
             const showSelfEmployedJobField =
               values.mainSource === "self-employed";
-            const showSpecificsField = !DO_NOT_REQUIRE_SPECIFICS.includes(
-              values.mainSource
-            );
+            
+            const showSpecificsField =
+              values.mainSource !== undefined &&
+              !DO_NOT_REQUIRE_SPECIFICS.includes(values.mainSource);
 
             if (submitting) {
               return <Spinner inverted />;
@@ -194,7 +195,7 @@ const SourceOfWealth = ({ closeModal }) => {
                   component={Select}
                   name="mainSource"
                   options={SOURCE_OF_WEALTH_OPTIONS}
-                  label="What is your main source of funds?"
+                  label="Please select source of funds"
                 />
                 {showCompanyNameField && (
                   <Field
