@@ -24,6 +24,13 @@ export const getCurrentUserTierData = (tiers, userState) => {
   );
 };
 
+export const isAccountCreationProcessing = (tiers, userState) => {
+  // If any tier is PENDING_SDD return that user is creating account
+  return tiers.some(
+    tier => userState.tiers[tier.name].status === "PENDING_SDD"
+  );
+};
+
 export const isCurrentUserUpgrading = (tiers, userState) => {
   // If any tier is PENDING_VERIFICATION return that user is Upgrading
   return tiers.some(
