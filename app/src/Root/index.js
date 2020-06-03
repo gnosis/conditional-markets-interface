@@ -386,12 +386,22 @@ const RootComponent = ({
         return false;
       } else if (ONBOARDING_MODE === "TIERED") {
         // If mode is Tiered we have to open SDD KYC Modal
-        const { name: tier } = getCurrentUserTierData(tiers, user);
+        const { name: tier, limit: maxVolume } = getCurrentUserTierData(
+          tiers,
+          user
+        );
 
         if (tier === 0 && !isAccountCreationProcessing(tiers, user)) {
           openModal("KYC");
-        } else {
+        } else if (
+          !isCurrentUserUpgrading(tiers, user) &&
+          !isCurrentUserActionRequired(tiers, user)){
           openModal("KYC", { initialStep: "PENDING", updateWhitelist });
+        } else {
+          openModal("MyAccount", {
+            tier,
+            maxVolume
+          });
         }
         return false;
       } else {
