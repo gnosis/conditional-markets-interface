@@ -66,11 +66,6 @@ const profitSimulator = ({
         hasEnteredInvestment ? investmentAmount : zeroDecimal
       );
 
-      // We have to substract the fee
-      const investmentAmountInUnitsAfterFee = investmentAmountInUnits
-        .div(Decimal(1).add(fee))
-        .toDecimalPlaces(0);
-
       const normalizedSlider = new Decimal(sliderValue)
         .sub(decimalLower)
         .div(decimalUpper.sub(decimalLower));
@@ -108,10 +103,7 @@ const profitSimulator = ({
             <span>{formatScalarValue(decimalLower, market.unit)}</span>
             <span>
               {formatScalarValue(
-                decimalUpper
-                  .minus(decimalLower)
-                  .div(2)
-                  .add(decimalLower),
+                decimalUpper.minus(decimalLower).div(2).add(decimalLower),
                 market.unit
               )}
             </span>

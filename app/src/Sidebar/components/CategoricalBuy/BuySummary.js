@@ -39,8 +39,9 @@ const BuySummary = ({
   useEffect(() => {
     let humanReadablePositions = {
       payOutWhen: {
-        title: "ROI if markets resolves to selected outcome:",
-        feeTitle: "Of which fees (" + fee + "%):",
+        tokenAmountTitle: "Outcome tokens",
+        title: "ROI if winning outcome",
+        feeTitle: "Of which fees (" + fee + "%)",
         positions: []
       },
       loseInvestmentWhen: {
@@ -50,7 +51,7 @@ const BuySummary = ({
     };
 
     (stagedTradePositionGroups || []).forEach(
-      ({ outcomeSet, runningAmount }) => {
+      ({ outcomeSet, runningAmount, amount }) => {
         let hasEnteredInvestment;
         let investmentFee;
 
@@ -68,9 +69,14 @@ const BuySummary = ({
 
         // all payouts
         humanReadablePositions.payOutWhen.positions = outcomeSet;
+        humanReadablePositions.payOutWhen.tokenAmount = hasEnteredInvestment
+          ? amount
+          : zeroDecimal;
+
         humanReadablePositions.payOutWhen.runningAmount = hasEnteredInvestment
           ? runningAmount
           : zeroDecimal;
+
         humanReadablePositions.payOutWhen.increment = hasEnteredInvestment
           ? collateral.fromUnitsMultiplier.mul(runningAmount.toString())
               .sub(investmentAmount)
@@ -127,36 +133,42 @@ const BuySummary = ({
           .map(category => (
             <Fragment key={category.title}>
               {category.fee !== undefined && (
-                <>
-                  <div className={cx("summary-heading")}>
-                    {category.feeTitle}
-                  </div>
-                  <div className={cx("summary-category")}>
-                    <div className={cx("category-values")}>
-                      <p className={cx("category-value", "value")}>
-                        {category.fee.toString()}
-                      </p>
-                    </div>
-                  </div>
-                </>
-              )}
-              <div className={cx("summary-heading")}>{category.title}</div>
-              <div className={cx("summary-category")}>
-                <div className={cx("category-values")}>
-                  <p className={cx("category-value", "value")}>
-                    {formatCollateral(category.runningAmount, collateral)}
-                    {category.increment && category.increment.abs().gt(0.01) && (
-                      <span
-                        className={cx("change-percentage", {
-                          negative: category.increment.lt(0)
-                        })}
-                      >
-                        {" "}
-                        {category.increment.toString()}%
-                      </span>
-                    )}
-                  </p>
+                <div className={cx("summary-element")}>
+                  <span>{category.feeTitle}</span>
+                  <span className={cx("dotted-separator")}></span>
+                  <span className={cx("summary-element-value")}>
+                    {category.fee.toString()} {collateral.symbol}
+                  </span>
                 </div>
+              )}
+              {category.tokenAmount !== undefined && (
+                <div className={cx("summary-element")}>
+                  <span>{category.tokenAmountTitle}</span>
+                  <span className={cx("dotted-separator")}></span>
+                  <span className={cx("summary-element-value")}>
+                    {new Decimal(category.tokenAmount.toString())
+                      .div(1e18)
+                      .toSignificantDigits(4)
+                      .toString()}
+                  </span>
+                </div>
+              )}
+              <div className={cx("summary-element")}>
+                <span>{category.title}</span>
+                <span className={cx("dotted-separator")}></span>
+                <span className={cx("summary-element-value")}>
+                  {formatCollateral(category.runningAmount, collateral)}
+                  {category.increment && category.increment.abs().gt(0.01) && (
+                    <span
+                      className={cx("change-percentage", {
+                        negative: category.increment.lt(0)
+                      })}
+                    >
+                      {" "}
+                      {category.increment.toString()}%
+                    </span>
+                  )}
+                </span>
               </div>
             </Fragment>
           ))}
