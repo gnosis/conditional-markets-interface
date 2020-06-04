@@ -78,6 +78,12 @@ const Approved = ({ closeModal }) => {
               tokens with a value up to ${tierLimit}.
             </p>
             <p>
+              It might take a few minutes to update the whitelist state. You
+              will see an indicator next to your address once your tier is
+              enabled. If it&apos;s taking longer you can try to reload the
+              page.
+            </p>
+            <p>
               We&apos;ve sent you an e-mail to subscribe to Sight notifications
               to receive updates about new markets and news.
             </p>
