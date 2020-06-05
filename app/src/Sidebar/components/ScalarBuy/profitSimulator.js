@@ -145,6 +145,16 @@ const profitSimulator = ({
       <div className={cx("invest-summary")}>
         <div className={cx("summary")}>
           <div className={cx("row")}>
+            <span className={cx("label")}>Outcome tokens</span>
+            <span className={cx("spacer")} />
+            <span className={cx("value")}>
+              {new Decimal(profitSim.maxPayout)
+                .div(1e18)
+                .toSignificantDigits(4)
+                .toString()}
+            </span>
+          </div>
+          <div className={cx("row")}>
             <span className={cx("label")}>Max Payout</span>
             <span className={cx("spacer")} />
             <span className={cx("value")}>
