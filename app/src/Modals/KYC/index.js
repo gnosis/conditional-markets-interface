@@ -8,6 +8,7 @@ import style from "./kyc.scss";
 const cx = cn.bind(style);
 
 export const STEP_RESIDENCE = "RESIDENCE";
+export const STEP_INFO = "INFO";
 export const STEP_TIER2_REQUEST = "TIER2_REQUEST";
 export const STEP_TIER2_REQUEST_SUCCESS = "TIER2_REQUEST_SUCCESS";
 export const STEP_TIER3_REQUEST_SUCCESS = "TIER3_REQUEST_SUCCESS";
@@ -20,6 +21,7 @@ export const STEP_SOW = "SOW";
 
 // Child components loaded lazily on KYC load
 const STEP_COMPONENTS = {
+  [STEP_INFO]: () => import("./steps/Info"),
   [STEP_RESIDENCE]: () => import("./steps/EuropeResident"),
   [STEP_TIER2_REQUEST]: () => import("./steps/Tier2Request"),
   [STEP_TIER2_REQUEST_SUCCESS]: () => import("./steps/Tier2RequestSuccess"),
@@ -37,7 +39,7 @@ const KYC = ({ closeModal, initialStep, ...props }) => {
   const [loading, setLoading] = useState("LOADING");
 
   const [person, setPerson] = useState({});
-  const [currentStepIndex, setCurrentStepIndex] = useState(STEP_RESIDENCE);
+  const [currentStepIndex, setCurrentStepIndex] = useState(STEP_INFO);
   const [currentStepProps, setCurrentStepProps] = useState(props);
 
   useEffect(() => {
