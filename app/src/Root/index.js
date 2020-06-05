@@ -16,7 +16,8 @@ import ToastifyError from "utils/ToastifyError";
 import getWeb3Modal from "utils/web3Modal";
 import {
   isCurrentUserUpgrading,
-  isCurrentUserActionRequired
+  isCurrentUserActionRequired,
+  getCurrentUserTierData,
 } from "utils/tiers";
 //import { Notifications as NotificationIcon } from "@material-ui/icons";
 
@@ -384,7 +385,8 @@ const RootComponent = ({
         return false;
       } else if (ONBOARDING_MODE === "TIERED") {
         // If mode is Tiered we have to open SDD KYC Modal
-        openModal("KYC");
+        const { name } = getCurrentUserTierData(tiers, user);
+        openModal("KYC", { tier: name });
         return false;
       } else {
         // Future-proofing: default error handling shows an error indicating

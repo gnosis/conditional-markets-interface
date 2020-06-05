@@ -11,7 +11,8 @@ import { STEP_RESIDENCE } from "../";
 
 const cx = classnames.bind(style);
 
-const Info = ({ closeModal, handleAdvanceStep }) => {
+const Info = ({ closeModal, handleAdvanceStep, tier }) => {
+  console.log(tier)
   return (
     <>
       <UpperBar closeModal={closeModal} title="Create Account"></UpperBar>
@@ -43,7 +44,7 @@ const Info = ({ closeModal, handleAdvanceStep }) => {
                   <li>Phone number</li>
                 </ul>
               </td>
-              <td>Not submitted</td>
+              <td>{tier >= 1 ? "Submitted" : "Not submitted"}</td>
             </tr>
             <tr>
               <td>Tier 2</td>
@@ -57,7 +58,7 @@ const Info = ({ closeModal, handleAdvanceStep }) => {
                   <li>Source of funds</li>
                 </ul>
               </td>
-              <td>Not submitted</td>
+              <td>{tier >= 2 ? "Submitted" : "Not submitted"}</td>
             </tr>
             <tr>
               <td>Tier 3</td>
@@ -68,7 +69,7 @@ const Info = ({ closeModal, handleAdvanceStep }) => {
                   <li>Verification of source of funds</li>
                 </ul>
               </td>
-              <td>Not submitted</td>
+              <td>{tier >= 3 ? "Submitted" : "Not submitted"}</td>
             </tr>
           </tbody>
         </table>
