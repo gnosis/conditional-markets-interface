@@ -18,8 +18,7 @@ import {
   getCurrentUserTierData,
   isAccountCreationProcessing,
   isCurrentUserUpgrading,
-  isCurrentUserActionRequired,
-  getCurrentUserTierData,
+  isCurrentUserActionRequired
 } from "utils/tiers";
 //import { Notifications as NotificationIcon } from "@material-ui/icons";
 
