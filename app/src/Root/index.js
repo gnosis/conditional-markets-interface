@@ -15,6 +15,8 @@ import { loadMarketsData } from "utils/getMarketsData";
 import ToastifyError from "utils/ToastifyError";
 import getWeb3Modal from "utils/web3Modal";
 import {
+  getCurrentUserTierData,
+  isAccountCreationProcessing,
   isCurrentUserUpgrading,
   isCurrentUserActionRequired,
   getCurrentUserTierData,
@@ -385,8 +387,24 @@ const RootComponent = ({
         return false;
       } else if (ONBOARDING_MODE === "TIERED") {
         // If mode is Tiered we have to open SDD KYC Modal
-        const { name } = getCurrentUserTierData(tiers, user);
-        openModal("KYC", { tier: name });
+        const { name: tier, limit: maxVolume } = getCurrentUserTierData(
+          tiers,
+          user
+        );
+
+        if (tier === 0 && !isAccountCreationProcessing(tiers, user)) {
+          const { name } = getCurrentUserTierData(tiers, user);
+          openModal("KYC", { tier: name });
+        } else if (
+          !isCurrentUserUpgrading(tiers, user) &&
+          !isCurrentUserActionRequired(tiers, user)){
+          openModal("KYC", { initialStep: "PENDING", updateWhitelist });
+        } else {
+          openModal("MyAccount", {
+            tier,
+            maxVolume
+          });
+        }
         return false;
       } else {
         // Future-proofing: default error handling shows an error indicating
@@ -404,7 +422,7 @@ const RootComponent = ({
     } else {
       return true;
     }
-  }, [whitelistState, addToast, openModal]);
+  }, [whitelistState, addToast, openModal, user, tiers, updateWhitelist]);
 
   /**
    * @typedef {Object} TransactionDescriptor

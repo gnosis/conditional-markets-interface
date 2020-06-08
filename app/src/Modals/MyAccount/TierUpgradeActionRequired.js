@@ -47,11 +47,12 @@ const Tier3Message = ({ handleRetry }) => {
 };
 
 const TierUpgradeActionRequired = ({ handleRetry, tier }) => {
+  const minimumTier = 2;
   return (
     <div className={cx("warning-block")}>
       <img src={WarningLogo} alt="Warning!" />
       <div className={cx("modal-body-attention")}>
-        Tier {tier + 1} Upgrade Pending:
+        Tier {tier + 1 < minimumTier ? minimumTier : tier + 1} Upgrade Pending:
         <strong> Documents upload required.</strong>
       </div>
       {tier < 2 && Tier2Message({ handleRetry })}
