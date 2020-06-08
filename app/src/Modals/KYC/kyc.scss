@@ -181,6 +181,55 @@
 
 }
 
+.tier-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 1.4rem;
+
+  thead {
+    background-color: #00193c;
+    color: white;
+    text-align: left;
+    
+    th {
+      padding: 1rem 1rem;
+    }
+  }
+
+  tbody {
+    td {
+      padding: 1rem 1rem;
+    }
+
+    tr {
+      background-color: white;
+      &:nth-child(odd) {
+        background-color: #f2fafb
+      }
+
+      border-bottom: 1px solid gray;
+    }
+  }
+
+  ul {
+    text-align: left;
+  }
+}
+
+.full-width {
+  width: 100%;
+  max-width: 900px;
+}
+
+.tier-intro {
+  max-width: 600px;
+  text-align: center;
+  margin: 1rem auto 2rem auto;
+
+  font-size: 1.6rem;
+  line-height: 2.4rem;
+}
+
 @keyframes animate-rotate {
   0% { transform: rotate(0deg);  }
   50% { transform: rotate(359deg); }

@@ -392,7 +392,8 @@ const RootComponent = ({
         );
 
         if (tier === 0 && !isAccountCreationProcessing(tiers, user)) {
-          openModal("KYC");
+          const { name } = getCurrentUserTierData(tiers, user);
+          openModal("KYC", { tier: name });
         } else if (
           !isCurrentUserUpgrading(tiers, user) &&
           !isCurrentUserActionRequired(tiers, user)){
