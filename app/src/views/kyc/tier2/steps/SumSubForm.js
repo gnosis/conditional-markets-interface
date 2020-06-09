@@ -2,6 +2,8 @@ import React, { useCallback, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import PropTypes from "prop-types";
 
+import { SUMSUB_WEB_SDK } from "conf";
+
 import { STEP_TOKEN_EXPIRED } from "../";
 
 // We want to explicitly import this styles sheet as raw css so
@@ -54,7 +56,7 @@ const SumSubForm = ({ email, handleAdvanceStep }) => {
     // Add SumSub SDK Script
     const script = document.createElement("script");
 
-    script.src = "https://test-api.sumsub.com/idensic/static/sumsub-kyc.js";
+    script.src = SUMSUB_WEB_SDK;
     script.async = true;
     script.onload = () => initSumsub(clientId, accessToken, email);
 

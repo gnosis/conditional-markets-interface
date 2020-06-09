@@ -1,7 +1,7 @@
-{
-  "networkId": 437894314313,
-  "lmsrAddress": "0xDF9FD2e8Cf22F173168F320172bBBB29f6d6b011",
-  "markets": [
+module.exports = {
+  networkId: 437894314313,
+  lmsrAddress: "0xDF9FD2e8Cf22F173168F320172bBBB29f6d6b011",
+  markets: [
     {
       "questionId": "0x4b22fe478b95fdaa835ddddf631ab29f12900b62061e0c5fd8564ddb7b684333",
       "status": "CREATED",
@@ -23,5 +23,5 @@
       "unit": "DAI"
     }
   ],
-  "network": "local"
-}
+  network: "local"
+};

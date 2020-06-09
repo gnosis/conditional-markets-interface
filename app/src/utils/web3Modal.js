@@ -16,7 +16,7 @@ const getWeb3Modal = lmsrAddress => {
         walletconnect: {
           package: WalletConnectProvider,
           options: {
-            infuraId: conf.infuraApiKey
+            infuraId: conf.INFURA_API_KEY
           }
         }
       }

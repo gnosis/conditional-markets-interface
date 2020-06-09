@@ -10,7 +10,6 @@ cache:
   - "$HOME/.npm"
 install:
    - npm install -g sass@1.22.10
-   - npm install -g truffle@5.0.33
 before_script:
     # ONBOARDING_MODE="TIERED" for temporarily to allow tiered onboarding testing/dev
   - if [ "$TRAVIS_BRANCH" == "development" ]; then export NETWORK="rinkeby" ONBOARDING_MODE="TIERED";

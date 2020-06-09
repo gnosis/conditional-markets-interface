@@ -42,7 +42,7 @@ export function getReadOnlyProviderForNetworkId(networkId) {
     ? networkId == 437894314313
       ? `http://localhost:8545`
       : null
-    : `wss://${providerName}.infura.io/ws/v3/` + conf.infuraApiKey;
+    : `wss://${providerName}.infura.io/ws/v3/` + conf.INFURA_API_KEY;
 }
 
 export async function getAccount(web3) {
