@@ -7,12 +7,11 @@ import style from "../kyc.scss";
 
 import UpperBar from "../../components/upperBar";
 
-import { STEP_RESIDENCE } from "../";
+import { STEP_NATIONALITY } from "../";
 
 const cx = classnames.bind(style);
 
 const Info = ({ closeModal, handleAdvanceStep, tier }) => {
-  console.log(tier)
   return (
     <>
       <UpperBar closeModal={closeModal} title="Create Account"></UpperBar>
@@ -80,7 +79,7 @@ const Info = ({ closeModal, handleAdvanceStep, tier }) => {
             variant="contained"
             color="primary"
             size="large"
-            onClick={() => handleAdvanceStep(STEP_RESIDENCE)}
+            onClick={() => handleAdvanceStep(STEP_NATIONALITY)}
           >
             Get Verified
           </Button>
@@ -92,7 +91,8 @@ const Info = ({ closeModal, handleAdvanceStep, tier }) => {
 
 Info.propTypes = {
   closeModal: PropTypes.func.isRequired,
-  handleAdvanceStep: PropTypes.func.isRequired
+  handleAdvanceStep: PropTypes.func.isRequired,
+  tier: PropTypes.number.isRequired
 };
 
 export default Info;

@@ -7,7 +7,7 @@ import style from "../kyc.scss";
 
 import UpperBar from "../../components/upperBar";
 
-import { STEP_NATIONALITY } from "../";
+import { STEP_PERSONAL, STEP_TIER2_REQUEST } from "../";
 
 const cx = classnames.bind(style);
 
@@ -27,7 +27,7 @@ const Residence = ({ closeModal, handleAdvanceStep }) => {
             variant="contained"
             color="primary"
             size="large"
-            onClick={() => handleAdvanceStep(STEP_NATIONALITY)}
+            onClick={() => handleAdvanceStep(STEP_PERSONAL)}
           >
             Yes
           </Button>
@@ -37,14 +37,7 @@ const Residence = ({ closeModal, handleAdvanceStep }) => {
             variant="outlined"
             color="primary"
             size="large"
-            onClick={() =>
-              handleAdvanceStep([
-                STEP_NATIONALITY,
-                {
-                  nonEuResident: true
-                }
-              ])
-            }
+            onClick={() => handleAdvanceStep([STEP_TIER2_REQUEST])}
           >
             No
           </Button>

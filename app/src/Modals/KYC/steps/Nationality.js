@@ -12,7 +12,7 @@ import UpperBar from "../../components/upperBar";
 
 import { getResidenceCountries } from "api/onboarding";
 
-import { STEP_REJECTED, STEP_PERSONAL, STEP_TIER2_REQUEST } from "../";
+import { STEP_REJECTED, STEP_RESIDENCE } from "../";
 import { isRequired, validator } from "utils/validations";
 
 const cx = classnames.bind(style);
@@ -21,12 +21,7 @@ const FIELDS = {
   nationality: isRequired
 };
 
-const Nationality = ({
-  closeModal,
-  updatePerson,
-  handleAdvanceStep,
-  nonEuResident
-}) => {
+const Nationality = ({ closeModal, updatePerson, handleAdvanceStep }) => {
   const [countries, setCountries] = useState();
   const [loadingState, setIsLoading] = useState("PENDING");
 
@@ -51,14 +46,13 @@ const Nationality = ({
         countryNationalityIso2: values.nationality.iso2
       }));
 
-      const nextStep = nonEuResident ? STEP_TIER2_REQUEST : STEP_PERSONAL;
       handleAdvanceStep(
         values.nationality.canSdd
-          ? nextStep
+          ? STEP_RESIDENCE
           : [STEP_REJECTED, { reason: "nationality" }]
       );
     },
-    [nonEuResident, handleAdvanceStep, updatePerson]
+    [handleAdvanceStep, updatePerson]
   );
 
   useEffect(() => {
@@ -137,12 +131,7 @@ const Nationality = ({
 Nationality.propTypes = {
   closeModal: PropTypes.func.isRequired,
   handleAdvanceStep: PropTypes.func.isRequired,
-  updatePerson: PropTypes.func.isRequired,
-  nonEuResident: PropTypes.bool
-};
-
-Nationality.defaultProps = {
-  nonEuResident: false
+  updatePerson: PropTypes.func.isRequired
 };
 
 export default Nationality;
