@@ -11,7 +11,7 @@ const probabilityChart = ({
   decimals,
   unit,
   marketType,
-  createdAt,
+  creationDate,
   probabilities,
   resolutionDate,
   resolutionValue,
@@ -60,7 +60,7 @@ const probabilityChart = ({
       totalOutcomes={probabilities.length}
       currentProbability={displayedProbabilities}
       marketType={marketType}
-      createdAt={createdAt}
+      creationDate={creationDate}
     ></Graph>
   );
 };
@@ -70,7 +70,7 @@ probabilityChart.propTypes = {
   upperBound: PropTypes.string.isRequired,
   decimals: PropTypes.number.isRequired,
   marketType: PropTypes.string.isRequired,
-  createdAt: PropTypes.string,
+  creationDate: PropTypes.string,
   resolutionDate: PropTypes.string.isRequired,
   probabilities: PropTypes.array,
   stagedProbabilities: PropTypes.array,

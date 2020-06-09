@@ -83,7 +83,7 @@ const Graph = ({
   upperBound,
   decimals,
   unit,
-  createdAt,
+  creationDate,
   resolutionDate,
   resolutionValue,
   totalOutcomes,
@@ -153,7 +153,7 @@ const Graph = ({
       const newData = [
         {
           outcomesProbability: initialOutcomesProbability,
-          date: getMoment(createdAt).valueOf(),
+          date: getMoment(creationDate).valueOf(),
           // FIXME First entry in `entries` comes with index 0 and we add this one also
           // with the same index. Is not critical but it's a bug
           index: 0
@@ -426,7 +426,7 @@ Graph.propTypes = {
   resolutionDate: PropTypes.string.isRequired,
   resolutionValue: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   totalOutcomes: PropTypes.number,
-  createdAt: PropTypes.string.isRequired,
+  creationDate: PropTypes.string.isRequired,
   decimals: PropTypes.number,
   unit: PropTypes.string
 };
