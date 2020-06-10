@@ -13,7 +13,7 @@
     "test": "truffle test --network test",
     "test-app": "cross-env jest",
     "start": "cd ./app && webpack-dev-server --hot --config ./webpack.dev.js",
-    "build": "cd ./app && cross-env NODE_ENV=production webpack -p --config ./webpack.prod.js",
+    "build": "cd ./app && cross-env webpack -p --config ./webpack.prod.js",
     "build-profiling": "cd ./app && cross-env NODE_ENV=production webpack -p --config ./webpack.prod.js --profile --json > stats.json",
     "compile": "truffle compile --all",
     "lintjs": "eslint .",

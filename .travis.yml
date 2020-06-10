@@ -12,8 +12,8 @@ install:
    - npm install -g sass@1.22.10
 before_script:
     # ONBOARDING_MODE="TIERED" for temporarily to allow tiered onboarding testing/dev
-  - if [ "$TRAVIS_BRANCH" == "development" ]; then export NETWORK="rinkeby" ONBOARDING_MODE="TIERED";
-    else export NETWORK="mainnet";
+  - if [ "$TRAVIS_BRANCH" == "development" ]; then export NETWORK="rinkeby" ONBOARDING_MODE="TIERED" NODE_ENV=development;
+    else export NETWORK="mainnet" NODE_ENV=production;
     fi;
   - npm run compile && npm run build
 matrix:
