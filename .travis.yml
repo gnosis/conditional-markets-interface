@@ -37,6 +37,7 @@ deploy:
     secret_access_key: $AWS_SECRET_ACCESS_KEY
     skip_cleanup: true
     local_dir: dist
+    upload-dir: markets
     on:
       branch: development
 
@@ -47,7 +48,7 @@ deploy:
     secret_access_key: $AWS_SECRET_ACCESS_KEY
     skip_cleanup: true
     local_dir: dist
-    upload-dir: current
+    upload-dir: current/markets
     on:
       branch: master
 
