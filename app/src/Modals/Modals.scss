@@ -2,6 +2,8 @@
 
 .modal {
   height: auto;
+  max-height: 100%;
+  overflow: auto;
   background-color: $white;
   border-radius: .3rem;
   box-shadow: 0 1rem 1.5rem 0 rgba(0, 30, 59, 0.15);

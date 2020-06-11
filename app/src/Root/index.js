@@ -766,7 +766,7 @@ const RootComponent = ({
 
   if (loading === "SUCCESS") {
     return (
-      <div className={cx("page")}>
+      <div className={cx("page", { "modal-open": !!modal })}>
         <div>
           <Toasts
             deleteToast={deleteToast}
