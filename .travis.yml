@@ -26,8 +26,8 @@ matrix:
   - if: branch =~ /^master$/ OR tag IS present
     env:
       - DEPLOY_ENV=staging
-      - WHITELIST_API=https://sight-whitelist.mainnet.staging.gnosisdev.com/
-      - OPERATOR_API=https://sight-operator.staging.gnosisdev.com/
+      - WHITELIST_API=https://sight-whitelist.mainnet.staging.gnosisdev.com
+      - OPERATOR_API=https://sight-operator.staging.gnosisdev.com
   - if: NOT (branch =~ /^master$/) AND NOT (tag IS present)
     env: WHITELIST_API=https://sight-whitelist.staging.gnosisdev.com/api
 
