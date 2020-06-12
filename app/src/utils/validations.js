@@ -13,6 +13,14 @@ export const isEmail = value => {
   return undefined;
 };
 
+export const isEqual = (firstValue, secondValue) => {
+  if (firstValue !== secondValue) {
+    return "Values must match";
+  }
+
+  return undefined;
+};
+
 export const validator = fields => values => {
   const errors = {};
 
@@ -26,7 +34,12 @@ export const validator = fields => values => {
     const value = values[fieldName];
     let error;
     validators.some(validatorFunc => {
-      error = validatorFunc(value);
+      if (typeof validatorFunc === "object") {
+        const { func, compareField } = validatorFunc;
+        error = func(values[compareField], value);
+      } else {
+        error = validatorFunc(value);
+      }
 
       if (error != null) {
         return true;

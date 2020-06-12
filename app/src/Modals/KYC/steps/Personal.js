@@ -20,7 +20,12 @@ import { getResidenceCountries, postPersonalDetails } from "api/onboarding";
 import cn from "classnames/bind";
 
 import style from "../kyc.scss";
-import { isRequired, validator, isEmail } from "../../../utils/validations";
+import {
+  isRequired,
+  validator,
+  isEmail,
+  isEqual
+} from "../../../utils/validations";
 import { STEP_PENDING } from "../";
 import useGlobalState from "hooks/useGlobalState";
 
@@ -39,9 +44,19 @@ const VALIDATIONS = {
   countryResidence: [isRequired],
   idDocumentNumber: [isRequired],
   documentExpiryDate: [isRequired],
+  birthDate: [isRequired],
   acceptTos: [isRequired],
   acceptPrivacy: [isRequired],
-  email: [isRequired, isEmail],
+  email: [
+    isRequired,
+    isEmail,
+    { func: isEqual, compareField: "emailConfirmation" }
+  ],
+  emailConfirmation: [
+    isRequired,
+    isEmail,
+    { func: isEqual, compareField: "email" }
+  ],
   recaptchaToken: [isRequired]
 };
 
@@ -72,6 +87,7 @@ const Personal = ({ closeModal, person, updatePerson, handleAdvanceStep }) => {
         documentExpiryDate: getMoment(values.documentExpiryDate).format(
           "Y-MM-DD"
         ),
+        birthDate: getMoment(values.birthDate).format("Y-MM-DD"),
         countryResidenceIso2: values.countryResidence.iso2
       };
 
@@ -167,6 +183,7 @@ const Personal = ({ closeModal, person, updatePerson, handleAdvanceStep }) => {
                     name="documentExpiryDate"
                     label="Document Expiration"
                     disablePast
+                    autoOk
                     component={DateInput}
                   />
                   <Field
@@ -184,6 +201,13 @@ const Personal = ({ closeModal, person, updatePerson, handleAdvanceStep }) => {
                     label="Last Name*"
                     component={TextInput}
                   />
+                  <Field
+                    name="birthDate"
+                    label="Date of Birth*"
+                    disableFuture
+                    autoOk
+                    component={DateInput}
+                  />
                 </div>
                 <div className={cx("pane", "right")}>
                   <label className={cx("field", "label")}>
@@ -200,6 +224,11 @@ const Personal = ({ closeModal, person, updatePerson, handleAdvanceStep }) => {
                   <Field
                     name="email"
                     label="E-mail Address*"
+                    component={TextInput}
+                  />
+                  <Field
+                    name="emailConfirmation"
+                    label="Repeat E-mail Address*"
                     component={TextInput}
                   />
                   <Field
