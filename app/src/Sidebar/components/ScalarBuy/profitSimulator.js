@@ -19,7 +19,8 @@ const profitSimulator = ({
   stagedTradeAmounts,
   marketSelection,
   investmentAmount,
-  collateral
+  collateral,
+  fee
 }) => {
   const [profitSim, setProfitSim] = useState({
     value: 0,
@@ -80,7 +81,7 @@ const profitSimulator = ({
       setProfitSim({
         maxPayout: maxPayout.toString(),
         minPayout: "0",
-        fee: investmentAmountInUnits.mul(0.05).toString(),
+        fee: investmentAmountInUnits.mul(fee).toString(),
         cost: investmentAmountInUnits.toString(),
         value: profitAmount.toString(),
         percent: investmentAmountInUnits.gt(0)
@@ -102,10 +103,7 @@ const profitSimulator = ({
             <span>{formatScalarValue(decimalLower, market.unit)}</span>
             <span>
               {formatScalarValue(
-                decimalUpper
-                  .minus(decimalLower)
-                  .div(2)
-                  .add(decimalLower),
+                decimalUpper.minus(decimalLower).div(2).add(decimalLower),
                 market.unit
               )}
             </span>
@@ -147,6 +145,16 @@ const profitSimulator = ({
       <div className={cx("invest-summary")}>
         <div className={cx("summary")}>
           <div className={cx("row")}>
+            <span className={cx("label")}>Outcome tokens</span>
+            <span className={cx("spacer")} />
+            <span className={cx("value")}>
+              {new Decimal(profitSim.maxPayout)
+                .div(1e18)
+                .toSignificantDigits(4)
+                .toString()}
+            </span>
+          </div>
+          <div className={cx("row")}>
             <span className={cx("label")}>Max Payout</span>
             <span className={cx("spacer")} />
             <span className={cx("value")}>
@@ -160,13 +168,13 @@ const profitSimulator = ({
               {formatCollateral(profitSim.cost, collateral)}
             </span>
           </div>
-          {/*<div className={cx("row")}>
-            <span className={cx("label")}>Fees (0.5%)</span>
+          <div className={cx("row")}>
+            <span className={cx("label")}>Fees ({fee * 100}%)</span>
             <span className={cx("spacer")} />
             <span className={cx("value")}>
               {formatCollateral(profitSim.fee, collateral)}
             </span>
-          </div>*/}
+          </div>
         </div>
       </div>
     </>
@@ -199,7 +207,8 @@ profitSimulator.propTypes = {
   }).isRequired,
   stagedTradeAmounts: PropTypes.arrayOf(
     PropTypes.instanceOf(Decimal).isRequired
-  )
+  ),
+  fee: PropTypes.string.isRequired
 };
 
 export default profitSimulator;

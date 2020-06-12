@@ -1,0 +1,73 @@
+@import "~scss/_variables.scss";
+
+.trading-indicator {
+  display: flex;
+  align-items: center;
+
+  .linear-progress {
+    height: 2.5rem;
+    width: 17rem;
+    border: 1px solid $greyBorder2;
+    border-right: 0;
+    border-radius: 2px 0 0 2px;
+    background-color: $white;
+  }
+  .linear-progress-bar {
+    background-color: $lightBlue;
+
+    &-warning {
+      background-color: $beige;
+    }
+  }
+  .progress-label {
+    display: block;
+    position: absolute;
+    z-index: 1;
+    text-align: center;
+    width: 17rem;
+    font-size: 1.2rem;
+
+    &-icon {
+      width: 1.3rem;
+      vertical-align: middle;
+      margin-right: 0.5rem;
+    }
+  }
+
+  .indicator-label {
+    font-size: 1.2rem;
+    height: 2.5rem;
+    line-height: 2.7rem;
+    background-color: $blue;
+    color: $white;
+    text-transform: uppercase;
+    font-weight: bold;
+    padding: 0 0.8rem;
+    border-radius: 0 2px 2px 0;
+  }
+  .indicator-label.unlimited {
+    border-radius: 2px;
+  }
+
+  &-error {
+    .linear-progress-bar {
+      background-color: $red;
+      opacity: 0.16;
+    }
+    
+    .linear-progress {
+      width: 20rem;
+      border: 1px solid $greyBorder2;
+      border-radius: 2px;
+    }
+
+    .progress-label {
+      width: 20rem;
+      color: $red;
+    }
+
+    .indicator-label {
+      display: none;
+    }
+  }
+}

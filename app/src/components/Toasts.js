@@ -8,7 +8,7 @@ import style from "./Toasts.scss";
 const cx = cn.bind(style);
 
 const Toasts = ({ toasts, deleteToast }) => (
-  <div className={cx("toasts")}>
+  <div className={cx("toasts", { "no-toasts": toasts.length === 0 })}>
     {toasts.map(({ id, message, type }) => (
       <div className={cx("toast", `toast-type-${type}`)} key={id}>
         <i className={cx("icon", type)} />
@@ -26,7 +26,7 @@ Toasts.propTypes = {
     PropTypes.shape({
       id: PropTypes.string.isRequired,
       message: PropTypes.node.isRequired,
-      type: PropTypes.oneOf(["error", "success", "info", "default"])
+      type: PropTypes.oneOf(["error", "success", "info", "default", "warning"])
     })
   ).isRequired,
   deleteToast: PropTypes.func.isRequired

@@ -7,7 +7,11 @@
 
   &.inverted {
     path {
-      fill: $white;
+      fill: $blue;
     }
+  }
+
+  &.absolute {
+    position: absolute;
   }
 }

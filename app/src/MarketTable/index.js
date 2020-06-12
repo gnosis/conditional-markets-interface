@@ -9,7 +9,6 @@ import style from "./marketTable.scss";
 import useGlobalState from "hooks/useGlobalState";
 
 import MarketRow from "./MarketRow";
-import Spinner from "components/Spinner";
 
 import {
   getMarketProbabilities,
@@ -117,10 +116,6 @@ const MarketTable = ({
     }
   });
 
-  if (!lmsrState || !marketProbabilities) {
-    return <Spinner />;
-  }
-
   return (
     <div className={cx("market-table")}>
       {conditionalMarkets.map(market => (
@@ -161,7 +156,11 @@ const MarketTable = ({
       {nonConditionalMarkets.map(market => (
         <MarketRow
           key={market.conditionId}
-          probabilities={marketProbabilities[market.index]}
+          probabilities={
+            marketProbabilities !== null
+              ? marketProbabilities[market.index]
+              : null
+          }
           stagedProbabilities={
             stagedMarketProbabilities != null
               ? stagedMarketProbabilities[market.index]

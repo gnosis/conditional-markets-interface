@@ -1,20 +1,21 @@
-const assert = require("assert");
+import assert from "assert";
 
-class MarketMakersRepo {
-  constructor({ contracts }) {
+export default class MarketMakersRepo {
+  constructor({ lmsrAddress, contracts }) {
     assert(contracts, '"contracts" is required');
 
     const { lmsrMarketMaker, collateralToken } = contracts;
 
+    this._lmsrAddress = lmsrAddress;
     this._lmsrMarketMaker = lmsrMarketMaker;
     this._collateralToken = collateralToken;
   }
 
-  async getAddress() {
-    return this._lmsrMarketMaker.address;
+  getAddress() {
+    return this._lmsrAddress;
   }
 
-  async getCollateralToken() {
+  getCollateralToken() {
     return this._collateralToken;
   }
 
@@ -46,9 +47,11 @@ class MarketMakersRepo {
     return this._lmsrMarketMaker.calcNetCost(outcomeTokenAmounts);
   }
 
+  async calcMarketFee(outcomeTokenNetCost) {
+    return this._lmsrMarketMaker.calcMarketFee(outcomeTokenNetCost);
+  }
+
   async trade(tradeAmounts, collateralLimit, from) {
     return this._lmsrMarketMaker.trade(tradeAmounts, collateralLimit, { from });
   }
 }
-
-module.exports = MarketMakersRepo;

@@ -7,17 +7,26 @@ import { useSubscription } from "@apollo/react-hooks";
 import useGlobalState from "hooks/useGlobalState";
 import Spinner from "components/Spinner";
 import CrashPage from "components/Crash";
-import makeLoadable from "../utils/make-loadable";
-import { getAccount, loadWeb3 } from "utils/web3";
-import {
-  getCollectionId,
-  getPositionId,
-  combineCollectionIds
-} from "utils/getIdsUtil";
-import ToastifyError from "utils/ToastifyError";
+import EmptyPage from "components/Empty";
 
-import { getWhitelistState } from "api/whitelist";
-import { getQuestions } from "api/operator";
+import makeLoadable from "utils/make-loadable";
+import { getAccount, loadWeb3 } from "utils/web3";
+import { loadMarketsData } from "utils/getMarketsData";
+import ToastifyError from "utils/ToastifyError";
+import getWeb3Modal from "utils/web3Modal";
+import {
+  getCurrentUserTierData,
+  isAccountCreationProcessing,
+  isCurrentUserUpgrading,
+  isCurrentUserActionRequired
+} from "utils/tiers";
+//import { Notifications as NotificationIcon } from "@material-ui/icons";
+
+import {
+  getUserState,
+  getCurrentTradingVolume,
+  getTiersLimit
+} from "api/onboarding";
 import { GET_TRADES_BY_MARKET_MAKER } from "api/thegraph";
 
 import style from "./root.scss";
@@ -25,142 +34,61 @@ const cx = cn.bind(style);
 
 import conf from "../conf";
 
-import getMarketMakersRepo from "../repositories/MarketMakersRepo";
 import getConditionalTokensService from "../services/ConditionalTokensService";
 
-const whitelistEnabled = conf.WHITELIST_ENABLED;
+const ONBOARDING_MODE = conf.ONBOARDING_MODE;
+
+const SHOW_WHITELIST_HEADER = ONBOARDING_MODE === "WHITELIST";
+
 const SYNC_INTERVAL = 8000;
 const WHITELIST_CHECK_INTERVAL = 30000;
 
-async function loadBasicData({ lmsrAddress, web3, account }) {
-  const { toBN } = web3.utils;
-
-  const [
-    markets,
-    marketMakersRepo,
-    conditionalTokensService
-  ] = await Promise.all([
-    // query operator for markets
-    getQuestions(undefined, lmsrAddress).then(({ results }) => {
-      return results.map(market => {
-        market.outcomes = market.outcomeNames.map(outcome => {
-          return { title: outcome, short: outcome };
-        });
-
-        return market;
-      });
-    }),
-    // Load smart contract data layer
-    getMarketMakersRepo({ lmsrAddress, web3, account }),
-    getConditionalTokensService({
-      lmsrAddress,
-      web3,
-      account
-    })
-  ]);
-
-  const { product } = require("utils/itertools");
-
-  const atomicOutcomeSlotCount = (
-    await marketMakersRepo.atomicOutcomeSlotCount()
-  ).toNumber();
-
-  // Get collateral contract
-  const collateral = await marketMakersRepo.getCollateralToken();
+async function loadBlockchainService({
+  markets,
+  lmsrAddress,
+  web3,
+  account,
+  collateralTokenAddress
+}) {
+  const conditionalTokensService = await getConditionalTokensService({
+    lmsrAddress,
+    web3,
+    account,
+    collateralTokenAddress
+  });
 
   let curAtomicOutcomeSlotCount = 1;
   for (let i = 0; i < markets.length; i++) {
     const market = markets[i];
-    const conditionId = await marketMakersRepo.conditionIds(i);
-    const numSlots = (
-      await conditionalTokensService.getOutcomeSlotCount(conditionId)
-    ).toNumber();
-
-    if (numSlots === 0) {
-      throw new Error(`condition ${conditionId} not set up yet`);
-    } else if (market.type === "SCALAR") {
-      if (numSlots !== 2) {
-        throw new Error(
-          `condition ${conditionId} outcome slot not valid for scalar market - requires long and short outcomes`
-        );
-      }
-
-      // set outcomes to enable calculations on outcome count
-      market.outcomes = [{ title: "short" }, { title: "long" }];
-    } else if (numSlots !== market.outcomes.length) {
-      throw new Error(
-        `condition ${conditionId} outcome slot count ${numSlots} does not match market outcome descriptions array with length ${market.outcomes.length}`
-      );
-    }
-
-    market.marketIndex = i;
-    market.conditionId = conditionId;
-    market.outcomes.forEach((outcome, i) => {
-      outcome.collectionId = getCollectionId(conditionId, toBN(1).shln(i));
-    });
+    const { outcomeSlotCount: numSlots } = market;
 
     curAtomicOutcomeSlotCount *= numSlots;
   }
 
+  // Get collateral info
+  const collateral = conditionalTokensService.getCollateralToken();
+
+  const atomicOutcomeSlotCount = await conditionalTokensService.getAtomicOutcomeSlotCount();
   if (curAtomicOutcomeSlotCount !== atomicOutcomeSlotCount) {
     throw new Error(
       `mismatch in counted atomic outcome slot ${curAtomicOutcomeSlotCount} and contract reported value ${atomicOutcomeSlotCount}`
     );
   }
 
-  const positions = [];
-  for (const outcomes of product(
-    ...markets
-      .slice()
-      .reverse()
-      .map(({ conditionId, outcomes, marketIndex }) =>
-        outcomes.map((outcome, outcomeIndex) => ({
-          ...outcome,
-          conditionId,
-          marketIndex,
-          outcomeIndex
-        }))
-      )
-  )) {
-    const combinedCollectionIds = combineCollectionIds(
-      outcomes.map(({ collectionId }) => collectionId)
-    );
-
-    const positionId = getPositionId(collateral.address, combinedCollectionIds);
-    positions.push({
-      id: positionId,
-      outcomes
-    });
-  }
-
-  positions.forEach((position, i) => {
-    position.positionIndex = i;
-  });
-
-  for (const market of markets) {
-    for (const outcome of market.outcomes) {
-      outcome.positions = [];
-    }
-  }
-  for (const position of positions) {
-    for (const outcome of position.outcomes) {
-      markets[outcome.marketIndex].outcomes[
-        outcome.outcomeIndex
-      ].positions.push(position);
-    }
-  }
-
   return {
     collateral,
-    markets,
-    positions,
     conditionalTokensService
   };
 }
 
 const moduleLoadTime = Date.now();
 
-const RootComponent = ({ match, childComponents }) => {
+const RootComponent = ({
+  match,
+  childComponents,
+  initialModal,
+  initialStep
+}) => {
   const [
     MarketTable,
     Sidebar,
@@ -175,6 +103,9 @@ const RootComponent = ({ match, childComponents }) => {
   const {
     account,
     setAccount,
+    user,
+    setUser,
+    setTradingVolume,
     markets,
     setMarkets,
     positions,
@@ -182,7 +113,9 @@ const RootComponent = ({ match, childComponents }) => {
     lmsrState,
     setLMSRState,
     collateral,
-    setCollateral
+    setCollateral,
+    tiers,
+    setTiers
   } = useGlobalState();
 
   // Init and set base state
@@ -200,9 +133,9 @@ const RootComponent = ({ match, childComponents }) => {
     null
   );
 
-  const lmsrAddress = match.params.lmsrAddress
-    ? match.params.lmsrAddress
-    : conf.lmsrAddress;
+  const lmsrAddress = match.params.lmsrAddress;
+
+  const web3Modal = getWeb3Modal(lmsrAddress);
 
   const init = useCallback(
     async provider => {
@@ -211,17 +144,40 @@ const RootComponent = ({ match, childComponents }) => {
         console.log(conf);
         console.groupEnd();
 
-        const { web3, account } = await loadWeb3(conf.networkId, provider);
+        let web3Provider = provider;
+        if (!provider && web3Modal.cachedProvider) {
+          // If metamask session is cached but metamask is disabled app may crash
+          try {
+            web3Provider = await web3Modal.connect();
+          } catch (e) {
+            // We catch that we were not able to reconnect and force user to connect manually
+            console.log("There was an error connecting with cached session");
+            web3Modal.clearCachedProvider();
+          }
+        }
+
+        const [
+          { web3, account },
+          { markets, collateralToken: collateralTokenAddress, positions }
+        ] = await Promise.all([
+          loadWeb3(conf.networkId, web3Provider),
+          loadMarketsData({ lmsrAddress })
+        ]);
 
         setWeb3(web3);
         setAccount(account);
 
+        setMarkets(markets);
+        setPositions(positions);
+
+        // setLoading("SUCCESS");
+
         const {
           collateral,
-          markets,
-          positions,
           conditionalTokensService
-        } = await loadBasicData({
+        } = await loadBlockchainService({
+          markets,
+          collateralTokenAddress,
           lmsrAddress,
           web3,
           account
@@ -229,11 +185,8 @@ const RootComponent = ({ match, childComponents }) => {
 
         setConditionalTokensService(conditionalTokensService);
         setCollateral(collateral);
-        setMarkets(markets);
-        setPositions(positions);
 
         console.groupCollapsed("Global Debug Variables");
-        // console.log("LMSRMarketMaker (Instance) Contract:", marketMakersRepo);
         console.log("Collateral Settings:", collateral);
         console.log("Market Settings:", markets);
         console.log("Account Positions:", positions);
@@ -248,7 +201,7 @@ const RootComponent = ({ match, childComponents }) => {
         throw err;
       }
     },
-    [lmsrAddress]
+    [lmsrAddress, user, setUser]
   );
 
   // First time init
@@ -258,11 +211,13 @@ const RootComponent = ({ match, childComponents }) => {
       setLoading("LOADING");
       setCollateral(null);
       setMarkets(null);
-      setPositions(null);
+      setUser(null);
       setConditionalTokensService(null);
       setLMSRState(null);
     }
-    init();
+    if (lmsrAddress) {
+      init();
+    }
   }, [lmsrAddress]);
 
   const setProvider = useCallback(
@@ -278,7 +233,7 @@ const RootComponent = ({ match, childComponents }) => {
       setLoading("LOADING");
       init(provider);
     },
-    [lmsrAddress, web3, init]
+    [web3, init]
   );
 
   const [marketResolutionStates, setMarketResolutionStates] = useState(null);
@@ -315,6 +270,19 @@ const RootComponent = ({ match, childComponents }) => {
     [conditionalTokensService]
   );
 
+  // Open specified modal if initialModal is set
+  useEffect(() => {
+    if (initialModal) {
+      const options = {};
+
+      if (initialModal === "KYC" && initialStep != null) {
+        options.initialStep = initialStep;
+      }
+
+      openModal(initialModal, options);
+    }
+  }, []);
+
   // Add effect when 'syncTime' is updated this functions are triggered
   // As 'syncTime' is setted to 8 seconds all this getters are triggered and setted
   // in the state.
@@ -333,6 +301,17 @@ const RootComponent = ({ match, childComponents }) => {
             throw err;
           });
     }, [...dependentParams, conditionalTokensService, syncTime]);
+
+  const getTiersLimitValues = useCallback(() => {
+    (async () => {
+      const tiersLimit = await getTiersLimit();
+      setTiers(tiersLimit);
+    })();
+  }, []);
+
+  useEffect(() => {
+    getTiersLimitValues();
+  }, []);
 
   const [marketSelections, setMarketSelections] = useState(null);
   const [stagedTradeAmounts, setStagedTradeAmounts] = useState(null);
@@ -359,12 +338,15 @@ const RootComponent = ({ match, childComponents }) => {
   const updateWhitelist = useCallback(() => {
     if (account) {
       (async () => {
-        const whitelistStatus = await getWhitelistState(account);
+        const userState = await getUserState(account);
+        setUser(userState);
+        const { status: whitelistStatus } = userState;
         setWhitelistState(whitelistStatus);
 
         if (
-          whitelistStatus === "WHITELISTED" ||
-          whitelistStatus === "BLOCKED"
+          !isCurrentUserUpgrading(tiers, userState) &&
+          !isCurrentUserActionRequired(tiers, userState) &&
+          (whitelistStatus === "WHITELISTED" || whitelistStatus === "BLOCKED")
         ) {
           setWhitelistCheckIntervalTime(null); // stops the refresh
         }
@@ -372,14 +354,270 @@ const RootComponent = ({ match, childComponents }) => {
     } else {
       setWhitelistState("NOT_FOUND");
     }
-  }, [account]);
+  }, [user, setUser, account]);
   useInterval(updateWhitelist, whitelistIntervalTime);
 
   useEffect(() => {
     updateWhitelist();
   }, [account]);
 
-  const asWrappedTransaction = useCallback(
+  const getTradingVolume = useCallback(() => {
+    (async () => {
+      if (account) {
+        const { buyVolume } = await getCurrentTradingVolume(account);
+        setTradingVolume(buyVolume);
+      }
+    })();
+  }, [setTradingVolume, account]);
+
+  useEffect(() => {
+    getTradingVolume();
+  }, [account, syncTime]);
+
+  const doOnboardingCheck = useCallback(() => {
+    if (ONBOARDING_MODE === "DISABLED") {
+      return true;
+    }
+
+    if (whitelistState !== "WHITELISTED") {
+      if (ONBOARDING_MODE === "WHITELIST") {
+        // Whitelist Mode means show Modal for whitelisting options
+        openModal("applyBeta", { whitelistState });
+        return false;
+      } else if (ONBOARDING_MODE === "TIERED") {
+        // If mode is Tiered we have to open SDD KYC Modal
+        const { name: tier, limit: maxVolume } = getCurrentUserTierData(
+          tiers,
+          user
+        );
+
+        if (tier === 0 && !isAccountCreationProcessing(tiers, user)) {
+          const { name } = getCurrentUserTierData(tiers, user);
+          openModal("KYC", { tier: name });
+        } else if (
+          !isCurrentUserUpgrading(tiers, user) &&
+          !isCurrentUserActionRequired(tiers, user)){
+          openModal("KYC", { initialStep: "PENDING", updateWhitelist });
+        } else {
+          openModal("MyAccount", {
+            tier,
+            maxVolume
+          });
+        }
+        return false;
+      } else {
+        // Future-proofing: default error handling shows an error indicating
+        // that the user needs to be registered/whitelist before being able to trade
+        addToast(
+          <>
+            Trading not allowed for your wallet.
+            <br />
+            Please follow our onboarding process before participating in trades.
+          </>,
+          "error"
+        );
+        return false;
+      }
+    } else {
+      return true;
+    }
+  }, [whitelistState, addToast, openModal, user, tiers, updateWhitelist]);
+
+  /**
+   * @typedef {Object} TransactionDescriptor
+   * @property {function|Promise} precheck - Precheck function if transaction can be run
+   * @property {function|Promise} commit - This function will run the actual transaction
+   * @property {function|Promise} cleanup - Function to call after commit (not called if precheck failed)
+   * @property {string} name - Name of the Transaction
+   */
+  const stageTransactions = useCallback(
+    (stagedTransactionType, transactionDescriptors) => {
+      return (async () => {
+        const transactionAllowed = doOnboardingCheck();
+
+        if (!transactionAllowed) {
+          // Transactions not allowed yet. Return false.
+          // TODO: Create list of transaction names that require onboarding check
+          //       for example a message signature during On-Boaridng would not work
+          //       with this method, as it would get denied because the user isnt onboarded.
+          return;
+        }
+
+        if (ongoingTransactionType !== null) {
+          throw new Error(
+            `Attempted to ${stagedTransactionType} while transaction to ${ongoingTransactionType} is ongoing`
+          );
+        }
+        setStagedTransactionType(stagedTransactionType);
+
+        // Run "Precheck" for all transaction to determine if they're not necessary or if they can't be executed.
+        const transactionPrecheckResults = await Promise.all(
+          transactionDescriptors.map(async ({ precheck, name }) => {
+            if (precheck == null) {
+              // no precheck means allowed
+              return true;
+            }
+
+            try {
+              const result = await precheck();
+              // Result can be:
+              // false-y:    Transaction is allowed
+              // object:     Containing `modal` and `modalProps` to open a modal
+
+              return result;
+            } catch (err) {
+              if (!(err instanceof ToastifyError)) {
+                // Anything other than a toastify error is an application error
+                console.warn(
+                  `Error during Transaction Precheck for "${name}":`,
+                  err.message
+                );
+              }
+              return err;
+            }
+          })
+        );
+
+        let cancel = false;
+        const applicableTransactions = [];
+        transactionPrecheckResults.forEach((result, index) => {
+          if (result === false) {
+            // falsey return indicates this transaction is not neccesary to be executed
+          } else if (result instanceof ToastifyError) {
+            addToast(
+              // User Error (hopefully)
+              <>
+                {result.message}
+                <br />
+              </>,
+              "error"
+            );
+            cancel = true;
+          } else if (result instanceof Error) {
+            // Error during precheck, throw error for implementation to handle
+            throw result; // Actual Error
+          } else if (result instanceof Object) {
+            // Precheck result can also be object describing a modal to open
+            if (result.modal) {
+              openModal(result.modal, result.modalProps || {});
+            } else {
+              console.warn(
+                `Warning: Precheck result of type object but no modal description?`,
+                result
+              );
+            }
+            cancel = true;
+          } else {
+            // If undefined or truthy result, append to applicable transactions
+            applicableTransactions.push(transactionDescriptors[index]);
+          }
+        });
+
+        if (cancel) {
+          // Above logic might cancel transaction, if a modal was opened
+          setStagedTransactionType(null);
+          return;
+        }
+
+        if (!applicableTransactions.length) {
+          // No applicable transactions? Kinda weird, shouldn't happen.
+          // Means all transactions were deemed unnecessary (error case is handled before)
+          console.warn("Warning: All Transactions were deemed unneccesary?");
+          console.log(transactionPrecheckResults);
+          setStagedTransactionType(null);
+          return;
+        }
+
+        // A bit hacky:
+        // We need an array of promises, which will be resolved by the
+        // transaction modal over time, so that this function can be
+        // awaited until all modals have been completed, before returning
+        // back to the function that called `stageTransactions`
+
+        const deferredPromises = [];
+        const applicableTxPromises = [];
+
+        applicableTransactions.forEach(() => {
+          applicableTxPromises.push(
+            new Promise((resolve, reject) => {
+              deferredPromises.push({
+                resolve,
+                reject
+              });
+            })
+          );
+        });
+
+        // Wrap Transactions
+        const wrappedApplicableTransactions = applicableTransactions.map(
+          ({ commit, cleanup, name, ...rest }, index) => {
+            return {
+              ...rest,
+              name,
+              execute: async () => {
+                const cancelThisToast = addToast(
+                  <>
+                    Transaction waiting to be signed:
+                    <br />
+                    <strong>{name}</strong>
+                  </>,
+                  "warning"
+                );
+                try {
+                  const txResult = await commit();
+                  deferredPromises[index].resolve(txResult);
+
+                  if (txResult && txResult.modal) {
+                    openModal(txResult.modal, txResult.modalProps || {});
+                  }
+                  addToast("Transaction confirmed.", "success");
+
+                  if (typeof cleanup === "function") {
+                    await cleanup(txResult);
+                  }
+                } catch (err) {
+                  console.warn(`Execution failed for ${name}:`);
+                  console.warn(err);
+                  if (err instanceof ToastifyError) {
+                    addToast(
+                      // User Error (hopefully)
+                      <>
+                        {err.message}
+                        <br />
+                      </>,
+                      "error"
+                    );
+                  } else {
+                    addToast("Transaction failed.", "error");
+                  }
+                  deferredPromises[index].reject(err);
+                } finally {
+                  // close toast if resolved before toast fades
+                  cancelThisToast();
+                }
+              }
+            };
+          }
+        );
+
+        // If we only have one transaction, do not open the modal. Simply execute it.
+        if (wrappedApplicableTransactions.length === 1) {
+          await wrappedApplicableTransactions[0].execute();
+        } else {
+          // Open Transactions modals, passing all applicable transactions
+          openModal("Transactions", {
+            transactions: wrappedApplicableTransactions
+          });
+
+          await Promise.all(applicableTxPromises);
+        }
+        setStagedTransactionType(null);
+      })();
+    },
+    [ongoingTransactionType, doOnboardingCheck, addToast, openModal]
+  );
+
+  const old_asWrappedTransaction = useCallback(
     (wrappedTransactionType, transactionFn) => {
       return async function wrappedAction() {
         if (ongoingTransactionType !== null) {
@@ -388,66 +626,50 @@ const RootComponent = ({ match, childComponents }) => {
           );
         }
 
-        if (whitelistEnabled && whitelistState !== "WHITELISTED") {
-          openModal("applyBeta", { whitelistState });
-        } else {
-          try {
-            addToast("Transaction processing...", "info");
-            setOngoingTransactionType(wrappedTransactionType);
-            await transactionFn();
+        // Can the transaction be run?
+        const transactionAllowed = doOnboardingCheck();
+
+        if (!transactionAllowed) {
+          return;
+        }
+
+        // Decide if we need to show transaction modal
+        try {
+          addToast("Transaction processing...", "info");
+          setOngoingTransactionType(wrappedTransactionType);
+          const transactionResult = await transactionFn();
+          if (transactionResult && transactionResult.modal) {
+            openModal(transactionResult.modal, transactionResult.modalProps);
+          } else {
             addToast("Transaction confirmed.", "success");
-          } catch (e) {
-            if (e instanceof ToastifyError) {
-              addToast(
-                <>
-                  {e.message}
-                  <br />
-                </>,
-                "error"
-              );
-            } else {
-              addToast(
-                <>
-                  Unfortunately, the transaction failed.
-                  <br />
-                </>,
-                "error"
-              );
-            }
-            throw e;
-          } finally {
-            setOngoingTransactionType(null);
-            setStagedTransactionType(null);
-            triggerSync();
           }
+        } catch (e) {
+          if (e instanceof ToastifyError) {
+            addToast(
+              <>
+                {e.message}
+                <br />
+              </>,
+              "error"
+            );
+          } else {
+            addToast(
+              <>
+                Unfortunately, the transaction failed.
+                <br />
+              </>,
+              "error"
+            );
+          }
+          throw e;
+        } finally {
+          setOngoingTransactionType(null);
+          setStagedTransactionType(null);
+          triggerSync();
         }
       };
     },
-    [
-      whitelistEnabled,
-      whitelistState,
-      setOngoingTransactionType,
-      ongoingTransactionType
-    ]
-  );
-
-  const addToast = useCallback(
-    (toastMessage, toastType = "default") => {
-      const toastId = Math.round(Math.random() * 1e9 + 1e10).toString();
-      const creationTime = new Date().getTime() / 1000;
-
-      setToasts(prevToasts => [
-        ...prevToasts,
-        {
-          id: toastId,
-          message: toastMessage,
-          type: toastType,
-          created: creationTime,
-          duration: 30 //s
-        }
-      ]);
-    },
-    [toasts]
+    [whitelistState, setOngoingTransactionType, ongoingTransactionType]
   );
 
   const updateToasts = useCallback(() => {
@@ -465,15 +687,36 @@ const RootComponent = ({ match, childComponents }) => {
   }, [toasts]);
 
   const deleteToast = useCallback(
-    targetId => {
-      setToasts(prevToasts => {
-        const targetIndex = prevToasts.findIndex(({ id }) => id === targetId);
-        prevToasts.splice(targetIndex, 1);
-        return prevToasts;
-      });
+    toastId => {
+      setToasts(prevToasts => [
+        ...prevToasts.filter(({ id }) => toastId !== id)
+      ]);
+
       updateToasts();
     },
     [setToasts, toasts]
+  );
+
+  const addToast = useCallback(
+    (toastMessage, toastType = "default") => {
+      const toastId = Math.round(Math.random() * 1e9 + 1e10).toString();
+      const creationTime = new Date().getTime() / 1000;
+
+      setToasts(prevToasts => [
+        ...prevToasts,
+        {
+          id: toastId,
+          message: toastMessage,
+          type: toastType,
+          created: creationTime,
+          duration: 30 //s
+        }
+      ]);
+
+      // return cancel function
+      return () => deleteToast(toastId);
+    },
+    [toasts, deleteToast]
   );
 
   const closeModal = useCallback(() => {
@@ -484,7 +727,12 @@ const RootComponent = ({ match, childComponents }) => {
     try {
       const { default: ComponentClass } = await import(`Modals/${modalName}`);
       setModal(
-        <ComponentClass closeModal={closeModal} reinit={init} {...options} />
+        <ComponentClass
+          closeModal={closeModal}
+          openModal={openModal}
+          reinit={init}
+          {...options}
+        />
       );
     } catch (err) {
       // eslint-disable-next-line
@@ -492,6 +740,7 @@ const RootComponent = ({ match, childComponents }) => {
       setLoading("ERROR");
     }
   }, []);
+  window.openModal = openModal;
 
   useInterval(updateToasts, 1000);
 
@@ -501,28 +750,48 @@ const RootComponent = ({ match, childComponents }) => {
   // Load page even when we get no response from thegraph
   const tradeHistory = queryData && queryData.outcomeTokenTrades;
 
-  if (loading === "SUCCESS") {
+  const isInResolvedMode =
+    markets && markets.every(({ status }) => status === "RESOLVED");
+
+  if (!lmsrAddress) {
     return (
       <div className={cx("page")}>
         <div className={cx("modal-space", { "modal-open": !!modal })}>
           {modal}
         </div>
+        <EmptyPage />
+      </div>
+    );
+  }
+
+  if (loading === "SUCCESS") {
+    return (
+      <div className={cx("page", { "modal-open": !!modal })}>
+        <Toasts deleteToast={deleteToast} addToast={addToast} toasts={toasts} />
+        <div className={cx("modal-space", { "modal-open": !!modal })}>
+          {modal}
+        </div>
         <div className={cx("app-space", { "modal-open": !!modal })}>
-          <ApplyBetaHeader
-            openModal={openModal}
-            whitelistState={whitelistState}
-          />
+          {SHOW_WHITELIST_HEADER && (
+            <ApplyBetaHeader
+              openModal={openModal}
+              whitelistState={whitelistState}
+            />
+          )}
           <Header
             avatar={
               <UserWallet
                 address={account}
+                lmsrAddress={lmsrAddress}
                 openModal={openModal}
                 whitelistState={whitelistState}
                 collateral={collateral}
                 collateralBalance={collateralBalance}
                 setProvider={setProvider}
+                updateWhitelist={updateWhitelist}
               />
             }
+            openModal={openModal}
             menu={<Menu />}
           />
           <div className={cx("sections")}>
@@ -537,12 +806,11 @@ const RootComponent = ({ match, childComponents }) => {
                   stagedTradeAmounts,
                   resetMarketSelections,
                   addToast,
-                  openModal,
                   tradeHistory
                 }}
               />
             </section>
-            {account != null && ( // account available
+            {(account != null || isInResolvedMode) && ( // account available or show resolution state
               <section className={cx("section", "section-positions")}>
                 <Sidebar
                   {...{
@@ -560,7 +828,8 @@ const RootComponent = ({ match, childComponents }) => {
                     stagedTransactionType,
                     setStagedTransactionType,
                     ongoingTransactionType,
-                    asWrappedTransaction,
+                    asWrappedTransaction: old_asWrappedTransaction,
+                    stageTransactions,
                     setMarketSelections,
                     resetMarketSelections,
                     addToast,
@@ -570,11 +839,6 @@ const RootComponent = ({ match, childComponents }) => {
                 />
               </section>
             )}
-            <Toasts
-              deleteToast={deleteToast}
-              addToast={addToast}
-              toasts={toasts}
-            />
             <Footer />
           </div>
         </div>

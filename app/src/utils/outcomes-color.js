@@ -3,7 +3,7 @@ import {
   redColor,
   violetColor,
   lightGreenColor,
-  lightBlueColor,
+  yellowColor,
   orangeColor,
   brownColor,
   pinkColor
@@ -14,7 +14,7 @@ export const categoricalMarketColors = {
   1: redColor,
   2: violetColor,
   3: lightGreenColor,
-  4: lightBlueColor,
+  4: yellowColor,
   5: orangeColor,
   6: brownColor,
   7: pinkColor

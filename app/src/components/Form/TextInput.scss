@@ -1,0 +1,19 @@
+$errorColor: #f02525;
+@import "~scss/_variables.scss";
+
+.field {
+  width: 100%;
+  text-align: left;
+
+  margin-bottom: .8rem !important;
+
+  .read-only {
+    background-color: $greyBorder2;
+  }
+}
+
+:global {
+  .MuiFormHelperText-contained {
+    text-align: left;
+  }
+}

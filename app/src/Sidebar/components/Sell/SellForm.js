@@ -1,13 +1,17 @@
 import React, { useCallback, useEffect, useState } from "react";
-import cn from "classnames/bind";
-import style from "./positions.scss";
+import PropTypes from "prop-types";
 import Decimal from "decimal.js-light";
-import OutcomeCard, { Dot } from "components/OutcomeCard";
+import Select from "react-select";
+import Web3 from "web3";
+import cn from "classnames/bind";
+
+import useGlobalState from "hooks/useGlobalState";
+
+import { Dot } from "components/OutcomeCard";
 import Spinner from "components/Spinner";
 import { zeroDecimal, collateralSignificantDigits } from "utils/constants";
 
-import Select from "react-select";
-import Web3 from "web3";
+import style from "./positions.scss";
 
 const { toBN } = Web3.utils;
 
@@ -18,22 +22,22 @@ const getBaseArray = length => {
 };
 
 const SellForm = ({
-  markets,
   currentSellingPosition,
   onCancelSell,
   positions,
-  stagedTradeAmounts,
+  positionBalances,
   ongoingTransactionType,
   setStagedTransactionType,
   setStagedTradeAmounts,
   conditionalTokensService,
-  positionBalances,
-  collateral,
   sellOutcomeTokens,
   onOutcomeChange,
   positionGroups,
-  asWrappedTransaction
+  asWrappedTransaction,
+  fee
 }) => {
+  const { collateral } = useGlobalState();
+
   const groupedSellAmounts = Array.from({ length: positions.length }, (_, i) =>
     currentSellingPosition.positions.find(
       ({ positionIndex }) => positionIndex === i
@@ -45,24 +49,35 @@ const SellForm = ({
     amount => new Decimal(amount.toString())
   );
 
+  const [selectOutcomeValue, setSelectOutcomeValue] = useState(null);
   const [sellAmountFullUnit, setSellAmountFullUnit] = useState("0");
   const [estimatedSaleEarning, setEstimatedSaleEarning] = useState(null);
+  const [estimatedFee, setEstimatedFee] = useState(null);
   const [error, setError] = useState(null);
   const {
-    outcomeIndex: selectedOutcomeIndex,
-    marketIndex
+    outcomeIndex: selectedOutcomeIndex
   } = currentSellingPosition.outcomeSet[0]; // # 0 index because single markets for now
   const availableOutcomes = positionGroups.map(
     ({ outcomeSet: [outcome] }, index) => ({
       label: (
         <>
-          <Dot index={index} />{" "}
+          <Dot index={outcome.outcomeIndex} />{" "}
           {outcome.title[0].toUpperCase() + outcome.title.slice(1)}
         </>
       ),
       value: index
     })
   );
+
+  useEffect(() => {
+    const findIndex = positionGroups.findIndex(
+      ({ outcomeSet: [{ outcomeIndex }] }) => {
+        return outcomeIndex === selectedOutcomeIndex;
+      }
+    );
+
+    setSelectOutcomeValue(findIndex);
+  }, [currentSellingPosition, availableOutcomes]);
 
   const setSellAmountToMax = useCallback(() => {
     const maxInvest = new Decimal(
@@ -79,6 +94,7 @@ const SellForm = ({
     sellAmount => {
       setError(null);
       setEstimatedSaleEarning(null);
+      setEstimatedFee(null);
       let balanceForThisPosition = getBaseArray(positionBalances.length);
       // Include in this call only the balance for this position
       // Note the negative value, it's because of being a sell price
@@ -110,10 +126,26 @@ const SellForm = ({
       conditionalTokensService
         .calcNetCost(balanceForThisPosition)
         .then(tradeEarning => {
-          setEstimatedSaleEarning(tradeEarning.abs().toString());
+          const tradeEarningToDecimal = new Decimal(
+            tradeEarning.abs().toString()
+          )
+            .div(Math.pow(10, collateral.decimals))
+            .toSignificantDigits(collateralSignificantDigits);
+          const tradeFee = tradeEarningToDecimal.mul(fee);
+
+          setEstimatedSaleEarning(tradeEarningToDecimal);
+          setEstimatedFee(tradeFee);
         });
     },
-    [sellAmountFullUnit, positionBalances, positions, selectedOutcomeIndex]
+    [
+      conditionalTokensService,
+      maxSellAmounts,
+      sellAmountFullUnit,
+      positionBalances,
+      positions,
+      selectedOutcomeIndex,
+      fee
+    ]
   );
 
   // Update estimated earnings on first render
@@ -165,7 +197,6 @@ const SellForm = ({
         <button
           className={cx("sell-cancel")}
           type="button"
-          defaultValue={selectedOutcomeIndex}
           onClick={onCancelSell}
         />
       </div>
@@ -175,7 +206,7 @@ const SellForm = ({
           <div className={cx("entry")}>
             <Select
               options={availableOutcomes}
-              value={availableOutcomes[selectedOutcomeIndex]}
+              value={availableOutcomes[selectOutcomeValue]}
               onChange={onOutcomeChange}
             />
           </div>
@@ -231,11 +262,42 @@ const SellForm = ({
                 type="text"
                 readOnly
                 value={
-                  estimatedSaleEarning
-                    ? new Decimal(estimatedSaleEarning)
-                        .div(Math.pow(10, collateral.decimals))
-                        .toSignificantDigits(collateralSignificantDigits)
-                        .toString()
+                  estimatedSaleEarning ? estimatedSaleEarning.toString() : "..."
+                }
+                className={cx("input")}
+              />
+              <span className={cx("input-append", "collateral-name")}>
+                <abbr title={collateral.name}>{collateral.symbol}</abbr>
+              </span>
+            </div>
+          </div>
+        </div>
+        <div className={cx("sell-form-row")}>
+          <label>Fee ({fee * 100}%)</label>
+          <div className={cx("entry")}>
+            <div className={cx("input-group")}>
+              <input
+                type="text"
+                readOnly
+                value={estimatedFee ? estimatedFee.toString() : "..."}
+                className={cx("input")}
+              />
+              <span className={cx("input-append", "collateral-name")}>
+                <abbr title={collateral.name}>{collateral.symbol}</abbr>
+              </span>
+            </div>
+          </div>
+        </div>
+        <div className={cx("sell-form-row")}>
+          <label>Total Sell Value</label>
+          <div className={cx("entry")}>
+            <div className={cx("input-group")}>
+              <input
+                type="text"
+                readOnly
+                value={
+                  estimatedSaleEarning && estimatedFee
+                    ? estimatedSaleEarning.sub(estimatedFee).toString()
                     : "..."
                 }
                 className={cx("input")}
@@ -270,6 +332,26 @@ const SellForm = ({
       </div>
     </div>
   );
+};
+
+SellForm.propTypes = {
+  onCancelSell: PropTypes.func.isRequired,
+  positions: PropTypes.arrayOf(
+    PropTypes.shape({
+      positionIndex: PropTypes.number.isRequired,
+      outcomes: PropTypes.arrayOf(
+        PropTypes.shape({
+          marketIndex: PropTypes.number.isRequired,
+          outcomeIndex: PropTypes.number.isRequired
+        }).isRequired
+      ).isRequired
+    }).isRequired
+  ).isRequired,
+  ongoingTransactionType: PropTypes.string,
+  setStagedTransactionType: PropTypes.func.isRequired,
+  setStagedTradeAmounts: PropTypes.func.isRequired,
+  asWrappedTransaction: PropTypes.func.isRequired,
+  fee: PropTypes.string.isRequired
 };
 
 export default SellForm;

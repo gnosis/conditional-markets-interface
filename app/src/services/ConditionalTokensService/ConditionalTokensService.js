@@ -1,7 +1,16 @@
-const assert = require("assert");
+import assert from "assert";
 import { zeroDecimal, maxUint256BN } from "utils/constants";
 import { formatCollateral } from "utils/formatting";
 import ToastifyError from "utils/ToastifyError";
+import { getCurrentUserTierData } from "utils/tiers";
+import {
+  getTiersLimit,
+  getUserState,
+  postTradingVolumeSimulation
+} from "api/onboarding";
+
+import conf from "conf";
+const ONBOARDING_MODE = conf.ONBOARDING_MODE;
 
 export default class ConditionalTokensService {
   constructor({ web3, marketMakersRepo, conditionalTokensRepo }) {
@@ -14,6 +23,16 @@ export default class ConditionalTokensService {
     this._conditionalTokensRepo = conditionalTokensRepo;
   }
 
+  getCollateralToken() {
+    return this._marketMakersRepo.getCollateralToken();
+  }
+
+  async getAtomicOutcomeSlotCount() {
+    return this._marketMakersRepo
+      .atomicOutcomeSlotCount()
+      .then(result => result.toNumber());
+  }
+
   async getPositionBalances(positions, account) {
     return Promise.all(
       positions.map(position =>
@@ -24,19 +43,16 @@ export default class ConditionalTokensService {
 
   async getLMSRState(positions) {
     const { fromWei } = this._web3.utils;
-    const [owner, funding, stage, fee, marketMakerAddress] = await Promise.all([
+    const marketMakerAddress = this._marketMakersRepo.getAddress();
+    const [owner, funding, stage, fee, positionBalances] = await Promise.all([
       this._marketMakersRepo.owner(),
       this._marketMakersRepo.funding(),
       this._marketMakersRepo
         .stage()
         .then(stage => ["Running", "Paused", "Closed"][stage.toNumber()]),
       this._marketMakersRepo.fee().then(fee => fromWei(fee)),
-      this._marketMakersRepo.getAddress()
+      this.getPositionBalances(positions, marketMakerAddress)
     ]);
-    const positionBalances = await this.getPositionBalances(
-      positions,
-      marketMakerAddress
-    );
 
     return { owner, funding, stage, fee, positionBalances, marketMakerAddress };
   }
@@ -69,7 +85,7 @@ export default class ConditionalTokensService {
 
   async getCollateralBalance(account) {
     const collateralBalance = {};
-    const collateral = await this._marketMakersRepo.getCollateralToken();
+    const collateral = this._marketMakersRepo.getCollateralToken();
 
     collateralBalance.amount = await collateral.contract.balanceOf(account);
     if (collateral.isWETH) {
@@ -103,6 +119,146 @@ export default class ConditionalTokensService {
     return this._marketMakersRepo.calcNetCost(amounts);
   }
 
+  async isTierLimitExceeded({ account, collateral, investmentAmount }) {
+    if (ONBOARDING_MODE === "TIERED") {
+      const [tiers, userState, tradingVolumeSimulation] = await Promise.all([
+        getTiersLimit(),
+        getUserState(account),
+        postTradingVolumeSimulation(account, {
+          buyVolumes: [
+            {
+              collateralToken: collateral.address,
+              amount: investmentAmount
+            }
+          ]
+        }).then(({ buyVolume }) => buyVolume.dollars)
+      ]);
+
+      const currentUserTierData = getCurrentUserTierData(tiers, userState);
+
+      if (
+        // Tier 3 unlimited is returned as 0 limit
+        Number.parseFloat(currentUserTierData.limit) !== 0 &&
+        // Otherwise we check if we are over limit
+        Number.parseFloat(currentUserTierData.limit) <
+          Number.parseFloat(tradingVolumeSimulation)
+      ) {
+        return {
+          overLimit: true,
+          currentUserTierData,
+          volumeAfterTrade: tradingVolumeSimulation
+        };
+      } else {
+        return {
+          overLimit: false
+        };
+      }
+    } else {
+      return {
+        overLimit: false
+      };
+    }
+  }
+
+  async needsMoreAllowance({ investmentAmount, account, collateralBalance }) {
+    // This function doesn't depend on fees. We check allowance for the full amount
+    // Fee is included in invesmentAmount
+    const collateral = await this._marketMakersRepo.getCollateralToken();
+
+    const tierLimitStatus = await this.isTierLimitExceeded({
+      account,
+      collateral,
+      investmentAmount
+    });
+
+    if (tierLimitStatus.overLimit) {
+      const { currentUserTierData, volumeAfterTrade } = tierLimitStatus;
+      return {
+        modal: "TradeOverLimit",
+        modalProps: {
+          address: account,
+          tier: currentUserTierData.name,
+          maxVolume: currentUserTierData.limit,
+          volume: volumeAfterTrade
+        }
+      };
+    }
+
+    let investmentAmountInUnits;
+    try {
+      investmentAmountInUnits = collateral.toUnitsMultiplier.mul(
+        investmentAmount
+      );
+    } catch (err) {
+      investmentAmountInUnits = zeroDecimal;
+    }
+
+    if (investmentAmountInUnits.gt(collateralBalance.totalAmount.toString()))
+      throw new ToastifyError(
+        `Not enough collateral: missing ${formatCollateral(
+          investmentAmountInUnits.sub(collateralBalance.totalAmount.toString()),
+          collateral
+        )}`
+      );
+
+    const lmsrAllowance = await this.getLMSRAllowance(account);
+    const hasEnoughAllowance = investmentAmountInUnits.lte(
+      lmsrAllowance.toString()
+    );
+
+    //console.log(investmentAmountInUnits.toString(), lmsrAllowance.toString())
+    //console.log(hasEnoughAllowance)
+
+    return !hasEnoughAllowance;
+  }
+
+  async setAllowance({
+    investmentAmount,
+    stagedTradeAmounts,
+    account,
+    collateralBalance
+  }) {
+    // This function doesn't depend on fees. We check allowance for the full amount
+    // Fee is included in invesmentAmount
+    if (stagedTradeAmounts == null)
+      throw new ToastifyError(`No buy amount set yet`);
+
+    const collateral = await this._marketMakersRepo.getCollateralToken();
+
+    let investmentAmountInUnits;
+    try {
+      investmentAmountInUnits = collateral.toUnitsMultiplier.mul(
+        investmentAmount
+      );
+    } catch (err) {
+      investmentAmountInUnits = zeroDecimal;
+    }
+
+    if (investmentAmountInUnits.gt(collateralBalance.totalAmount.toString()))
+      throw new ToastifyError(
+        `Not enough collateral: missing ${formatCollateral(
+          investmentAmountInUnits.sub(collateralBalance.totalAmount.toString()),
+          collateral
+        )}`
+      );
+
+    const lmsrAllowance = await this.getLMSRAllowance(account);
+    const hasEnoughAllowance = investmentAmountInUnits.lte(
+      lmsrAllowance.toString()
+    );
+
+    if (!hasEnoughAllowance) {
+      const marketMakerAddress = await this._marketMakersRepo.getAddress();
+      await collateral.contract.approve(
+        marketMakerAddress,
+        maxUint256BN.toString(10),
+        {
+          from: account
+        }
+      );
+    }
+  }
+
   async buyOutcomeTokens({
     investmentAmount,
     stagedTradeAmounts,
@@ -110,7 +266,8 @@ export default class ConditionalTokensService {
     account,
     collateralBalance
   }) {
-    if (stagedTradeAmounts == null) throw new ToastifyError(`No buy set yet`);
+    if (stagedTradeAmounts == null)
+      throw new ToastifyError(`No buy amount set yet`);
 
     if (stagedTransactionType !== "buy outcome tokens")
       throw new ToastifyError(
@@ -136,32 +293,38 @@ export default class ConditionalTokensService {
         )}`
       );
 
+    const tierLimitStatus = await this.isTierLimitExceeded({
+      account,
+      collateral,
+      investmentAmount
+    });
+
+    if (tierLimitStatus.overLimit) {
+      const { currentUserTierData, volumeAfterTrade } = tierLimitStatus;
+      return {
+        modal: "TradeOverLimit",
+        modalProps: {
+          address: account,
+          tier: currentUserTierData.name,
+          maxVolume: currentUserTierData.limit,
+          volume: volumeAfterTrade
+        }
+      };
+    }
+
     const tradeAmounts = stagedTradeAmounts.map(amount => amount.toString());
-    const collateralLimit = await this._marketMakersRepo.calcNetCost(
+    const outcomeTokenNetCost = await this._marketMakersRepo.calcNetCost(
       tradeAmounts
     );
+
+    const fee = await this._marketMakersRepo.calcMarketFee(outcomeTokenNetCost);
+    const collateralLimit = outcomeTokenNetCost.add(fee);
 
     if (collateral.isWETH && collateralLimit.gt(collateralBalance.amount)) {
       await collateral.contract.deposit({
         value: collateralLimit.sub(collateralBalance.amount),
         from: account
       });
-    }
-
-    const lmsrAllowance = await this.getLMSRAllowance(account);
-    const hasEnoughAllowance = investmentAmountInUnits.lte(
-      lmsrAllowance.toString()
-    );
-
-    if (!hasEnoughAllowance) {
-      const marketMakerAddress = await this._marketMakersRepo.getAddress();
-      await collateral.contract.approve(
-        marketMakerAddress,
-        maxUint256BN.toString(10),
-        {
-          from: account
-        }
-      );
     }
 
     return this._marketMakersRepo.trade(tradeAmounts, collateralLimit, account);
@@ -172,7 +335,8 @@ export default class ConditionalTokensService {
     stagedTransactionType,
     account
   }) {
-    if (stagedTradeAmounts == null) throw new ToastifyError(`No sell set yet`);
+    if (stagedTradeAmounts == null)
+      throw new ToastifyError(`No sell amount selected`);
 
     if (stagedTransactionType !== "sell outcome tokens")
       throw new ToastifyError(
@@ -193,9 +357,14 @@ export default class ConditionalTokensService {
     }
 
     const tradeAmounts = stagedTradeAmounts.map(amount => amount.toString());
-    const collateralLimit = await this._marketMakersRepo.calcNetCost(
+    const outcomeTokenNetCost = await this._marketMakersRepo.calcNetCost(
       tradeAmounts
     );
+
+    const fee = await this._marketMakersRepo.calcMarketFee(
+      outcomeTokenNetCost.abs()
+    );
+    const collateralLimit = outcomeTokenNetCost.add(fee);
 
     return this._marketMakersRepo.trade(tradeAmounts, collateralLimit, account);
   }

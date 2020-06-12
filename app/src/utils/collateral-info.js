@@ -1,27 +1,28 @@
 const Decimal = require("decimal.js-light");
+const Web3 = require("web3");
 
 const getTokenInfo = async contract => {
-  const [name, symbol, decimals] = await Promise.all([
+  return Promise.all([
     contract.name(),
     contract.symbol(),
     contract.decimals()
-  ]);
-
-  return {
-    name,
-    symbol,
-    decimals: decimals.toNumber()
-  };
+  ]).then(([name, symbol, decimals]) => {
+    return {
+      name,
+      symbol,
+      decimals: decimals.toNumber()
+    };
+  });
 };
 
 module.exports = async function getCollateralInfo(
-  web3,
   { ERC20Detailed, IDSToken, WETH9 },
   collateralTokenAddress
 ) {
-  const { hexToUtf8 } = web3.utils;
+  const { hexToUtf8 } = Web3.utils;
   let collateral = {};
   collateral.address = collateralTokenAddress;
+
   const [
     ERC20DetailedContract,
     IDSTokenContract,

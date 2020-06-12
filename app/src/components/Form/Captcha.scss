@@ -1,0 +1,13 @@
+$errorColor: #f02525;
+
+.field {
+  display: flex;
+  justify-content: center;
+  margin: auto;
+  margin-bottom: 0.8rem;
+  .error {
+    color: $errorColor;
+    display: block;
+    padding: .6rem .4rem;
+  }
+}

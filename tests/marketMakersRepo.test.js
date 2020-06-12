@@ -1,10 +1,15 @@
 import Web3 from "web3";
 const { toBN } = Web3.utils;
 
+// lmsrAddress should be checked after deploying contracts
+const lmsrAddress = "0xDF9FD2e8Cf22F173168F320172bBBB29f6d6b011";
+const account = "0x90F8bf6A479f320ead074411a4B0e7944Ea8c9C1";
+
 import getMarketMakersRepo from "../app/src/repositories/MarketMakersRepo";
 
 test("It should return expected conditionIds", async () => {
-  const marketMakersRepo = await getMarketMakersRepo();
+  console.log(lmsrAddress)
+  const marketMakersRepo = await getMarketMakersRepo({ lmsrAddress });
 
   const atomicOutcomeSlotCount = await marketMakersRepo.atomicOutcomeSlotCount();
   let conditionIdsPromises = [];
@@ -16,42 +21,42 @@ test("It should return expected conditionIds", async () => {
 });
 
 test("It should return expected atomicOutcomeSlotCount", async () => {
-  const marketMakersRepo = await getMarketMakersRepo();
+  const marketMakersRepo = await getMarketMakersRepo({ lmsrAddress });
 
   const result = await marketMakersRepo.atomicOutcomeSlotCount();
   console.log(result.toString());
 });
 
 test("It should return expected owner", async () => {
-  const marketMakersRepo = await getMarketMakersRepo();
+  const marketMakersRepo = await getMarketMakersRepo({ lmsrAddress });
 
   const result = await marketMakersRepo.owner();
   console.log(result.toString());
 });
 
 test("It should return expected fee", async () => {
-  const marketMakersRepo = await getMarketMakersRepo();
+  const marketMakersRepo = await getMarketMakersRepo({ lmsrAddress });
 
   const result = await marketMakersRepo.fee();
   console.log(result.toString());
 });
 
 test("It should return expected funding", async () => {
-  const marketMakersRepo = await getMarketMakersRepo();
+  const marketMakersRepo = await getMarketMakersRepo({ lmsrAddress });
 
   const result = await marketMakersRepo.funding();
   console.log(result.toString());
 });
 
 test("It should return expected stage", async () => {
-  const marketMakersRepo = await getMarketMakersRepo();
+  const marketMakersRepo = await getMarketMakersRepo({ lmsrAddress });
 
   const result = await marketMakersRepo.stage();
   console.log(result.toString());
 });
 
 test("It should return expected calcNetCost", async () => {
-  const marketMakersRepo = await getMarketMakersRepo();
+  const marketMakersRepo = await getMarketMakersRepo({ lmsrAddress });
 
   const result = await marketMakersRepo.calcNetCost([
     "-1",
@@ -67,7 +72,7 @@ test("It should return expected calcNetCost", async () => {
 });
 
 test.only("It should return expected calcNetCost", async () => {
-  const marketMakersRepo = await getMarketMakersRepo();
+  const marketMakersRepo = await getMarketMakersRepo({ lmsrAddress, web3: Web3 });
   const collateralToken = await marketMakersRepo.getCollateralToken();
   const marketMakersAddress = await marketMakersRepo.getAddress();
   // console.log(collateralToken)

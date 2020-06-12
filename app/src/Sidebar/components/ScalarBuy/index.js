@@ -37,8 +37,8 @@ const Buy = ({
   setStagedTransactionType,
   ongoingTransactionType,
   resetMarketSelections,
-  asWrappedTransaction,
-  makeButtonSelectCallback
+  stageTransactions,
+  selectTabCallback
 }) => {
   // Memoize fetching data files
   const loadDataLayer = useCallback(() => {
@@ -85,7 +85,12 @@ const Buy = ({
         hasEnteredInvestment ? investmentAmount : zeroDecimal
       );
 
-      if (!investmentAmountInUnits.isInteger())
+      // We have to substract the fee
+      const investmentAmountInUnitsAfterFee = investmentAmountInUnits
+        .div(Decimal(1).add(lmsrState.fee))
+        .toDecimalPlaces(0);
+
+      if (!investmentAmountInUnitsAfterFee.isInteger())
         throw new Error(
           `Got more than ${collateral.decimals} decimals in value ${investmentAmount}`
         );
@@ -94,7 +99,7 @@ const Buy = ({
         calcOutcomeTokenCounts(
           positions,
           lmsrState,
-          investmentAmountInUnits,
+          investmentAmountInUnitsAfterFee,
           marketSelections
         )
       );
@@ -152,17 +157,57 @@ const Buy = ({
   }, [setStagedTradeAmounts, setInvestmentAmount, setError]);
 
   const buyOutcomeTokens = useCallback(async () => {
-    await conditionalTokensService.buyOutcomeTokens({
-      investmentAmount,
-      stagedTradeAmounts,
-      stagedTransactionType,
-      account,
-      collateralBalance
-    });
+    const transactions = [
+      {
+        name: "Set Allowance",
+        description:
+          "This permission allows Sight to interact with your DAI. This has to be done only once for each collateral type.",
+        precheck: async () => {
+          return conditionalTokensService.needsMoreAllowance({
+            investmentAmount,
+            stagedTradeAmounts,
+            account,
+            collateralBalance
+          });
+        },
+        commit: async () => {
+          return conditionalTokensService.setAllowance({
+            investmentAmount,
+            stagedTradeAmounts,
+            account,
+            collateralBalance
+          });
+        }
+      },
+      {
+        name: "Buy Outcome Tokens",
+        description:
+          "Allowance is now set. You can now submit your selected buy position.",
+        commit: async () => {
+          return conditionalTokensService.buyOutcomeTokens({
+            investmentAmount,
+            stagedTradeAmounts,
+            stagedTransactionType,
+            account,
+            collateralBalance
+          });
+        },
+        cleanup: result => {
+          if (result && !result.modal) {
+            clearAllPositions();
+            // Show positions component
+            selectTabCallback(1);
+          }
+          return result;
+        }
+      }
+    ];
 
-    clearAllPositions();
-    // Show positions component
-    makeButtonSelectCallback(1);
+    try {
+      await stageTransactions("buy outcome tokens", transactions);
+    } catch (err) {
+      setError(err);
+    }
   }, [
     investmentAmount,
     stagedTransactionType,
@@ -171,6 +216,34 @@ const Buy = ({
     collateral,
     account
   ]);
+
+  /*
+  const buyOutcomeTokens = useCallback(async () => {
+    return conditionalTokensService
+      .buyOutcomeTokens({
+        investmentAmount,
+        stagedTradeAmounts,
+        stagedTransactionType,
+        account,
+        collateralBalance
+      })
+      .then(result => {
+        if (!result.modal) {
+          clearAllPositions();
+          // Show positions component
+          selectTabCallback(1);
+        }
+        return result;
+      });
+  }, [
+    investmentAmount,
+    stagedTransactionType,
+    stagedTradeAmounts,
+    conditionalTokensService,
+    collateral,
+    account
+  ]);
+  */
 
   const [probabilities, setProbabilities] = useState(null);
 
@@ -259,6 +332,7 @@ const Buy = ({
               investmentAmount,
               collateral
             }}
+            fee={lmsrState.fee}
           ></ProfitSimulator>
         )}
         <div className={cx("invest-ctrls")}>
@@ -267,11 +341,7 @@ const Buy = ({
               className={cx("buy-button")}
               type="button"
               disabled={ongoingTransactionType != null}
-              onClick={asWrappedTransaction(
-                "buy outcome tokens",
-                buyOutcomeTokens,
-                setError
-              )}
+              onClick={buyOutcomeTokens}
             >
               {ongoingTransactionType === "buy outcome tokens" ? (
                 <Spinner inverted width={12} height={12} />
@@ -329,7 +399,8 @@ Buy.propTypes = {
     funding: PropTypes.instanceOf(BN).isRequired,
     positionBalances: PropTypes.arrayOf(PropTypes.instanceOf(BN).isRequired)
       .isRequired,
-    stage: PropTypes.string.isRequired
+    stage: PropTypes.string.isRequired,
+    fee: PropTypes.string.isRequired
   }),
   marketSelections: PropTypes.arrayOf(
     PropTypes.shape({
@@ -346,7 +417,7 @@ Buy.propTypes = {
   ongoingTransactionType: PropTypes.string,
   asWrappedTransaction: PropTypes.func.isRequired,
   resetMarketSelections: PropTypes.func.isRequired,
-  makeButtonSelectCallback: PropTypes.func.isRequired
+  selectTabCallback: PropTypes.func.isRequired
 };
 
 export default Buy;

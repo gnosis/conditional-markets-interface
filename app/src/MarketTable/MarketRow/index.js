@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React from "react";
 import PropTypes from "prop-types";
 import Web3 from "web3";
 import cn from "classnames/bind";
@@ -9,7 +9,8 @@ import style from "./marketRow.scss";
 
 import useGlobalState from "hooks/useGlobalState";
 
-import Tabs from "../components/Tabs";
+import Spinner from "components/Spinner";
+import Tabs from "components/Tabs";
 import ResolutionTime from "../components/ResolutionTime";
 import Probabilities from "../components/Probabilities";
 import ProbabilityChart from "../components/probabilityChart";
@@ -93,26 +94,34 @@ const Market = ({
         )}
         <div className={cx("property")}>
           <i className={cx("icon", "icon-volume")} />{" "}
-          {formatCollateral(lmsrState.funding, collateral)}
+          {lmsrState && formatCollateral(lmsrState.funding, collateral)}
         </div>
       </div>
       <Tabs tabTitles={["Chart", "Details"]}>
         <div className={cx("tab-content")}>
-          <ProbabilityChart
-            {...probabilityChartProps}
-            marketType={type}
-            creationDate={creationDate}
-            probabilities={probabilities}
-            resolutionDate={resolutionDate}
-            stagedProbabilities={stagedProbabilities}
-            tradeHistory={tradeHistory}
-          ></ProbabilityChart>
-          {type === "CATEGORICAL" && (
-            <Probabilities
-              outcomes={outcomes}
-              probabilities={probabilities}
-              stagedProbabilities={stagedProbabilities}
-            />
+          {!probabilities ? (
+            <div className={cx("spinner")}>
+              <Spinner centered inverted />
+            </div>
+          ) : (
+            <>
+              <ProbabilityChart
+                {...probabilityChartProps}
+                marketType={type}
+                creationDate={creationDate}
+                probabilities={probabilities}
+                resolutionDate={resolutionDate}
+                stagedProbabilities={stagedProbabilities}
+                tradeHistory={tradeHistory}
+              ></ProbabilityChart>
+              {type === "CATEGORICAL" && (
+                <Probabilities
+                  outcomes={outcomes}
+                  probabilities={probabilities}
+                  stagedProbabilities={stagedProbabilities}
+                />
+              )}
+            </>
           )}
         </div>
         <div className={cx("tab-content")}>

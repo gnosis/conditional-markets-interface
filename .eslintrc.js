@@ -3,6 +3,7 @@ module.exports = {
   extends: [
     "eslint:recommended",
     "plugin:react/recommended",
+    "plugin:react-hooks/recommended",
     "plugin:prettier/recommended"
   ],
   env: {
@@ -11,7 +12,6 @@ module.exports = {
     browser: true,
     jest: true
   },
-  plugins: ["react-hooks"],
   settings: {
     react: {
       version: "detect"

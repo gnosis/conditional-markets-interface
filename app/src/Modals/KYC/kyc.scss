@@ -1,0 +1,256 @@
+@import "../Modals.scss";
+@import "~scss/_variables.scss";
+
+.modal {
+  &.loading {
+    width: 400px;
+    height: 400px;
+    display: flex;
+    justify-items: center;
+    align-items: center;
+  }
+
+  &-jumbo {
+    margin: 2rem auto 2rem auto;
+    display: block;
+  }
+
+  &-heading {
+    font-size: 2.4rem;
+    font-weight: bold;
+    text-align: center;
+    padding: 1.5rem 0;
+    margin: 0;
+    color: black;
+  }
+
+  &-body {
+    padding: 1.5rem 4rem;
+    max-width: 600px;
+    margin: auto;
+    line-height: 1.5;
+    color: $shadeBlue;
+
+    strong {
+      color: $black;
+    }
+  }
+
+  &-well {
+    background-color: #f2fafb;
+    text-align: left;
+    padding: 1rem 4rem;
+  }
+
+  &-textblock {
+    padding: 2rem 2rem;
+  }
+
+  &-label {
+    text-align: left;
+    padding: 1rem 4rem;
+  }
+
+  .cancel-button {
+    font-size: 1.4rem;
+  }
+}
+
+.field {
+  width: 100%;
+  max-width: 400px;
+  text-align: left;
+
+  margin: auto;
+  margin-bottom: 1.4rem;
+
+  &-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    margin-bottom: 1.4rem;
+
+    a {
+      color: $shadeBlue;
+
+      &:hover, &:focus, &:active {
+        color: lighten($shadeBlue, 20%);
+      }
+    }
+  }
+
+  &-group {
+    display: flex;
+    flex-direction: row;
+  }
+
+  &.label {
+    display: block;
+    text-align: center;
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: black;
+  }
+
+  &.subheading {
+    font-size: 1.2rem;
+    line-height: normal;
+  }
+
+  &.heading {
+    text-align: center;
+    font-size: 1.4rem;
+    line-height: normal;
+    margin: 3rem auto;
+  }
+}
+
+.panes {
+  display: flex;
+  flex-direction: row;
+
+  .pane {
+    padding: .4rem;
+    width: 100%;
+  }
+}
+
+.modal-textblock {
+  font-size: 1.4rem;
+  margin-bottom: 1rem;
+}
+
+.checklist {
+  list-style: none;
+  line-height: normal;
+  font-size: 1.4rem;
+  text-align: left;
+  margin: 0;
+  padding: 0;
+
+  li {
+    position: relative;
+    padding-left: 2.2rem;
+    margin: 1rem 0;
+    font-weight: 700;
+
+    &.check {
+      &::before {
+        background-image: url("~assets/icons/check-circle-green.svg");
+      }
+    }
+
+    &::before {
+      position: absolute;
+      content: '';
+
+      background-image: url("~assets/icons/check-circle-gray.svg");
+      left: 0;
+      width: 1.8rem;
+      height: 1.8rem;
+
+    }
+  }
+}
+
+.connected-items {
+  margin: 0;
+  line-height: normal;
+  font-size: 1.8rem;
+  text-align: left;
+  position: relative;
+
+  .entry {
+    width: 100%;
+    display: flex;
+
+    .dots {
+      flex-grow: 1;
+      border-bottom: 1px dotted black;
+      position: relative;
+      margin: 0 4px;
+      top: -2px;
+    }
+    .label {
+      align-self: flex-start;
+    }
+    .value {
+      align-self: flex-end;
+    }
+  }
+
+}
+
+.tier-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 1.4rem;
+
+  thead {
+    background-color: #00193c;
+    color: white;
+    text-align: left;
+    
+    th {
+      padding: 1rem 1rem;
+    }
+  }
+
+  tbody {
+    td {
+      padding: 1rem 1rem;
+    }
+
+    tr {
+      background-color: white;
+      &:nth-child(odd) {
+        background-color: #f2fafb
+      }
+
+      border-bottom: 1px solid gray;
+    }
+  }
+
+  ul {
+    text-align: left;
+  }
+}
+
+.full-width {
+  width: 100%;
+  max-width: 900px;
+}
+
+.tier-intro {
+  max-width: 600px;
+  text-align: center;
+  margin: 1rem auto 2rem auto;
+
+  font-size: 1.6rem;
+  line-height: 2.4rem;
+}
+
+@keyframes animate-rotate {
+  0% { transform: rotate(0deg);  }
+  50% { transform: rotate(359deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes animate-pulse {
+  0% { transform: scale(1); }
+  33% { transform: scale(1.05); }
+  66% { transform: scale(0.95); }
+  100% { transform: scale(1); }
+}
+
+.emote-pending-anim {
+  g path:first-child {
+    animation: animate-rotate infinite 3s ease-in-out;
+    transform-origin: calc(50% - 10px) calc(50% - 10px);
+  }
+
+  g path:not(:first-child) {
+    animation: animate-pulse infinite 1s ease-in-out;
+    transform-origin: calc(50% - 10px) calc(50% - 10px);
+  }
+}

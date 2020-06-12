@@ -2,25 +2,18 @@
 @import "../../sidebar.scss";
 
 .summary {
-  &-heading {
-  }
-  
-  &-category {
-    font-size: 1.5rem;
-  
-    .category-values {
-      &-positive {
-        color: $green;
-      }
-    
-      .category-value {    
-        margin: 1rem 0;
+  &-element {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 0.5rem 0;
 
-        &.value {
-          font-weight: $bold;
-        }
+    &-value {
+      font-size: 1.5rem;
+      font-weight: $bold;
 
-        .change-percentage {
+      .change-percentage {
           font-weight: $normal;
           color: $green;
 
@@ -28,7 +21,12 @@
             color: $red;
           }
         }
-      }
+    }
+
+    .dotted-separator {
+      border-bottom: 1px dotted $shadeBlue;
+      flex: 1;
+      margin: 0 0.3rem;
     }
   }
 }

@@ -5,15 +5,15 @@
 const network = process.env.NETWORK
   ? process.env.NETWORK.toLowerCase()
   : "local";
-const networkConfig = network ? require(`./config.${network}.json`) : {};
+const networkConfig = network ? require(`./config.${network}`) : {};
 
 // Operator conf
 const operatorConfig = require("./config-operator");
 
 // Whitelist conf
-const whitelistConfig = require(`./config-whitelist`);
+const onboardingConfig = require(`./config-onboarding`);
 
-// Operator conf
+// The Graph conf
 const theGraphConfig = require("./config-thegraph");
 
 // Load custom config file (override default conf)
@@ -30,7 +30,7 @@ let customConfig = customConfigFile
 let config = {
   ...networkConfig,
   ...operatorConfig,
-  ...whitelistConfig,
+  ...onboardingConfig,
   ...theGraphConfig,
   ...customConfig
 };

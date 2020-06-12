@@ -61,20 +61,23 @@ $tablet-small-up: "only screen and (min-width: #{$medium-smallresolutions-up})";
 
 // Global HEX Colors
 $white: #FFF;
+$lightBlue: #D9F6FB;
 $blue: #009CB4;
 $shadeBlue: #526877;
 $black: #00193C;
 $grey: #F7F8FB;
 $greyBorder: #D8D8D8;
 $greyBorder2: #dedfde;
+$greyBackground: #edf2f7;
 $red: #FF685E;
 $green: #02AE60;
 $violet: #805eff;
 $lightGreen: #4ec300;
-$lightBlue: #1b9cfd;
+$yellow: #bcbd22;
 $orange: #ff7f0e;
 $brown: #8c564b;
 $pink: #e377c2;
+$beige: rgba(255, 184, 60, 0.16);
 
 // Fonts
 $arial: Arial, Helvetica, sans-serif;
@@ -104,7 +107,7 @@ $x: "\2715"; // $x: "✕";
   redColor: $red;
   violetColor: $violet;
   lightGreenColor: $lightGreen;
-  lightBlueColor: $lightBlue;
+  yellowColor: $yellow;
   orangeColor: $orange;
   brownColor: $brown;
   pinkColor: $pink;

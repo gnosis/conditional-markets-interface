@@ -1,0 +1,137 @@
+@import "~scss/_variables.scss";
+
+.page {
+  display: block;
+  height: 100%;
+  width: 100%;
+  background-color: $greyBackground;
+
+    @media #{$tablet-small-max} {
+      padding: 0;
+    }
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    max-width: 600px;
+    margin: auto;
+    padding: 4rem 0;
+
+    .logged-info {
+      display: flex;
+    }
+
+    .avatar {
+      height: 4.2rem;
+      width: 4.2rem;
+      position: relative;
+      border-radius: 100%;
+      overflow: hidden;
+      margin: 0 1rem 0 0;
+  
+        @media #{$tablet-small-max} {
+          height: 2.6rem;
+          width: 2.6rem;
+          margin: 0 .5rem 0 0;
+        }
+  
+      &-image {
+        max-height: 100%;
+        max-width: 100%;
+        image-rendering: pixelated;
+      }
+    }
+
+    .address {
+      line-height: 4rem;
+      font-size: 1.4rem;
+    }
+
+    .material-button{
+      background-color: $green;
+    }
+  }
+
+  .app-space {
+    max-width: 600px;
+    border-radius: 6px;
+    box-shadow: 0 0 26px 0 rgba(0, 25, 60, 0.12), 0 2px 12px 0 rgba(0, 156, 180, 0.05);
+    background-color: $white;
+    margin: auto;
+    padding: 3rem 8rem;
+
+    .step {
+      text-align: center;
+      font-size: 1.4rem;
+
+      &-header {
+        font-size: 2.6rem;
+        font-weight: bold;
+      }
+
+      &-sub-header {
+        font-weight: bold;
+      }
+
+      &-description {
+        color: $shadeBlue;
+
+        &.success {
+          color: $green;
+          font-weight: bold;
+        }
+
+        &.error {
+          color: $red;
+          font-weight: bold;
+        }
+      }
+    }
+
+    .connect {
+      .material-button{
+        background-color: $green;
+      }
+    }
+
+    .terms-and-conditions {
+      .user-details {
+        padding: 1.2rem 2.7rem;
+        background-color: $lightBlue;
+        border-radius: 3px;
+        
+        &-field {
+          display: flex;
+          flex-flow: column;
+          align-items: flex-start;
+          padding:1.2rem 0;
+        }
+        &-title {
+          color: $shadeBlue;
+        }
+
+        &-value {
+          font-size: 1.6rem;
+        }
+      }
+    }
+  }
+
+  // Material ui styles overrides
+  .material-button {
+    border-radius: .3rem;
+    box-shadow: none;
+    margin: 0.4rem 1.4rem;
+
+    &.big {
+      padding: 1.4rem 6rem;
+    }
+
+    &-label {
+        font-weight: $bold;
+        font-size: 1.8rem;
+        line-height: 1;
+        text-transform: none;
+    }
+  }
+}

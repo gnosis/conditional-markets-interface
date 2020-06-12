@@ -6,3 +6,4 @@ app/dist
 config.*.json.bak
 .DS_Store
 /dist
+yarn.lock

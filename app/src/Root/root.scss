@@ -5,9 +5,13 @@
   height: 100%;
   width: 100%;
 
-    @media #{$tablet-small-max} {
-      padding: 0;
-    }
+  @media #{$tablet-small-max} {
+    padding: 0;
+  }
+  
+  &.modal-open {
+    overflow: hidden;
+  }
 }
 
 .loading-page {

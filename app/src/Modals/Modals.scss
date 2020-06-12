@@ -2,24 +2,34 @@
 
 .modal {
   height: auto;
+  max-height: 100%;
+  overflow: auto;
   background-color: $white;
-  padding: 1.6rem;
   border-radius: .3rem;
   box-shadow: 0 1rem 1.5rem 0 rgba(0, 30, 59, 0.15);
   max-width: 76rem;
   width: 100%;
   position: relative;
-  margin: 1rem 0;
 
   &-close {
     position: absolute;
-    top: 2rem;
+    appearance: none;
+    -webkit-appearance: none;
+    border: none;
     right: 2rem;
     color: $shadeBlue;
     font-size: 2.8rem;
     font-weight: $bold;
     transition: color .3s ease-in-out;
     text-decoration: none;
+
+    &.disabled {
+      opacity: 0.8;
+      &:focus, &:active, &:hover {
+        cursor: not-allowed;
+        cursor: $shadeBlue;
+      }
+    }
 
     &::after {
       content: $x;
@@ -36,6 +46,7 @@
 
     &:focus, &:active, &:hover {
       text-decoration: none;
+      cursor: pointer;
       color: $black;
     }
 
@@ -49,14 +60,13 @@
     padding: 1rem;
     text-align: center;
 
-      p {
-        font-weight: $normal;
-        font-size: 1.6rem;
-        color: $shadeBlue;
-        letter-spacing: 0;
-        text-align: center;
-        line-height: 1.2;
-      }
+    p {
+      font-weight: $normal;
+      font-size: 1.6rem;
+      color: $shadeBlue;
+      letter-spacing: 0;
+      line-height: 1.2;
+    }
   }
 
   &-header {
@@ -65,8 +75,28 @@
     color: $black;
     letter-spacing: 0;
     text-align: center;
-    margin: 5rem 0;
+    margin: 2.5rem 0;
     padding: 0;
     line-height: 1;
   }
+}
+
+// Material ui styles overrides
+.material-button {
+  border-radius: .3rem;
+  padding: 1.6rem 6rem;
+  box-shadow: none;
+  margin: 1.6rem 1rem;
+
+  &-label {
+    font-weight: $bold;
+    font-size: 1.8rem;
+    line-height: 1;
+    text-transform: none;
+  }
+}
+
+.cancel-button {
+  font-size: 1.4rem;
+  margin: 1rem;
 }

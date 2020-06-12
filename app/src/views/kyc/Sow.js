@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { setSourceOfFunds } from "api/whitelist";
+import { setSourceOfFunds } from "api/onboarding";
 
 import cn from "classnames/bind";
 
@@ -142,7 +142,7 @@ const Sow = props => {
         }
       })
       .catch(e => {
-        console.log(e);
+        console.error(e);
         setError("Error: Internal error, please try later");
       });
   };
@@ -169,8 +169,8 @@ const Sow = props => {
         >
           <p>
             To be regulated under Gibraltar's Distributed Ledger Technology
-            (DTL) framework we are required to collect information on your source of
-            funds.
+            (DTL) framework we are required to collect information on your
+            source of funds.
           </p>
           <br />
           <p>
@@ -179,7 +179,7 @@ const Sow = props => {
 
           <span>
             <strong>
-              What is your main source of funds?{" "}
+              Please select source of funds{" "}
               <small className={cx("text-red")}>*</small>
             </strong>
             <select
@@ -245,14 +245,14 @@ const Sow = props => {
             <span>
               <h3>Source of Funds Description</h3>
               <strong>
-              Add specifics to your source of funds. Like "Sale of property in
-              UK", "Family inheritance"{" "}
-              <small className={cx("text-red")}>*</small>
+                Add specifics to your source of funds. Like "Sale of property in
+                UK", "Family inheritance"{" "}
+                <small className={cx("text-red")}>*</small>
               </strong>
               <input
-              name="source_description"
-              required
-              {...bindSourceDescription}
+                name="source_description"
+                required
+                {...bindSourceDescription}
               />
             </span>
           ) : null}

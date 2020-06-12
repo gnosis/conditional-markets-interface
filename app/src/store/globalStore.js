@@ -2,12 +2,13 @@ import React, { createContext, useReducer } from "react";
 import globalStateReducer from "./globalStateReducer";
 
 const initialState = {
-  account: null,
+  user: null,
   markets: null,
   positions: null,
   lmsrState: null,
   marketProbabilities: null,
   collateral: null,
+  tiers: null,
   error: null
 };
 

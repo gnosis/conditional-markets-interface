@@ -1,6 +1,7 @@
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const FaviconsWebpackPlugin = require("favicons-webpack-plugin");
+const MomentLocalesPlugin = require("moment-locales-webpack-plugin");
 
 const webpack = require("webpack");
 
@@ -75,6 +76,16 @@ module.exports = {
         exclude: [path.resolve(__dirname, "assets", "icons")]
       },
       {
+        test: /\.pdf$/,
+        use: {
+          loader: "file-loader",
+          options: {
+            name: "[name].[ext]",
+            outputPath: "docs/"
+          }
+        }
+      },
+      {
         test: /.*\/icons\/.*\.svg$/,
         use: {
           loader: "svg-url-loader",
@@ -104,12 +115,17 @@ module.exports = {
     new webpack.EnvironmentPlugin({
       NODE_ENV: "development",
       NETWORK: false,
-      WHITELIST_ENABLED: isProduction,
-      WHITELIST_API: isProduction
-        ? "https://sight-whitelist.staging.gnosisdev.com/api/v1"
-        : "/api",
+      WHITELIST_API: "https://sight-whitelist.staging.gnosisdev.com/api",
       OPERATOR_API: "",
-      BASE_URL: "/"
-    })
+      BASE_URL: "/",
+      ONBOARDING_MODE: "WHITELIST"
+      /* Onboarding Mode Values:
+      // WHITELIST - Shows Banner with form for whitelist process
+      // DISABLED - For Testing, no whitelist/onboarding required
+      // TIERED - Hides Banner, starts verification/create account process via Wallet Button
+      */
+    }),
+    // Prevent loading all moment locales but EN
+    new MomentLocalesPlugin()
   ]
 };
