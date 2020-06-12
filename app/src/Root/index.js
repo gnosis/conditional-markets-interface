@@ -767,13 +767,7 @@ const RootComponent = ({
   if (loading === "SUCCESS") {
     return (
       <div className={cx("page", { "modal-open": !!modal })}>
-        <div>
-          <Toasts
-            deleteToast={deleteToast}
-            addToast={addToast}
-            toasts={toasts}
-          />
-        </div>
+        <Toasts deleteToast={deleteToast} addToast={addToast} toasts={toasts} />
         <div className={cx("modal-space", { "modal-open": !!modal })}>
           {modal}
         </div>

@@ -6,6 +6,10 @@
   top: 5rem;
   z-index: 9999;
 
+  &.no-toasts {
+    display: none;
+  }
+
     @media #{$tablet-small-max} {
       bottom: 8rem;
       left: 0;
