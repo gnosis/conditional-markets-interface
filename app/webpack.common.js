@@ -118,7 +118,7 @@ module.exports = {
       WHITELIST_API: "https://sight-whitelist.staging.gnosisdev.com/api",
       OPERATOR_API: "",
       BASE_URL: "/",
-      ONBOARDING_MODE: "WHITELIST"
+      ONBOARDING_MODE: "TIERED"
       /* Onboarding Mode Values:
       // WHITELIST - Shows Banner with form for whitelist process
       // DISABLED - For Testing, no whitelist/onboarding required

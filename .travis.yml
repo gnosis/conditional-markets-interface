@@ -11,8 +11,8 @@ cache:
 install:
    - npm install -g sass@1.22.10
 before_script:
-    # ONBOARDING_MODE="TIERED" for temporarily to allow tiered onboarding testing/dev
-  - if [ "$TRAVIS_BRANCH" == "development" ]; then export NETWORK="rinkeby" ONBOARDING_MODE="TIERED" NODE_ENV=development;
+    # ONBOARDING_MODE="TIERED" to enable tiered onboarding testing/dev
+  - if [ "$TRAVIS_BRANCH" == "development" ]; then export NETWORK="rinkeby" NODE_ENV=development;
     else export NETWORK="mainnet" NODE_ENV=production;
     fi;
   - npm run compile && npm run build
@@ -20,9 +20,14 @@ matrix:
   include:
   - if: branch =~ /^master$/ OR tag IS present
     env:
-      - ONBOARDING_MODE=WHITELIST
+      - DEPLOY_ENV=production
       - WHITELIST_API=https://sight-whitelist.gnosis.io/api
-      - OPERATOR_API=https://sight-operator.gnosis.io/api/v1
+      - OPERATOR_API=https://sight-operator.gnosis.io/api
+  - if: branch =~ /^master$/ OR tag IS present
+    env:
+      - DEPLOY_ENV=staging
+      - WHITELIST_API=https://sight-whitelist.mainnet.staging.gnosisdev.com/api
+      - OPERATOR_API=https://sight-operator.staging.gnosisdev.com/api
   - if: NOT (branch =~ /^master$/) AND NOT (tag IS present)
     env: WHITELIST_API=https://sight-whitelist.staging.gnosisdev.com/api
 
@@ -51,6 +56,7 @@ deploy:
     upload-dir: current/markets
     on:
       branch: master
+      condition: $DEPLOY_ENV = staging
 
   # STAGING_WITH_LANDING deployment
   - provider: s3
@@ -62,6 +68,7 @@ deploy:
     upload-dir: current/app
     on:
       branch: master
+      condition: $DEPLOY_ENV = production
 
   # ALPHA STAGING deployment
   - provider: s3
