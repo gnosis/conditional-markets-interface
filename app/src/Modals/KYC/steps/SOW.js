@@ -151,7 +151,7 @@ const SourceOfWealth = ({ closeModal }) => {
         closeModal={closeModal}
         title={
           <span>
-            Sight Self Declared
+            KYC Tier Level 2 - Verification
             <br />
             Source of Funds
           </span>

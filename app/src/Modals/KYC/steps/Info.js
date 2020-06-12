@@ -14,7 +14,7 @@ const cx = classnames.bind(style);
 const Info = ({ closeModal, handleAdvanceStep, tier }) => {
   return (
     <>
-      <UpperBar closeModal={closeModal} title="Create Account"></UpperBar>
+      <UpperBar closeModal={closeModal} title="Get Verified"></UpperBar>
       <div className={cx("modal-body", "full-width")}>
         <p className={cx("field", "tier-intro")}>
           By providing us with some basic information you can start buying
