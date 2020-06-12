@@ -11,7 +11,7 @@ cache:
 install:
    - npm install -g sass@1.22.10
 before_script:
-    # ONBOARDING_MODE="TIERED" for temporarily to allow tiered onboarding testing/dev
+    # ONBOARDING_MODE="TIERED" to enable tiered onboarding testing/dev
   - if [ "$TRAVIS_BRANCH" == "development" ]; then export NETWORK="rinkeby" ONBOARDING_MODE="TIERED" NODE_ENV=development;
     else export NETWORK="mainnet" NODE_ENV=production;
     fi;
@@ -20,7 +20,7 @@ matrix:
   include:
   - if: branch =~ /^master$/ OR tag IS present
     env:
-      - ONBOARDING_MODE=WHITELIST
+      - ONBOARDING_MODE=TIERED
       - WHITELIST_API=https://sight-whitelist.gnosis.io/api
       - OPERATOR_API=https://sight-operator.gnosis.io/api/v1
   - if: NOT (branch =~ /^master$/) AND NOT (tag IS present)
