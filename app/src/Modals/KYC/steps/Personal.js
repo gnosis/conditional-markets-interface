@@ -20,7 +20,12 @@ import { getResidenceCountries, postPersonalDetails } from "api/onboarding";
 import cn from "classnames/bind";
 
 import style from "../kyc.scss";
-import { isRequired, validator, isEmail, isEqual } from "../../../utils/validations";
+import {
+  isRequired,
+  validator,
+  isEmail,
+  isEqual
+} from "../../../utils/validations";
 import { STEP_PENDING } from "../";
 import useGlobalState from "hooks/useGlobalState";
 
@@ -82,6 +87,7 @@ const Personal = ({ closeModal, person, updatePerson, handleAdvanceStep }) => {
         documentExpiryDate: getMoment(values.documentExpiryDate).format(
           "Y-MM-DD"
         ),
+        birthDate: getMoment(values.birthDate).format("Y-MM-DD"),
         countryResidenceIso2: values.countryResidence.iso2
       };
 
@@ -177,6 +183,7 @@ const Personal = ({ closeModal, person, updatePerson, handleAdvanceStep }) => {
                     name="documentExpiryDate"
                     label="Document Expiration"
                     disablePast
+                    autoOk
                     component={DateInput}
                   />
                   <Field
@@ -198,6 +205,7 @@ const Personal = ({ closeModal, person, updatePerson, handleAdvanceStep }) => {
                     name="birthDate"
                     label="Date of Birth*"
                     disableFuture
+                    autoOk
                     component={DateInput}
                   />
                 </div>
