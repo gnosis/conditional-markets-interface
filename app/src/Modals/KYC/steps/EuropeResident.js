@@ -14,7 +14,7 @@ const cx = classnames.bind(style);
 const Residence = ({ closeModal, handleAdvanceStep }) => {
   return (
     <>
-      <UpperBar closeModal={closeModal} title="Create Account"></UpperBar>
+      <UpperBar closeModal={closeModal} title="Get Verified"></UpperBar>
       <div className={cx("modal-body")}>
         <p className={cx("field", "heading")}>
           To start trading on Sight you first need to create an account:
@@ -37,7 +37,7 @@ const Residence = ({ closeModal, handleAdvanceStep }) => {
             variant="outlined"
             color="primary"
             size="large"
-            onClick={() => handleAdvanceStep([STEP_TIER2_REQUEST])}
+            onClick={() => handleAdvanceStep(STEP_TIER2_REQUEST)}
           >
             No
           </Button>

@@ -38,7 +38,10 @@ const Approved = ({ closeModal }) => {
 
   return (
     <>
-      <UpperBar closeModal={closeModal} title="Create Account"></UpperBar>
+      <UpperBar
+        closeModal={closeModal}
+        title="Verification Successful"
+      ></UpperBar>
       <div className={cx("modal-body")}>
         <img
           className={cx("modal-jumbo")}
@@ -46,7 +49,9 @@ const Approved = ({ closeModal }) => {
           alt="Pending Verification"
         />
         <div>
-          <div className={cx("modal-heading")}>Application approved!</div>
+          <div className={cx("modal-heading")}>
+            Tier {tierName} - Verification successful!
+          </div>
 
           <div className={cx("modal-well")}>
             <div className={cx("connected-items")}>

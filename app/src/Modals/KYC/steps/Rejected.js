@@ -14,8 +14,10 @@ const cx = cn.bind(style);
 const ReasonNationality = ({ person }) => (
   <>
     <span>
-      Unfortunately, you may not onboard at Sight at this present moment, due to
-      your selected nationality:
+      Unfortunately there are some nationalities which may not get access to
+      Sight. This has nothing to do with you personally, but rather Sight
+      avoiding the risk that the nation you belong to would take legal action
+      against us.
     </span>
     <br />
     <strong>{person.nationalityName}</strong>
@@ -38,7 +40,7 @@ ReasonNationality.propTypes = {
 
 const ReasonTierOneCheck = () => (
   <>
-    <div className={cx("modal-heading")}>Application rejected.</div>
+    <div className={cx("modal-heading")}>Verification Failed</div>
     <span>
       The personal details submitted were matched against a name on a sanction
       list.
@@ -78,7 +80,7 @@ const Rejected = props => {
 
   return (
     <>
-      <UpperBar closeModal={closeModal} title="Create Account"></UpperBar>
+      <UpperBar closeModal={closeModal} title="Verification Failed"></UpperBar>
       <div className={cx("modal-body")}>
         <div className={cx("modal-textblock")}>
           <img className={cx("modal-jumbo")} src={EmoteSad} alt="Sorry! :(" />

@@ -69,7 +69,7 @@ const Tier2Request = ({ closeModal, handleAdvanceStep }) => {
 
   return (
     <>
-      <UpperBar closeModal={closeModal} title="Create Account"></UpperBar>
+      <UpperBar closeModal={closeModal} title="Get Verified"></UpperBar>
       <Header logo={Logo}></Header>
       <div className={cx("modal-body")}>
         <p>

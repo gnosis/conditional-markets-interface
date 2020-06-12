@@ -73,7 +73,7 @@ const Pending = ({ closeModal, handleAdvanceStep, updateWhitelist }) => {
 
   return (
     <>
-      <UpperBar closeModal={closeModal} title="Create Account"></UpperBar>
+      <UpperBar closeModal={closeModal} title="Get Verified"></UpperBar>
       <div className={cx("modal-body")}>
         {pageStatus !== "ERROR" ? (
           <>

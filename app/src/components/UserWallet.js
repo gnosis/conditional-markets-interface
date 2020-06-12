@@ -157,7 +157,7 @@ const UserWallet = ({
               onClick={() => openModal("KYC", { updateWhitelist })}
               className={cx("kyc-button")}
             >
-              Create Account
+              Get Verified
             </button>
           )}
           <LoggedIn
@@ -187,7 +187,7 @@ const UserWallet = ({
                 openModal("KYC", { initialStep: "PENDING", updateWhitelist })
               }
             >
-              Check verification state for your account
+              Tier Verification Pending
             </button>
           )}
           <LoggedIn

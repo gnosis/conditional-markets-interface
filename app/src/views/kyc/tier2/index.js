@@ -211,10 +211,10 @@ const Tier2 = props => {
         {!account && (
           <div className={cx("step", "connect")}>
             <div className={cx("step-header")}>
-              <p>KYC Tier Level 2 - Verification</p>
+              <p>Get Tier 2 Verification</p>
             </div>
             <p className={cx("step-description")}>
-              Connect your wallet to start your KYC application
+              Connect your web 3 wallet to begin.
             </p>
             <Button
               className={cx("material-button", "big")}
@@ -225,7 +225,7 @@ const Tier2 = props => {
               type="submit"
               onClick={() => web3Modal.toggleModal()}
             >
-              Connect you wallet
+              Connect your wallet
             </Button>
           </div>
         )}

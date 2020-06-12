@@ -28,17 +28,22 @@ const Transactions = ({ closeModal, title, transactions }) => {
     [currentTxIndex, transactions]
   );
 
-  const [pendingTxIndex, setPendingTxIndex] = useState(null)
+  const [pendingTxIndex, setPendingTxIndex] = useState(null);
 
   return (
     <div className={cx("tx-modal")}>
-      <TitleBar title={title} closeModal={closeModal} disableClose={pendingTxIndex != null} />
+      <TitleBar
+        title="First Transaction"
+        closeModal={closeModal}
+        disableClose={pendingTxIndex != null}
+      />
       <div className={cx("tx-subheader")}>
         <Account />
         <div className={cx("tx-description")}>
-          Setup your account to allow for a smooth transaction experience. Each
-          action will trigger a transaction in your client which you&apos;ll
-          have to confirm. This only has to be done once.
+          Sight is built on the Ethereum blockchain. Every market has its own
+          market maker. The code which runs the market market maker is on the
+          ethereum blockchain. When interacting with the market maker for the
+          first time we need to do the following:
         </div>
       </div>
       <div className={cx("tx-content")}>
@@ -50,7 +55,7 @@ const Transactions = ({ closeModal, title, transactions }) => {
             enabled={currentTxIndex >= index}
             number={index + 1}
             description={description}
-            setPending={(active) => setPendingTxIndex(active ? index : null)}
+            setPending={active => setPendingTxIndex(active ? index : null)}
             pending={pendingTxIndex == index}
             submitTx={executeTx}
           />

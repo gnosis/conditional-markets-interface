@@ -127,7 +127,7 @@ const Personal = ({ closeModal, person, updatePerson, handleAdvanceStep }) => {
   if (loadingState === "PENDING") {
     return (
       <>
-        <UpperBar closeModal={closeModal} title="Create Account"></UpperBar>
+        <UpperBar closeModal={closeModal} title="Get Verified"></UpperBar>
         <div className={cx("modal-body")}>
           <Spinner />;
         </div>
@@ -138,7 +138,7 @@ const Personal = ({ closeModal, person, updatePerson, handleAdvanceStep }) => {
   if (loadingState === "FAILURE") {
     return (
       <>
-        <UpperBar closeModal={closeModal} title="Create Account"></UpperBar>
+        <UpperBar closeModal={closeModal} title="Get Verified"></UpperBar>
         <div className={cx("modal-body")}>
           <p>Could not load country list. Please try again.</p>
           <button
@@ -154,7 +154,7 @@ const Personal = ({ closeModal, person, updatePerson, handleAdvanceStep }) => {
   }
   return (
     <>
-      <UpperBar closeModal={closeModal} title="Create Account"></UpperBar>
+      <UpperBar closeModal={closeModal} title="Get Verified"></UpperBar>
       <div className={cx("modal-body")}>
         <Form
           onSubmit={onSubmit}
