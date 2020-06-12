@@ -64,6 +64,7 @@ const Personal = ({ closeModal, person, updatePerson, handleAdvanceStep }) => {
   const { account } = useGlobalState();
   const [countries, setCountries] = useState();
   const [loadingState, setIsLoading] = useState("PENDING");
+  const [maxBirthDate, setMaxBirthDate] = useState(new Date());
 
   const fetchCountries = useCallback(async () => {
     try {
@@ -118,6 +119,9 @@ const Personal = ({ closeModal, person, updatePerson, handleAdvanceStep }) => {
 
   useEffect(() => {
     fetchCountries();
+    let eighteenYearsAgo = new Date();
+    eighteenYearsAgo.setFullYear(eighteenYearsAgo.getFullYear() - 18);
+    setMaxBirthDate(eighteenYearsAgo);
   }, []);
 
   if (loadingState === "PENDING") {
@@ -204,8 +208,10 @@ const Personal = ({ closeModal, person, updatePerson, handleAdvanceStep }) => {
                   <Field
                     name="birthDate"
                     label="Date of Birth*"
-                    disableFuture
+                    // disableFuture
                     autoOk
+                    openTo="year"
+                    maxDate={maxBirthDate}
                     component={DateInput}
                   />
                 </div>
