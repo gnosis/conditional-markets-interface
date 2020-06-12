@@ -12,7 +12,7 @@ export const getQuestions = async ({ status, lmsrAddress, limit, offset }) => {
     return getQuestionsMock();
   }
 
-  const apiUrl = `${OPERATOR_API_URL}/questions/`;
+  const apiUrl = `${OPERATOR_API_URL}/v1/questions/`;
   const params = {
     status,
     market_maker: lmsrAddress,
@@ -40,7 +40,7 @@ export const getMarketMakers = async ({
     return getQuestionsMock();
   }
 
-  const apiUrl = `${OPERATOR_API_URL}/market-makers/`;
+  const apiUrl = `${OPERATOR_API_URL}/v1/market-makers/`;
   const params = {
     status,
     factory,
