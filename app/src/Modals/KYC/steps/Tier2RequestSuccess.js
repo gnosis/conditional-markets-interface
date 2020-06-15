@@ -50,13 +50,13 @@ const Tier2RequestSuccess = ({
         {email ? (
           <p>
             An email has been sent to <strong>{email}</strong>. Please follow
-            the instructions in the email to complete the Tier 2 - KYC process.
+            the instructions in the email to get Tier 2 access.
           </p>
         ) : (
           <p>
             An email has been sent to to the address you used to register for
-            Tier 1. Please follow the instructions in the email to complete the
-            Tier 2 - KYC process.
+            Tier 1. Please follow the instructions in the email to get Tier2
+            access.
           </p>
         )}
         <p>

@@ -14,10 +14,10 @@ const AlreadyVerified = () => {
   return (
     <div className={cx("step", "already-verified")}>
       <div className={cx("step-header")}>
-        <p>KYC Tier Level 2 - Verification</p>
+        <p>KYC Tier Level 2 - Verification successful</p>
       </div>
       <p className={cx("step-description", "success")}>
-        Connected wallet is already KYC Tier Level 2 verified!
+        Connected wallet address has tier 2 access to Sight!
       </p>
       <Button
         className={cx("material-button", "big")}

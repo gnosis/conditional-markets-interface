@@ -35,12 +35,12 @@ const TermsAndConditions = ({ account, email, handleAdvanceStep }) => {
         if (response.reason === "ETH_ADDRESS_CANNOT_BE_MODIFIED") {
           return {
             [FORM_ERROR]:
-              "The email has already been registered with another ethereum account. Please, make sure you are using the same email and account combination"
+              "The email does not correspond to the wallet address. Please, make sure you are using the same email and wallet address combination"
           };
         } else {
           return {
             [FORM_ERROR]:
-              "The email is not correct or the account is already registered with another email. Please, make sure you are using desired email and account"
+              "The email is not correct or the wallet address is already registered with another email. Please, make sure you are using desired email and wallet address"
           };
         }
       } else {
@@ -59,12 +59,13 @@ const TermsAndConditions = ({ account, email, handleAdvanceStep }) => {
         <p>KYC Tier Level 2 - Verification</p>
       </div>
       <div className={cx("step-sub-header")}>
-        <p>You will be creating an account on Sight</p>
+        <p>
+          You will be verifying the wallet address and email below for Tier 2
+        </p>
       </div>
       <p className={cx("step-description")}>
-        This is the wallet address and email linked to your account. If you
-        would like to register with a different wallet address, please connect
-        with that wallet address now.
+        We will be asking you for some personal information. Please know that
+        all information collected is stored according to GDPR standards.
       </p>
 
       <div className={cx("user-details")}>
