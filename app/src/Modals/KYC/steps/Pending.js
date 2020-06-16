@@ -5,6 +5,7 @@ import style from "../kyc.scss";
 
 import useGlobalState from "hooks/useGlobalState";
 
+import { getCurrentUserTierData } from "utils/tiers";
 import useInterval from "@use-it/interval";
 
 import UpperBar from "../../components/upperBar";
@@ -17,7 +18,9 @@ const cx = classnames.bind(style);
 const Pending = ({ closeModal, handleAdvanceStep, updateWhitelist }) => {
   const [checkedIndices, setCheckedIndices] = useState([false, false]);
   const [pageStatus, setPageStatus] = useState("PENDING");
-  const { account } = useGlobalState();
+
+  const { account, user, tiers } = useGlobalState();
+  const [tierName, setTierName] = useState(0);
 
   const [intervalDelay, setIntervalDelay] = useState(5000);
 
@@ -69,6 +72,17 @@ const Pending = ({ closeModal, handleAdvanceStep, updateWhitelist }) => {
     updateWhitelistStatus();
   }, []);
 
+  const updateCurrentUserTierData = useCallback(() => {
+    const { name } = getCurrentUserTierData(tiers, user);
+    setTierName(parseInt(name, 10));
+  }, [tiers, user]);
+
+  useEffect(() => {
+    // Only on first render to keep tier that the modal was loaded with
+    // allowing us to show the "next" tier
+    updateCurrentUserTierData();
+  }, []);
+
   useInterval(updateWhitelistStatus, intervalDelay);
 
   return (
@@ -103,7 +117,7 @@ const Pending = ({ closeModal, handleAdvanceStep, updateWhitelist }) => {
             </div>
             <div>
               <div className={cx("modal-heading")}>
-                Account creation in process...
+                Tier {tierName + 1} verification in progress
               </div>
 
               <div className={cx("modal-well")}>

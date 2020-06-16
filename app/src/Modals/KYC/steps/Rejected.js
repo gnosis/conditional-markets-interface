@@ -80,7 +80,7 @@ const Rejected = props => {
 
   return (
     <>
-      <UpperBar closeModal={closeModal} title="Verification Failed"></UpperBar>
+      <UpperBar closeModal={closeModal} title="Get Verified"></UpperBar>
       <div className={cx("modal-body")}>
         <div className={cx("modal-textblock")}>
           <img className={cx("modal-jumbo")} src={EmoteSad} alt="Sorry! :(" />
