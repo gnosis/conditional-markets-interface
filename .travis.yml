@@ -35,7 +35,7 @@ script:
   - echo "Skip tests" # no test cases for the project
 
 deploy:
-  # DEVELOPMENT deployment
+  # DEVELOPMENT /markets deployment
   - provider: s3
     bucket: $DEV_BUCKET_NAME
     access_key_id: $AWS_ACCESS_KEY_ID
@@ -43,6 +43,17 @@ deploy:
     skip_cleanup: true
     local_dir: dist
     upload-dir: markets
+    on:
+      branch: development
+  
+  # DEVELOPMENT /app deployment for KYC forms
+  - provider: s3
+    bucket: $DEV_BUCKET_NAME
+    access_key_id: $AWS_ACCESS_KEY_ID
+    secret_access_key: $AWS_SECRET_ACCESS_KEY
+    skip_cleanup: true
+    local_dir: dist
+    upload-dir: app
     on:
       branch: development
 
@@ -56,7 +67,6 @@ deploy:
     upload-dir: current/markets
     on:
       branch: master
-      condition: $DEPLOY_ENV = staging
 
   # STAGING_WITH_LANDING deployment
   - provider: s3
@@ -68,7 +78,6 @@ deploy:
     upload-dir: current/app
     on:
       branch: master
-      condition: $DEPLOY_ENV = production
 
   # ALPHA STAGING deployment
   - provider: s3
