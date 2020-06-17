@@ -43,7 +43,7 @@ const Positions = ({
             <tr>
               <td>Position</td>
               <td>Quantity</td>
-              <td>Current Value</td>
+              {/* <td>Current Value</td> */}
               <td>Sell Price</td>
               <td></td>
             </tr>
@@ -81,7 +81,7 @@ const Positions = ({
                       ).div(1e18)
                     )}
                   </td>
-                  <td>
+                  {/* <td>
                     {probabilities &&
                     probabilities[positionGroup.outcomeSet[0].marketIndex] ? (
                       formatCollateral(
@@ -97,7 +97,7 @@ const Positions = ({
                     ) : (
                       <Spinner width={12} height={12} />
                     )}
-                  </td>
+                  </td> */}
                   <td>
                     {estimatedSaleEarnings.length ? (
                       formatCollateral(
