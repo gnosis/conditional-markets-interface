@@ -42,7 +42,7 @@ const Positions = ({
           <thead>
             <tr>
               <td>Position</td>
-              <td>Quantity</td>
+              <td>Outcome Tokens</td>
               {/* <td>Current Value</td> */}
               <td>Sell Price</td>
               <td></td>
