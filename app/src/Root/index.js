@@ -38,8 +38,6 @@ import getConditionalTokensService from "../services/ConditionalTokensService";
 
 const ONBOARDING_MODE = conf.ONBOARDING_MODE;
 
-const SHOW_WHITELIST_HEADER = ONBOARDING_MODE === "WHITELIST";
-
 const SYNC_INTERVAL = 8000;
 const WHITELIST_CHECK_INTERVAL = 30000;
 
@@ -772,12 +770,6 @@ const RootComponent = ({
           {modal}
         </div>
         <div className={cx("app-space", { "modal-open": !!modal })}>
-          {SHOW_WHITELIST_HEADER && (
-            <ApplyBetaHeader
-              openModal={openModal}
-              whitelistState={whitelistState}
-            />
-          )}
           <Header
             avatar={
               <UserWallet
