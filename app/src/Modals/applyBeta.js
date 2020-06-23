@@ -46,14 +46,16 @@ const applyBeta = ({ closeModal, whitelistState }) => {
       <div className={cx("modal-header")}>
         <span className={cx("modal-close")} onClick={closeModal}></span>{" "}
         <img className={cx("modal-header-image")} src={Logo} alt="kyc-logo" />
-        <p>
-          Apply for the <b>closed Beta</b>
-        </p>
+        <p>The Beta is Closed</p>
       </div>
       <div className={cx("modal-body")}>
-        {!whitelistState || whitelistState === "NOT_FOUND"
+        <p>
+          The Sight Beta is closed. Please follow Sight PM twitter on @sightpm
+          for announcements and updates.
+        </p>
+        {/* {!whitelistState || whitelistState === "NOT_FOUND"
           ? getForUnregistered()
-          : getForWaitingVerification()}
+          : getForWaitingVerification()} */}
       </div>
     </div>
   );

@@ -508,10 +508,6 @@ const RootComponent = ({ match, childComponents }) => {
           {modal}
         </div>
         <div className={cx("app-space", { "modal-open": !!modal })}>
-          <ApplyBetaHeader
-            openModal={openModal}
-            whitelistState={whitelistState}
-          />
           <Header
             avatar={
               <UserWallet
