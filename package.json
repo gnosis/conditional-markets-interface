@@ -48,7 +48,7 @@
     "final-form": "^4.20.0",
     "graphql": "^15.1.0",
     "graphql-tag": "^2.10.3",
-    "moment": "^2.26.0",
+    "moment": "^2.29.4",
     "normalize.css": "^8.0.1",
     "openzeppelin-solidity": "^2.4.0",
     "prop-types": "^15.7.2",
